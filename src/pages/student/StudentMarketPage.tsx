@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Sparkles, Filter, ChevronRight } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,16 +23,10 @@ const StudentMarketPage = () => {
     useEffect(() => {
         const fetchTests = async () => {
             try {
-                // 1. First try fetching only published
                 let data = await getAllTestSeries({ status: 'published' });
-                
-                // 2. If no published found, fetch all (for development/testing visibility)
                 if (data.length === 0) {
-                    console.warn("No published series found, fetching all series for visibility.");
                     data = await getAllTestSeries();
                 }
-
-                console.log("Marketplace Data Loaded:", data);
                 setTests(data);
             } catch (error) {
                 console.error("Error fetching test series:", error);
@@ -40,7 +34,6 @@ const StudentMarketPage = () => {
                 setIsLoading(false);
             }
         };
-
         fetchTests();
     }, []);
 
@@ -63,10 +56,9 @@ const StudentMarketPage = () => {
         setEnrollingId(series.id);
         try {
             if (series.pricing?.type === 'paid' && (series.pricing.amount || 0) > 0) {
-                // --- PAID: Open Razorpay ---
                 const res = await loadRazorpay();
                 if (!res) {
-                    alert('Razorpay SDK failed to load. Are you online?');
+                    alert('Razorpay SDK failed to load.');
                     setEnrollingId(null);
                     return;
                 }
@@ -81,29 +73,23 @@ const StudentMarketPage = () => {
                     handler: async function (_response: any) {
                         try {
                             await studentService.enrollInTestSeries(currentUser.uid, series);
-                            alert('Payment Successful! You are now enrolled.');
+                            alert('Success! You are now enrolled.');
                         } catch (err) {
-                            console.error("Enrollment error after payment:", err);
-                            alert("Payment successful but enrollment failed. Please contact support.");
+                            console.error("Enrollment error:", err);
                         }
                     },
                     prefill: {
                         name: currentUser.displayName || 'Student',
-                        email: currentUser.email || 'student@example.com',
-                        contact: ''
+                        email: currentUser.email || 'student@example.com'
                     },
-                    notes: { address: 'Examinant' },
-                    theme: { color: '#3399cc' },
-                    modal: {
-                        ondismiss: () => setEnrollingId(null)
-                    }
+                    theme: { color: '#2563eb' },
+                    modal: { ondismiss: () => setEnrollingId(null) }
                 };
 
                 const paymentObject = new (window as any).Razorpay(options);
                 paymentObject.open();
-                setEnrollingId(null); // reset — modal is open, handler takes over
+                setEnrollingId(null);
             } else {
-                // --- FREE: Direct Enroll ---
                 await addDoc(collection(db, 'users', currentUser.uid, 'purchases'), {
                     seriesId: series.id,
                     testId: series.id,
@@ -114,21 +100,17 @@ const StudentMarketPage = () => {
                     price: 0,
                     purchaseDate: serverTimestamp()
                 });
-                alert('Enrolled successfully! Go to My Tests to start.');
                 setEnrollingId(null);
             }
         } catch (error) {
             console.error("Enrollment failed", error);
-            alert('Failed. Please try again.');
             setEnrollingId(null);
         }
     };
 
     const filteredTests = tests.filter(test => {
-        // Safe access to name/title
         const seriesName = test.name || (test as any).title || '';
         const category = test.examCategory || '';
-
         const matchesSearch = seriesName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             category.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
@@ -136,96 +118,98 @@ const StudentMarketPage = () => {
     });
 
     return (
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                <div>
-                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">Test Series Market</h1>
-                    <p className="text-slate-500 mt-1 font-medium italic">Hand-picked premium series for your success.</p>
+        <div className="max-w-7xl mx-auto space-y-12">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-blue-600 mb-2">
+                        <Sparkles size={20} className="fill-blue-600" />
+                        <span className="text-xs font-black uppercase tracking-[0.2em]">Premium Content</span>
+                    </div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Marketplace</h1>
+                    <p className="text-slate-500 font-medium">Explore hand-crafted test series for your target exams.</p>
                 </div>
+                
                 <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                    <select
-                        value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="px-6 py-3 border-2 border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 bg-white text-slate-700 font-bold shadow-sm transition-all cursor-pointer"
-                    >
-                        <option value="All">All Categories</option>
-                        <option value="NEET">NEET UG</option>
-                        <option value="JEE">JEE Mains/Adv</option>
-                        <option value="SSC">SSC Exams</option>
-                    </select>
-                    <div className="relative flex-1 sm:w-80">
-                        <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+                    <div className="relative group min-w-[200px]">
+                        <Filter size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 text-slate-700 font-bold text-sm shadow-sm transition-all appearance-none cursor-pointer"
+                        >
+                            <option value="All">All Categories</option>
+                            <option value="NEET">NEET UG</option>
+                            <option value="JEE">JEE Mains/Adv</option>
+                            <option value="SSC">SSC Exams</option>
+                        </select>
+                    </div>
+                    <div className="relative flex-1 sm:min-w-[400px] group">
+                        <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                         <input
                             type="text"
-                            placeholder="Find your goal..."
+                            placeholder="Search by exam or subject..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-6 py-3 border-2 border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all font-semibold shadow-sm"
+                            className="w-full pl-14 pr-8 py-4 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 transition-all font-bold text-sm shadow-sm"
                         />
                     </div>
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center py-20">
-                    <Loader2 className="animate-spin text-blue-600" size={40} />
+                <div className="flex justify-center py-32">
+                    <Loader2 className="animate-spin text-blue-600" size={48} />
                 </div>
             ) : filteredTests.length === 0 ? (
-                <div className="text-center py-20 text-slate-500">
-                    No test series found matching your search.
+                <div className="text-center py-32 bg-slate-50 rounded-[48px] border-2 border-dashed border-slate-200">
+                    <div className="w-20 h-20 bg-white rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-sm text-slate-300">
+                        <Search size={40} />
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">No Results Found</h3>
+                    <p className="text-slate-500 font-medium">Try adjusting your filters or search keywords.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {filteredTests.map((series) => {
                         const isOwned = purchasedTestIds.has(series.id);
                         const isBuying = enrollingId === series.id;
                         const isFree = series.pricing?.type === 'free' || !series.pricing?.amount || series.pricing.amount === 0;
-                        const title = series.name;
 
-                        // Build the custom action button
                         const actionButton = isOwned ? (
-                            <button
-                                disabled
-                                className="w-full h-14 rounded-2xl bg-green-500 text-white font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 cursor-default shadow-lg shadow-green-500/20"
-                            >
-                                <span>✓</span> Enrolled
-                            </button>
-                        ) : isBuying ? (
-                            <button
-                                disabled
-                                className="w-full h-14 rounded-2xl bg-orange-400 text-white font-black text-xs uppercase tracking-[0.15em] flex items-center justify-center gap-2 cursor-wait"
-                            >
-                                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                </svg>
-                                {isFree ? 'Enrolling...' : 'Processing...'}
-                            </button>
+                            <div className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-default">
+                                <Sparkles size={16} className="fill-blue-500 text-blue-500" />
+                                Already Enrolled
+                            </div>
                         ) : (
                             <button
                                 onClick={() => handleBuy(series)}
-                                className="w-full relative group/btn overflow-hidden rounded-2xl h-14 bg-gradient-to-r from-orange-500 to-amber-600 shadow-xl shadow-orange-500/10 active:scale-95 transition-all"
+                                disabled={isBuying}
+                                className="w-full group/btn relative h-14 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl overflow-hidden transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait shadow-xl shadow-blue-500/20"
                             >
-                                <span className="relative z-10 flex items-center justify-center gap-2 text-white font-black text-xs uppercase tracking-[0.15em]">
-                                    {isFree ? 'Enroll Now — Free' : `Unlock Series — ₹${series.pricing.amount}`}
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                    </svg>
+                                <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    {isBuying ? (
+                                        <Loader2 className="animate-spin" size={16} />
+                                    ) : (
+                                        <>
+                                            {isFree ? 'Enroll for Free' : `Unlock for ₹${series.pricing.amount}`}
+                                            <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                                        </>
+                                    )}
                                 </span>
-                                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
                             </button>
                         );
 
                         return (
                             <div key={series.id} className="relative">
                                 <TestSeriesCard
-                                    title={title}
+                                    title={series.name}
                                     description={series.description}
                                     isNew={!!(series as any).isNew}
                                     features={(series as any).features || []}
-                                    originalPrice={series.pricing?.type === 'paid' ? `${(series.pricing.amount || 0) * 1.5}` : '0'}
+                                    originalPrice={series.pricing?.type === 'paid' ? `${Math.floor((series.pricing.amount || 0) * 1.5)}` : '0'}
                                     price={series.pricing?.type === 'paid' ? `${series.pricing.amount}` : 'Free'}
-                                    colorTheme="orange"
+                                    colorTheme="blue"
                                     examCategory={series.examCategory}
                                     testCount={(series as any).testIds?.length || 0}
                                     actions={actionButton}
@@ -238,5 +222,6 @@ const StudentMarketPage = () => {
         </div>
     );
 };
+
 export default StudentMarketPage;
 

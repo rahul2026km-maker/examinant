@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Loader2, ChevronDown, ChevronUp, PlayCircle, BookOpen, Award, FileText, Camera } from 'lucide-react';
+import { Clock, Loader2, ChevronDown, PlayCircle, BookOpen, Award, FileText, Zap, Download, Scan, ChevronRight, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase';
-// ... (imports)
 import { collection, onSnapshot, query, where, getDocs, orderBy } from 'firebase/firestore';
 
 interface PurchasedTest {
@@ -45,64 +44,67 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden"
+                        className="bg-white w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden border border-white/20"
                     >
-                        <div className="bg-gradient-to-r from-orange-600 to-amber-500 p-8 text-white relative">
+                        <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                            
                             <button 
                                 onClick={onClose}
-                                className="absolute top-6 right-6 p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                                className="absolute top-8 right-8 p-2 bg-white/10 hover:bg-white/20 rounded-2xl transition-colors z-10"
                             >
-                                <ChevronUp className="rotate-180" size={20} />
+                                <X size={20} />
                             </button>
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-3xl mb-4 backdrop-blur-sm shadow-xl">
-                                    🚀
+
+                            <div className="relative z-10 flex flex-col items-center text-center">
+                                <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-3xl mb-6 shadow-xl shadow-blue-600/30">
+                                    <Zap className="fill-white text-white" />
                                 </div>
-                                <h2 className="text-2xl font-bold mb-1">Choose Attempt Mode</h2>
-                                <p className="text-orange-100 opacity-90 text-sm">{testName}</p>
+                                <h2 className="text-3xl font-black mb-2 tracking-tight">Attempt Mode</h2>
+                                <p className="text-blue-100/60 text-sm font-medium">{testName}</p>
                             </div>
                         </div>
 
-                        <div className="p-8 space-y-4">
+                        <div className="p-10 space-y-4">
                             <button
                                 onClick={() => onConfirm('digital')}
-                                className="w-full group p-5 border-2 border-slate-100 rounded-2xl flex items-center gap-5 hover:border-orange-500 hover:bg-orange-50 transition-all text-left"
+                                className="w-full group p-6 bg-slate-50 border border-slate-100 rounded-[32px] flex items-center gap-6 hover:bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-500/10 transition-all text-left"
                             >
-                                <div className="w-14 h-14 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors">
-                                    <BookOpen size={28} />
+                                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                    <BookOpen size={32} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-slate-800 text-lg">Interactive Digital Mode</h3>
-                                    <p className="text-slate-500 text-sm">Real-time interface with question timer and navigation.</p>
+                                    <h3 className="font-black text-slate-900 text-lg tracking-tight">Interactive Digital</h3>
+                                    <p className="text-slate-500 text-xs font-medium">Real-time interface with automated grading.</p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-all">
-                                    <ChevronUp className="rotate-90" size={16} />
+                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                    <ChevronRight size={20} />
                                 </div>
                             </button>
 
                             <button
                                 onClick={() => onConfirm('omr')}
-                                className="w-full group p-5 border-2 border-slate-100 rounded-2xl flex items-center gap-5 hover:border-amber-500 hover:bg-amber-50 transition-all text-left"
+                                className="w-full group p-6 bg-slate-50 border border-slate-100 rounded-[32px] flex items-center gap-6 hover:bg-white hover:border-indigo-600 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left"
                             >
-                                <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                                    <FileText size={28} />
+                                <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                    <FileText size={32} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-slate-800 text-lg">OMR Sheet Simulation</h3>
-                                    <p className="text-slate-500 text-sm">Bubble sheet simulation with PDF question paper support.</p>
+                                    <h3 className="font-black text-slate-900 text-lg tracking-tight">OMR Simulation</h3>
+                                    <p className="text-slate-500 text-xs font-medium">Bubble sheet practice with PDF support.</p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                                    <ChevronUp className="rotate-90" size={16} />
+                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                    <ChevronRight size={20} />
                                 </div>
                             </button>
 
-                            <p className="text-center text-[11px] text-slate-400 mt-4 uppercase tracking-[0.15em] font-bold">
-                                You can attempt the same test in both modes
+                            <p className="text-center text-[10px] text-slate-400 mt-6 uppercase tracking-[0.2em] font-black">
+                                Multi-mode support enabled for this session
                             </p>
                         </div>
                     </motion.div>
@@ -112,18 +114,23 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
     );
 };
 
+// Dummy X icon for modal
+const X = ({ size }: { size: number }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+);
+
 const SeriesCard = ({ purchase, attemptsMap }: { purchase: PurchasedTest, attemptsMap: Record<string, Attempt[]> }) => {
     const navigate = useNavigate();
     const [tests, setTests] = useState<TestItem[]>([]);
     const [loadingTests, setLoadingTests] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     
-    // Modal State
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
     const [selectedTest, setSelectedTest] = useState<TestItem | null>(null);
 
-
-    // Identify the series ID
     const seriesId = purchase.seriesId || purchase.testId;
     const title = purchase.seriesTitle || purchase.testTitle;
 
@@ -132,11 +139,9 @@ const SeriesCard = ({ purchase, attemptsMap }: { purchase: PurchasedTest, attemp
             if (!seriesId) return;
             setLoadingTests(true);
             try {
-                // Fetch tests belonging to this series
                 const q = query(
                     collection(db, 'tests'),
                     where('seriesId', '==', seriesId)
-                    // orderBy('createdAt', 'asc') // safe to add if index exists, otherwise filtering is enough
                 );
                 const snapshot = await getDocs(q);
                 const fetchedTests = snapshot.docs.map(doc => ({
@@ -145,47 +150,43 @@ const SeriesCard = ({ purchase, attemptsMap }: { purchase: PurchasedTest, attemp
                 })) as TestItem[];
                 setTests(fetchedTests);
             } catch (error) {
-                console.error("Failed to fetch tests for series", seriesId, error);
+                console.error("Failed to fetch tests", error);
             } finally {
                 setLoadingTests(false);
             }
         };
 
-        if (isExpanded) {
-            fetchTests();
-        }
+        if (isExpanded) fetchTests();
     }, [seriesId, isExpanded]);
 
     return (
         <motion.div
             layout
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300"
         >
             <div
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-5 flex items-center justify-between cursor-pointer bg-slate-50/50 hover:bg-slate-50 transition-colors"
+                className="p-8 flex items-center justify-between cursor-pointer group"
             >
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
-                        <BookOpen size={24} />
+                <div className="flex items-center gap-6">
+                    <div className="w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                        <BookOpen size={28} />
                     </div>
                     <div>
-                        <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-bold text-slate-800">{title}</h3>
-                            <span className="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                {purchase.category || 'Series'}
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-black text-slate-900 tracking-tight">{title}</h3>
+                            <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100">
+                                {purchase.category || 'Expert'}
                             </span>
                         </div>
-                        <p className="text-slate-500 text-sm mt-0.5">
-                            Purchased on {purchase.purchaseDate?.toDate().toLocaleDateString()}
+                        <p className="text-slate-400 text-xs font-bold mt-1 uppercase tracking-wider">
+                            Unlocked {purchase.purchaseDate?.toDate().toLocaleDateString()}
                         </p>
                     </div>
                 </div>
-                <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                    {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </button>
+                <div className={`w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 transition-all ${isExpanded ? 'rotate-180 bg-slate-900 text-white' : ''}`}>
+                    <ChevronDown size={20} />
+                </div>
             </div>
 
             <AnimatePresence>
@@ -194,112 +195,92 @@ const SeriesCard = ({ purchase, attemptsMap }: { purchase: PurchasedTest, attemp
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="border-t border-slate-100"
+                        className="bg-slate-50/50"
                     >
-                        {loadingTests ? (
-                            <div className="p-8 flex justify-center">
-                                <Loader2 className="animate-spin text-blue-500" size={24} />
-                            </div>
-                        ) : tests.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500 text-sm">
-                                No tests currently available in this series.
-                            </div>
-                        ) : (
-                            <div className="divide-y divide-slate-100">
-                                {tests.map((test) => {
-                                    const testAttempts = attemptsMap[test.id] || [];
-                                    const hasAttempted = testAttempts.length > 0;
+                        <div className="px-8 pb-8 space-y-4">
+                            {loadingTests ? (
+                                <div className="py-12 flex justify-center">
+                                    <Loader2 className="animate-spin text-blue-600" size={24} />
+                                </div>
+                            ) : tests.length === 0 ? (
+                                <div className="py-12 text-center text-slate-400 font-bold text-sm">
+                                    No modules found in this series.
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {tests.map((test) => {
+                                        const testAttempts = attemptsMap[test.id] || [];
+                                        const hasAttempted = testAttempts.length > 0;
 
-                                    return (
-                                        <div key={test.id} className="p-4 flex flex-col md:flex-row md:items-center justify-between hover:bg-slate-50 transition-colors pl-4 md:pl-20 gap-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className={`p-2 rounded-lg ${hasAttempted ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-500'}`}>
-                                                    {hasAttempted ? <Award size={18} /> : <Clock size={18} />}
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-semibold text-slate-800">{test.name}</h4>
-                                                    <div className="text-xs text-slate-500 flex flex-wrap items-center gap-2 mt-1">
-                                                        <span>{test.settings?.duration || 180} mins</span>
-                                                        <span>•</span>
-                                                        <span>{test.questionIds?.length || test.omrTemplate?.totalQuestions || 0} Questions</span>
-                                                        {(test as any).isOMR && (
-                                                            <>
-                                                                <span className="hidden md:inline">•</span>
-                                                                <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-md font-bold text-[10px] uppercase">📄 OMR</span>
-                                                            </>
-                                                        )}
-                                                        {hasAttempted && (
-                                                            <>
-                                                                <span className="hidden md:inline">•</span>
-                                                                {Math.max(...testAttempts.map(a => a.score)) > 0 ? (
-                                                                    <span className="text-green-600 font-bold bg-green-50 px-2 py-0.5 rounded-full">
-                                                                        Best Score: {Math.max(...testAttempts.map(a => a.score))}
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded-full">
-                                                                        Attempted
-                                                                    </span>
-                                                                )}
-                                                            </>
-                                                        )}
+                                        return (
+                                            <div key={test.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group/item">
+                                                <div className="flex items-center gap-5">
+                                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${hasAttempted ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}`}>
+                                                        {hasAttempted ? <Award size={24} /> : <Target size={24} />}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="font-black text-slate-900 tracking-tight">{test.name}</h4>
+                                                        <div className="flex items-center gap-4 mt-1.5">
+                                                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                                <Clock size={12} />
+                                                                {test.settings?.duration || 180} MINS
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                                                <FileText size={12} />
+                                                                {test.questionIds?.length || 0} Qs
+                                                            </div>
+                                                            {hasAttempted && (
+                                                                <div className="px-2 py-0.5 bg-green-50 text-green-600 rounded-md text-[10px] font-black uppercase tracking-widest">
+                                                                    Best: {Math.max(...testAttempts.map(a => a.score))}%
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="flex items-center gap-2 self-end md:self-auto flex-wrap justify-end">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        window.open(`/dashboard/print-omr/${test.id}`, '_blank');
-                                                    }}
-                                                    className="px-4 py-2 border border-blue-200 text-blue-600 text-sm font-bold rounded-lg hover:bg-blue-50 transition-colors flex items-center gap-2"
-                                                    title="Download Blank OMR Sheet"
-                                                >
-                                                    <FileText size={16} />
-                                                    Download
-                                                </button>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        navigate('/dashboard/omr-scan');
-                                                    }}
-                                                    className="px-4 py-2 border border-amber-200 text-amber-600 text-sm font-bold rounded-lg hover:bg-amber-50 transition-colors flex items-center gap-2"
-                                                    title="Upload Filled OMR"
-                                                >
-                                                    <Camera size={16} />
-                                                    Scan OMR
-                                                </button>
-                                                {hasAttempted && (
+                                                <div className="flex items-center gap-2 flex-wrap lg:justify-end">
                                                     <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            navigate('/dashboard/results');
-                                                        }}
-                                                        className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-100 transition-colors"
+                                                        onClick={() => window.open(`/dashboard/print-omr/${test.id}`, '_blank')}
+                                                        className="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
+                                                        title="Download OMR"
                                                     >
-                                                        View Result
+                                                        <Download size={18} />
                                                     </button>
-                                                )}
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedTest(test);
-                                                        setIsModeModalOpen(true);
-                                                    }}
-                                                    className={`px-4 py-2 text-white text-sm font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm ${hasAttempted
-                                                        ? 'bg-slate-800 hover:bg-slate-900 shadow-slate-500/20'
-                                                        : 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/20'
-                                                        }`}
-                                                >
-                                                    <PlayCircle size={16} />
-                                                    {hasAttempted ? 'Re-Attempt' : 'Start Test'}
-                                                </button>
+                                                    <button
+                                                        onClick={() => navigate('/dashboard/omr-scan')}
+                                                        className="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all"
+                                                        title="Scan OMR"
+                                                    >
+                                                        <Scan size={18} />
+                                                    </button>
+                                                    {hasAttempted && (
+                                                        <button
+                                                            onClick={() => navigate('/dashboard/results')}
+                                                            className="px-5 py-3 bg-slate-50 text-slate-900 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-slate-900 hover:text-white transition-all"
+                                                        >
+                                                            Analysis
+                                                        </button>
+                                                    )}
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedTest(test);
+                                                            setIsModeModalOpen(true);
+                                                        }}
+                                                        className={`px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center gap-2 ${hasAttempted
+                                                            ? 'bg-slate-900 text-white hover:bg-blue-600'
+                                                            : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/20'
+                                                            }`}
+                                                    >
+                                                        <PlayCircle size={16} />
+                                                        {hasAttempted ? 'Re-Take' : 'Begin Test'}
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
                     </motion.div>
                 )}
 
@@ -331,7 +312,6 @@ const StudentTestsPage = () => {
 
     useEffect(() => {
         if (currentUser) {
-            // Fetch Purchases
             const unsubscribePurchases = onSnapshot(collection(db, 'users', currentUser.uid, 'purchases'), (snapshot) => {
                 const tests = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -341,7 +321,6 @@ const StudentTestsPage = () => {
                 setIsLoading(false);
             });
 
-            // Fetch Attempts
             const unsubscribeAttempts = onSnapshot(
                 query(collection(db, 'users', currentUser.uid, 'attempts'), orderBy('attemptDate', 'desc')),
                 (snapshot) => {
@@ -350,7 +329,6 @@ const StudentTestsPage = () => {
                         ...doc.data()
                     })) as Attempt[];
 
-                    // Group by testId
                     const map: Record<string, Attempt[]> = {};
                     attempts.forEach(attempt => {
                         if (!map[attempt.testId]) map[attempt.testId] = [];
@@ -377,42 +355,41 @@ const StudentTestsPage = () => {
 
     return (
         <motion.div
-            className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-8"
+            className="max-w-7xl mx-auto space-y-12"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
         >
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">My Test Series</h1>
-                    <p className="text-slate-500 mt-1">Access your purchased content and start practicing.</p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-2">
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Your Library</h1>
+                    <p className="text-slate-500 font-medium">Manage your test series and track your progress.</p>
                 </div>
                 <button
                     onClick={() => navigate('/dashboard/market')}
-                    className="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-colors"
+                    className="btn-primary-premium"
                 >
-                    Browse Market
+                    Browse Marketplace
                 </button>
             </div>
 
-            {/* Active Series List */}
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {isLoading ? (
-                    <div className="flex justify-center py-8">
-                        <Loader2 className="animate-spin text-blue-600" size={30} />
+                    <div className="flex justify-center py-20">
+                        <Loader2 className="animate-spin text-blue-600" size={40} />
                     </div>
                 ) : purchasedTests.length === 0 ? (
-                    <div className="text-center py-20 bg-slate-50 rounded-3xl border border-dashed border-slate-300">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
-                            <BookOpen size={30} />
+                    <div className="text-center py-32 bg-slate-50 rounded-[48px] border-2 border-dashed border-slate-200">
+                        <div className="w-20 h-20 bg-white rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-sm text-slate-300">
+                            <BookOpen size={40} />
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 mb-2">No Series Purchased</h3>
-                        <p className="text-slate-500 mb-6 max-w-md mx-auto">
-                            You haven't enrolled in any test series yet. Visit the market to find high-quality tests for your preparation.
+                        <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">No Test Series Found</h3>
+                        <p className="text-slate-500 mb-10 max-w-sm mx-auto font-medium">
+                            Your library is currently empty. Start your journey by choosing a test series from our market.
                         </p>
                         <button
                             onClick={() => navigate('/dashboard/market')}
-                            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                            className="btn-primary-premium"
                         >
                             Explore Market
                         </button>

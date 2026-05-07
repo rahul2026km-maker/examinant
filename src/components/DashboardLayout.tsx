@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
     BookOpen,
@@ -9,12 +10,13 @@ import {
     FileText,
     Users,
     Menu,
-    X,
     Bell,
     BookMarked,
     FolderTree,
     Award,
-    ListChecks
+    ListChecks,
+    Search,
+    ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -45,8 +47,6 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         { icon: <BookOpen size={20} />, label: 'My Tests', path: '/dashboard/tests' },
         { icon: <Award size={20} />, label: 'Test Results', path: '/dashboard/results' },
         { icon: <FileText size={20} />, label: 'Buy Series', path: '/dashboard/market' },
-        // { icon: <Database size={20} />, label: 'PYQs', path: '/dashboard/pyqs' },
-        // { icon: <BookOpen size={20} />, label: 'Resources', path: '/dashboard/resources' },
         { icon: <TrendingUp size={20} />, label: 'Analytics', path: '/dashboard/analytics' },
     ];
 
@@ -55,7 +55,6 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         { icon: <ListChecks size={20} />, label: 'Test Series', path: '/admin-dashboard/test-series' },
         { icon: <BookMarked size={20} />, label: 'Question Bank', path: '/admin-dashboard/question-bank' },
         { icon: <FolderTree size={20} />, label: 'Chapters', path: '/admin-dashboard/chapters' },
-        // { icon: <BookOpen size={20} />, label: 'Manage Tests', path: '/admin-dashboard/tests' },
         { icon: <FileText size={20} />, label: 'Manage PYQs', path: '/admin-dashboard/pyqs' },
         { icon: <Award size={20} />, label: 'Subjects', path: '/admin-dashboard/subjects' },
         { icon: <BookOpen size={20} />, label: 'Resources', path: '/admin-dashboard/resources' },
@@ -65,87 +64,72 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
 
     const links = role === 'admin' ? adminLinks : studentLinks;
 
-    // Determine theme based on role or globally (For now enforcing Dark for Admin as requested, but Layout wraps both. 
-    // We'll apply Dark Theme generally as the user implies a system-wide design change or at least for the Admin view).
-    // The screenshot implies a global dark theme app.
-    const isDarkTheme = false; // Could be a prop or context later.
-
     return (
-        <div className={`min-h-screen flex ${isDarkTheme ? 'bg-[#0B0F19] text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="min-h-screen flex bg-[#f8fafc] text-slate-900 font-sans">
             {/* Mobile Sidebar Overlay */}
-            {isSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-slate-900/40 z-40 md:hidden backdrop-blur-[2px]"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed md:sticky top-0 h-screen w-72 
-                    ${isDarkTheme ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'}
-                    border-r z-50 transition-transform duration-300 ease-in-out
+                    fixed md:sticky top-0 h-screen w-72 bg-white border-r border-slate-100 z-50 transition-all duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                     flex flex-col shadow-2xl md:shadow-none print:hidden
                 `}
             >
                 {/* Logo Area */}
-                <div className="px-6 py-8 flex items-center gap-3">
-                    <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-amber-600 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-200"></div>
-                        <img src={logo} alt="Logo" className={`relative w-10 h-10 rounded-xl shadow-lg p-1 ${isDarkTheme ? 'bg-[#0B0F19]' : 'bg-white'}`} />
+                <div className="px-8 py-8 flex items-center gap-3">
+                    <div className="p-2 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
+                        <img src={logo} alt="Logo" className="w-8 h-8 rounded-lg brightness-0 invert" />
                     </div>
                     <div>
-                        <h2 className={`text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r ${isDarkTheme ? 'from-white to-slate-400' : 'from-slate-800 to-slate-600'} tracking-tight`}>
+                        <h2 className="text-xl font-black text-slate-900 tracking-tight font-heading">
                             Examinantt
                         </h2>
-                        <p className={`text-[10px] uppercase tracking-widest font-bold ${isDarkTheme ? 'text-slate-500' : 'text-slate-400'}`}>
-                            {role === 'admin' ? 'Admin Portal' : 'Student Portal'}
+                        <p className="text-[10px] uppercase tracking-widest font-black text-blue-600">
+                            {role === 'admin' ? 'Admin' : 'Student'} Hub
                         </p>
                     </div>
-                    <button
-                        onClick={() => setIsSidebarOpen(false)}
-                        className={`ml-auto md:hidden p-2 rounded-lg transition-colors ${isDarkTheme ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
-                    >
-                        <X size={20} />
-                    </button>
                 </div>
 
-                {/* Separator */}
-                <div className={`h-px bg-gradient-to-r from-transparent ${isDarkTheme ? 'via-slate-800' : 'via-slate-200'} to-transparent mx-6 mb-4`}></div>
-
                 {/* Navigation */}
-                <nav className="flex-1 px-4 space-y-2 overflow-y-auto scrollbar-hide py-2">
+                <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto py-4 scrollbar-hide">
                     {links.map((link) => (
                         <NavLink
                             key={link.path}
                             to={link.path}
                             onClick={() => setIsSidebarOpen(false)}
                             className={({ isActive }) => `
-                                relative group flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 font-medium overflow-hidden
+                                relative group flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-300 font-bold text-sm
                                 ${isActive
-                                    ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg shadow-orange-500/20 translate-x-1'
-                                    : `${isDarkTheme ? 'text-slate-400 hover:bg-slate-800/50 hover:text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-orange-600'} hover:translate-x-1`
+                                    ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                 }
                             `}
                         >
                             {({ isActive }) => (
                                 <>
-                                    {/* Active State Glow */}
-                                    {isActive && (
-                                        <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-transparent mix-blend-overlay"></div>
-                                    )}
-
-                                    <span className={`relative z-10 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                    <span className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
                                         {link.icon}
                                     </span>
-                                    <span className="relative z-10">{link.label}</span>
-
-                                    {/* Active Indicator Dot */}
+                                    <span className="flex-1">{link.label}</span>
                                     {isActive && (
-                                        <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full shadow-sm animate-pulse"></div>
+                                        <motion.div 
+                                            layoutId="activeNavIndicator"
+                                            className="absolute right-3 w-1.5 h-1.5 bg-blue-500 rounded-full" 
+                                        />
                                     )}
+                                    <ChevronRight size={14} className={`opacity-0 transition-all ${!isActive && 'group-hover:opacity-100 group-hover:translate-x-1'}`} />
                                 </>
                             )}
                         </NavLink>
@@ -153,48 +137,57 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 </nav>
 
                 {/* Sidebar Footer */}
-                <div className="p-4 mt-auto">
-                    <div className={`p-4 rounded-2xl border backdrop-blur-sm ${isDarkTheme ? 'bg-slate-800/20 border-slate-800' : 'bg-slate-50/50 border-slate-100'}`}>
-                        <button
-                            onClick={handleLogout}
-                            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-all duration-300 font-semibold group shadow-sm ${isDarkTheme ? 'text-red-400 hover:text-white hover:bg-red-500/20' : 'text-red-600 hover:text-white hover:bg-red-500'} hover:shadow-lg`}
-                        >
-                            <LogOut size={18} className="transition-transform group-hover:-translate-x-1" />
-                            <span>Sign Out</span>
-                        </button>
-                    </div>
+                <div className="p-6 border-t border-slate-50">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center justify-center gap-3 px-5 py-4 rounded-2xl bg-slate-50 text-slate-600 font-bold text-sm hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
+                    >
+                        <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
+                        <span>Logout</span>
+                    </button>
                 </div>
             </aside>
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header */}
-                <header className={`sticky top-0 z-30 px-6 py-4 flex items-center justify-between border-b ${isDarkTheme ? 'bg-[#0B0F19]/80 border-slate-800 backdrop-blur-md' : 'bg-white border-slate-200'} print:hidden`}>
-                    <div className="flex items-center gap-4">
+                <header className="sticky top-0 z-30 px-8 py-5 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-slate-100 print:hidden">
+                    <div className="flex items-center gap-6">
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className={`md:hidden p-1 rounded-lg ${isDarkTheme ? 'text-slate-400 hover:text-white bg-slate-800' : 'text-slate-500 hover:text-slate-700 bg-slate-100'}`}
+                            className="md:hidden p-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100"
                         >
-                            <Menu size={24} />
+                            <Menu size={20} />
                         </button>
-                        <div>
-                            <h1 className={`text-xl font-bold hidden sm:block ${isDarkTheme ? 'text-white' : 'text-slate-800'}`}>
-                                {role === 'admin' ? 'Admin Portal' : 'Student Dashboard'}
-                            </h1>
+                        
+                        <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100 w-80">
+                            <Search size={18} className="text-slate-400" />
+                            <input 
+                                type="text" 
+                                placeholder="Search everything..." 
+                                className="bg-transparent border-none outline-none text-sm font-medium w-full placeholder:text-slate-400"
+                            />
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <button className={`relative p-2 rounded-full transition-colors ${isDarkTheme ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}>
+                    <div className="flex items-center gap-5">
+                        <button className="relative p-3 rounded-2xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all">
                             <Bell size={20} />
-                            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-inherit"></span>
+                            <span className="absolute top-3 right-3 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white"></span>
                         </button>
-                        <div className={`flex items-center gap-3 pl-4 border-l ${isDarkTheme ? 'border-slate-800' : 'border-slate-200'}`}>
+                        
+                        <div className="h-8 w-px bg-slate-100 mx-1"></div>
+                        
+                        <div className="flex items-center gap-4">
                             <div className="text-right hidden sm:block">
-                                <p className={`text-sm font-semibold leading-none ${isDarkTheme ? 'text-white' : 'text-slate-700'}`}>{currentUser?.displayName || 'User'}</p>
-                                <p className={`text-xs mt-1 ${isDarkTheme ? 'text-slate-500' : 'text-slate-500'}`}>{role === 'admin' ? 'Administrator' : 'Student'}</p>
+                                <p className="text-sm font-black text-slate-900 leading-none">
+                                    {currentUser?.displayName || 'Student'}
+                                </p>
+                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">
+                                    {role === 'admin' ? 'Administrator' : 'Premium Student'}
+                                </p>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-bold shadow-md shadow-orange-500/20 ring-2 ring-white/10">
+                            <div className="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-slate-900/10">
                                 {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
                             </div>
                         </div>
@@ -202,8 +195,14 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-x-hidden pt-4">
-                    {children}
+                <main className="flex-1 px-8 py-10 overflow-x-hidden">
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4 }}
+                    >
+                        {children}
+                    </motion.div>
                 </main>
             </div>
         </div>
@@ -211,3 +210,4 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
 };
 
 export default DashboardLayout;
+

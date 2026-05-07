@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, FileText, Video, ExternalLink, Loader2, BookOpen, Lock } from 'lucide-react';
+import { Search, FileText, ExternalLink, Loader2, BookOpen, Lock, Sparkles, ChevronRight, PlayCircle } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
@@ -32,27 +32,23 @@ const StudentResourcesPage = () => {
     useEffect(() => {
         if (!currentUser) return;
 
-        // Fetch purchases
         const purchasesRef = collection(db, 'users', currentUser.uid, 'purchases');
         const unsubscribePurchases = onSnapshot(purchasesRef, (snapshot) => {
             const ids = new Set(snapshot.docs.map(doc => doc.data().itemId));
             setPurchasedIds(ids);
         });
 
-        // Fetch resources
-        const q = query(collection(db, 'resources')); // Removed orderBy
+        const q = query(collection(db, 'resources'));
         const unsubscribeResources = onSnapshot(q, (snapshot) => {
             const fetchedResources = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             })) as Resource[];
-            console.log("Fetched Resources:", fetchedResources.length);
             setResources(fetchedResources);
             setIsLoading(false);
         }, (error) => {
             console.error("Resources subscription error:", error);
             setIsLoading(false);
-            alert("Error loading Resources: " + error.message);
         });
 
         return () => {
@@ -67,7 +63,7 @@ const StudentResourcesPage = () => {
         try {
             const res = await loadRazorpay();
             if (!res) {
-                alert('Razorpay SDK failed to load. Are you online?');
+                alert('Razorpay SDK failed to load.');
                 setBuyingId(null);
                 return;
             }
@@ -87,25 +83,21 @@ const StudentResourcesPage = () => {
                             price: resource.price || 0,
                             type: 'resource'
                         });
-                        alert("Unlocked successfully!");
-                        // onSnapshot will handle the UI update automatically
                     } catch (err) {
-                        console.error("Enrollment error after payment:", err);
-                        alert("Payment successful but enrollment failed. Please contact support.");
+                        console.error("Enrollment error:", err);
                     }
                 },
                 prefill: {
                     name: currentUser.displayName || 'Student',
                     email: currentUser.email || '',
                 },
-                theme: { color: '#3399cc' }
+                theme: { color: '#2563eb' }
             };
 
             const paymentObject = new (window as any).Razorpay(options);
             paymentObject.open();
         } catch (error) {
-            console.error("Payment flow failed:", error);
-            alert("Failed to initiate payment. Please try again.");
+            console.error("Payment failed:", error);
         } finally {
             setBuyingId(null);
         }
@@ -122,9 +114,9 @@ const StudentResourcesPage = () => {
 
     const getIcon = (type: string) => {
         switch (type) {
-            case 'pdf': return <FileText size={24} className="text-red-500" />;
-            case 'video': return <Video size={24} className="text-blue-500" />;
-            default: return <ExternalLink size={24} className="text-emerald-500" />;
+            case 'pdf': return <FileText size={22} />;
+            case 'video': return <PlayCircle size={22} />;
+            default: return <ExternalLink size={22} />;
         }
     };
 
@@ -143,61 +135,66 @@ const StudentResourcesPage = () => {
 
     return (
         <motion.div
-            className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-8"
+            className="max-w-7xl mx-auto space-y-12"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
         >
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Study Resources</h1>
-                    <p className="text-slate-500 mt-1">Access notes, video lectures, and reference materials.</p>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-blue-600 mb-2">
+                        <Sparkles size={20} className="fill-blue-600" />
+                        <span className="text-xs font-black uppercase tracking-[0.2em]">Curated Resources</span>
+                    </div>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Vault</h1>
+                    <p className="text-slate-500 font-medium">Access exclusive notes, video lectures, and premium materials.</p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                    <div className="relative group">
+                        <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Find topics..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full sm:w-80 pl-14 pr-8 py-4 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 transition-all font-bold text-sm shadow-sm"
+                        />
+                    </div>
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                <div className="relative flex-1">
-                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Search topics, notes..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
-                    />
-                </div>
-                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setSelectedCategory(cat)}
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${selectedCategory === cat
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-                                }`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
+            {/* Category Chips */}
+            <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                {categories.map(cat => (
+                    <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap transition-all duration-300 border ${selectedCategory === cat
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-xl'
+                            : 'bg-white text-slate-500 border-slate-100 hover:border-blue-600 hover:text-blue-600'
+                            }`}
+                    >
+                        {cat}
+                    </button>
+                ))}
             </div>
 
             {/* Resources Grid */}
             {isLoading ? (
-                <div className="flex justify-center py-20">
-                    <Loader2 className="animate-spin text-blue-600" size={40} />
+                <div className="flex justify-center py-32">
+                    <Loader2 className="animate-spin text-blue-600" size={48} />
                 </div>
             ) : filteredResources.length === 0 ? (
-                <div className="text-center py-20">
-                    <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <BookOpen size={32} className="text-slate-300" />
+                <div className="text-center py-32 bg-slate-50 rounded-[48px] border-2 border-dashed border-slate-200">
+                    <div className="w-20 h-20 bg-white rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-sm text-slate-300">
+                        <BookOpen size={40} />
                     </div>
-                    <h3 className="text-lg font-bold text-slate-700">No resources found</h3>
-                    <p className="text-slate-500 text-sm">Try adjusting your search or filters.</p>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">Empty Vault</h3>
+                    <p className="text-slate-500 font-medium">No resources found matching your current filter.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                     {filteredResources.map((resource) => {
                         const isUnlocked = resource.isFree || purchasedIds.has(resource.id);
                         const price = resource.price || 0;
@@ -206,25 +203,26 @@ const StudentResourcesPage = () => {
                             <motion.div
                                 key={resource.id}
                                 variants={itemVariants}
-                                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden flex flex-col"
+                                className="group relative bg-white rounded-[40px] p-8 border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500 flex flex-col"
                             >
-                                <div className={`absolute top-0 right-0 px-3 py-1 bg-${isUnlocked ? 'green' : 'amber'}-100 text-${isUnlocked ? 'green' : 'amber'}-700 text-xs font-bold rounded-bl-xl`}>
-                                    {resource.isFree ? 'FREE' : isUnlocked ? 'ACTIVE' : `₹${price}`}
-                                </div>
-
-                                <div className="flex items-start gap-4 mb-4">
-                                    <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-blue-50 transition-colors">
+                                <div className="flex justify-between items-start mb-8">
+                                    <div className={`w-14 h-14 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white`}>
                                         {getIcon(resource.type)}
                                     </div>
-                                    <div>
-                                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{resource.category}</span>
-                                        <h3 className="font-bold text-slate-800 line-clamp-2 mt-1">{resource.title}</h3>
+                                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${isUnlocked ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'}`}>
+                                        {resource.isFree ? 'Public' : isUnlocked ? 'Unlocked' : `₹${price}`}
                                     </div>
                                 </div>
 
-                                <p className="text-slate-500 text-sm mb-6 line-clamp-3 h-10">
-                                    {resource.description}
-                                </p>
+                                <div className="space-y-3 mb-8">
+                                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{resource.category}</div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight leading-tight group-hover:text-blue-600 transition-colors">
+                                        {resource.title}
+                                    </h3>
+                                    <p className="text-sm font-medium text-slate-500 leading-relaxed line-clamp-3">
+                                        {resource.description}
+                                    </p>
+                                </div>
 
                                 <div className="mt-auto">
                                     {isUnlocked ? (
@@ -232,19 +230,25 @@ const StudentResourcesPage = () => {
                                             href={resource.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all group-hover:shadow-lg group-hover:shadow-blue-500/20"
+                                            className="w-full flex items-center justify-between px-8 py-5 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-3xl hover:bg-blue-600 transition-all duration-300"
                                         >
-                                            {resource.type === 'video' ? 'Watch Video' : resource.type === 'pdf' ? 'Open PDF' : 'Visit Link'}
-                                            <ExternalLink size={16} />
+                                            <span>
+                                                {resource.type === 'video' ? 'Play Lecture' : resource.type === 'pdf' ? 'Download PDF' : 'Visit Resource'}
+                                            </span>
+                                            <ChevronRight size={18} />
                                         </a>
                                     ) : (
                                         <button
                                             onClick={() => handleBuy(resource)}
                                             disabled={buyingId === resource.id}
-                                            className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-70"
+                                            className="w-full group/btn relative flex items-center justify-between px-8 py-5 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-3xl overflow-hidden transition-all active:scale-95 shadow-xl shadow-blue-500/20"
                                         >
-                                            {buyingId === resource.id ? <Loader2 className="animate-spin" size={18} /> : <Lock size={18} />}
-                                            Unlock Premium
+                                            <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                            <span className="relative z-10 flex items-center gap-2">
+                                                {buyingId === resource.id ? <Loader2 className="animate-spin" size={16} /> : <Lock size={16} />}
+                                                Unlock Item
+                                            </span>
+                                            <ChevronRight size={18} className="relative z-10 group-hover/btn:translate-x-1 transition-transform" />
                                         </button>
                                     )}
                                 </div>

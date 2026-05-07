@@ -1,12 +1,13 @@
 import { useContext, useState, useEffect, createContext, type ReactNode } from 'react';
 import { auth, db } from '../firebase';
-import { type User, onAuthStateChanged } from 'firebase/auth';
+import { type User, onAuthStateChanged, sendPasswordResetEmail } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
     currentUser: User | null;
     loading: boolean;
     userRole: 'student' | 'admin' | null;
+    resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +20,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [userRole, setUserRole] = useState<'student' | 'admin' | null>(null);
     const [loading, setLoading] = useState(true);
+
+    const resetPassword = (email: string) => {
+        return sendPasswordResetEmail(auth, email);
+    };
 
     useEffect(() => {
         if (!auth) {
@@ -57,7 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const value = {
         currentUser,
         loading,
-        userRole
+        userRole,
+        resetPassword
     };
 
     return (

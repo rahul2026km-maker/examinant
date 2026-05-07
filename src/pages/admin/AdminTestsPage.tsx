@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Trash2, X, Save, Loader2, List, FileText } from 'lucide-react';
+import { Plus, Search, Trash2, X, Save, Loader2, List, FileText, Sparkles, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, getDocs } from 'firebase/firestore';
@@ -51,7 +51,7 @@ const AdminTestsPage = () => {
         category: 'JEE',
         price: '',
         description: '',
-        status: 'draft' as const,
+        status: 'draft' as 'draft' | 'published',
         testPattern: 'CUSTOM' as 'JEE_MAINS' | 'NEET' | 'CUSTOM',
         duration: 180 // 3 hours default
     });
@@ -59,11 +59,13 @@ const AdminTestsPage = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+    const [isDeletingLoading, setIsDeletingLoading] = useState(false);
 
-    // Topic-based test creation state
-    const [topics, setTopics] = useState<any[]>([]);
+    // Chapter-based test creation state
+    const [chapters, setChapters] = useState<any[]>([]);
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-    const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+    const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
     const [customQuestionCount, setCustomQuestionCount] = useState(30);
     const [mcqPercentage, setMcqPercentage] = useState(70);
 
@@ -81,17 +83,21 @@ const AdminTestsPage = () => {
         return () => unsubscribe();
     }, []);
 
-    // Fetch topics for topic-based test creation
+    // Fetch chapters for chapter-based test creation
     useEffect(() => {
-        const fetchTopics = async () => {
-            const topicsSnapshot = await getDocs(collection(db, 'topics'));
-            const topicsData = topicsSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setTopics(topicsData);
+        const fetchChapters = async () => {
+            try {
+                const chaptersSnapshot = await getDocs(collection(db, 'chapters'));
+                const chaptersData = chaptersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setChapters(chaptersData);
+            } catch (error) {
+                console.error("Error fetching chapters:", error);
+            }
         };
-        fetchTopics();
+        fetchChapters();
     }, []);
 
 
@@ -194,38 +200,38 @@ const AdminTestsPage = () => {
         try {
             const result = await generateTestFromTopics({
                 subjects: selectedSubjects,
-                topics: selectedTopics,
+                topics: selectedChapters, // We pass chapter names here
                 questionCount: customQuestionCount,
                 mcqPercentage: mcqPercentage
             });
 
-            setGeneratedQuestions(result.questions);
-
-            if (result.warnings.length > 0) {
-                alert(`Test generated with warnings:\n${result.warnings.join('\n')}`);
+            if (result.questions.length === 0) {
+                alert('No questions found for the selected chapters. Please ensure questions are uploaded in the Question Bank for these chapters.');
+                return;
             }
 
+            setGeneratedQuestions(result.questions);
             setShowPreview(true);
         } catch (error) {
-            console.error('Error generating test from topics:', error);
+            console.error('Error generating test:', error);
             alert('Failed to generate test. Please ensure you have uploaded sufficient questions.');
         } finally {
             setIsGenerating(false);
         }
     };
 
+
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this test series?')) {
-            try {
-                // Ideally this should have a loading state too, but since it's inline confirm, 
-                // we mostly need the delay for visual feedback if we had a better modal.
-                // Adding simple delay before optimistic update (if any) or reload.
-                // For now, just standard delete logic, but let's delay to mimic processing.
-                // (Note: UI might not show loading spinner for this specific button unless we track deletingId)
-                await deleteDoc(doc(db, 'testSeries', id));
-            } catch (error) {
-                console.error("Error deleting test:", error);
-            }
+        setIsDeletingLoading(true);
+        try {
+            await delay(800); // Artificial delay for better UX
+            await deleteDoc(doc(db, 'testSeries', id));
+            setConfirmDeleteId(null);
+        } catch (error) {
+            console.error("Error deleting test:", error);
+            alert("Failed to delete test series. Please try again.");
+        } finally {
+            setIsDeletingLoading(false);
         }
     };
 
@@ -517,14 +523,14 @@ const AdminTestsPage = () => {
                                                         <div className="w-full h-full rounded-full bg-white scale-50"></div>
                                                     )}
                                                 </div>
-                                                <span className="font-semibold text-sm">Custom Topics</span>
+                                                <span className="font-semibold text-sm">Custom Chapters</span>
                                             </div>
-                                            <p className="text-xs text-slate-500 text-left">Select subjects & topics</p>
+                                            <p className="text-xs text-slate-500 text-left">Select subjects & chapters</p>
                                         </button>
                                     </div>
 
                                     {/* Custom Test Configuration */}
-                                    {formData.testPattern === 'CUSTOM' && topics.length > 0 && (
+                                    {formData.testPattern === 'CUSTOM' && chapters.length > 0 && (
                                         <motion.div
                                             initial={{ opacity: 0, height: 0 }}
                                             animate={{ opacity: 1, height: 'auto' }}
@@ -556,30 +562,34 @@ const AdminTestsPage = () => {
                                                 </div>
                                             </div>
 
-                                            {/* Topic Selection */}
+                                            {/* Chapter Selection */}
                                             {selectedSubjects.length > 0 && (
                                                 <div>
                                                     <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                                        Select Topics (Optional - leave empty for all topics)
+                                                        Select Chapters (Optional - leave empty for all chapters)
                                                     </label>
-                                                    <select
-                                                        multiple
-                                                        value={selectedTopics}
-                                                        onChange={e => {
-                                                            const selected = Array.from(e.target.selectedOptions, option => option.value);
-                                                            setSelectedTopics(selected);
-                                                        }}
-                                                        className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white max-h-32"
-                                                    >
-                                                        {topics
-                                                            .filter(t => selectedSubjects.includes(t.subject))
-                                                            .map(topic => (
-                                                                <option key={topic.id} value={topic.id}>
-                                                                    {topic.name} ({topic.subject})
-                                                                </option>
+                                                    <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto p-2 bg-white border border-slate-200 rounded-lg">
+                                                        {chapters
+                                                            .filter(c => selectedSubjects.includes(c.subject))
+                                                            .map(chapter => (
+                                                                <label key={chapter.id} className="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={selectedChapters.includes(chapter.name)}
+                                                                        onChange={e => {
+                                                                            if (e.target.checked) {
+                                                                                setSelectedChapters(prev => [...prev, chapter.name]);
+                                                                            } else {
+                                                                                setSelectedChapters(prev => prev.filter(name => name !== chapter.name));
+                                                                            }
+                                                                        }}
+                                                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                                    />
+                                                                    <span className="text-sm text-slate-700">{chapter.name}</span>
+                                                                    <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 ml-auto">{chapter.subject}</span>
+                                                                </label>
                                                             ))}
-                                                    </select>
-                                                    <p className="text-xs text-slate-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
+                                                    </div>
                                                 </div>
                                             )}
 
@@ -590,15 +600,15 @@ const AdminTestsPage = () => {
                                                 </label>
                                                 <input
                                                     type="range"
-                                                    min="10"
-                                                    max="100"
+                                                    min="1"
+                                                    max="200"
                                                     value={customQuestionCount}
                                                     onChange={e => setCustomQuestionCount(Number(e.target.value))}
-                                                    className="w-full"
+                                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                                 />
                                                 <div className="flex justify-between text-xs text-slate-500 mt-1">
-                                                    <span>10</span>
-                                                    <span>100</span>
+                                                    <span>1</span>
+                                                    <span>200</span>
                                                 </div>
                                             </div>
 
@@ -611,14 +621,41 @@ const AdminTestsPage = () => {
                                                     type="range"
                                                     min="0"
                                                     max="100"
-                                                    step="10"
+                                                    step="5"
                                                     value={mcqPercentage}
                                                     onChange={e => setMcqPercentage(Number(e.target.value))}
-                                                    className="w-full"
+                                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                                                 />
                                                 <div className="flex justify-between text-xs text-slate-500 mt-1">
                                                     <span>All Numerical</span>
                                                     <span>All MCQ</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Status Selection */}
+                                            <div>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-2">Initial Status</label>
+                                                <div className="flex gap-4">
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input 
+                                                            type="radio" 
+                                                            name="status" 
+                                                            checked={formData.status === 'published'}
+                                                            onChange={() => setFormData({...formData, status: 'published'})}
+                                                            className="w-4 h-4 text-blue-600"
+                                                        />
+                                                        <span className="text-sm font-medium text-slate-700">Published</span>
+                                                    </label>
+                                                    <label className="flex items-center gap-2 cursor-pointer">
+                                                        <input 
+                                                            type="radio" 
+                                                            name="status" 
+                                                            checked={formData.status === 'draft'}
+                                                            onChange={() => setFormData({...formData, status: 'draft'})}
+                                                            className="w-4 h-4 text-blue-600"
+                                                        />
+                                                        <span className="text-sm font-medium text-slate-700">Draft</span>
+                                                    </label>
                                                 </div>
                                             </div>
 
@@ -627,16 +664,17 @@ const AdminTestsPage = () => {
                                                 type="button"
                                                 onClick={handleGenerateFromTopics}
                                                 disabled={selectedSubjects.length === 0 || isGenerating}
-                                                className="w-full py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                             >
                                                 {isGenerating ? (
                                                     <>
                                                         <Loader2 className="animate-spin" size={18} />
-                                                        Generating...
+                                                        Generating Questions...
                                                     </>
                                                 ) : (
                                                     <>
-                                                        Generate Questions
+                                                        <Sparkles size={18} />
+                                                        Generate & Preview Questions
                                                     </>
                                                 )}
                                             </button>
@@ -875,6 +913,55 @@ const AdminTestsPage = () => {
                             </div>
                         </motion.div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {confirmDeleteId && (
+                    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6"
+                        >
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                                    <AlertTriangle className="text-red-600" size={32} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-800">Delete Test?</h3>
+                                    <p className="text-slate-500 mt-2">
+                                        Are you sure you want to delete this test? This action cannot be undone.
+                                    </p>
+                                </div>
+                                <div className="flex gap-3 w-full pt-4">
+                                    <button
+                                        onClick={() => setConfirmDeleteId(null)}
+                                        disabled={isDeletingLoading}
+                                        className="flex-1 px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(confirmDeleteId)}
+                                        disabled={isDeletingLoading}
+                                        className="flex-1 px-6 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 disabled:bg-red-400 flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                                    >
+                                        {isDeletingLoading ? (
+                                            <>
+                                                <Loader2 className="animate-spin" size={18} />
+                                                Deleting...
+                                            </>
+                                        ) : (
+                                            'Delete Now'
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
         </motion.div>

@@ -42,9 +42,9 @@ const Footer = () => {
                             <h4 className="text-white font-semibold mb-6">Company</h4>
                             <ul className="space-y-4">
                                 <li><Link to="/about" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">About Us</Link></li>
-                                <li><Link to="/contact" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Contact</Link></li>
-                                <li><Link to="/careers" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Careers</Link></li>
-                                <li><Link to="/partners" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Partners</Link></li>
+                                <li><Link to="/signup" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Contact</Link></li>
+                                <li><Link to="/" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Careers</Link></li>
+                                <li><Link to="/" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Partners</Link></li>
                             </ul>
                         </div>
 
@@ -52,10 +52,10 @@ const Footer = () => {
                         <div>
                             <h4 className="text-white font-semibold mb-6">Resources</h4>
                             <ul className="space-y-4">
-                                <li><Link to="/blog" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Blog</Link></li>
-                                <li><Link to="/help-center" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Help Center</Link></li>
-                                <li><Link to="/community" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Community</Link></li>
-                                <li><Link to="/sitemap" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Sitemap</Link></li>
+                                <li><Link to="/resources" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Blog</Link></li>
+                                <li><Link to="/about" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Help Center</Link></li>
+                                <li><Link to="/signup" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Community</Link></li>
+                                <li><Link to="/" className="text-slate-400 hover:text-blue-400 transition-colors text-sm font-medium">Sitemap</Link></li>
                             </ul>
                         </div>
 

@@ -165,7 +165,7 @@ const LoginPage = () => {
                                     <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
                                     <span className="text-slate-600 group-hover:text-slate-800 transition-colors">Remember for 30 days</span>
                                 </label>
-                                <Link to="#" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</Link>
+                                <Link to="/forgot-password" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</Link>
                             </div>
 
                             <button

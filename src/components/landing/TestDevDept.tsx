@@ -1,6 +1,8 @@
 import { ShieldCheck, TrendingUp, Search, UserCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TestDevDept = () => {
+    const navigate = useNavigate();
     return (
         <section className="py-24 bg-[#F8FAFC]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -74,10 +76,16 @@ const TestDevDept = () => {
                     </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                        <button className="px-8 py-4 bg-[#0B4F97] text-white rounded-xl font-black text-sm lg:text-base hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 w-full sm:w-auto">
+                        <button 
+                            onClick={() => navigate('/resources')}
+                            className="px-8 py-4 bg-[#0B4F97] text-white rounded-xl font-black text-sm lg:text-base hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 w-full sm:w-auto"
+                        >
                             View Sample Test Paper
                         </button>
-                        <button className="px-8 py-4 bg-white text-[#0B4F97] border-2 border-slate-200 rounded-xl font-black text-sm lg:text-base hover:bg-slate-50 transition-all w-full sm:w-auto">
+                        <button 
+                            onClick={() => navigate('/test-series')}
+                            className="px-8 py-4 bg-white text-[#0B4F97] border-2 border-slate-200 rounded-xl font-black text-sm lg:text-base hover:bg-slate-50 transition-all w-full sm:w-auto"
+                        >
                             Try a Demo Test (Free)
                         </button>
                     </div>

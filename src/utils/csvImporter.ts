@@ -34,7 +34,8 @@ export interface QuestionCSVRow {
 export interface ValidationResult {
     valid: boolean;
     errors: string[];
-    isDuplicate?: boolean; // New flag for duplicates
+    warnings?: string[]; // New field for non-blocking warnings
+    isDuplicate?: boolean;
 }
 
 export interface ParsedData<T> {
@@ -137,87 +138,103 @@ export const validateChapter = async (row: ChapterCSVRow, index: number): Promis
 
 export const validateQuestion = async (row: QuestionCSVRow, index: number): Promise<ValidationResult> => {
     const errors: string[] = [];
+    const warnings: string[] = [];
+
+    // Trim all inputs
+    const text = row.text?.trim() || '';
+    let subject = row.subject?.trim() || '';
+    const chapter = row.chapter?.trim() || '';
+    const topic = row.topic?.trim() || '';
+    const type = row.type?.trim() || '';
+    const difficulty = row.difficulty?.trim() || '';
+    const marks = row.marks?.trim() || '';
+    const correctAnswer = row.correctAnswer?.trim() || '';
+
+    // Normalize subject (Capitalize first letter)
+    if (subject.toLowerCase() === 'physics') subject = 'Physics';
+    if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
+    if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
 
     // Required fields
-    if (!row.text || row.text.trim() === '') {
+    if (!text) {
         errors.push(`Row ${index + 1}: Question text is required`);
     }
 
-    if (!row.subject || !['Physics', 'Chemistry', 'Mathematics'].includes(row.subject)) {
+    if (!['Physics', 'Chemistry', 'Mathematics'].includes(subject)) {
         errors.push(`Row ${index + 1}: Valid subject is required (Physics/Chemistry/Mathematics)`);
     }
 
-    if (!row.chapter || row.chapter.trim() === '') {
+    if (!chapter) {
         errors.push(`Row ${index + 1}: Chapter is required`);
     }
 
-    if (!row.topic || row.topic.trim() === '') {
+    if (!topic) {
         errors.push(`Row ${index + 1}: Topic is required`);
     }
 
-    if (!row.type || !['MCQ', 'Numerical'].includes(row.type)) {
+    if (!['MCQ', 'Numerical'].includes(type)) {
         errors.push(`Row ${index + 1}: Type must be MCQ or Numerical`);
     }
 
-    if (!row.difficulty || !['Easy', 'Medium', 'Hard'].includes(row.difficulty)) {
+    if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) {
         errors.push(`Row ${index + 1}: Difficulty must be Easy, Medium, or Hard`);
     }
 
-    if (!row.marks || isNaN(Number(row.marks)) || Number(row.marks) <= 0) {
+    if (!marks || isNaN(Number(marks)) || Number(marks) <= 0) {
         errors.push(`Row ${index + 1}: Marks must be a positive number`);
     }
 
     // Type-specific validation
-    if (row.type === 'MCQ') {
-        if (!row.optionA || !row.optionB || !row.optionC || !row.optionD) {
+    if (type === 'MCQ') {
+        if (!row.optionA?.trim() || !row.optionB?.trim() || !row.optionC?.trim() || !row.optionD?.trim()) {
             errors.push(`Row ${index + 1}: MCQ questions must have all 4 options`);
         }
 
-        const correctAns = Number(row.correctAnswer);
+        const correctAns = Number(correctAnswer);
         if (isNaN(correctAns) || correctAns < 0 || correctAns > 3) {
-            errors.push(`Row ${index + 1}: MCQ correctAnswer must be 0, 1, 2, or 3`);
+            errors.push(`Row ${index + 1}: MCQ correctAnswer must be 0, 1, 2, or 3 (index of the correct option)`);
         }
     }
 
-    if (row.type === 'Numerical') {
-        if (isNaN(Number(row.correctAnswer))) {
+    if (type === 'Numerical') {
+        if (isNaN(Number(correctAnswer))) {
             errors.push(`Row ${index + 1}: Numerical correctAnswer must be a number`);
         }
     }
 
-    // Verify chapter exists (if no other errors so far)
-    if (errors.length === 0 && row.chapter && row.subject) {
+    // Verify chapter exists (Soft validation - now a warning)
+    if (errors.length === 0 && chapter && subject) {
         try {
             const chaptersQuery = query(
                 collection(db, 'chapters'),
-                where('name', '==', row.chapter),
-                where('subject', '==', row.subject)
+                where('name', '==', chapter),
+                where('subject', '==', subject)
             );
             const snapshot = await getDocs(chaptersQuery);
 
             if (snapshot.empty) {
-                errors.push(`Row ${index + 1}: Chapter "${row.chapter}" not found for subject ${row.subject}`);
+                warnings.push(`Row ${index + 1}: Chapter "${chapter}" not found in system. It will be added as a text label.`);
             } else {
                 // Verify topic exists in chapter
                 const chapterData = snapshot.docs[0].data();
                 const topics = chapterData.topics || [];
-                if (!topics.includes(row.topic)) {
-                    errors.push(`Row ${index + 1}: Topic "${row.topic}" not found in chapter "${row.chapter}"`);
+                if (!topics.includes(topic)) {
+                    warnings.push(`Row ${index + 1}: Topic "${topic}" not found in chapter "${chapter}".`);
                 }
             }
         } catch (error) {
-            errors.push(`Row ${index + 1}: Error verifying chapter existence`);
+            console.error('Error verifying chapter:', error);
         }
     }
 
     // Check for duplicate questions
     let isDuplicate = false;
-    if (errors.length === 0 && row.text && row.subject) {
+    if (errors.length === 0 && text && subject) {
         try {
             const duplicateQuery = query(
                 collection(db, 'questions'),
-                where('text', '==', row.text.trim()),
-                where('subject', '==', row.subject.trim())
+                where('text', '==', text),
+                where('subject', '==', subject)
             );
             const snapshot = await getDocs(duplicateQuery);
             if (!snapshot.empty) {
@@ -232,6 +249,7 @@ export const validateQuestion = async (row: QuestionCSVRow, index: number): Prom
     return {
         valid: errors.length === 0,
         errors,
+        warnings,
         isDuplicate
     };
 };
@@ -307,9 +325,15 @@ export const batchUploadQuestions = async (
                 console.log(`Skipping duplicate question`);
                 skipped++;
             } else {
+                // Normalize subject
+                let subject = rows[i].subject.trim();
+                if (subject.toLowerCase() === 'physics') subject = 'Physics';
+                if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
+                if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
+
                 const questionData: any = {
                     text: rows[i].text.trim(),
-                    subject: rows[i].subject.trim(),
+                    subject: subject,
                     chapter: rows[i].chapter.trim(),
                     topic: rows[i].topic.trim(),
                     type: rows[i].type.trim(),

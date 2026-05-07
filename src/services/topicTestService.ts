@@ -15,19 +15,19 @@ interface Question {
 
 interface TestFromTopicsParams {
     subjects: string[]; // Selected subjects
-    topics: string[]; // Selected topic IDs
+    topics: string[]; // Actually chapter names now
     questionCount: number; // Total questions needed
     mcqPercentage?: number; // Percentage of MCQs (default 70%)
 }
 
 /**
- * Generate test from selected subjects and topics
+ * Generate test from selected subjects and chapters
  */
 export const generateTestFromTopics = async (params: TestFromTopicsParams): Promise<{
     questions: Question[];
     warnings: string[];
 }> => {
-    const { subjects, topics, questionCount, mcqPercentage = 70 } = params;
+    const { subjects, topics: selectedChapters, questionCount, mcqPercentage = 70 } = params;
     const warnings: string[] = [];
     const selectedQuestions: Question[] = [];
 
@@ -39,7 +39,20 @@ export const generateTestFromTopics = async (params: TestFromTopicsParams): Prom
         // Fetch all questions matching subjects
         for (const subject of subjects) {
             const questionsRef = collection(db, 'questions');
-            const q = query(questionsRef, where('subject', '==', subject));
+            let q;
+            
+            // If specific chapters are selected, filter by them
+            if (selectedChapters.length > 0) {
+                // Firestore 'in' query limit is 30 in some versions, but 10 is safer for older ones.
+                // We'll chunk if needed, but for now we assume 10 chapters max for simplicity or query all and filter in memory.
+                q = query(questionsRef, 
+                    where('subject', '==', subject),
+                    where('chapter', 'in', selectedChapters.slice(0, 10))
+                );
+            } else {
+                q = query(questionsRef, where('subject', '==', subject));
+            }
+            
             const snapshot = await getDocs(q);
 
             const subjectQuestions = snapshot.docs.map(doc => ({
@@ -47,25 +60,9 @@ export const generateTestFromTopics = async (params: TestFromTopicsParams): Prom
                 ...doc.data()
             })) as Question[];
 
-            // Filter by topics if specified (match by chapter)
-            let filteredQuestions = subjectQuestions;
-            if (topics.length > 0) {
-                // Get topic details to find related chapters
-                const topicsSnapshot = await getDocs(collection(db, 'topics'));
-                const topicData = topicsSnapshot.docs
-                    .filter(doc => topics.includes(doc.id))
-                    .map(doc => doc.data());
-
-                const relatedChapters = topicData.flatMap(t => t.chapters || []);
-
-                filteredQuestions = subjectQuestions.filter(q =>
-                    relatedChapters.includes(q.chapter)
-                );
-            }
-
             // Separate by type
-            const mcqQuestions = filteredQuestions.filter(q => q.type === 'MCQ');
-            const numericalQuestions = filteredQuestions.filter(q => q.type === 'Numerical');
+            const mcqQuestions = subjectQuestions.filter(q => q.type === 'MCQ');
+            const numericalQuestions = subjectQuestions.filter(q => q.type === 'Numerical');
 
             // Calculate questions needed per subject (distribute evenly)
             const mcqPerSubject = Math.floor(mcqCount / subjects.length);
@@ -102,7 +99,7 @@ export const generateTestFromTopics = async (params: TestFromTopicsParams): Prom
             warnings
         };
     } catch (error) {
-        console.error('Error generating test from topics:', error);
+        console.error('Error generating test from chapters:', error);
         throw new Error('Failed to generate test. Please check your selections.');
     }
 };
@@ -119,7 +116,7 @@ export const getQuestionsBySubjectAndChapter = async (
         const q = query(
             questionsRef,
             where('subject', '==', subject),
-            where('chapter', 'in', chapters.slice(0, 10)) // Firestore 'in' limit is 10
+            where('chapter', 'in', chapters.slice(0, 10))
         );
 
         const snapshot = await getDocs(q);

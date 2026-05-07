@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Trash2, X, Save, Loader2, Download, BarChart3, Edit2, Upload, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Trash2, X, Save, Loader2, Download, BarChart3, Edit2, Upload, AlertTriangle, List } from 'lucide-react';
 import { db, storage } from '../../firebase';
 import { useSubjectList } from '../../hooks/useSubjectList';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch } from 'firebase/firestore';
@@ -60,6 +60,101 @@ const AdminQuestionBank = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const subjects = useSubjectList();
+
+    // Bulk selection state
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedQuestionIds, setSelectedQuestionIds] = useState<Set<string>>(new Set());
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+    const toggleSelectQuestion = (id: string) => {
+        const newSelected = new Set(selectedQuestionIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedQuestionIds(newSelected);
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedQuestionIds.size === filteredQuestions.length && filteredQuestions.length > 0) {
+            setSelectedQuestionIds(new Set());
+        } else {
+            setSelectedQuestionIds(new Set(filteredQuestions.map(q => q.id)));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedQuestionIds.size === 0) return;
+        if (!window.confirm(`Are you sure you want to delete ${selectedQuestionIds.size} selected questions?`)) return;
+
+        setIsBulkDeleting(true);
+        try {
+            const batchSize = 500;
+            const idsArray = Array.from(selectedQuestionIds);
+            
+            for (let i = 0; i < idsArray.length; i += batchSize) {
+                const batch = writeBatch(db);
+                const chunk = idsArray.slice(i, i + batchSize);
+                chunk.forEach(id => {
+                    batch.delete(doc(db, 'questions', id));
+                });
+                await batch.commit();
+            }
+
+            setSelectedQuestionIds(new Set());
+            setIsSelectionMode(false);
+            alert(`Successfully deleted ${idsArray.length} questions.`);
+        } catch (error) {
+            console.error("Error bulk deleting questions:", error);
+            alert("Failed to delete some questions. Please try again.");
+        } finally {
+            setIsBulkDeleting(false);
+        }
+    };
+
+    const handleDeleteAll = async () => {
+        if (filteredQuestions.length === 0) return;
+        if (!window.confirm(`DANGER: Are you sure you want to delete ALL ${filteredQuestions.length} questions matching current filters? This cannot be undone.`)) return;
+
+        setIsBulkDeleting(true);
+        try {
+            const batchSize = 500;
+            const idsArray = filteredQuestions.map(q => q.id);
+            
+            for (let i = 0; i < idsArray.length; i += batchSize) {
+                const batch = writeBatch(db);
+                const chunk = idsArray.slice(i, i + batchSize);
+                chunk.forEach(id => {
+                    batch.delete(doc(db, 'questions', id));
+                });
+                await batch.commit();
+            }
+
+            setSelectedQuestionIds(new Set());
+            setIsSelectionMode(false);
+            alert(`Successfully deleted all ${idsArray.length} questions.`);
+        } catch (error) {
+            console.error("Error deleting all questions:", error);
+            alert("Failed to delete all questions. Please try again.");
+        } finally {
+            setIsBulkDeleting(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        setIsDeletingLoading(true);
+        try {
+            await delay(800); // Small delay for better UX
+            await deleteDoc(doc(db, 'questions', id));
+            setConfirmDeleteId(null);
+        } catch (error) {
+            console.error("Error deleting question:", error);
+            alert("Failed to delete question. Please try again.");
+        } finally {
+            setIsDeletingLoading(false);
+        }
+    };
 
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -216,20 +311,6 @@ const AdminQuestionBank = () => {
             alert("Error creating question. Please try again.");
         } finally {
             setIsSubmitting(false);
-        }
-    };
-
-    const handleDelete = async (id: string) => {
-        setIsDeletingLoading(true);
-        try {
-            await delay(1000); // Artificial delay
-            await deleteDoc(doc(db, 'questions', id));
-            setConfirmDeleteId(null);
-        } catch (error) {
-            console.error("Error deleting question:", error);
-            alert("Failed to delete question. Please try again.");
-        } finally {
-            setIsDeletingLoading(false);
         }
     };
 
@@ -523,7 +604,21 @@ const AdminQuestionBank = () => {
                     <h1 className="text-2xl font-bold text-slate-800">Question Bank</h1>
                     <p className="text-slate-500 mt-1">Manage questions for JEE Mains test generation.</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
+                    <button
+                        onClick={() => {
+                            setIsSelectionMode(!isSelectionMode);
+                            if (isSelectionMode) setSelectedQuestionIds(new Set());
+                        }}
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 font-semibold rounded-xl transition-all duration-200 shadow-sm ${
+                            isSelectionMode 
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+                        }`}
+                    >
+                        {isSelectionMode ? <X size={18} /> : <List size={18} />}
+                        {isSelectionMode ? 'Cancel Selection' : 'Select Multiple'}
+                    </button>
                     <button
                         onClick={() => downloadTemplate('questions')}
                         className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors"
@@ -646,6 +741,52 @@ const AdminQuestionBank = () => {
                     </select>
                 </div>
 
+                {/* Bulk Actions Bar */}
+                <AnimatePresence>
+                    {(isSelectionMode || isBulkDeleting) && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">
+                                    {selectedQuestionIds.size} questions selected
+                                </span>
+                                {isBulkDeleting && (
+                                    <span className="flex items-center gap-2 text-sm text-slate-500 font-medium">
+                                        <Loader2 className="animate-spin" size={16} />
+                                        Processing bulk action...
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setSelectedQuestionIds(new Set())}
+                                    disabled={isBulkDeleting}
+                                    className="px-4 py-2 text-slate-500 hover:text-slate-700 font-semibold text-sm disabled:opacity-50"
+                                >
+                                    Cancel Selection
+                                </button>
+                                <button
+                                    onClick={handleBulkDelete}
+                                    disabled={isBulkDeleting || selectedQuestionIds.size === 0}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 font-bold rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                                >
+                                    <Trash2 size={16} /> Delete Selected
+                                </button>
+                                <button
+                                    onClick={handleDeleteAll}
+                                    disabled={isBulkDeleting || filteredQuestions.length === 0}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50"
+                                >
+                                    <AlertTriangle size={16} /> Delete All Filtered
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* Questions Table */}
@@ -654,6 +795,16 @@ const AdminQuestionBank = () => {
                     <table className="w-full text-left">
                         <thead className="bg-slate-50/50 text-slate-500 text-xs font-bold uppercase tracking-wider">
                             <tr>
+                                {isSelectionMode && (
+                                    <th className="px-6 py-4 w-12 text-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={filteredQuestions.length > 0 && selectedQuestionIds.size === filteredQuestions.length}
+                                            onChange={toggleSelectAll}
+                                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        />
+                                    </th>
+                                )}
                                 <th className="px-6 py-4">Question</th>
                                 <th className="px-6 py-4">Subject</th>
                                 <th className="px-6 py-4">Chapter</th>
@@ -665,13 +816,26 @@ const AdminQuestionBank = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {isLoading ? (
-                                <tr><td colSpan={8} className="text-center py-8"><Loader2 className="animate-spin inline" /></td></tr>
+                             {isLoading ? (
+                                <tr><td colSpan={isSelectionMode ? 9 : 8} className="text-center py-8"><Loader2 className="animate-spin inline" /></td></tr>
                             ) : filteredQuestions.length === 0 ? (
-                                <tr><td colSpan={8} className="text-center py-8 text-slate-500">No questions found. Add some to get started.</td></tr>
+                                <tr><td colSpan={isSelectionMode ? 9 : 8} className="text-center py-8 text-slate-500">No questions found. Add some to get started.</td></tr>
                             ) : (
                                 filteredQuestions.map((q) => (
-                                    <tr key={q.id} className="hover:bg-slate-50/50">
+                                    <tr
+                                        key={q.id}
+                                        className={`hover:bg-slate-50/50 transition-colors ${selectedQuestionIds.has(q.id) ? 'bg-blue-50/30' : ''}`}
+                                    >
+                                         {isSelectionMode && (
+                                            <td className="px-6 py-4 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedQuestionIds.has(q.id)}
+                                                    onChange={() => toggleSelectQuestion(q.id)}
+                                                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                                />
+                                            </td>
+                                        )}
                                         <td className="px-6 py-4 font-medium text-slate-700 max-w-md truncate">
                                             {q.text}
                                         </td>
@@ -1386,22 +1550,41 @@ const AdminQuestionBank = () => {
                                                 <tbody className="divide-y">
                                                     {parsedRows.map((row, index) => {
                                                         const validation = validationResults.get(index);
+                                                        const hasWarnings = validation?.warnings && validation.warnings.length > 0;
+                                                        const isValid = validation?.valid;
+
                                                         return (
-                                                            <tr key={index} className={validation?.valid ? 'bg-green-50/50' : 'bg-red-50/50'}>
+                                                            <tr key={index} className={
+                                                                isValid 
+                                                                    ? (hasWarnings ? 'bg-amber-50/50' : 'bg-emerald-50/50') 
+                                                                    : 'bg-rose-50/50'
+                                                            }>
                                                                 <td className="px-3 py-2">
-                                                                    {validation?.valid ? (
-                                                                        <span className="text-green-600">✓</span>
+                                                                    {!isValid ? (
+                                                                        <span className="text-rose-600 font-bold">✗</span>
+                                                                    ) : hasWarnings ? (
+                                                                        <span className="text-amber-600 font-bold">!</span>
                                                                     ) : (
-                                                                        <span className="text-red-600">✗</span>
+                                                                        <span className="text-emerald-600 font-bold">✓</span>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-3 py-2 max-w-xs truncate">{row.text}</td>
-                                                                <td className="px-3 py-2">{row.subject}</td>
-                                                                <td className="px-3 py-2">{row.chapter}</td>
-                                                                <td className="px-3 py-2">{row.type}</td>
-                                                                <td className="px-3 py-2 text-xs text-red-600">
-                                                                    {validation?.errors.slice(0, 2).join(', ')}
-                                                                    {validation && validation.errors.length > 2 ? '...' : ''}
+                                                                <td className="px-3 py-2 max-w-xs truncate text-slate-700">{row.text}</td>
+                                                                <td className="px-3 py-2 text-slate-600">{row.subject}</td>
+                                                                <td className="px-3 py-2 text-slate-600">{row.chapter}</td>
+                                                                <td className="px-3 py-2 text-slate-600">{row.type}</td>
+                                                                <td className="px-3 py-2 text-[10px]">
+                                                                    {validation?.errors.length ? (
+                                                                        <div className="text-rose-600 font-medium">
+                                                                            {validation.errors.slice(0, 1).join(', ')}
+                                                                            {validation.errors.length > 1 ? ` (+${validation.errors.length - 1} more)` : ''}
+                                                                        </div>
+                                                                    ) : null}
+                                                                    {hasWarnings ? (
+                                                                        <div className="text-amber-600 italic">
+                                                                            {validation?.warnings?.slice(0, 1).join(', ')}
+                                                                            {validation?.warnings && validation.warnings.length > 1 ? ` (+${validation.warnings.length - 1} more)` : ''}
+                                                                        </div>
+                                                                    ) : null}
                                                                 </td>
                                                             </tr>
                                                         );
@@ -1444,6 +1627,55 @@ const AdminQuestionBank = () => {
                                         <p>Select a CSV file to begin importing</p>
                                     </div>
                                 )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Individual Delete Confirmation Modal */}
+            <AnimatePresence>
+                {confirmDeleteId && (
+                    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-white w-full max-w-md rounded-2xl shadow-xl p-6"
+                        >
+                            <div className="flex flex-col items-center text-center space-y-4">
+                                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                                    <AlertTriangle className="text-red-600" size={32} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-slate-800">Delete Question?</h3>
+                                    <p className="text-slate-500 mt-2">
+                                        Are you sure you want to delete this question? This action cannot be undone.
+                                    </p>
+                                </div>
+                                <div className="flex gap-3 w-full pt-4">
+                                    <button
+                                        onClick={() => setConfirmDeleteId(null)}
+                                        disabled={isDeletingLoading}
+                                        className="flex-1 px-6 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(confirmDeleteId)}
+                                        disabled={isDeletingLoading}
+                                        className="flex-1 px-6 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 disabled:bg-red-400 flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+                                    >
+                                        {isDeletingLoading ? (
+                                            <>
+                                                <Loader2 className="animate-spin" size={18} />
+                                                Deleting...
+                                            </>
+                                        ) : (
+                                            'Delete Now'
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </div>

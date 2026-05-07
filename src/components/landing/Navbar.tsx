@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logo.png';
 
 const Navbar = () => {
@@ -9,7 +10,6 @@ const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
 
-    // Handle scroll effect
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
@@ -20,70 +20,77 @@ const Navbar = () => {
 
     const navItems = [
         { label: 'Home', path: '/' },
-        { label: 'Test Series', path: '/test-series' },
-        { label: 'PYQs', path: '/pyqs' },
-        { label: 'Resources', path: '/resources' },
-        { label: 'Result', path: '/results' },
-        { label: 'About', path: '/about' },
+        { label: 'Tests', path: '/test-series', hasDropdown: true },
+        { label: 'Courses', path: '/test-series' },
+        { label: 'AI Analytics', path: '/dashboard/analytics' },
+        { label: 'Pricing', path: '/#test-series' },
+        { label: 'Rankers', path: '/test-series' },
+        { label: 'Resources', path: '/resources', hasDropdown: true },
     ];
+
     const isActive = (path: string) => location.pathname === path;
+
     return (
         <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-                ? 'bg-[#F0F6FF]/95 backdrop-blur-md shadow-sm border-b border-blue-100 py-2'
-                : 'bg-[#F0F6FF] py-4'
+            className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled
+                ? 'bg-[#030712]/80 backdrop-blur-xl border-b border-white/5 py-4'
+                : 'bg-transparent py-8'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center relative">
-                    {/* Logo (Left) */}
-                    <div className="flex items-center gap-3 cursor-pointer z-10" onClick={() => navigate('/')}>
-                        <img src={logo} alt="Examinantt Logo" className="h-10 w-auto rounded-lg" />
-                        <span className="text-2xl font-bold text-[#0B4F97] tracking-tight font-display">
+                <div className="flex justify-between items-center">
+                    {/* Logo */}
+                    <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        className="flex items-center gap-2.5 cursor-pointer z-10"
+                        onClick={() => navigate('/')}
+                    >
+                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <img src={logo} alt="Examinantt Logo" className="h-6 w-auto brightness-0 invert" />
+                        </div>
+                        <span className="text-xl font-black text-white tracking-tight uppercase">
                             Examinantt
                         </span>
-                    </div>
+                    </motion.div>
 
-                    {/* Desktop Links (Centered) */}
-                    <div className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+                    {/* Desktop Links */}
+                    <div className="hidden lg:flex items-center gap-1">
                         {navItems.map((item) => (
                             <button
                                 key={item.label}
                                 onClick={() => navigate(item.path)}
-                                className={`text-[15px] font-semibold transition-all duration-200 relative py-1 ${isActive(item.path)
-                                    ? 'text-[#1D64D0]'
-                                    : 'text-[#334155] hover:text-[#1D64D0]'
+                                className={`px-4 py-2 text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 ${isActive(item.path)
+                                    ? 'text-white'
+                                    : 'text-slate-400 hover:text-white'
                                     }`}
                             >
                                 {item.label}
-                                {isActive(item.path) && (
-                                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#1D64D0] rounded-full"></span>
-                                )}
+                                {item.hasDropdown && <ChevronDown size={14} className="opacity-50" />}
                             </button>
                         ))}
                     </div>
 
-                    {/* Auth Buttons (Right) */}
+                    {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-4 z-10">
                         <button
                             onClick={() => navigate('/login')}
-                            className="bg-white text-[#1D64D0] border border-[#1D64D0] hover:bg-blue-50 px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 shadow-sm"
+                            className="px-6 py-2.5 text-[13px] font-black text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all"
                         >
                             Login
                         </button>
                         <button
                             onClick={() => navigate('/signup')}
-                            className="bg-[#1D64D0] hover:bg-blue-700 text-white border border-[#1D64D0] px-6 py-2 rounded-full text-sm font-semibold shadow-sm transition-all duration-200 hover:shadow-md"
+                            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
                         >
-                            Sign up
+                            Sign Up Free
                         </button>
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <div className="md:hidden z-10">
+                    <div className="lg:hidden z-10">
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="text-slate-700 hover:text-blue-600 p-2"
+                            className="bg-white/5 p-2 rounded-xl border border-white/10 text-white"
                         >
                             {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
@@ -91,43 +98,49 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Menu Dropdown */}
-            <div
-                className={`md:hidden absolute top-full left-0 w-full bg-[#F0F6FF] border-b border-blue-100 shadow-lg transition-all duration-300 ease-in-out transform origin-top ${mobileMenuOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0 pointer-events-none'
-                    }`}
-            >
-                <div className="px-4 py-6 space-y-3">
-                    {navItems.map((item) => (
-                        <button
-                            key={item.label}
-                            onClick={() => {
-                                navigate(item.path);
-                                setMobileMenuOpen(false);
-                            }}
-                            className={`block w-full text-left px-4 py-3 rounded-lg text-base font-semibold transition-colors ${isActive(item.path)
-                                ? 'bg-blue-100 text-[#1D64D0]'
-                                : 'text-slate-600 hover:text-[#1D64D0] hover:bg-blue-50'
-                                }`}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                    <div className="pt-4 mt-2 border-t border-blue-200 flex flex-col gap-3">
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="w-full bg-white text-[#1D64D0] border border-[#1D64D0] font-semibold py-2.5 rounded-full transition-colors"
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={() => navigate('/signup')}
-                            className="w-full bg-[#1D64D0] text-white font-semibold py-2.5 rounded-full shadow-sm hover:bg-blue-700 transition-all"
-                        >
-                            Sign up
-                        </button>
-                    </div>
-                </div>
-            </div>
+            {/* Mobile Menu */}
+            <AnimatePresence>
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="lg:hidden absolute top-full left-0 w-full bg-[#030712] border-b border-white/5 shadow-2xl p-6"
+                    >
+                        <div className="space-y-2">
+                            {navItems.map((item) => (
+                                <button
+                                    key={item.label}
+                                    onClick={() => {
+                                        navigate(item.path);
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className={`w-full text-left px-5 py-4 rounded-2xl text-base font-bold transition-all ${isActive(item.path)
+                                        ? 'bg-blue-600/10 text-blue-500'
+                                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                                        }`}
+                                >
+                                    {item.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="mt-8 pt-8 border-t border-white/5 flex flex-col gap-4">
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="w-full py-4 text-white font-black border border-white/10 rounded-2xl"
+                            >
+                                Login
+                            </button>
+                            <button
+                                onClick={() => navigate('/signup')}
+                                className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
+                            >
+                                Sign Up Free
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 };

@@ -19,6 +19,7 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import SLAPage from './pages/SLAPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 // Lazy Loaded Pages
 const StudentDashboard = React.lazy(() => import('./pages/student/StudentDashboard'));
@@ -99,6 +100,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/test-series" element={<TestSeriesPage />} />
               <Route path="/test-series/:id" element={<TestSeriesDetailsPage />} />
               <Route path="/pyqs" element={<PYQsDiscoveryPage />} />

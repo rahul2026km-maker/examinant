@@ -247,7 +247,10 @@ const SocialProof = () => {
                 <ArrowRight className="group-hover:translate-x-1 transition" />
               </button>
 
-              <button className="w-full py-4 bg-white border border-gray-200 text-[#0B4F97] rounded-xl font-bold text-lg hover:bg-blue-50 transition">
+              <button 
+                onClick={() => navigate('/test-series')}
+                className="w-full py-4 bg-white border border-gray-200 text-[#0B4F97] rounded-xl font-bold text-lg hover:bg-blue-50 transition"
+              >
                 Try a Demo Test
               </button>
 
