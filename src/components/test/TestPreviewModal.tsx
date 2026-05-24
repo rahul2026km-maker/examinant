@@ -393,7 +393,7 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
                                     id: `s-${subIdx}-${qIdx}`,
                                     subject: sub,
                                     type: qIdx % 3 === 2 ? 'Numerical' : 'MCQ',
-                                    text: `[${sub}] Question ${qIdx + 1}: ` + (
+                                    text: (
                                         qIdx % 5 === 0 ? "A particle moves along the x-axis. At t = 0 it is at x = 0 with v = 5 m/s and a = 2 m/s². What is the displacement after 3 s?" :
                                         qIdx % 5 === 1 ? "Which compound exhibits the highest boiling point among the following under standard conditions?" :
                                         qIdx % 5 === 2 ? "The number of solutions of sin x = x/5 in [0, 2π] is:" :
@@ -453,7 +453,7 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
                     id: `s-${subIdx}-${qIdx}`,
                     subject: sub,
                     type: qIdx % 3 === 2 ? 'Numerical' : 'MCQ',
-                    text: `[${sub}] Question ${qIdx + 1}: ` + (
+                    text: (
                         qIdx % 5 === 0 ? "A particle moves along the x-axis. At t = 0 it is at x = 0 with v = 5 m/s and a = 2 m/s². What is the displacement after 3 s?" :
                         qIdx % 5 === 1 ? "Which compound exhibits the highest boiling point among the following under standard conditions?" :
                         qIdx % 5 === 2 ? "The number of solutions of sin x = x/5 in [0, 2π] is:" :
