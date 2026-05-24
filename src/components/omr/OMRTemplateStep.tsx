@@ -148,7 +148,7 @@ const OMRTemplateStep = ({ formData, updateFormData }: OMRTemplateStepProps) => 
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {sections.map((sec, idx) => (
-                                    <tr key={sec.id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={sec.id || sec.name || idx} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-4 py-3">
                                             <input
                                                 type="text"

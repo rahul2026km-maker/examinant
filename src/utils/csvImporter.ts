@@ -42,7 +42,25 @@ export interface ParsedData<T> {
     data: T[];
     errors: any[];
 }
+// ========== HELPERS ==========
 
+export const normalizeCorrectAnswer = (answer: string): string => {
+    const trimmed = answer.trim().toLowerCase();
+    
+    // Exact matches
+    if (trimmed === 'a' || trimmed === '1' || trimmed === 'option a' || trimmed === 'option_a') return '0';
+    if (trimmed === 'b' || trimmed === '2' || trimmed === 'option b' || trimmed === 'option_b') return '1';
+    if (trimmed === 'c' || trimmed === '3' || trimmed === 'option c' || trimmed === 'option_c') return '2';
+    if (trimmed === 'd' || trimmed === '4' || trimmed === 'option d' || trimmed === 'option_d') return '3';
+    
+    // Ends with A/B/C/D after space
+    if (trimmed.endsWith(' a')) return '0';
+    if (trimmed.endsWith(' b')) return '1';
+    if (trimmed.endsWith(' c')) return '2';
+    if (trimmed.endsWith(' d')) return '3';
+    
+    return answer.trim();
+};
 // ========== CSV PARSERS ==========
 
 export const parseChaptersCSV = (file: File): Promise<ParsedData<ChapterCSVRow>> => {
@@ -79,7 +97,7 @@ export const parseQuestionsCSV = (file: File): Promise<ParsedData<QuestionCSVRow
 
 // ========== VALIDATORS ==========
 
-export const validateChapter = async (row: ChapterCSVRow, index: number): Promise<ValidationResult> => {
+export const validateChapter = async (row: ChapterCSVRow, index: number, allowedSubjects?: string[]): Promise<ValidationResult> => {
     const errors: string[] = [];
 
     // Required fields
@@ -87,10 +105,11 @@ export const validateChapter = async (row: ChapterCSVRow, index: number): Promis
         errors.push(`Row ${index + 1}: Chapter name is required`);
     }
 
+    const defaultSubs = allowedSubjects || ['Physics', 'Chemistry', 'Mathematics', 'Biology'];
     if (!row.subject || row.subject.trim() === '') {
         errors.push(`Row ${index + 1}: Subject is required`);
-    } else if (!['Physics', 'Chemistry', 'Mathematics', 'Biology'].includes(row.subject)) {
-        errors.push(`Row ${index + 1}: Subject must be Physics, Chemistry, Mathematics, or Biology`);
+    } else if (!defaultSubs.includes(row.subject)) {
+        errors.push(`Row ${index + 1}: Subject '${row.subject}' is not registered yet (click 'Auto-Create Registry' on the right)`);
     }
 
     if (!row.description || row.description.trim() === '') {
@@ -136,7 +155,7 @@ export const validateChapter = async (row: ChapterCSVRow, index: number): Promis
     };
 };
 
-export const validateQuestion = async (row: QuestionCSVRow, index: number): Promise<ValidationResult> => {
+export const validateQuestion = async (row: QuestionCSVRow, index: number, allowedSubjects?: string[]): Promise<ValidationResult> => {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -148,7 +167,8 @@ export const validateQuestion = async (row: QuestionCSVRow, index: number): Prom
     const type = row.type?.trim() || '';
     const difficulty = row.difficulty?.trim() || '';
     const marks = row.marks?.trim() || '';
-    const correctAnswer = row.correctAnswer?.trim() || '';
+    const rawAnswer = row.correctAnswer?.trim() || '';
+    const correctAnswer = type === 'MCQ' ? normalizeCorrectAnswer(rawAnswer) : rawAnswer;
 
     // Normalize subject (Capitalize first letter)
     if (subject.toLowerCase() === 'physics') subject = 'Physics';
@@ -161,8 +181,11 @@ export const validateQuestion = async (row: QuestionCSVRow, index: number): Prom
         errors.push(`Row ${index + 1}: Question text is required`);
     }
 
-    if (!['Physics', 'Chemistry', 'Mathematics', 'Biology'].includes(subject)) {
-        errors.push(`Row ${index + 1}: Valid subject is required (Physics/Chemistry/Mathematics/Biology)`);
+    const defaultSubs = allowedSubjects || ['Physics', 'Chemistry', 'Mathematics', 'Biology'];
+    if (!subject) {
+        errors.push(`Row ${index + 1}: Subject is required`);
+    } else if (!defaultSubs.includes(subject)) {
+        errors.push(`Row ${index + 1}: Subject '${subject}' is not registered yet (click 'Auto-Create Registry' on the right)`);
     }
 
     if (!chapter) {
@@ -353,7 +376,7 @@ export const batchUploadQuestions = async (
                         rows[i].optionC.trim(),
                         rows[i].optionD.trim()
                     ];
-                    questionData.correctAnswer = Number(rows[i].correctAnswer);
+                    questionData.correctAnswer = Number(normalizeCorrectAnswer(rows[i].correctAnswer));
                 } else {
                     questionData.options = [];
                     questionData.correctAnswer = rows[i].correctAnswer.trim();

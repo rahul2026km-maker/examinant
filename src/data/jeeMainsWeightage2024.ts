@@ -265,6 +265,7 @@ export const JEE_MAINS_2024_WEIGHTAGE = {
 // Calculate total weightage per subject
 export const getTotalWeightage = (subject: keyof typeof JEE_MAINS_2024_WEIGHTAGE) => {
     const subjectData = JEE_MAINS_2024_WEIGHTAGE[subject];
+    if (!subjectData) return 0;
     let total = 0;
 
     Object.values(subjectData).forEach((classData: any) => {
@@ -282,7 +283,9 @@ export const getWeightageDistribution = (
     totalQuestions: number
 ) => {
     const subjectData = JEE_MAINS_2024_WEIGHTAGE[subject];
+    if (!subjectData) return {};
     const totalWeight = getTotalWeightage(subject);
+    if (totalWeight === 0) return {};
     const distribution: Record<string, number> = {};
 
     Object.entries(subjectData).forEach(([className, classData]) => {

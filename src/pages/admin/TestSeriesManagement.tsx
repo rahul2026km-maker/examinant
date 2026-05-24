@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Edit2, Trash2, Copy, AlertTriangle, Loader2, X } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Copy, AlertTriangle, Loader2, X, List } from 'lucide-react';
 import TestSeriesCard from '../../components/landing/TestSeriesCard';
 import type { TestSeries } from '../../types/test.types';
+import SeriesTestsDrawer from '../../components/admin/SeriesTestsDrawer';
 import {
     getAllTestSeries,
     createTestSeries,
@@ -26,6 +27,9 @@ const TestSeriesManagement = () => {
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [isDeletingLoading, setIsDeletingLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Tests drawer state
+    const [drawerSeries, setDrawerSeries] = useState<TestSeries | null>(null);
 
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -288,7 +292,14 @@ const TestSeriesManagement = () => {
                             examCategory={series.examCategory}
                             testCount={series.testIds?.length || 0}
                             actions={
-                                <div className="grid grid-cols-3 gap-2 w-full">
+                                <div className="grid grid-cols-4 gap-2 w-full">
+                                    <button
+                                        onClick={() => setDrawerSeries(series)}
+                                        className="flex items-center justify-center gap-1.5 py-3 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest border border-indigo-100 shadow-sm col-span-1"
+                                        title="View Tests"
+                                    >
+                                        <List size={12} /> Tests
+                                    </button>
                                     <button
                                         onClick={() => handleEdit(series)}
                                         className="flex items-center justify-center gap-1.5 py-3 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-600 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm"
@@ -549,6 +560,14 @@ const TestSeriesManagement = () => {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Series Tests Drawer */}
+            <SeriesTestsDrawer
+                isOpen={!!drawerSeries}
+                seriesId={drawerSeries?.id || ''}
+                seriesName={drawerSeries?.name || ''}
+                onClose={() => setDrawerSeries(null)}
+            />
         </motion.div>
     );
 };

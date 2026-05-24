@@ -311,10 +311,10 @@ const StudentOMRAttemptPage = () => {
                         <div>
                             <h3 className="font-bold text-slate-800 mb-3">Section Breakdown</h3>
                             <div className="space-y-2">
-                                {sections.map(sec => {
+                                {sections.map((sec, si) => {
                                     const color = getColor(sec.subject);
                                     return (
-                                        <div key={sec.id} className={`${color.light} border ${color.border} rounded-lg p-3 flex justify-between items-center`}>
+                                        <div key={sec.id || sec.name || si} className={`${color.light} border ${color.border} rounded-lg p-3 flex justify-between items-center`}>
                                             <div>
                                                 <p className={`font-semibold text-sm ${color.text}`}>{sec.name}</p>
                                                 <p className="text-xs text-slate-500">Q{sec.questionStartIndex}–Q{sec.questionEndIndex} • {sec.optionsPerQuestion === 0 ? 'Numerical' : `${sec.optionsPerQuestion} options`}</p>
@@ -413,7 +413,7 @@ const StudentOMRAttemptPage = () => {
 
                 {/* Section Tabs */}
                 <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                    {sections.map(sec => {
+                    {sections.map((sec, si) => {
                         const color = getColor(sec.subject);
                         const isActive = activeSectionData?.id === sec.id;
                         const secAnswered = Object.keys(answers).filter(k => {
@@ -422,7 +422,7 @@ const StudentOMRAttemptPage = () => {
                         }).length;
                         return (
                             <button
-                                key={sec.id}
+                                key={sec.id || sec.name || si}
                                 onClick={() => {
                                     setActiveSection(sec);
                                     scrollToQuestion(sec.questionStartIndex);
@@ -468,8 +468,8 @@ const StudentOMRAttemptPage = () => {
                             </div>
                         ) : (
                             <div className="flex-1 p-4 md:p-6 space-y-8 overflow-y-auto">
-                                {sections.map(sec => (
-                                    <div key={`qpaper-${sec.id}`} className="mb-6">
+                                {sections.map((sec, _si) => (
+                                    <div key={`qpaper-${sec.id || sec.name || _si}`} className="mb-6">
                                         <h3 className="text-lg font-bold text-slate-800 border-b pb-2 mb-4 sticky top-0 bg-white z-0">{sec.name} <span className="text-sm font-normal text-slate-500">({sec.subject || 'General'})</span></h3>
                                         <div className="space-y-6">
                                             {(testData.questionMappings || [])
@@ -504,13 +504,13 @@ const StudentOMRAttemptPage = () => {
                     {/* ── Content Area ── */}
                     <main className="flex-1 p-4 md:p-6 overflow-y-auto">
                     <div className="max-w-3xl mx-auto space-y-6">
-                        {sections.map(sec => {
+                        {sections.map((sec, si) => {
                             const color = getColor(sec.subject);
                             const isNumerical = sec.optionsPerQuestion === 0;
                             const opts = OPTION_LABELS.slice(0, sec.optionsPerQuestion);
 
                             return (
-                                <div key={sec.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div key={sec.id || sec.name || si} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                     {/* Section Header */}
                                     <div className={`${color.bg} px-5 py-3 flex items-center justify-between`}>
                                         <div>
@@ -632,10 +632,10 @@ const StudentOMRAttemptPage = () => {
                         </div>
                     </div>
 
-                    {sections.map(sec => {
+                    {sections.map((sec, si) => {
                         const color = getColor(sec.subject);
                         return (
-                            <div key={sec.id} className="mb-4">
+                            <div key={sec.id || sec.name || si} className="mb-4">
                                 <p className={`text-xs font-bold mb-2 ${color.text}`}>{sec.name}</p>
                                 <div className="grid grid-cols-5 gap-1.5">
                                     {Array.from({ length: sec.questionCount }, (_, i) => sec.questionStartIndex + i).map(qNum => {

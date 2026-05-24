@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Trash2, X, Save, Loader2, FolderPlus, BookOpen, Edit2, Upload, Download } from 'lucide-react';
+import { Plus, Search, Trash2, X, Save, Loader2, FolderPlus, BookOpen, Edit2, Upload, Download, AlertTriangle } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { useSubjectList } from '../../hooks/useSubjectList';
@@ -37,6 +37,9 @@ const AdminChaptersPage = () => {
     const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(new Map());
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
+    const [importGuideTab, setImportGuideTab] = useState<'excel' | 'guide'>('excel');
+    const [missingSubjects, setMissingSubjects] = useState<string[]>([]);
+    const [isCreatingMissing, setIsCreatingMissing] = useState(false);
     const subjects = useSubjectList();
 
     const [formData, setFormData] = useState({
@@ -180,16 +183,64 @@ const AdminChaptersPage = () => {
             const result = await parseChaptersCSV(file);
             setParsedRows(result.data);
 
-            // Validate all rows (now async for duplicate checking)
+            // Validate all chapters in parallel using dynamic subjects
+            const validationPromises = result.data.map((row, index) => validateChapter(row, index, subjects));
+            const validationList = await Promise.all(validationPromises);
+
             const validations = new Map<number, ValidationResult>();
-            for (let i = 0; i < result.data.length; i++) {
-                const validation = await validateChapter(result.data[i], i);
-                validations.set(i, validation);
-            }
+            validationList.forEach((validation, index) => {
+                validations.set(index, validation);
+            });
             setValidationResults(validations);
+
+            // Scan for missing subjects in chapter CSV
+            const csvSubjects = Array.from(new Set(result.data.map(row => {
+                let sub = row.subject?.trim() || '';
+                if (sub.toLowerCase() === 'physics') return 'Physics';
+                if (sub.toLowerCase() === 'chemistry') return 'Chemistry';
+                if (sub.toLowerCase() === 'mathematics' || sub.toLowerCase() === 'maths') return 'Mathematics';
+                if (sub.toLowerCase() === 'biology') return 'Biology';
+                return sub.charAt(0).toUpperCase() + sub.slice(1);
+            })));
+            const missingSubs = csvSubjects.filter(sub => sub && !subjects.includes(sub));
+            setMissingSubjects(missingSubs);
         } catch (error) {
             console.error('Error parsing CSV:', error);
             alert('Error parsing CSV file. Please check the format.');
+        }
+    };
+
+    const handleCreateMissingElements = async () => {
+        setIsCreatingMissing(true);
+        try {
+            for (const sub of missingSubjects) {
+                await addDoc(collection(db, 'subjects'), {
+                    name: sub,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+            }
+
+            alert("Successfully created missing subjects in the system database!");
+
+            const newSubjects = [...subjects, ...missingSubjects];
+            setMissingSubjects([]);
+
+            if (importFile) {
+                const result = await parseChaptersCSV(importFile);
+                const validationPromises = result.data.map((row, index) => validateChapter(row, index, newSubjects));
+                const validationList = await Promise.all(validationPromises);
+                const validations = new Map<number, ValidationResult>();
+                validationList.forEach((validation, index) => {
+                    validations.set(index, validation);
+                });
+                setValidationResults(validations);
+            }
+        } catch (error) {
+            console.error("Error auto-creating missing elements:", error);
+            alert("Error auto-creating missing elements. Please try again.");
+        } finally {
+            setIsCreatingMissing(false);
         }
     };
 
@@ -787,12 +838,12 @@ const AdminChaptersPage = () => {
             {/* Import CSV Modal */}
             <AnimatePresence>
                 {isImporting && (
-                    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setIsImporting(false); setParsedRows([]); setValidationResults(new Map()); }}>
+                    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setIsImporting(false); setParsedRows([]); setValidationResults(new Map()); setMissingSubjects([]); }}>
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white w-full max-w-4xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto"
+                            className="bg-white w-full max-w-5xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
@@ -800,25 +851,253 @@ const AdminChaptersPage = () => {
                                     <h2 className="text-xl font-bold text-slate-800">Import Chapters from CSV</h2>
                                     <p className="text-sm text-slate-500 mt-1">Upload a CSV file to bulk import chapters</p>
                                 </div>
-                                <button onClick={() => { setIsImporting(false); setParsedRows([]); setValidationResults(new Map()); }}>
+                                <button onClick={() => { setIsImporting(false); setParsedRows([]); setValidationResults(new Map()); setMissingSubjects([]); setImportFile(null); }}>
                                     <X size={24} className="text-slate-400" />
                                 </button>
                             </div>
 
-                            <div className="p-6 space-y-4">
-                                {/* File Upload */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Select CSV File</label>
-                                    <input
-                                        type="file"
-                                        accept=".csv"
-                                        onChange={handleFileSelect}
-                                        className="w-full px-4 py-2 border border-slate-300 rounded-lg"
-                                    />
-                                    <p className="text-xs text-slate-500 mt-1">
-                                        File should have columns: name, subject, unit, description, topics, difficulty, status
-                                    </p>
-                                </div>
+                            <div className="p-6 space-y-4 bg-slate-50/50">
+                                 {/* Formatting Guidelines & File Upload in 2-Column Grid */}
+                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                     {/* Left Panel: Excel Formatting Guide with Tabs */}
+                                     <div className="lg:col-span-2 space-y-4">
+                                         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                                             {/* Header & Tabs */}
+                                             <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                 <div className="flex items-center gap-2">
+                                                     <BookOpen size={20} className="text-blue-600" />
+                                                     <h3 className="font-bold text-slate-800">
+                                                         Excel/CSV Template Guide
+                                                     </h3>
+                                                 </div>
+                                                 <div className="flex bg-slate-200/70 p-1 rounded-xl self-start sm:self-auto">
+                                                     <button
+                                                         type="button"
+                                                         onClick={() => setImportGuideTab('excel')}
+                                                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                                             importGuideTab === 'excel'
+                                                                 ? 'bg-white text-slate-800 shadow-sm'
+                                                                 : 'text-slate-500 hover:text-slate-700'
+                                                         }`}
+                                                     >
+                                                         📊 Visual Excel View
+                                                     </button>
+                                                     <button
+                                                         type="button"
+                                                         onClick={() => setImportGuideTab('guide')}
+                                                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                                             importGuideTab === 'guide'
+                                                                 ? 'bg-white text-slate-800 shadow-sm'
+                                                                 : 'text-slate-500 hover:text-slate-700'
+                                                         }`}
+                                                     >
+                                                         📋 Column Descriptions
+                                                     </button>
+                                                 </div>
+                                             </div>
+
+                                             <div className="p-5">
+                                                 {importGuideTab === 'excel' ? (
+                                                     <div className="space-y-4">
+                                                         <div className="flex justify-between items-center text-xs text-slate-500">
+                                                             <span>Scroll horizontally to view all columns. Pre-filled with standard sample values:</span>
+                                                             <button
+                                                                 onClick={() => downloadTemplate('chapters')}
+                                                                 className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 bg-blue-50 px-2 py-1 rounded"
+                                                             >
+                                                                 <Download size={12} /> Download CSV Template
+                                                             </button>
+                                                         </div>
+
+                                                         {/* Mock Excel Sheet Container */}
+                                                         <div className="border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50">
+                                                             {/* Excel Header Toolbar */}
+                                                             <div className="bg-[#107c41] text-white px-3 py-2 text-xs font-semibold flex items-center justify-between border-b border-emerald-700">
+                                                                 <div className="flex items-center gap-2">
+                                                                     <span className="bg-white text-[#107c41] px-1 rounded text-[9px] font-bold">XLSX</span>
+                                                                     <span>chapters_template.csv — Excel Grid View</span>
+                                                                 </div>
+                                                                 <span className="text-[10px] opacity-75">Comma-Separated (CSV)</span>
+                                                             </div>
+
+                                                             {/* Excel Grid Layout */}
+                                                             <div className="overflow-x-auto max-w-full">
+                                                                 <table className="w-full border-collapse text-left text-xs bg-white font-mono">
+                                                                     <thead>
+                                                                         {/* Column Letters Row */}
+                                                                         <tr className="bg-slate-100 text-slate-500 font-sans border-b border-slate-200">
+                                                                             <th className="px-2 py-1 border-r border-slate-200 bg-slate-200 text-center font-bold min-w-[30px]"></th>
+                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[150px]">A</th>
+                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[100px]">B</th>
+                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[85px]">C</th>
+                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[200px]">D</th>
+                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[150px]">E</th>
+                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[80px]">F</th>
+                                                                             <th className="px-3 py-1 border-slate-200 text-center min-w-[80px]">G</th>
+                                                                         </tr>
+                                                                         {/* CSV Headers Row */}
+                                                                         <tr className="bg-emerald-50/70 text-emerald-900 border-b border-slate-200 font-bold">
+                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-200 text-center text-slate-500 font-sans font-medium">1</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">name <span className="text-red-500 font-sans">*</span></td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">subject <span className="text-red-500 font-sans">*</span></td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200">unit</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">description <span className="text-red-500 font-sans">*</span></td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">topics <span className="text-red-500 font-sans">*</span></td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200">difficulty</td>
+                                                                             <td className="px-3 py-1.5">status</td>
+                                                                         </tr>
+                                                                     </thead>
+                                                                     <tbody className="divide-y divide-slate-100 text-slate-700">
+                                                                         {/* Row 2: Biology Chapter */}
+                                                                         <tr>
+                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">2</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans font-semibold text-slate-800">Biomolecules</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-rose-50 text-rose-800 font-semibold font-sans">Biology</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Unit 1</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[180px] font-sans">Detailed study of biomolecules and enzymes</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">Amino Acids|Proteins|Lipids|Enzymes</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans text-center">Medium</td>
+                                                                             <td className="px-3 py-1.5 font-sans text-center text-green-600 font-semibold">active</td>
+                                                                         </tr>
+                                                                         {/* Row 3: Chemistry Chapter */}
+                                                                         <tr>
+                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">3</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans font-semibold text-slate-800">Structure of Atom</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-emerald-50 text-emerald-800 font-semibold font-sans">Chemistry</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Unit 1</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[180px] font-sans">Atomic structure and chemical theories</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">Bohr Model|Rutherford Model|Quantum Numbers</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans text-center">Medium</td>
+                                                                             <td className="px-3 py-1.5 font-sans text-center text-green-600 font-semibold">active</td>
+                                                                         </tr>
+                                                                         {/* Row 4: Physics Chapter */}
+                                                                         <tr>
+                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">4</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans font-semibold text-slate-800">Laws of Motion</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-blue-50 text-blue-800 font-semibold font-sans">Physics</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Unit 2</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[180px] font-sans">Newtonian mechanics and force dynamics</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">Newton's First Law|Friction|Circular Motion</td>
+                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans text-center">Hard</td>
+                                                                             <td className="px-3 py-1.5 font-sans text-center text-green-600 font-semibold">active</td>
+                                                                         </tr>
+                                                                     </tbody>
+                                                                 </table>
+                                                             </div>
+                                                             {/* Excel Footer Sheet Tabs */}
+                                                             <div className="bg-slate-100 border-t border-slate-200 px-3 py-1 flex items-center gap-1.5 text-[10px] text-slate-600">
+                                                                 <div className="bg-white border-x border-t border-slate-300 text-emerald-700 px-3 py-1 font-bold rounded-t shadow-sm">
+                                                                     Sheet1
+                                                                 </div>
+                                                                 <span className="opacity-40">|</span>
+                                                                 <span className="cursor-pointer hover:underline text-slate-400 font-bold px-1">+</span>
+                                                             </div>
+                                                         </div>
+
+                                                         <div className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3 leading-relaxed">
+                                                             💡 <strong>Key Notice:</strong> Use a vertical pipe (<code>|</code>) character in the <code className="bg-slate-200 px-1 rounded">topics</code> column to separate multiple sub-topics in a single chapter row. Missing subjects will be auto-detected and can be instantly created!
+                                                         </div>
+                                                     </div>
+                                                 ) : (
+                                                     /* Grid Column Specifications View */
+                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                             <span className="font-bold text-blue-700 block mb-1">name</span>
+                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                             <p className="text-slate-600">The chapter or category name (e.g. Biomolecules).</p>
+                                                         </div>
+                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                             <span className="font-bold text-blue-700 block mb-1">subject</span>
+                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                             <p className="text-slate-600">Must be an existing subject in your system database. You can auto-create missing subjects below.</p>
+                                                         </div>
+                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                             <span className="font-bold text-blue-700 block mb-1">unit</span>
+                                                             <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Optional</span>
+                                                             <p className="text-slate-600">The unit name or number (e.g. Unit 1).</p>
+                                                         </div>
+                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                             <span className="font-bold text-blue-700 block mb-1">description</span>
+                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                             <p className="text-slate-600">A detailed description of what is covered in this chapter.</p>
+                                                         </div>
+                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                             <span className="font-bold text-blue-700 block mb-1">topics</span>
+                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                             <p className="text-slate-600">Sub-topics within the chapter, separated by a vertical pipe <code>|</code> character.</p>
+                                                         </div>
+                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                             <span className="font-bold text-blue-700 block mb-1">difficulty</span>
+                                                             <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Optional</span>
+                                                             <p className="text-slate-600">Must be Easy, Medium, or Hard. Defaults to Medium.</p>
+                                                         </div>
+                                                     </div>
+                                                 )}
+                                             </div>
+                                         </div>
+                                     </div>
+
+                                     {/* Right Panel: File Upload & Action Center */}
+                                     <div className="space-y-4">
+                                         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                                             <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                                 <Upload size={18} className="text-purple-600" />
+                                                 Upload CSV File
+                                             </h4>
+                                             
+                                             {/* Premium Drag & Drop or Custom File Selector Box */}
+                                             <div className="relative group border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/20 rounded-xl p-4 transition-all duration-200 text-center">
+                                                 <input
+                                                     type="file"
+                                                     accept=".csv"
+                                                     onChange={handleFileSelect}
+                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                 />
+                                                 <div className="space-y-2">
+                                                     <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                                                         <Upload size={18} />
+                                                     </div>
+                                                     <div className="text-xs font-semibold text-slate-700">
+                                                         {importFile ? importFile.name : 'Choose Chapters CSV file'}
+                                                     </div>
+                                                     <div className="text-[10px] text-slate-400">
+                                                         {importFile ? `${(importFile.size / 1024).toFixed(1)} KB` : 'or drag and drop here'}
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                             
+                                             {/* Dynamic Elements Auto-creation Box */}
+                                             {missingSubjects.length > 0 && (
+                                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 shadow-sm animate-pulse-once">
+                                                     <div>
+                                                         <h4 className="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
+                                                             <AlertTriangle size={16} className="text-amber-600" /> Registry Additions Detected
+                                                         </h4>
+                                                         <p className="text-[10px] text-amber-800 mt-1">
+                                                             This CSV refers to new subjects. Select the button below to register them in the database instantly:
+                                                         </p>
+                                                         <div className="flex flex-wrap gap-1 mt-2">
+                                                             {missingSubjects.map(sub => (
+                                                                 <span key={sub} className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded text-[9px] font-bold border border-rose-200 flex items-center gap-0.5">
+                                                                     Subject: {sub}
+                                                                 </span>
+                                                             ))}
+                                                         </div>
+                                                     </div>
+                                                     <button
+                                                         type="button"
+                                                         onClick={handleCreateMissingElements}
+                                                         disabled={isCreatingMissing}
+                                                         className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all text-xs shadow disabled:opacity-50 flex items-center justify-center gap-2"
+                                                     >
+                                                         {isCreatingMissing ? <Loader2 className="animate-spin" size={12} /> : null}
+                                                         Auto-Create Registry Entries
+                                                     </button>
+                                                 </div>
+                                             )}
+                                         </div>
+                                     </div>
+                                 </div>
 
                                 {/* Preview and Validation */}
                                 {parsedRows.length > 0 && (
@@ -852,15 +1131,15 @@ const AdminChaptersPage = () => {
                                                             <tr key={index} className={validation?.valid ? 'bg-green-50/50' : 'bg-red-50/50'}>
                                                                 <td className="px-3 py-2">
                                                                     {validation?.valid ? (
-                                                                        <span className="text-green-600">✓</span>
+                                                                        <span className="text-green-600 font-bold">✓</span>
                                                                     ) : (
-                                                                        <span className="text-red-600">✗</span>
+                                                                        <span className="text-red-600 font-bold">✗</span>
                                                                     )}
                                                                 </td>
                                                                 <td className="px-3 py-2">{row.name}</td>
                                                                 <td className="px-3 py-2">{row.subject}</td>
                                                                 <td className="px-3 py-2 text-xs">{row.topics?.split('|').length || 0} topics</td>
-                                                                <td className="px-3 py-2 text-xs text-red-600">
+                                                                <td className="px-3 py-2 text-xs text-red-600 font-semibold">
                                                                     {validation?.errors.join(', ')}
                                                                 </td>
                                                             </tr>

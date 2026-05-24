@@ -8,7 +8,6 @@ import {
     getDocs,
     query,
     where,
-    orderBy,
     limit,
     serverTimestamp
 } from 'firebase/firestore';
@@ -91,15 +90,21 @@ export const getTest = async (testId: string): Promise<Test | null> => {
 export const getTestsBySeries = async (seriesId: string): Promise<Test[]> => {
     const q = query(
         collection(db, TESTS_COLLECTION),
-        where('seriesId', '==', seriesId),
-        orderBy('createdAt', 'desc')
+        where('seriesId', '==', seriesId)
     );
 
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    const tests = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
     })) as Test[];
+
+    // Sort client-side by createdAt descending
+    return tests.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+    });
 };
 
 // Publish test
@@ -123,10 +128,10 @@ export const generateQuestionsAuto = async (
     for (const subject of config.subjects) {
         let subjectQuestions: string[] = [];
 
-        if (config.useWeightage) {
+        if (config.useWeightage && JEE_MAINS_2024_WEIGHTAGE[subject as keyof typeof JEE_MAINS_2024_WEIGHTAGE]) {
             // Use weightage-based distribution
             subjectQuestions = await getQuestionsByWeightage(
-                subject,
+                subject as any,
                 questionsPerSubject,
                 config.class
             );

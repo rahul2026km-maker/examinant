@@ -414,12 +414,12 @@ const StudentTestResultDetailPage = () => {
                 </div>
 
                 <div className="divide-y divide-slate-100">
-                    {filteredQuestions.map((q) => {
+                    {filteredQuestions.map((q, qi) => {
                         const status = q.status;
                         const userAnswer = attempt.answers[q.index];
 
                         return (
-                            <div key={q.id} className="p-6 hover:bg-slate-50 transition-colors">
+                            <div key={q.id || `q-${qi}`} className="p-6 hover:bg-slate-50 transition-colors">
                                 <div className="flex items-start gap-4">
                                     <div className="flex-shrink-0">
                                         <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${status === 'correct' ? 'bg-green-100 text-green-700' :

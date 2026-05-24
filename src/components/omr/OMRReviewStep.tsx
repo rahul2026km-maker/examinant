@@ -48,7 +48,7 @@ const OMRReviewStep = ({ formData }: OMRReviewStepProps) => {
                     <Layers size={16} className="text-amber-500" /> Section-wise Breakdown
                 </h3>
                 <div className="space-y-3">
-                    {sections.map((sec) => {
+                    {sections.map((sec, si) => {
                         const secMappings = mappings.filter(
                             (m) => m.serialNumber >= sec.questionStartIndex && m.serialNumber <= sec.questionEndIndex
                         );
@@ -56,7 +56,7 @@ const OMRReviewStep = ({ formData }: OMRReviewStepProps) => {
                         const isNumerical = sec.optionsPerQuestion === 0;
 
                         return (
-                            <div key={sec.id} className="bg-white rounded-lg border border-slate-200 p-4">
+                            <div key={sec.id || sec.name || si} className="bg-white rounded-lg border border-slate-200 p-4">
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
                                         <p className="font-semibold text-slate-800">{sec.name}</p>
