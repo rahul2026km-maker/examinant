@@ -89,8 +89,8 @@ export const validateChapter = async (row: ChapterCSVRow, index: number): Promis
 
     if (!row.subject || row.subject.trim() === '') {
         errors.push(`Row ${index + 1}: Subject is required`);
-    } else if (!['Physics', 'Chemistry', 'Mathematics'].includes(row.subject)) {
-        errors.push(`Row ${index + 1}: Subject must be Physics, Chemistry, or Mathematics`);
+    } else if (!['Physics', 'Chemistry', 'Mathematics', 'Biology'].includes(row.subject)) {
+        errors.push(`Row ${index + 1}: Subject must be Physics, Chemistry, Mathematics, or Biology`);
     }
 
     if (!row.description || row.description.trim() === '') {
@@ -154,14 +154,15 @@ export const validateQuestion = async (row: QuestionCSVRow, index: number): Prom
     if (subject.toLowerCase() === 'physics') subject = 'Physics';
     if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
     if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
+    if (subject.toLowerCase() === 'biology') subject = 'Biology';
 
     // Required fields
     if (!text) {
         errors.push(`Row ${index + 1}: Question text is required`);
     }
 
-    if (!['Physics', 'Chemistry', 'Mathematics'].includes(subject)) {
-        errors.push(`Row ${index + 1}: Valid subject is required (Physics/Chemistry/Mathematics)`);
+    if (!['Physics', 'Chemistry', 'Mathematics', 'Biology'].includes(subject)) {
+        errors.push(`Row ${index + 1}: Valid subject is required (Physics/Chemistry/Mathematics/Biology)`);
     }
 
     if (!chapter) {
@@ -330,6 +331,7 @@ export const batchUploadQuestions = async (
                 if (subject.toLowerCase() === 'physics') subject = 'Physics';
                 if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
                 if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
+                if (subject.toLowerCase() === 'biology') subject = 'Biology';
 
                 const questionData: any = {
                     text: rows[i].text.trim(),

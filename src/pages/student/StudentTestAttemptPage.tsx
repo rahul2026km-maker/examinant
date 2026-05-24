@@ -13,7 +13,7 @@ interface Question {
     text: string;
     options: string[]; // For MCQ
     correctAnswer: number | string; // index for MCQ, value for Numerical
-    subject: 'Physics' | 'Chemistry' | 'Mathematics';
+    subject: string;
     chapter: string;
     type: 'MCQ' | 'Numerical';
     section: 'A' | 'B'; // Added for JEE Mains structure
@@ -37,7 +37,7 @@ const StudentTestAttemptPage = () => {
 
     const [testData, setTestData] = useState<TestData | null>(null);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [activeSubject, setActiveSubject] = useState<'Physics' | 'Chemistry' | 'Mathematics'>('Physics');
+    const [activeSubject, setActiveSubject] = useState<string>('Physics');
 
     // Answers storage
     const [answers, setAnswers] = useState<Record<number, number | string>>({}); // questionIndex -> answer
@@ -45,11 +45,7 @@ const StudentTestAttemptPage = () => {
     const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set([0]));
 
     // Section B selections (5 out of 10)
-    const [sectionBSelections, setSectionBSelections] = useState<{
-        Physics: Set<number>;
-        Chemistry: Set<number>;
-        Mathematics: Set<number>;
-    }>({
+    const [sectionBSelections, setSectionBSelections] = useState<Record<string, Set<number>>>({
         Physics: new Set(),
         Chemistry: new Set(),
         Mathematics: new Set()
@@ -115,6 +111,17 @@ const StudentTestAttemptPage = () => {
                         };
 
                         setTestData(data);
+
+                        if (fullQuestions.length > 0) {
+                            setActiveSubject(fullQuestions[0].subject);
+                            
+                            const subjects = Array.from(new Set(fullQuestions.map(q => q.subject)));
+                            const initialSelections: Record<string, Set<number>> = {};
+                            subjects.forEach(sub => {
+                                initialSelections[sub] = new Set();
+                            });
+                            setSectionBSelections(initialSelections);
+                        }
 
                         // Set timer
                         if (data.duration) {
@@ -264,9 +271,9 @@ const StudentTestAttemptPage = () => {
 
         // Validate Section B selections for JEE Mains pattern
         if (testData.testPattern === 'JEE_MAINS') {
-            const subjects: ('Physics' | 'Chemistry' | 'Mathematics')[] = ['Physics', 'Chemistry', 'Mathematics'];
+            const subjects = Array.from(new Set(testData.questions.map(q => q.subject)));
             for (const subject of subjects) {
-                if (sectionBSelections[subject].size > 5) {
+                if (sectionBSelections[subject] && sectionBSelections[subject].size > 5) {
                     alert(`You have selected ${sectionBSelections[subject].size} questions in ${subject} Section B. Only 5 will be evaluated.`);
                 }
             }
@@ -312,11 +319,10 @@ const StudentTestAttemptPage = () => {
                 duration: (testData.duration ? testData.duration * 60 : 180 * 60) - timeRemaining,
                 answers: answers,
                 markedForReview: Array.from(markedForReview),
-                sectionBSelections: {
-                    Physics: Array.from(sectionBSelections.Physics),
-                    Chemistry: Array.from(sectionBSelections.Chemistry),
-                    Mathematics: Array.from(sectionBSelections.Mathematics)
-                }
+                sectionBSelections: Object.keys(sectionBSelections).reduce((acc, key) => {
+                    acc[key] = Array.from(sectionBSelections[key]);
+                    return acc;
+                }, {} as Record<string, number[]>)
             };
 
             await addDoc(collection(db, 'users', currentUser.uid, 'attempts'), resultData);
@@ -431,6 +437,7 @@ const StudentTestAttemptPage = () => {
     const currentQuestion = testData.questions[currentQuestionIndex];
     const subjectQuestions = testData.questions.filter(q => q.subject === activeSubject);
     const sectionBCount = sectionBSelections[activeSubject]?.size || 0;
+    const subjectsInTest = Array.from(new Set(testData.questions.map(q => q.subject)));
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -476,7 +483,7 @@ const StudentTestAttemptPage = () => {
 
                 {/* Subject Tabs */}
                 <div className="mt-3 flex gap-2 overflow-x-auto">
-                    {(['Physics', 'Chemistry', 'Mathematics'] as const).map(subject => (
+                    {subjectsInTest.map(subject => (
                         <button
                             key={subject}
                             onClick={() => {

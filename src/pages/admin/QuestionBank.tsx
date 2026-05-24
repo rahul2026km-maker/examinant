@@ -660,23 +660,23 @@ const AdminQuestionBank = () => {
                     className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100"
                 >
                     <h2 className="text-lg font-bold text-slate-800 mb-4">Question Bank Statistics</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         <div className="bg-white rounded-xl p-4 text-center">
                             <div className="text-3xl font-bold text-blue-600">{stats.total}</div>
                             <div className="text-sm text-slate-500 mt-1">Total Questions</div>
                         </div>
-                        <div className="bg-white rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-green-600">{stats.bySubject['Physics'] || 0}</div>
-                            <div className="text-sm text-slate-500 mt-1">Physics</div>
-                        </div>
-                        <div className="bg-white rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-purple-600">{stats.bySubject['Chemistry'] || 0}</div>
-                            <div className="text-sm text-slate-500 mt-1">Chemistry</div>
-                        </div>
-                        <div className="bg-white rounded-xl p-4 text-center">
-                            <div className="text-2xl font-bold text-orange-600">{stats.bySubject['Mathematics'] || 0}</div>
-                            <div className="text-sm text-slate-500 mt-1">Mathematics</div>
-                        </div>
+                        {subjects.map(subject => (
+                            <div key={subject} className="bg-white rounded-xl p-4 text-center">
+                                <div className={`text-2xl font-bold ${
+                                    subject === 'Physics' ? 'text-green-600' :
+                                    subject === 'Chemistry' ? 'text-purple-600' :
+                                    subject === 'Mathematics' ? 'text-orange-600' :
+                                    subject === 'Biology' ? 'text-rose-600' :
+                                    'text-slate-600'
+                                }`}>{stats.bySubject[subject] || 0}</div>
+                                <div className="text-sm text-slate-500 mt-1">{subject}</div>
+                            </div>
+                        ))}
                         <div className="bg-white rounded-xl p-4 text-center">
                             <div className="text-xl font-bold text-slate-600">{stats.byType.MCQ} / {stats.byType.Numerical}</div>
                             <div className="text-sm text-slate-500 mt-1">MCQ / Numerical</div>
@@ -704,9 +704,9 @@ const AdminQuestionBank = () => {
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                     >
                         <option value="all">All Subjects</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="Mathematics">Mathematics</option>
+                        {subjects.map(subject => (
+                            <option key={subject} value={subject}>{subject}</option>
+                        ))}
                     </select>
                     <select
                         value={filterType}
@@ -840,9 +840,12 @@ const AdminQuestionBank = () => {
                                             {q.text}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${q.subject === 'Physics' ? 'bg-green-100 text-green-700' :
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                                q.subject === 'Physics' ? 'bg-green-100 text-green-700' :
                                                 q.subject === 'Chemistry' ? 'bg-purple-100 text-purple-700' :
-                                                    'bg-orange-100 text-orange-700'
+                                                q.subject === 'Mathematics' ? 'bg-orange-100 text-orange-700' :
+                                                q.subject === 'Biology' ? 'bg-rose-100 text-rose-700' :
+                                                'bg-slate-100 text-slate-700'
                                                 }`}>
                                                 {q.subject}
                                             </span>

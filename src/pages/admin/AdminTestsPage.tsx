@@ -6,6 +6,7 @@ import { db } from '../../firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, arrayUnion, getDocs } from 'firebase/firestore';
 import { generateJEEMainsTest } from '../../services/testGenerationService';
 import { generateTestFromTopics } from '../../services/topicTestService';
+import { useSubjectList } from '../../hooks/useSubjectList';
 
 interface Question {
     id: string;
@@ -34,6 +35,7 @@ const AdminTestsPage = () => {
     const [isCreating, setIsCreating] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const subjects = useSubjectList();
 
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -539,8 +541,8 @@ const AdminTestsPage = () => {
                                             {/* Subject Selection */}
                                             <div>
                                                 <label className="block text-sm font-semibold text-slate-700 mb-2">Select Subjects</label>
-                                                <div className="flex gap-2">
-                                                    {['Physics', 'Chemistry', 'Mathematics'].map(subject => (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {subjects.map(subject => (
                                                         <button
                                                             key={subject}
                                                             type="button"
@@ -768,9 +770,12 @@ const AdminTestsPage = () => {
                                     <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200">
                                         <div className="flex justify-between mb-2">
                                             <span className="font-bold text-slate-700">Question {idx + 1}</span>
-                                            <span className={`px-2 py-1 rounded text-xs font-bold ${q.subject === 'Physics' ? 'bg-green-100 text-green-700' :
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                                                q.subject === 'Physics' ? 'bg-green-100 text-green-700' :
                                                 q.subject === 'Chemistry' ? 'bg-purple-100 text-purple-700' :
-                                                    'bg-orange-100 text-orange-700'
+                                                q.subject === 'Mathematics' ? 'bg-orange-100 text-orange-700' :
+                                                q.subject === 'Biology' ? 'bg-rose-100 text-rose-700' :
+                                                'bg-slate-100 text-slate-700'
                                                 }`}>
                                                 {q.subject}
                                             </span>
