@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, Sparkles, Filter, ChevronRight } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
@@ -10,6 +11,7 @@ import { loadRazorpay } from '../../utils/razorpay';
 import { studentService } from '../../services/studentService';
 
 const StudentMarketPage = () => {
+    const navigate = useNavigate();
     const authContext = useAuth();
     const currentUser = authContext?.currentUser;
     const [tests, setTests] = useState<TestSeries[]>([]);
@@ -74,6 +76,7 @@ const StudentMarketPage = () => {
                         try {
                             await studentService.enrollInTestSeries(currentUser.uid, series);
                             alert('Success! You are now enrolled.');
+                            navigate('/dashboard/tests');
                         } catch (err) {
                             console.error("Enrollment error:", err);
                         }
@@ -101,6 +104,7 @@ const StudentMarketPage = () => {
                     purchaseDate: serverTimestamp()
                 });
                 setEnrollingId(null);
+                navigate('/dashboard/tests');
             }
         } catch (error) {
             console.error("Enrollment failed", error);

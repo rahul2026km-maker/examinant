@@ -292,7 +292,13 @@ export const generateQuestionsCustom = async (
         }
     }
 
-    // Apply MCQ/Numerical split
+    // If using custom mode, and they want ALL questions from selected topics,
+    // we should NOT filter by totalQuestions or MCQ percentage.
+    if (config.questionSelection === 'all') {
+        return questionIds;
+    }
+
+    // Apply MCQ/Numerical split only if they have specific limits (not custom 'all')
     const filteredIds = await applyQuestionTypeFilter(
         questionIds,
         questionConfig

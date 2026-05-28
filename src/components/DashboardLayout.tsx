@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
@@ -14,9 +14,7 @@ import {
     BookMarked,
     FolderTree,
     Award,
-    ListChecks,
-    Search,
-    ChevronRight
+    ListChecks
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -32,6 +30,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
     const authContext = useAuth();
     const currentUser = authContext?.currentUser;
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = async () => {
         try {
@@ -42,30 +41,55 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         }
     };
 
-    const studentLinks = [
-        { icon: <LayoutDashboard size={20} />, label: 'Overview', path: '/dashboard' },
-        { icon: <BookOpen size={20} />, label: 'My Tests', path: '/dashboard/tests' },
-        { icon: <Award size={20} />, label: 'Test Results', path: '/dashboard/results' },
-        { icon: <FileText size={20} />, label: 'Buy Series', path: '/dashboard/market' },
-        { icon: <TrendingUp size={20} />, label: 'Analytics', path: '/dashboard/analytics' },
+    const studentSections = [
+        {
+            title: 'Dashboard',
+            links: [
+                { icon: <LayoutDashboard size={18} />, label: 'Overview', path: '/dashboard' },
+                { icon: <TrendingUp size={18} />, label: 'Analytics', path: '/dashboard/analytics' },
+            ]
+        },
+        {
+            title: 'Learning',
+            links: [
+                { icon: <BookOpen size={18} />, label: 'My Tests', path: '/dashboard/tests' },
+                { icon: <Award size={18} />, label: 'Test Results', path: '/dashboard/results' },
+                { icon: <FileText size={18} />, label: 'Buy Series', path: '/dashboard/market' },
+            ]
+        }
     ];
 
-    const adminLinks = [
-        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/admin-dashboard' },
-        { icon: <ListChecks size={20} />, label: 'Test Series', path: '/admin-dashboard/test-series' },
-        { icon: <BookMarked size={20} />, label: 'Question Bank', path: '/admin-dashboard/question-bank' },
-        { icon: <FolderTree size={20} />, label: 'Chapters', path: '/admin-dashboard/chapters' },
-        { icon: <FileText size={20} />, label: 'Manage PYQs', path: '/admin-dashboard/pyqs' },
-        { icon: <Award size={20} />, label: 'Subjects', path: '/admin-dashboard/subjects' },
-        { icon: <BookOpen size={20} />, label: 'Resources', path: '/admin-dashboard/resources' },
-        { icon: <Users size={20} />, label: 'Students', path: '/admin-dashboard/students' },
-        { icon: <Settings size={20} />, label: 'Settings', path: '/admin-dashboard/settings' },
+    const adminSections = [
+        {
+            title: 'Dashboard',
+            links: [
+                { icon: <LayoutDashboard size={18} />, label: 'Overview', path: '/admin-dashboard' },
+            ]
+        },
+        {
+            title: 'Content',
+            links: [
+                { icon: <ListChecks size={18} />, label: 'Test Series', path: '/admin-dashboard/test-series' },
+                { icon: <BookMarked size={18} />, label: 'Question Bank', path: '/admin-dashboard/question-bank' },
+                { icon: <FolderTree size={18} />, label: 'Chapters', path: '/admin-dashboard/chapters' },
+                { icon: <FileText size={18} />, label: 'Manage PYQs', path: '/admin-dashboard/pyqs' },
+                { icon: <Award size={18} />, label: 'Subjects', path: '/admin-dashboard/subjects' },
+                { icon: <BookOpen size={18} />, label: 'Resources', path: '/admin-dashboard/resources' },
+            ]
+        },
+        {
+            title: 'Management',
+            links: [
+                { icon: <Users size={18} />, label: 'Students', path: '/admin-dashboard/students' },
+                { icon: <Settings size={18} />, label: 'Settings', path: '/admin-dashboard/settings' },
+            ]
+        }
     ];
 
-    const links = role === 'admin' ? adminLinks : studentLinks;
+    const sections = role === 'admin' ? adminSections : studentSections;
 
     return (
-        <div className="min-h-screen flex bg-[#f8fafc] text-slate-900 font-sans">
+        <div className="min-h-screen flex bg-[#F3F4F6] text-gray-900 font-sans">
             {/* Mobile Sidebar Overlay */}
             <AnimatePresence>
                 {isSidebarOpen && (
@@ -73,7 +97,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-slate-900/40 z-40 md:hidden backdrop-blur-[2px]"
+                        className="fixed inset-0 bg-gray-900/40 z-40 md:hidden backdrop-blur-sm"
                         onClick={() => setIsSidebarOpen(false)}
                     />
                 )}
@@ -82,112 +106,105 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             {/* Sidebar */}
             <aside
                 className={`
-                    fixed md:sticky top-0 h-screen w-72 bg-white border-r border-slate-100 z-50 transition-all duration-300 ease-in-out
+                    fixed md:sticky top-0 h-screen w-64 z-50 transition-transform duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                    flex flex-col shadow-2xl md:shadow-none print:hidden
+                    flex flex-col shadow-2xl md:shadow-none print:hidden bg-white border-r border-gray-200
                 `}
             >
-                {/* Logo Area */}
-                <div className="px-8 py-8 flex items-center gap-3">
-                    <div className="p-2 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
-                        <img src={logo} alt="Logo" className="w-8 h-8 rounded-lg brightness-0 invert" />
+                {/* Header / Logo */}
+                <div className="px-6 pt-6 pb-6 flex items-center gap-3">
+                    <div className="w-9 h-9 bg-[#111827] rounded-lg flex items-center justify-center shadow-sm shrink-0">
+                        <img src={logo} alt="Logo" className="w-5 h-5 brightness-0 invert" />
                     </div>
-                    <div>
-                        <h2 className="text-xl font-black text-slate-900 tracking-tight font-heading">
+                    <div className="min-w-0">
+                        <h2 className="text-[18px] font-bold text-gray-900 tracking-tight truncate leading-tight">
                             Examinantt
                         </h2>
-                        <p className="text-[10px] uppercase tracking-widest font-black text-blue-600">
-                            {role === 'admin' ? 'Admin' : 'Student'} Hub
+                        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mt-0.5">
+                            {role === 'admin' ? 'Admin' : 'Student'}
                         </p>
                     </div>
                 </div>
 
-                {/* Navigation */}
-                <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto py-4 scrollbar-hide">
-                    {links.map((link) => (
-                        <NavLink
-                            key={link.path}
-                            to={link.path}
-                            onClick={() => setIsSidebarOpen(false)}
-                            className={({ isActive }) => `
-                                relative group flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-300 font-bold text-sm
-                                ${isActive
-                                    ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/10'
-                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                                }
-                            `}
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    <span className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
-                                        {link.icon}
-                                    </span>
-                                    <span className="flex-1">{link.label}</span>
-                                    {isActive && (
-                                        <motion.div 
-                                            layoutId="activeNavIndicator"
-                                            className="absolute right-3 w-1.5 h-1.5 bg-blue-500 rounded-full" 
-                                        />
-                                    )}
-                                    <ChevronRight size={14} className={`opacity-0 transition-all ${!isActive && 'group-hover:opacity-100 group-hover:translate-x-1'}`} />
-                                </>
-                            )}
-                        </NavLink>
+                {/* Dynamic Navigation Sections */}
+                <nav className="flex-1 overflow-y-auto px-4 pb-6 scrollbar-hide space-y-6">
+                    {sections.map((section, idx) => (
+                        <div key={idx}>
+                            <div className="flex items-center justify-between px-2 mb-2">
+                                <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">{section.title}</h3>
+                                <div className="w-4 h-px bg-gray-300"></div>
+                            </div>
+                            <div className="space-y-1">
+                                {section.links.map((link) => {
+                                    const isActive = location.pathname === link.path;
+                                    return (
+                                        <NavLink
+                                            key={link.path}
+                                            to={link.path}
+                                            onClick={() => setIsSidebarOpen(false)}
+                                            className={`
+                                                flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-[13px]
+                                                ${isActive
+                                                    ? 'bg-gray-100 text-gray-900 font-bold'
+                                                    : 'text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900'
+                                                }
+                                            `}
+                                        >
+                                            <span className={`${isActive ? 'text-gray-800' : 'text-gray-400'}`}>
+                                                {link.icon}
+                                            </span>
+                                            <span className="flex-1">{link.label}</span>
+                                        </NavLink>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     ))}
                 </nav>
 
-                {/* Sidebar Footer */}
-                <div className="p-6 border-t border-slate-50">
+                {/* Sidebar Footer Logout */}
+                <div className="p-4 border-t border-gray-100">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-3 px-5 py-4 rounded-2xl bg-slate-50 text-slate-600 font-bold text-sm hover:bg-red-50 hover:text-red-600 transition-all duration-300 group"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gray-50 text-gray-600 font-medium text-[13px] hover:bg-red-50 hover:text-red-600 transition-colors"
                     >
-                        <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
-                        <span>Logout</span>
+                        <LogOut size={16} />
+                        <span>Log out</span>
                     </button>
                 </div>
             </aside>
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
-                {/* Header */}
-                <header className="sticky top-0 z-30 px-8 py-5 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-slate-100 print:hidden">
-                    <div className="flex items-center gap-6">
+                {/* Header (Mobile menu & Top right profile) */}
+                <header className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between bg-[#F3F4F6] print:hidden">
+                    <div className="flex items-center gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="md:hidden p-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100"
+                            className="md:hidden p-2 rounded-lg bg-white shadow-sm text-gray-600 hover:bg-gray-50"
                         >
                             <Menu size={20} />
                         </button>
-                        
-                        <div className="hidden lg:flex items-center gap-3 px-4 py-2 bg-slate-50 rounded-2xl border border-slate-100 w-80">
-                            <Search size={18} className="text-slate-400" />
-                            <input 
-                                type="text" 
-                                placeholder="Search everything..." 
-                                className="bg-transparent border-none outline-none text-sm font-medium w-full placeholder:text-slate-400"
-                            />
-                        </div>
                     </div>
 
-                    <div className="flex items-center gap-5">
-                        <button className="relative p-3 rounded-2xl bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all">
+                    <div className="flex items-center gap-4 ml-auto">
+                        <button className="relative p-2 rounded-full text-gray-500 hover:bg-white hover:shadow-sm transition-all">
                             <Bell size={20} />
-                            <span className="absolute top-3 right-3 w-2 h-2 bg-blue-600 rounded-full ring-2 ring-white"></span>
+                            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-[#F3F4F6]"></span>
                         </button>
                         
-                        <div className="h-8 w-px bg-slate-100 mx-1"></div>
-                        
-                        <div className="flex items-center gap-4">
+                        <div className="h-6 w-px bg-gray-200"></div>
+
+                        <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-black text-slate-900 leading-none">
-                                    {currentUser?.displayName || 'Student'}
+                                <p className="text-[13px] font-semibold text-gray-900 leading-none">
+                                    {currentUser?.displayName || 'User'}
                                 </p>
-                                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mt-1">
-                                    {role === 'admin' ? 'Administrator' : 'Premium Student'}
+                                <p className="text-[11px] font-medium text-gray-500 mt-1">
+                                    {role === 'admin' ? 'Administrator' : 'Student'}
                                 </p>
                             </div>
-                            <div className="w-11 h-11 rounded-2xl bg-slate-900 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-slate-900/10">
+                            <div className="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold text-sm shadow-sm ring-2 ring-white">
                                 {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
                             </div>
                         </div>
@@ -195,11 +212,11 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 px-8 py-10 overflow-x-hidden">
+                <main className="flex-1 px-6 pb-10 overflow-x-hidden">
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.3 }}
                     >
                         {children}
                     </motion.div>
@@ -210,4 +227,5 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
 };
 
 export default DashboardLayout;
+
 

@@ -121,7 +121,7 @@ const AISimulationSection = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                   <div className="space-y-3">
                     <p className="text-[10px] font-bold text-slate-500 uppercase">Accuracy Rate</p>
                     <p className="text-2xl font-black text-white">88%</p>
@@ -154,7 +154,7 @@ const AISimulationSection = () => {
             <motion.div 
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
-              className="absolute -top-6 -right-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 z-20"
+              className="absolute -top-6 right-2 sm:-right-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 z-20"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600">
@@ -256,7 +256,7 @@ const AISimulationSection = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {[
                 "100% Pattern Match",
                 "AI-Driven Logic",

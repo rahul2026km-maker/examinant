@@ -11,9 +11,21 @@ interface GenerationMethodStepProps {
 }
 
 const GenerationMethodStep = ({ formData, updateFormData }: GenerationMethodStepProps) => {
+    // State for selected subjects (custom or auto)
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>(
         formData.autoConfig?.subjects || formData.customConfig?.subjects || []
     );
+    // Ensure default question selection when switching to custom mode
+    useEffect(() => {
+        if (formData.generationType === 'custom' && !formData.customConfig?.questionSelection) {
+            updateFormData({
+                customConfig: {
+                    ...formData.customConfig,
+                    questionSelection: 'all',
+                },
+            });
+        }
+    }, [formData.generationType]);
     const [activeSubjectTab, setActiveSubjectTab] = useState<string>(selectedSubjects[0] || '');
     const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({});
     const [isQuestionPickerOpen, setIsQuestionPickerOpen] = useState(false);
@@ -136,6 +148,7 @@ const GenerationMethodStep = ({ formData, updateFormData }: GenerationMethodStep
         return (
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mt-6 shadow-sm">
                 {/* Selection Mode */}
+                {/* Question selection mode (All vs Specific) */}
                 <div className="p-4 border-b border-slate-100 bg-slate-50 flex gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
@@ -162,7 +175,6 @@ const GenerationMethodStep = ({ formData, updateFormData }: GenerationMethodStep
                         <span className="text-sm font-medium text-slate-700">Specific Questions</span>
                     </label>
                 </div>
-
                 {formData.customConfig?.questionSelection === 'specific' ? (
                     /* Specific Questions Content */
                     <div className="p-4 text-center py-8">

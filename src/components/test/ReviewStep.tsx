@@ -11,22 +11,36 @@ interface ReviewStepProps {
 const ReviewStep = ({ formData }: ReviewStepProps) => {
     const [showPreview, setShowPreview] = useState(false);
 
-    const totalQ = formData.questionConfig?.totalQuestions || 0;
+    const isCustomAll = formData.generationType === 'custom' && formData.customConfig?.questionSelection === 'all';
+    const isCustomSpecific = formData.generationType === 'custom' && formData.customConfig?.questionSelection === 'specific';
+
+
+    let totalQ = formData.questionConfig?.totalQuestions || 0;
+    if (isCustomSpecific) {
+        totalQ = formData.customConfig?.selectedQuestionIds?.length || 0;
+    }
+
     const marksPerQ = formData.settings?.marksPerQuestion || 0;
     const totalMarks = totalQ * marksPerQ;
     const duration = formData.settings?.duration || 0;
     const negMarks = formData.settings?.negativeMarking ?? -1;
 
-    const mcqCount = Math.round((formData.questionConfig?.mcqPercentage || 0) * totalQ / 100);
-    const numCount = Math.round((formData.questionConfig?.numericalPercentage || 0) * totalQ / 100);
+    const mcqPercentage = formData.questionConfig?.mcqPercentage || 0;
+    const numericalPercentage = formData.questionConfig?.numericalPercentage || 0;
+
+
+
+    // MCQ and Numerical counts are derived from percentages regardless of mode
+    const mcqCount = Math.round(mcqPercentage * totalQ / 100);
+    const numCount = Math.round(numericalPercentage * totalQ / 100);
 
     const subjects = formData.autoConfig?.subjects || formData.customConfig?.subjects || [];
 
     // Edge-case warnings
     const warnings: string[] = [];
-    if (totalQ < 5) warnings.push('Very few questions — consider adding more for a meaningful test.');
-    if (totalQ > 300) warnings.push('Very high question count. Students may run out of time.');
-    if (duration > 0 && totalQ > 0 && duration / totalQ < 0.5) {
+    if (!isCustomAll && totalQ < 5) warnings.push('Very few questions — consider adding more for a meaningful test.');
+    if (!isCustomAll && totalQ > 300) warnings.push('Very high question count. Students may run out of time.');
+    if (!isCustomAll && duration > 0 && totalQ > 0 && duration / totalQ < 0.5) {
         warnings.push(`Only ${(duration / totalQ).toFixed(1)} min per question — this may be too rushed.`);
     }
     if (negMarks > 0) warnings.push('Negative marking is positive — did you mean a negative value like -1?');
@@ -115,7 +129,7 @@ const ReviewStep = ({ formData }: ReviewStepProps) => {
                 <div className="grid grid-cols-3 gap-4">
                     <div className="bg-blue-50 p-4 rounded-xl text-center">
                         <div className="text-3xl font-bold text-blue-600">{totalQ}</div>
-                        <div className="text-xs text-slate-600 mt-1">Total Questions</div>
+                        <div className="text-xs text-slate-600 mt-1">Total Selected Questions</div>
                     </div>
                     <div className="bg-purple-50 p-4 rounded-xl text-center">
                         <div className="text-3xl font-bold text-purple-600">{mcqCount}</div>

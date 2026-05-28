@@ -44,66 +44,77 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+                <div 
+                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+                    onClick={onClose}
+                >
                     <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        className="bg-white w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden border border-white/20"
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden border border-white/20 relative"
                     >
-                        <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="bg-slate-900 px-8 py-10 text-white relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                             
                             <button 
-                                onClick={onClose}
-                                className="absolute top-8 right-8 p-2 bg-white/10 hover:bg-white/20 rounded-2xl transition-colors z-10"
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onClose();
+                                }}
+                                className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-20"
                             >
                                 <X size={20} />
                             </button>
 
                             <div className="relative z-10 flex flex-col items-center text-center">
-                                <div className="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center text-3xl mb-6 shadow-xl shadow-blue-600/30">
-                                    <Zap className="fill-white text-white" />
+                                <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-lg shadow-blue-600/30">
+                                    <Zap size={28} className="fill-white text-white" />
                                 </div>
-                                <h2 className="text-3xl font-black mb-2 tracking-tight">Attempt Mode</h2>
-                                <p className="text-blue-100/60 text-sm font-medium">{testName}</p>
+                                <h2 className="text-2xl font-bold mb-2 tracking-tight">Attempt Mode</h2>
+                                <p className="text-blue-100/80 text-sm font-medium">{testName}</p>
                             </div>
                         </div>
 
-                        <div className="p-10 space-y-4">
+                        <div className="p-8 space-y-4">
                             <button
+                                type="button"
                                 onClick={() => onConfirm('digital')}
-                                className="w-full group p-6 bg-slate-50 border border-slate-100 rounded-[32px] flex items-center gap-6 hover:bg-white hover:border-blue-600 hover:shadow-xl hover:shadow-blue-500/10 transition-all text-left"
+                                className="w-full group p-5 bg-slate-50 border border-slate-100 rounded-[24px] flex items-center gap-5 hover:bg-white hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 transition-all text-left"
                             >
-                                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                    <BookOpen size={32} />
+                                <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                    <BookOpen size={28} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-black text-slate-900 text-lg tracking-tight">Interactive Digital</h3>
-                                    <p className="text-slate-500 text-xs font-medium">Real-time interface with automated grading.</p>
+                                    <h3 className="font-bold text-slate-900 text-lg tracking-tight">Interactive Digital</h3>
+                                    <p className="text-slate-500 text-xs font-medium leading-relaxed mt-0.5">Real-time interface with automated grading.</p>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                    <ChevronRight size={20} />
+                                <div className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-all">
+                                    <ChevronRight size={18} />
                                 </div>
                             </button>
 
                             <button
+                                type="button"
                                 onClick={() => onConfirm('omr')}
-                                className="w-full group p-6 bg-slate-50 border border-slate-100 rounded-[32px] flex items-center gap-6 hover:bg-white hover:border-indigo-600 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left"
+                                className="w-full group p-5 bg-slate-50 border border-slate-100 rounded-[24px] flex items-center gap-5 hover:bg-white hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left"
                             >
-                                <div className="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                    <FileText size={32} />
+                                <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                    <FileText size={28} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-black text-slate-900 text-lg tracking-tight">OMR Simulation</h3>
-                                    <p className="text-slate-500 text-xs font-medium">Bubble sheet practice with PDF support.</p>
+                                    <h3 className="font-bold text-slate-900 text-lg tracking-tight">OMR Simulation</h3>
+                                    <p className="text-slate-500 text-xs font-medium leading-relaxed mt-0.5">Bubble sheet practice with PDF support.</p>
                                 </div>
-                                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                    <ChevronRight size={20} />
+                                <div className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:border-indigo-600 group-hover:text-white transition-all">
+                                    <ChevronRight size={18} />
                                 </div>
                             </button>
 
-                            <p className="text-center text-[10px] text-slate-400 mt-6 uppercase tracking-[0.2em] font-black">
+                            <p className="text-center text-[10px] text-slate-400 mt-6 uppercase tracking-[0.2em] font-bold">
                                 Multi-mode support enabled for this session
                             </p>
                         </div>
@@ -367,9 +378,10 @@ const StudentTestsPage = () => {
                 </div>
                 <button
                     onClick={() => navigate('/dashboard/market')}
-                    className="btn-primary-premium"
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-widest text-sm shadow-xl shadow-blue-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                     Browse Marketplace
+                    <ChevronRight size={18} strokeWidth={2.5} />
                 </button>
             </div>
 

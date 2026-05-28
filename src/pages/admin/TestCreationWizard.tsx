@@ -146,7 +146,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
         if (hasUnsavedChanges) {
             setShowCancelConfirm(true);
         } else {
-            (onCancel || (() => navigate('/admin-dashboard/tests')))();
+            (onCancel || (() => navigate('/admin-dashboard/test-series')))();
         }
     };
 
@@ -163,7 +163,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
             if (onComplete) {
                 onComplete();
             } else {
-                navigate('/admin-dashboard/tests');
+                navigate('/admin-dashboard/test-series');
             }
         } catch (error) {
             console.error('Error saving draft:', error);
@@ -207,7 +207,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
             if (onComplete) {
                 onComplete();
             } else {
-                navigate('/admin-dashboard/tests');
+                navigate('/admin-dashboard/test-series');
             }
         } catch (error) {
             console.error('Error publishing test:', error);
@@ -406,7 +406,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
                                 <button
                                     onClick={() => {
                                         setShowCancelConfirm(false);
-                                        (onCancel || (() => navigate('/admin-dashboard/tests')))();
+                                        (onCancel || (() => navigate('/admin-dashboard/test-series')))();
                                     }}
                                     className="flex-1 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700"
                                 >

@@ -210,6 +210,52 @@ export const JEE_MAINS_2024_WEIGHTAGE = {
             }
         }
     },
+    Biology: {
+        'Class 11': {
+            'Unit 1: Diversity in Living World': {
+                weight: 4,
+                chapters: ['The Living World', 'Biological Classification', 'Plant Kingdom', 'Animal Kingdom']
+            },
+            'Unit 2: Structural Organisation': {
+                weight: 3,
+                chapters: ['Morphology of Flowering Plants', 'Anatomy of Flowering Plants', 'Structural Organisation in Animals']
+            },
+            'Unit 3: Cell Structure and Function': {
+                weight: 4,
+                chapters: ['Cell: The Unit of Life', 'Biomolecules', 'Cell Cycle and Cell Division']
+            },
+            'Unit 4: Plant Physiology': {
+                weight: 4,
+                chapters: ['Photosynthesis in Higher Plants', 'Respiration in Plants', 'Plant Growth and Development']
+            },
+            'Unit 5: Human Physiology': {
+                weight: 5,
+                chapters: ['Breathing and Exchange of Gases', 'Body Fluids and Circulation', 'Excretory Products and their Elimination', 'Locomotion and Movement', 'Neural Control and Coordination', 'Chemical Coordination and Integration']
+            }
+        },
+        'Class 12': {
+            'Unit 1: Reproduction': {
+                weight: 4,
+                chapters: ['Sexual Reproduction in Flowering Plants', 'Human Reproduction', 'Reproductive Health']
+            },
+            'Unit 2: Genetics and Evolution': {
+                weight: 6,
+                chapters: ['Principles of Inheritance and Variation', 'Molecular Basis of Inheritance', 'Evolution']
+            },
+            'Unit 3: Biology in Human Welfare': {
+                weight: 3,
+                chapters: ['Human Health and Disease', 'Microbes in Human Welfare']
+            },
+            'Unit 4: Biotechnology': {
+                weight: 4,
+                chapters: ['Biotechnology: Principles and Processes', 'Biotechnology and its Applications']
+            },
+            'Unit 5: Ecology': {
+                weight: 4,
+                chapters: ['Organisms and Populations', 'Ecosystem', 'Biodiversity and Conservation']
+            }
+        }
+    },
     Mathematics: {
         'Class 11': {
             'Unit 1: Sets and Functions': {

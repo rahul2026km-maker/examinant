@@ -137,20 +137,20 @@ const AdminDashboard = () => {
                     <motion.div
                         key={index}
                         variants={itemVariants}
-                        className="bg-white rounded-[32px] p-8 border border-slate-100 relative overflow-hidden group hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500"
+                        className="bg-white rounded-2xl p-4 border border-slate-100 relative overflow-hidden group hover:shadow-2xl hover:shadow-blue-500/5 transition-all duration-500"
                     >
-                        <div className="flex justify-between items-start mb-8">
-                            <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color} transition-all duration-300 group-hover:bg-slate-900 group-hover:text-white`}>
-                                <stat.icon size={24} />
+                        <div className="flex justify-between items-start mb-2">
+                            <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} transition-all duration-300 group-hover:bg-slate-900 group-hover:text-white`}>
+                                <stat.icon size={20} />
                             </div>
-                            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1">
                                 {stat.indicator}
                             </div>
                         </div>
                         <div>
-                            <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tight">{stat.value}</h3>
-                            <p className="text-sm font-bold text-slate-500">{stat.label}</p>
-                            <div className="flex items-center gap-2 mt-4 text-[10px] font-black uppercase tracking-widest text-blue-600">
+                            <h3 className="text-2xl font-black text-slate-900 mb-1 tracking-tight">{stat.value}</h3>
+                            <p className="text-xs font-bold text-slate-500 mb-2">{stat.label}</p>
+                            <div className="flex items-center gap-1.5 mt-1 text-[10px] font-black uppercase tracking-widest text-blue-600">
                                 <TrendingUp size={12} />
                                 <span>{stat.trend}</span>
                             </div>
@@ -224,7 +224,7 @@ const AdminDashboard = () => {
                             </button>
                         ))}
                     </div>
-                    
+
                     <div className="p-8 bg-slate-900 rounded-[32px] text-white relative overflow-hidden group cursor-pointer" onClick={() => navigate('/admin-dashboard/students')}>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/40 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
                         <div className="relative z-10 flex flex-col gap-4">
