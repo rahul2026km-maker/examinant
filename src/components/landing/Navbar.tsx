@@ -45,9 +45,7 @@ const Navbar = () => {
                         className="flex items-center gap-2.5 cursor-pointer z-10"
                         onClick={() => navigate('/')}
                     >
-                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <img src={logo} alt="Examinantt Logo" className="h-6 w-auto brightness-0 invert" />
-                        </div>
+                        <img src={logo} alt="Examinantt Logo" className="w-10 h-10 rounded-lg" />
                         <span className="text-xl font-black text-white tracking-tight uppercase">
                             Examinantt
                         </span>
