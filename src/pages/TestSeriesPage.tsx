@@ -68,6 +68,7 @@ const TestSeriesPage = () => {
                                         "All India Rank Support"
                                     ]}
                                     onExplore={() => navigate(`/test-series/${item.id}`)}
+                                    thumbnailUrl={item.thumbnailUrl}
                                 />
                             ))}
                         </div>

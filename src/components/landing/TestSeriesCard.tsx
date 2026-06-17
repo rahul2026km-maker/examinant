@@ -14,6 +14,7 @@ interface TestSeriesProps {
     actions?: ReactNode; // For Admin side
     examCategory?: string;
     testCount?: number;
+    thumbnailUrl?: string;
 }
 
 const TestSeriesCard = ({ 
@@ -26,7 +27,8 @@ const TestSeriesCard = ({
     onExplore,
     actions,
     examCategory,
-    testCount
+    testCount,
+    thumbnailUrl
 }: TestSeriesProps) => {
 
     return (
@@ -36,10 +38,21 @@ const TestSeriesCard = ({
             className="group relative bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(37,99,235,0.15)] flex flex-col h-full"
         >
             {/* Top Glow Accent */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+
+            {/* Thumbnail Image */}
+            {thumbnailUrl && (
+                <div className="w-full h-40 overflow-hidden relative border-b border-slate-100 shrink-0">
+                    <img 
+                        src={thumbnailUrl} 
+                        alt={title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                </div>
+            )}
 
             {/* Header Area */}
-            <div className="p-8 pb-4 flex justify-between items-start">
+            <div className={`px-8 ${thumbnailUrl ? 'pt-6' : 'pt-8'} pb-4 flex justify-between items-start`}>
                 <div className="space-y-1">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div>

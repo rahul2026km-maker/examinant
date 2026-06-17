@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { getAllTestSeries } from '../services/testSeriesService';
 import type { TestSeries } from '../types/test.types';
@@ -83,25 +84,37 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section> */}
-      <section id="test-series" className="py-24 bg-[#F8FAFC] scroll-mt-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="test-series" className="py-24 bg-[#F8FAFC] scroll-mt-24 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-100/40 blur-3xl"></div>
+          <div className="absolute top-[60%] -right-[10%] w-[40%] h-[60%] rounded-full bg-blue-50/50 blur-3xl"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
           {/* HEADER */}
-          <div className="text-center mb-20">
-            <span className="inline-block text-xs font-semibold text-[#1D64D0] bg-[#1D64D0]/10 px-4 py-1.5 rounded-full tracking-wide mb-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
+          >
+            <span className="inline-block text-xs font-bold text-[#1D64D0] bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full tracking-wider uppercase mb-4 shadow-sm">
               Practice & Preparation
             </span>
 
-            <h3 className="text-3xl md:text-5xl font-extrabold text-gray-900">
-              Test Series
+            <h3 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
+              Test <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D64D0] to-blue-400">Series</span>
             </h3>
 
-            <p className="mt-4 text-gray-500 max-w-xl mx-auto text-sm md:text-base">
+            <p className="mt-4 text-gray-500 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
               Practice with curated mock tests designed to boost your exam performance and confidence.
             </p>
 
-            <div className="w-16 h-1 bg-[#1D64D0] mx-auto mt-6 rounded-full"></div>
-          </div>
+            <div className="w-16 h-1.5 bg-gradient-to-r from-[#1D64D0] to-blue-400 mx-auto mt-6 rounded-full"></div>
+          </motion.div>
 
           {/* CONTENT */}
           {loading ? (
@@ -111,92 +124,119 @@ const LandingPage = () => {
           ) : testSeries.length > 0 ? (
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {testSeries.map((series) => (
+              {testSeries.map((series, index) => (
 
-                <div
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
                   key={series.id}
-                  className="group bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+                  className="group bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 overflow-hidden flex flex-col h-full relative"
                 >
+                  <div className="absolute inset-0 bg-gradient-to-b from-blue-50/0 to-blue-50/0 group-hover:to-blue-50/50 transition-colors duration-300 pointer-events-none z-0"></div>
+
+                  {/* Thumbnail Image */}
+                  {series.thumbnailUrl && (
+                    <div className="w-full h-40 overflow-hidden relative z-10 border-b border-gray-100">
+                      <img 
+                        src={series.thumbnailUrl} 
+                        alt={series.name} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
 
                   {/* Top badges */}
-                  <div className="flex justify-between items-center px-5 pt-5">
-                    <span className="text-xs font-semibold bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                  <div className={`flex justify-between items-center px-6 ${series.thumbnailUrl ? 'pt-4' : 'pt-6'} relative z-10`}>
+                    <span className="text-xs font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-white px-3 py-1 rounded-full shadow-sm">
                       New
                     </span>
 
-                    <span className="text-xs text-gray-500 font-medium">
+                    <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
                       Test Series
                     </span>
                   </div>
 
                   {/* Title */}
-                  <div className="px-5 mt-3">
-                    <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#1D64D0] transition">
+                  <div className="px-6 mt-4 relative z-10">
+                    <h4 className="text-xl font-bold text-gray-900 group-hover:text-[#1D64D0] transition-colors duration-300">
                       {series.name}
                     </h4>
                   </div>
 
                   {/* Description */}
-                  <div className="px-5 mt-4">
-                    <p className="text-sm text-gray-600 line-clamp-3">
+                  <div className="px-6 mt-3 relative z-10 flex-grow">
+                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
                       {series.description || "Practice with high-quality mock tests and detailed solutions."}
                     </p>
                   </div>
 
                   {/* Features */}
-                  <div className="px-5 mt-4 space-y-2 text-sm text-gray-600">
-                    <p className="flex items-center gap-2">
-                      <span className="text-[#1D64D0]">✓</span> Detailed Solutions
+                  <div className="px-6 mt-6 space-y-3 text-sm text-gray-600 relative z-10">
+                    <p className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span> 
+                      <span className="font-medium">Detailed Solutions</span>
                     </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-[#1D64D0]">✓</span> All India Ranking
+                    <p className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span> 
+                      <span className="font-medium">All India Ranking</span>
                     </p>
-                    <p className="flex items-center gap-2">
-                      <span className="text-[#1D64D0]">✓</span> Performance Analytics
+                    <p className="flex items-center gap-3">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span> 
+                      <span className="font-medium">Performance Analytics</span>
                     </p>
                   </div>
 
-                  {/* Price */}
-                  <div className="px-5 mt-6 flex items-center gap-3">
-                    {series.pricing.type === "paid" ? (
-                      <>
-                        <span className="text-2xl font-bold text-gray-900">
-                          ₹{series.pricing.amount}
+                  {/* Price and CTA section */}
+                  <div className="p-6 mt-8 bg-gray-50/80 group-hover:bg-blue-50/50 transition-colors duration-300 mt-auto border-t border-gray-100 relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                      {series.pricing.type === "paid" ? (
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-extrabold text-gray-900">
+                            ₹{series.pricing.amount}
+                          </span>
+                          <span className="text-sm font-medium text-gray-400 line-through">
+                            ₹{(series.pricing.amount || 0) * 1.5}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-2xl font-extrabold text-emerald-500">
+                          Free
                         </span>
-
-                        <span className="text-sm text-gray-400 line-through">
-                          ₹{(series.pricing.amount || 0) * 1.5}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-xl font-bold text-green-600">
-                        Free
-                      </span>
-                    )}
-                  </div>
-
-                  {/* CTA */}
-                  <div className="p-5 mt-4">
+                      )}
+                    </div>
+                    
                     <button
                       onClick={() => handleBuy(series.id)}
-                      className="w-full bg-[#1D64D0] text-white font-semibold py-2.5 rounded-lg hover:bg-blue-700 transition"
+                      className="w-full relative overflow-hidden bg-[#1D64D0] text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-md group-hover:shadow-blue-500/30 group-hover:bg-blue-700"
                     >
-                      Explore Test Series
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        Explore Test Series
+                        <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                      </span>
                     </button>
                   </div>
 
-                </div>
+                </motion.div>
 
               ))}
             </div>
 
           ) : (
-            <div className="text-center py-20">
-              <div className="text-4xl mb-3">📭</div>
-              <p className="text-gray-500 text-sm">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm"
+            >
+              <div className="text-5xl mb-4">📭</div>
+              <p className="text-gray-500 font-medium">
                 No test series available at the moment.
               </p>
-            </div>
+            </motion.div>
           )}
         </div>
       </section>

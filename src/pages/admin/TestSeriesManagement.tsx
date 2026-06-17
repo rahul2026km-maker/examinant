@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Edit2, Trash2, Copy, AlertTriangle, Loader2, X, List } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Copy, AlertTriangle, Loader2, X, List, Upload, Image as ImageIcon } from 'lucide-react';
 import TestSeriesCard from '../../components/landing/TestSeriesCard';
 import type { TestSeries } from '../../types/test.types';
 import SeriesTestsDrawer from '../../components/admin/SeriesTestsDrawer';
+import { db, storage } from '../../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
     getAllTestSeries,
     createTestSeries,
@@ -27,6 +29,7 @@ const TestSeriesManagement = () => {
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [isDeletingLoading, setIsDeletingLoading] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
 
     // Tests drawer state
     const [drawerSeries, setDrawerSeries] = useState<TestSeries | null>(null);
@@ -40,12 +43,14 @@ const TestSeriesManagement = () => {
         pricing: { type: 'free' | 'paid'; amount: number };
         description: string;
         status: 'draft' | 'published' | 'archived';
+        thumbnailUrl: string;
     }>({
         name: '',
         examCategory: 'JEE',
         pricing: { type: 'free', amount: 0 },
         description: '',
-        status: 'draft'
+        status: 'draft',
+        thumbnailUrl: ''
     });
 
     const [customCategory, setCustomCategory] = useState('');
@@ -72,7 +77,8 @@ const TestSeriesManagement = () => {
         try {
             const finalData = {
                 ...formData,
-                examCategory: isCustom ? customCategory : formData.examCategory
+                examCategory: isCustom ? customCategory : formData.examCategory,
+                thumbnailUrl: formData.thumbnailUrl || undefined
             };
 
             if (isCustom && !customCategory) {
@@ -101,7 +107,8 @@ const TestSeriesManagement = () => {
         try {
             const finalData = {
                 ...formData,
-                examCategory: isCustom ? customCategory : formData.examCategory
+                examCategory: isCustom ? customCategory : formData.examCategory,
+                thumbnailUrl: formData.thumbnailUrl || undefined
             };
 
             if (isCustom && !customCategory) {
@@ -161,7 +168,8 @@ const TestSeriesManagement = () => {
                 amount: series.pricing.amount || 0
             },
             description: series.description,
-            status: series.status
+            status: series.status,
+            thumbnailUrl: series.thumbnailUrl || ''
         });
 
         if (!isPredefined) {
@@ -179,10 +187,36 @@ const TestSeriesManagement = () => {
             examCategory: 'JEE',
             pricing: { type: 'free', amount: 0 },
             description: '',
-            status: 'draft'
+            status: 'draft',
+            thumbnailUrl: ''
         });
         setCustomCategory('');
         setIsCustom(false);
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image size should be less than 5MB");
+            return;
+        }
+
+        setIsUploadingImage(true);
+        try {
+            const safeName = file.name.replace(/[^a-zA-Z0-9]/g, '_');
+            const imageRef = ref(storage, `test-series-thumbnails/${Date.now()}_${safeName}`);
+            await uploadBytes(imageRef, file);
+            const downloadUrl = await getDownloadURL(imageRef);
+            
+            setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload image. Please try again.');
+        } finally {
+            setIsUploadingImage(false);
+        }
     };
 
     const filteredSeries = testSeries.filter(series => {
@@ -367,6 +401,53 @@ const TestSeriesManagement = () => {
                                         placeholder="e.g., JEE Mains 2024 Mock Tests"
                                         className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
                                     />
+                                </div>
+
+                                {/* Thumbnail Image */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Thumbnail Image
+                                    </label>
+                                    <div className="flex items-center gap-4">
+                                        {formData.thumbnailUrl ? (
+                                            <div className="relative w-32 h-20 rounded-lg overflow-hidden border border-slate-200">
+                                                <img src={formData.thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                                                <button 
+                                                    onClick={() => setFormData(prev => ({ ...prev, thumbnailUrl: '' }))}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="w-32 h-20 bg-slate-100 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-500">
+                                                <ImageIcon size={24} className="mb-1 text-slate-400" />
+                                                <span className="text-[10px] font-medium">No Image</span>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="flex-1">
+                                            <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                onChange={handleImageUpload}
+                                                className="hidden" 
+                                                id="thumbnail-upload"
+                                                disabled={isUploadingImage}
+                                            />
+                                            <label 
+                                                htmlFor="thumbnail-upload"
+                                                className={`inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50 transition ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            >
+                                                {isUploadingImage ? (
+                                                    <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+                                                ) : (
+                                                    <><Upload size={16} /> Choose Image</>
+                                                )}
+                                            </label>
+                                            <p className="text-xs text-slate-500 mt-2">Recommended size: 800x600px. Max size: 5MB.</p>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Exam Category */}

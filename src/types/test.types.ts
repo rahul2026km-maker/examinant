@@ -128,6 +128,7 @@ export interface TestSeriesFormData {
     };
     description: string;
     status: 'draft' | 'published' | 'archived';
+    thumbnailUrl?: string;
 }
 
 export interface TestFormData {

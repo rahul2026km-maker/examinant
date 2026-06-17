@@ -172,19 +172,30 @@ const TestSeriesDetailsPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="lg:col-span-2 space-y-6"
                     >
-                        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 ${series.examCategory === 'NEET' ? 'bg-green-100 text-green-700' :
-                                series.examCategory === 'JEE' ? 'bg-blue-100 text-blue-700' :
-                                    'bg-purple-100 text-purple-700'
-                                }`}>
-                                {series.examCategory}
-                            </span>
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
-                                {series.name}
-                            </h1>
-                            <p className="text-lg text-slate-600 leading-relaxed">
-                                {series.description}
-                            </p>
+                        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200 flex flex-col md:flex-row gap-8 items-center md:items-start">
+                            <div className="flex-1">
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 ${series.examCategory === 'NEET' ? 'bg-green-100 text-green-700' :
+                                    series.examCategory === 'JEE' ? 'bg-blue-100 text-blue-700' :
+                                        'bg-purple-100 text-purple-700'
+                                    }`}>
+                                    {series.examCategory}
+                                </span>
+                                <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+                                    {series.name}
+                                </h1>
+                                <p className="text-lg text-slate-600 leading-relaxed">
+                                    {series.description}
+                                </p>
+                            </div>
+                            {series.thumbnailUrl && (
+                                <div className="w-full md:w-1/3 shrink-0 rounded-xl overflow-hidden border border-slate-100 shadow-sm">
+                                    <img 
+                                        src={series.thumbnailUrl} 
+                                        alt={series.name} 
+                                        className="w-full h-auto object-cover aspect-video" 
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         {/* Features / Details */}
