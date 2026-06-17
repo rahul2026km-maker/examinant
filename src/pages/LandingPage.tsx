@@ -34,10 +34,7 @@ const LandingPage = () => {
     navigate(`/test-series/${seriesId}`);
   };
 
-  const scrollToTestSeries = () => {
-    const el = document.getElementById('test-series');
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+
 
   return (
     <div className="font-sans antialiased bg-white text-slate-900 selection:bg-[#1D64D0] selection:text-white">

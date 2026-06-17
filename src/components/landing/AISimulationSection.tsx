@@ -1,9 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  MousePointer2,
   Clock,
-  FileText,
   PieChart as PieChartIcon,
   AlertCircle,
   CheckCircle,
@@ -14,18 +12,6 @@ import {
 
 const AISimulationSection = () => {
   const navigate = useNavigate();
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
 
   return (
     <section id="ai-simulation" className="bg-white py-24 sm:py-32 overflow-hidden">

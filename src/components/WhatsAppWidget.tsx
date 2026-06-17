@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 const WhatsAppWidget = () => {
   const phoneNumber = '918881188678'; // Country code +91
