@@ -169,61 +169,7 @@ const AISimulationSection = () => {
           </motion.div>
         </div>
 
-        {/* Workflow Section */}
-        <div className="space-y-16">
-          <div className="text-center space-y-4">
-            <motion.p 
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              className="text-xs font-black text-blue-600 uppercase tracking-[0.3em]"
-            >
-              The Master Workflow
-            </motion.p>
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight"
-            >
-              Simulation That <span className="text-blue-600">Guarantees</span> Results.
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              className="text-slate-600 text-lg max-w-2xl mx-auto"
-            >
-              Beyond practice. We recreate the psychological and environmental conditions of your final exam.
-            </motion.p>
-          </div>
 
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8"
-          >
-            {[
-              { title: "Official UI", desc: "Pixel-perfect replica of the actual exam console.", icon: <MousePointer2 size={24} /> },
-              { title: "Pressure Mode", desc: "Strict non-pausable timers for peak focus.", icon: <Clock size={24} /> },
-              { title: "Hybrid OMR", desc: "Tangible practice for offline bubble marking.", icon: <FileText size={24} /> },
-              { title: "Instant Sync", desc: "AI scanning that processes results in seconds.", icon: <Zap size={24} /> }
-            ].map((item, i) => (
-              <motion.div 
-                key={i} 
-                variants={itemVariants}
-                className="bg-slate-50 rounded-[32px] p-8 text-center border border-slate-100 hover:bg-white hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 group"
-              >
-                <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-white rounded-2xl text-blue-600 shadow-sm border border-slate-50 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                  {item.icon}
-                </div>
-                <h3 className="font-black text-slate-900 text-lg mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-slate-500 font-medium leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
 
         {/* CTA Summary Box */}
         <motion.div 

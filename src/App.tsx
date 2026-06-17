@@ -20,6 +20,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import RefundPolicyPage from './pages/RefundPolicyPage';
 import SLAPage from './pages/SLAPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ContactPage from './pages/ContactPage';
 
 // Lazy Loaded Pages
 const StudentDashboard = React.lazy(() => import('./pages/student/StudentDashboard'));
@@ -47,6 +48,7 @@ const AdminChaptersPage = React.lazy(() => import('./pages/admin/AdminChaptersPa
 const TestSeriesManagement = React.lazy(() => import('./pages/admin/TestSeriesManagement'));
 const TestCreationWizard = React.lazy(() => import('./pages/admin/TestCreationWizard'));
 const AdminSubjectsPage = React.lazy(() => import('./pages/admin/AdminSubjectsPage'));
+const AdminInquiriesPage = React.lazy(() => import('./pages/admin/AdminInquiriesPage'));
 // ── OMR Feature (New Additions) ──────────────────────────────────────────────
 const OMRTestCreationWizard = React.lazy(() => import('./pages/admin/OMRTestCreationWizard'));
 const StudentTestModeSelect = React.lazy(() => import('./pages/student/StudentTestModeSelect'));
@@ -55,6 +57,7 @@ const StudentOMRPrintPage = React.lazy(() => import('./pages/student/StudentOMRP
 const StudentOMRUploadPage = React.lazy(() => import('./pages/student/StudentOMRUploadPage'));
 
 
+import WhatsAppWidget from './components/WhatsAppWidget';
 import './App.css';
 
 // Loading Component
@@ -112,6 +115,7 @@ function App() {
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
               <Route path="/refund-policy" element={<RefundPolicyPage />} />
               <Route path="/sla" element={<SLAPage />} />
+              <Route path="/contact" element={<ContactPage />} />
 
               <Route element={<ProtectedRoute allowedRoles={['student']} />}>
                 {/* Dashboard Layout Routes */}
@@ -149,6 +153,7 @@ function App() {
                   <Route path="/admin-dashboard/resources/new" element={<AdminAddResourcePage />} />
                   <Route path="/admin-dashboard/students" element={<AdminStudentsPage />} />
                   <Route path="/admin-dashboard/settings" element={<AdminSettingsPage />} />
+                  <Route path="/admin-dashboard/inquiries" element={<AdminInquiriesPage />} />
                   {/* OMR Test Creation Route (New) */}
                   <Route path="/admin-dashboard/create-omr-test" element={<OMRTestCreationWizard />} />
                 </Route>
@@ -159,6 +164,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          <WhatsAppWidget />
         </div>
       </AuthProvider>
     </Router>

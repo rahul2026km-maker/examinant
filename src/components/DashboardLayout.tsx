@@ -14,7 +14,8 @@ import {
     BookMarked,
     FolderTree,
     Award,
-    ListChecks
+    ListChecks,
+    Mail
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -81,6 +82,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             title: 'Management',
             links: [
                 { icon: <Users size={18} />, label: 'Students', path: '/admin-dashboard/students' },
+                { icon: <Mail size={18} />, label: 'Inquiries', path: '/admin-dashboard/inquiries' },
                 { icon: <Settings size={18} />, label: 'Settings', path: '/admin-dashboard/settings' },
             ]
         }

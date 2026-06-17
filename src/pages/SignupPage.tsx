@@ -4,21 +4,15 @@ import { auth, db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronRight, AlertCircle, Loader2, User, Mail, Lock, MapPin, Star, CheckCircle } from 'lucide-react';
+import { ChevronRight, AlertCircle, Loader2, User, Mail, Lock, MapPin, Star, CheckCircle, Phone } from 'lucide-react';
 import logo from '../assets/logo.png';
 import studentBanner from '../assets/student_banner.png';
-
-const STATES = [
-    { name: 'Delhi', districts: ['Central Delhi', 'East Delhi', 'New Delhi', 'North Delhi', 'South Delhi'] },
-    { name: 'Maharashtra', districts: ['Mumbai', 'Pune', 'Nagpur', 'Thane', 'Nashik'] },
-    { name: 'Karnataka', districts: ['Bangalore', 'Mysore', 'Hubli', 'Mangalore', 'Belgaum'] },
-    { name: 'Tamil Nadu', districts: ['Chennai', 'Coimbatore', 'Madurai', 'Trichy', 'Salem'] },
-    { name: 'Uttar Pradesh', districts: ['Lucknow', 'Kanpur', 'Ghaziabad', 'Agra', 'Varanasi'] },
-];
+import { INDIA_STATES as STATES } from '../data/indiaStates';
 
 const SignupPage = () => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
+    const [mobile, setMobile] = useState('');
     const [state, setState] = useState('');
     const [district, setDistrict] = useState('');
     const [password, setPassword] = useState('');
@@ -55,6 +49,7 @@ const SignupPage = () => {
             await setDoc(doc(db, 'users', userCredential.user.uid), {
                 fullName,
                 email,
+                mobile,
                 state: state,
                 district: district,
                 role: 'student',
@@ -186,6 +181,25 @@ const SignupPage = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="you@example.com"
+                                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 block ml-1">Mobile Number</label>
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                                        <Phone size={18} />
+                                    </div>
+                                    <input
+                                        type="tel"
+                                        required
+                                        pattern="[0-9]{10}"
+                                        title="Please enter a valid 10-digit mobile number"
+                                        value={mobile}
+                                        onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                        placeholder="9876543210"
                                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400"
                                     />
                                 </div>

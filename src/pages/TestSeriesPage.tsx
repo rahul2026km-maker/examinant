@@ -3,13 +3,15 @@ import PageLayout from '../components/landing/PageLayout';
 import TestSeriesCard from '../components/landing/TestSeriesCard';
 import { getAllTestSeries } from '../services/testSeriesService';
 import { Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { TestSeries } from '../types/test.types';
 
 const TestSeriesPage = () => {
     const [series, setSeries] = useState<TestSeries[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const categoryParam = searchParams.get('category');
 
     useEffect(() => {
         const fetchSeries = async () => {
@@ -25,18 +27,20 @@ const TestSeriesPage = () => {
         fetchSeries();
     }, []);
 
-    const handleExplore = (item: TestSeries) => {
-        navigate(`/test-series/${item.id}`);
-    };
+    const filteredSeries = categoryParam 
+        ? series.filter(item => item.examCategory?.toLowerCase() === categoryParam.toLowerCase())
+        : series;
 
     return (
         <PageLayout>
             <div className="bg-blue-50/30 py-12 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">All Test Series</h1>
+                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
+                            {categoryParam ? `${categoryParam} Test Series` : 'All Test Series'}
+                        </h1>
                         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                            Comprehensive test series designed by experts to help you ace your JEE, NEET, and SSC exams.
+                            Comprehensive test series designed by experts to help you ace your exams.
                         </p>
                     </div>
 
@@ -44,13 +48,13 @@ const TestSeriesPage = () => {
                         <div className="flex justify-center py-20">
                             <Loader2 className="animate-spin text-blue-600" size={40} />
                         </div>
-                    ) : series.length === 0 ? (
+                    ) : filteredSeries.length === 0 ? (
                         <div className="text-center py-20 text-gray-500 font-medium">
                             No test series available at the moment.
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {series.map((item) => (
+                            {filteredSeries.map((item) => (
                                 <TestSeriesCard
                                     key={item.id}
                                     title={item.name}
@@ -63,7 +67,7 @@ const TestSeriesPage = () => {
                                         "Personalized Score Tracking",
                                         "All India Rank Support"
                                     ]}
-                                    onExplore={() => handleExplore(item)}
+                                    onExplore={() => navigate(`/test-series/${item.id}`)}
                                 />
                             ))}
                         </div>
