@@ -37,7 +37,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <section className="relative w-full mt-[72px] overflow-hidden bg-[#0B0F19] group md:h-[340px] lg:h-[440px] xl:h-[540px]">
+    <section className="relative w-full mt-[72px] overflow-hidden bg-[#081028] group md:h-[340px] lg:h-[440px] xl:h-[540px]">
       {/* Invisible placeholder dictates the slider height naturally based on the image's aspect ratio on mobile */}
       <img src={BANNERS[0].mobile} alt="placeholder" className="w-full h-auto invisible pointer-events-none md:hidden" />
 

@@ -29,6 +29,32 @@
   /* Custom Spacing */
   --spacing-18: 4.5rem;
   --spacing-22: 5.5rem;
+
+  /* Theme Overrides for Strict 3-Color Policy */
+  /* Logo Color (Tertiary/Accent) - Orange/Amber hue */
+  --color-logo: #F59E0B;
+  
+  /* Map greens/purples/indigos to the logo color to remove them */
+  --color-green-100: #FEF3C7;
+  --color-green-400: #FBBF24;
+  --color-green-500: #F59E0B;
+  --color-green-600: #D97706;
+  --color-green-700: #B45309;
+  
+  --color-emerald-400: #FBBF24;
+  --color-emerald-500: #F59E0B;
+
+  --color-purple-100: #FEF3C7;
+  --color-purple-600: #D97706;
+  --color-purple-700: #B45309;
+
+  --color-indigo-500: #1D64D0;
+  --color-indigo-600: #1D64D0;
+
+  /* Map grays/slates to primary blue shades for dark backgrounds ONLY to keep the theme cohesive */
+  --color-slate-50: #ffffff; /* Secondary White */
+  --color-slate-800: #172554;
+  --color-slate-900: #0B1736;
 }
 
 @layer base {
@@ -52,17 +78,17 @@
   }
 
   .glass-card-dark {
-    @apply bg-[#0D1117]/80 backdrop-blur-2xl border border-white/5 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.5)];
+    @apply bg-slate-900/80 backdrop-blur-2xl border border-white/5 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.5)];
   }
 
   .glass-nav-dark {
-    @apply fixed top-0 z-50 w-full bg-[#030712]/70 backdrop-blur-xl border-b border-white/5;
+    @apply fixed top-0 z-50 w-full bg-slate-900/70 backdrop-blur-xl border-b border-white/5;
   }
 
   .hero-dark-bg {
     background: radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.1), transparent 40%),
                 radial-gradient(circle at 100% 100%, rgba(99, 102, 241, 0.1), transparent 40%),
-                #030712;
+                var(--color-slate-900);
   }
 
   .btn-primary-glow {

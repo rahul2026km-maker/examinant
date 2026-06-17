@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } 
 
 const Footer = () => {
     return (
-        <footer className="bg-[#050A1F] pt-16 pb-8 border-t border-slate-800">
+        <footer className="bg-[#172554] pt-16 pb-8 border-t border-slate-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Top Logo Section */}
                 <div className="flex flex-col items-center justify-center mb-16 space-y-4">

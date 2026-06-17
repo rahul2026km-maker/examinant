@@ -6,7 +6,7 @@ import TestSeriesCard from '../../components/landing/TestSeriesCard';
 import type { TestSeries } from '../../types/test.types';
 import SeriesTestsDrawer from '../../components/admin/SeriesTestsDrawer';
 import { storage } from '../../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import {
     getAllTestSeries,
     createTestSeries,
@@ -205,16 +205,51 @@ const TestSeriesManagement = () => {
 
         setIsUploadingImage(true);
         try {
-            const safeName = file.name.replace(/[^a-zA-Z0-9]/g, '_');
+            const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const imageRef = ref(storage, `test-series-thumbnails/${Date.now()}_${safeName}`);
-            await uploadBytes(imageRef, file);
-            const downloadUrl = await getDownloadURL(imageRef);
             
-            setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            alert('Failed to upload image. Please try again.');
-        } finally {
+            const uploadTask = uploadBytesResumable(imageRef, file);
+
+            // Added a 15-second timeout since Firebase SDK will silently retry on CORS errors forever
+            let isResolved = false;
+            const timeoutId = setTimeout(() => {
+                if (!isResolved) {
+                    uploadTask.cancel();
+                    alert("Upload timeout (15s). This usually happens because Firebase Storage CORS is not configured for localhost, or Storage is not enabled in your Firebase Console. Please press F12 and check the Console for CORS errors.");
+                    setIsUploadingImage(false);
+                }
+            }, 15000);
+
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log('Upload is ' + progress + '% done');
+                },
+                (error) => {
+                    isResolved = true;
+                    clearTimeout(timeoutId);
+                    console.error('Error during upload:', error);
+                    alert(`Upload failed: ${error.message}`);
+                    setIsUploadingImage(false);
+                },
+                async () => {
+                    isResolved = true;
+                    clearTimeout(timeoutId);
+                    try {
+                        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                        setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
+                    } catch (urlError: any) {
+                        console.error('Error getting URL:', urlError);
+                        alert(`Failed to get image URL: ${urlError.message}`);
+                    } finally {
+                        setIsUploadingImage(false);
+                    }
+                }
+            );
+        } catch (error: any) {
+            console.error('Error initiating upload:', error);
+            alert(`Failed to initiate upload: ${error.message}`);
             setIsUploadingImage(false);
         }
     };
@@ -412,7 +447,7 @@ const TestSeriesManagement = () => {
                                         {formData.thumbnailUrl ? (
                                             <div className="relative w-32 h-20 rounded-lg overflow-hidden border border-slate-200">
                                                 <img src={formData.thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                                                <button 
+                                                <button
                                                     onClick={() => setFormData(prev => ({ ...prev, thumbnailUrl: '' }))}
                                                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
                                                 >
@@ -425,26 +460,38 @@ const TestSeriesManagement = () => {
                                                 <span className="text-[10px] font-medium">No Image</span>
                                             </div>
                                         )}
-                                        
+
                                         <div className="flex-1">
-                                            <input 
-                                                type="file" 
-                                                accept="image/*" 
+                                            <input
+                                                type="file"
+                                                accept="image/*"
                                                 onChange={handleImageUpload}
-                                                className="hidden" 
+                                                className="hidden"
                                                 id="thumbnail-upload"
                                                 disabled={isUploadingImage}
                                             />
-                                            <label 
-                                                htmlFor="thumbnail-upload"
-                                                className={`inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50 transition ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            >
-                                                {isUploadingImage ? (
-                                                    <><Loader2 size={16} className="animate-spin" /> Uploading...</>
-                                                ) : (
-                                                    <><Upload size={16} /> Choose Image</>
+                                            <div className="flex items-center gap-3">
+                                                <label
+                                                    htmlFor="thumbnail-upload"
+                                                    className={`inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 cursor-pointer hover:bg-slate-50 transition ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                >
+                                                    {isUploadingImage ? (
+                                                        <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+                                                    ) : (
+                                                        <><Upload size={16} /> {formData.thumbnailUrl ? 'Change Image' : 'Choose Image'}</>
+                                                    )}
+                                                </label>
+                                                
+                                                {formData.thumbnailUrl && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, thumbnailUrl: '' }))}
+                                                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm font-medium hover:bg-red-100 transition"
+                                                    >
+                                                        <Trash2 size={16} /> Remove
+                                                    </button>
                                                 )}
-                                            </label>
+                                            </div>
                                             <p className="text-xs text-slate-500 mt-2">Recommended size: 800x600px. Max size: 5MB.</p>
                                         </div>
                                     </div>

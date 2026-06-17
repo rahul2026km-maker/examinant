@@ -47,8 +47,8 @@ const Navbar = () => {
     return (
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled
-                ? 'bg-[#030712]/95 backdrop-blur-xl border-b border-white/5 py-4 shadow-xl'
-                : 'bg-[#0B0F19] py-4 shadow-lg border-b border-white/5'
+                ? 'bg-[#1E3A8A]/95 backdrop-blur-xl border-b border-white/5 py-4 shadow-xl'
+                : 'bg-[#173A7A] py-4 shadow-lg border-b border-white/5'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -89,7 +89,7 @@ const Navbar = () => {
 
                                 {/* Dropdown Menu */}
                                 {item.hasDropdown && activeDropdown === item.label && (
-                                    <div className="absolute top-full left-0 mt-2 w-56 bg-[#0B0F19] border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="absolute top-full left-0 mt-2 w-56 bg-[#173A7A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                         {item.label === 'Tests' && (
                                             <>
                                                 <button onClick={() => { navigate('/test-series'); setActiveDropdown(null); }} className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5">All Tests</button>
@@ -147,7 +147,7 @@ const Navbar = () => {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="lg:hidden absolute top-full left-0 w-full bg-[#030712] border-b border-white/5 shadow-2xl p-6"
+                        className="lg:hidden absolute top-full left-0 w-full bg-[#1E3A8A] border-b border-white/5 shadow-2xl p-6"
                     >
                         <div className="space-y-2">
                             {navItems.map((item) => (
