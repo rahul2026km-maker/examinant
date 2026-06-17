@@ -5,7 +5,7 @@ import { Plus, Search, Edit2, Trash2, Copy, AlertTriangle, Loader2, X, List, Upl
 import TestSeriesCard from '../../components/landing/TestSeriesCard';
 import type { TestSeries } from '../../types/test.types';
 import SeriesTestsDrawer from '../../components/admin/SeriesTestsDrawer';
-import { db, storage } from '../../firebase';
+import { storage } from '../../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import {
     getAllTestSeries,
