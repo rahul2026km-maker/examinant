@@ -163,7 +163,7 @@ const SignupPage = () => {
                                         required
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
-                                        placeholder="John Doe"
+                                        placeholder="enter your full name"
                                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400"
                                     />
                                 </div>
@@ -199,7 +199,7 @@ const SignupPage = () => {
                                         title="Please enter a valid 10-digit mobile number"
                                         value={mobile}
                                         onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                                        placeholder="9876543210"
+                                        placeholder="enter your number"
                                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 placeholder:text-slate-400"
                                     />
                                 </div>

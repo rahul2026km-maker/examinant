@@ -5,6 +5,7 @@ import { db, storage } from '../../firebase';
 import { useSubjectList } from '../../hooks/useSubjectList';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useExamList } from '../../hooks/useExamList';
 import { parseQuestionsCSV, validateQuestion, batchUploadQuestions, downloadTemplate } from '../../utils/csvImporter';
 import { JEE_MAINS_2024_WEIGHTAGE } from '../../data/jeeMainsWeightage2024';
 import type { QuestionCSVRow, ValidationResult } from '../../utils/csvImporter';
@@ -60,6 +61,7 @@ const AdminQuestionBank = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const subjects = useSubjectList();
+    const exams = useExamList();
     
     // New states for auto-creation options
     const [missingSubjects, setMissingSubjects] = useState<string[]>([]);
@@ -854,11 +856,9 @@ const AdminQuestionBank = () => {
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                     >
                         <option value="all">All Exams</option>
-                        <option value="JEE">JEE</option>
-                        <option value="NEET">NEET</option>
-                        <option value="SSC">SSC</option>
-                        <option value="Boards">Boards</option>
-                        <option value="Other">Other</option>
+                        {exams.map(exam => (
+                            <option key={exam} value={exam}>{exam}</option>
+                        ))}
                     </select>
                 </div>
 
@@ -1080,11 +1080,9 @@ const AdminQuestionBank = () => {
                                                      className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
                                                  >
                                                      <option value="General">General</option>
-                                                     <option value="JEE">JEE</option>
-                                                     <option value="NEET">NEET</option>
-                                                     <option value="SSC">SSC</option>
-                                                     <option value="Boards">Boards</option>
-                                                     <option value="Other">Other</option>
+                                                     {exams.map(exam => (
+                                                         <option key={exam} value={exam}>{exam}</option>
+                                                     ))}
                                                  </select>
                                              ) : (
                                                  <div 
@@ -1213,11 +1211,9 @@ const AdminQuestionBank = () => {
                                             onChange={e => setFormData({ ...formData, examCategory: e.target.value })}
                                             className="w-full px-4 py-2 border rounded-lg bg-white"
                                         >
-                                            <option>JEE</option>
-                                            <option>NEET</option>
-                                            <option>SSC</option>
-                                            <option>Boards</option>
-                                            <option>Other</option>
+                                            {exams.map(exam => (
+                                                <option key={exam} value={exam}>{exam}</option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>
@@ -1540,11 +1536,9 @@ const AdminQuestionBank = () => {
                                             onChange={e => setFormData({ ...formData, examCategory: e.target.value })}
                                             className="w-full px-4 py-2 border rounded-lg bg-white"
                                         >
-                                            <option>JEE</option>
-                                            <option>NEET</option>
-                                            <option>SSC</option>
-                                            <option>Boards</option>
-                                            <option>Other</option>
+                                            {exams.map(exam => (
+                                                <option key={exam} value={exam}>{exam}</option>
+                                            ))}
                                         </select>
                                     </div>
                                 </div>

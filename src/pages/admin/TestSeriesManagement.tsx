@@ -14,6 +14,7 @@ import {
     deleteTestSeries,
     duplicateTestSeries
 } from '../../services/testSeriesService';
+import { useExamList } from '../../hooks/useExamList';
 
 const TestSeriesManagement = () => {
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ const TestSeriesManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterCategory, setFilterCategory] = useState<string>('all');
     const [filterStatus, setFilterStatus] = useState<string>('all');
+    const exams = useExamList();
 
     // Deletion Modal State
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -156,8 +158,7 @@ const TestSeriesManagement = () => {
     };
 
     const handleEdit = (series: TestSeries) => {
-        const predefinedCategories = ['JEE', 'NEET', 'SSC'];
-        const isPredefined = predefinedCategories.includes(series.examCategory);
+        const isPredefined = exams.includes(series.examCategory);
 
         setEditingSeries(series);
         setFormData({
@@ -316,9 +317,9 @@ const TestSeriesManagement = () => {
                         className="w-full sm:w-auto px-4 py-2.5 bg-slate-50 border-none rounded-lg focus:ring-2 focus:ring-blue-500 text-slate-700 font-medium cursor-pointer"
                     >
                         <option value="all">All Categories</option>
-                        <option value="JEE">JEE</option>
-                        <option value="NEET">NEET</option>
-                        <option value="SSC">SSC</option>
+                        {exams.map(exam => (
+                            <option key={exam} value={exam}>{exam}</option>
+                        ))}
                         <option value="Custom">Custom</option>
                     </select>
                     <select
@@ -511,9 +512,9 @@ const TestSeriesManagement = () => {
                                         }}
                                         className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                                     >
-                                        <option value="JEE">JEE</option>
-                                        <option value="NEET">NEET</option>
-                                        <option value="SSC">SSC</option>
+                                        {exams.map(exam => (
+                                            <option key={exam} value={exam}>{exam}</option>
+                                        ))}
                                         <option value="Custom">Custom</option>
                                     </select>
                                     {isCustom && (

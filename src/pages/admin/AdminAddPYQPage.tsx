@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Save, Link as LinkIcon, PenTool, Loader2 } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, addDoc, serverTimestamp, query, getDocs } from 'firebase/firestore';
+import { useExamList } from '../../hooks/useExamList';
 
 const AdminAddPYQPage = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [tests, setTests] = useState<{ id: string; title: string }[]>([]);
     const [isLoadingTests, setIsLoadingTests] = useState(true);
+    const exams = useExamList();
 
     const [formData, setFormData] = useState<{
         title: string;
@@ -131,9 +133,9 @@ const AdminAddPYQPage = () => {
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
                                     className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
                                 >
-                                    <option>NEET</option>
-                                    <option>JEE</option>
-                                    <option>SSC</option>
+                                    {exams.map(exam => (
+                                        <option key={exam} value={exam}>{exam}</option>
+                                    ))}
                                 </select>
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>

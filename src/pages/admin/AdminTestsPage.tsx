@@ -7,6 +7,7 @@ import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, order
 import { generateJEEMainsTest } from '../../services/testGenerationService';
 import { generateTestFromTopics } from '../../services/topicTestService';
 import { useSubjectList } from '../../hooks/useSubjectList';
+import { useExamList } from '../../hooks/useExamList';
 
 interface Question {
     id: string;
@@ -63,6 +64,7 @@ const AdminTestsPage = () => {
     const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const [isDeletingLoading, setIsDeletingLoading] = useState(false);
+    const exams = useExamList();
 
     // Chapter-based test creation state
     const [chapters, setChapters] = useState<any[]>([]);
@@ -443,9 +445,9 @@ const AdminTestsPage = () => {
                                             onChange={e => setFormData({ ...formData, category: e.target.value })}
                                             className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                                         >
-                                            <option>NEET</option>
-                                            <option>JEE</option>
-                                            <option>SSC</option>
+                                            {exams.map(exam => (
+                                                <option key={exam} value={exam}>{exam}</option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="flex flex-col gap-2">
