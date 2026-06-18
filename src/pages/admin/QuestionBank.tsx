@@ -7,7 +7,7 @@ import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, order
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useExamList } from '../../hooks/useExamList';
 import { parseQuestionsCSV, validateQuestion, batchUploadQuestions, downloadTemplate } from '../../utils/csvImporter';
-import { JEE_MAINS_2024_WEIGHTAGE } from '../../data/jeeMainsWeightage2024';
+
 import type { QuestionCSVRow, ValidationResult } from '../../utils/csvImporter';
 
 interface Question {
@@ -62,15 +62,15 @@ const AdminQuestionBank = () => {
     const [isUploading, setIsUploading] = useState(false);
     const subjects = useSubjectList();
     const exams = useExamList();
-    
+
     // New states for auto-creation options
     const [missingSubjects, setMissingSubjects] = useState<string[]>([]);
-    const [missingChapters, setMissingChapters] = useState<{name: string, subject: string}[]>([]);
+    const [missingChapters, setMissingChapters] = useState<{ name: string, subject: string }[]>([]);
     const [isCreatingMissing, setIsCreatingMissing] = useState(false);
     const [importGuideTab, setImportGuideTab] = useState<'excel' | 'guide'>('excel');
-    
+
     // Inline quick edit states
-    const [editingCell, setEditingCell] = useState<{questionId: string, field: 'subject' | 'chapter' | 'topic' | 'examCategory'} | null>(null);
+    const [editingCell, setEditingCell] = useState<{ questionId: string, field: 'subject' | 'chapter' | 'topic' | 'examCategory' } | null>(null);
     const [quickEditLoading, setQuickEditLoading] = useState<string | null>(null);
 
     // Bulk selection state
@@ -104,7 +104,7 @@ const AdminQuestionBank = () => {
         try {
             const batchSize = 500;
             const idsArray = Array.from(selectedQuestionIds);
-            
+
             for (let i = 0; i < idsArray.length; i += batchSize) {
                 const batch = writeBatch(db);
                 const chunk = idsArray.slice(i, i + batchSize);
@@ -133,7 +133,7 @@ const AdminQuestionBank = () => {
         try {
             const batchSize = 500;
             const idsArray = filteredQuestions.map(q => q.id);
-            
+
             for (let i = 0; i < idsArray.length; i += batchSize) {
                 const batch = writeBatch(db);
                 const chunk = idsArray.slice(i, i + batchSize);
@@ -509,7 +509,7 @@ const AdminQuestionBank = () => {
                     subject: sub
                 });
             })))
-            .map(s => JSON.parse(s)) as {name: string, subject: string}[];
+                .map(s => JSON.parse(s)) as { name: string, subject: string }[];
 
             const chaptersSnapshot = await getDocs(collection(db, 'chapters'));
             const existingChapters = chaptersSnapshot.docs.map((doc: any) => {
@@ -517,8 +517,8 @@ const AdminQuestionBank = () => {
                 return { name: d.name, subject: d.subject };
             });
 
-            const missingChaps = csvChapters.filter(chap => 
-                chap.name && chap.subject && 
+            const missingChaps = csvChapters.filter(chap =>
+                chap.name && chap.subject &&
                 !existingChapters.some((ec: any) => ec.name.toLowerCase() === chap.name.toLowerCase() && ec.subject.toLowerCase() === chap.subject.toLowerCase())
             );
             setMissingChapters(missingChaps);
@@ -652,68 +652,6 @@ const AdminQuestionBank = () => {
     const stats = getStatistics();
 
 
-    const handleSeed = async () => {
-        if (!window.confirm('Seed 150 dummy questions (aligned with JEE Weightage)?')) return;
-        setIsLoading(true);
-        try {
-            await delay(1500); // Artificial delay for seed
-            const batch = writeBatch(db);
-            const subjects = ['Physics', 'Chemistry', 'Mathematics'];
-            const types = ['MCQ', 'Numerical'];
-            const difficulties = ['Easy', 'Medium', 'Hard'];
-
-            let count = 0;
-            const target = 300;
-
-            // Flatten validation map for easier access
-            const subjectChapters: Record<string, string[]> = {};
-
-            subjects.forEach(sub => {
-                subjectChapters[sub] = [];
-                // @ts-ignore
-                const subData = JEE_MAINS_2024_WEIGHTAGE[sub] || {};
-                Object.values(subData).forEach((unit: any) => {
-                    if (unit.chapters) subjectChapters[sub].push(...unit.chapters);
-                });
-            });
-
-            while (count < target) {
-                const subject = subjects[count % 3];
-                const chaptersList = subjectChapters[subject];
-                // Fallback to 'General' if undefined or empty
-                const availableChapters = (chaptersList && chaptersList.length > 0) ? chaptersList : ['General'];
-                const chapter = availableChapters[count % availableChapters.length];
-                const type = types[count % 2] as 'MCQ' | 'Numerical';
-                const difficulty = difficulties[count % 3] as 'Easy' | 'Medium' | 'Hard';
-
-                const newDocRef = doc(collection(db, 'questions'));
-
-                batch.set(newDocRef, {
-                    text: `Dummy Question ${count + 1} for ${subject} - ${chapter} (${type})`,
-                    subject,
-                    chapter,
-                    topic: 'Basics',
-                    type,
-                    difficulty,
-                    marks: 4,
-                    negativeMarks: type === 'MCQ' ? -1 : 0,
-                    options: type === 'MCQ' ? ['Option A', 'Option B', 'Option C', 'Option D'] : [],
-                    correctAnswer: type === 'MCQ' ? 0 : '10',
-                    explanation: 'This is a dummy explanation.',
-                    createdAt: serverTimestamp()
-                });
-                count++;
-            }
-
-            await batch.commit();
-            alert('Seeded 150 questions!');
-        } catch (error) {
-            console.error("Error seeding:", error);
-            alert("Error seeding questions.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     return (
         <motion.div
@@ -733,11 +671,10 @@ const AdminQuestionBank = () => {
                             setIsSelectionMode(!isSelectionMode);
                             if (isSelectionMode) setSelectedQuestionIds(new Set());
                         }}
-                        className={`flex items-center justify-center gap-2 px-5 py-2.5 font-semibold rounded-xl transition-all duration-200 shadow-sm ${
-                            isSelectionMode 
-                            ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 font-semibold rounded-xl transition-all duration-200 shadow-sm ${isSelectionMode
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
                             : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-                        }`}
+                            }`}
                     >
                         {isSelectionMode ? <X size={18} /> : <List size={18} />}
                         {isSelectionMode ? 'Cancel Selection' : 'Select Multiple'}
@@ -760,12 +697,7 @@ const AdminQuestionBank = () => {
                     >
                         <BarChart3 size={20} /> Statistics
                     </button>
-                    <button
-                        onClick={handleSeed}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-yellow-600 text-white font-semibold rounded-xl hover:bg-yellow-700 transition-colors"
-                    >
-                        Seed DB
-                    </button>
+
                     <button
                         onClick={() => setIsCreating(true)}
                         className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
@@ -790,13 +722,12 @@ const AdminQuestionBank = () => {
                         </div>
                         {subjects.map(subject => (
                             <div key={subject} className="bg-white rounded-xl p-4 text-center">
-                                <div className={`text-2xl font-bold ${
-                                    subject === 'Physics' ? 'text-green-600' :
+                                <div className={`text-2xl font-bold ${subject === 'Physics' ? 'text-green-600' :
                                     subject === 'Chemistry' ? 'text-purple-600' :
-                                    subject === 'Mathematics' ? 'text-orange-600' :
-                                    subject === 'Biology' ? 'text-rose-600' :
-                                    'text-slate-600'
-                                }`}>{stats.bySubject[subject] || 0}</div>
+                                        subject === 'Mathematics' ? 'text-orange-600' :
+                                            subject === 'Biology' ? 'text-rose-600' :
+                                                'text-slate-600'
+                                    }`}>{stats.bySubject[subject] || 0}</div>
                                 <div className="text-sm text-slate-500 mt-1">{subject}</div>
                             </div>
                         ))}
@@ -937,7 +868,7 @@ const AdminQuestionBank = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                             {isLoading ? (
+                            {isLoading ? (
                                 <tr><td colSpan={isSelectionMode ? 9 : 8} className="text-center py-8"><Loader2 className="animate-spin inline" /></td></tr>
                             ) : filteredQuestions.length === 0 ? (
                                 <tr><td colSpan={isSelectionMode ? 9 : 8} className="text-center py-8 text-slate-500">No questions found. Add some to get started.</td></tr>
@@ -947,7 +878,7 @@ const AdminQuestionBank = () => {
                                         key={q.id}
                                         className={`hover:bg-slate-50/50 transition-colors ${selectedQuestionIds.has(q.id) ? 'bg-blue-50/30' : ''}`}
                                     >
-                                         {isSelectionMode && (
+                                        {isSelectionMode && (
                                             <td className="px-6 py-4 text-center">
                                                 <input
                                                     type="checkbox"
@@ -960,141 +891,140 @@ const AdminQuestionBank = () => {
                                         <td className="px-6 py-4 font-medium text-slate-700 max-w-md truncate">
                                             {q.text}
                                         </td>
-                                         {/* Subject Cell with Inline Edit Dropdown */}
-                                         <td className="px-6 py-4 min-w-[120px]">
-                                             {quickEditLoading === `${q.id}-subject` ? (
-                                                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                     <Loader2 className="animate-spin" size={12} /> Saving...
-                                                 </div>
-                                             ) : editingCell?.questionId === q.id && editingCell?.field === 'subject' ? (
-                                                 <select
-                                                     autoFocus
-                                                     value={q.subject}
-                                                     onChange={(e) => handleQuickUpdate(q.id, 'subject', e.target.value)}
-                                                     onBlur={() => setEditingCell(null)}
-                                                     className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
-                                                 >
-                                                     {subjects.map((sub) => (
-                                                         <option key={sub} value={sub}>{sub}</option>
-                                                     ))}
-                                                 </select>
-                                             ) : (
-                                                 <div 
-                                                     onClick={() => setEditingCell({ questionId: q.id, field: 'subject' })}
-                                                     className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200"
-                                                     title="Click to quickly change subject"
-                                                 >
-                                                     <span className={`px-2 py-1 rounded text-xs font-bold ${
-                                                         q.subject === 'Physics' ? 'bg-green-100 text-green-700' :
-                                                         q.subject === 'Chemistry' ? 'bg-purple-100 text-purple-700' :
-                                                         q.subject === 'Mathematics' ? 'bg-orange-100 text-orange-700' :
-                                                         q.subject === 'Biology' ? 'bg-rose-100 text-rose-700' :
-                                                         'bg-slate-100 text-slate-700'
-                                                         }`}>
-                                                         {q.subject}
-                                                     </span>
-                                                     <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
-                                                 </div>
-                                             )}
-                                         </td>
+                                        {/* Subject Cell with Inline Edit Dropdown */}
+                                        <td className="px-6 py-4 min-w-[120px]">
+                                            {quickEditLoading === `${q.id}-subject` ? (
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <Loader2 className="animate-spin" size={12} /> Saving...
+                                                </div>
+                                            ) : editingCell?.questionId === q.id && editingCell?.field === 'subject' ? (
+                                                <select
+                                                    autoFocus
+                                                    value={q.subject}
+                                                    onChange={(e) => handleQuickUpdate(q.id, 'subject', e.target.value)}
+                                                    onBlur={() => setEditingCell(null)}
+                                                    className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-semibold text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                                >
+                                                    {subjects.map((sub) => (
+                                                        <option key={sub} value={sub}>{sub}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <div
+                                                    onClick={() => setEditingCell({ questionId: q.id, field: 'subject' })}
+                                                    className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200"
+                                                    title="Click to quickly change subject"
+                                                >
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${q.subject === 'Physics' ? 'bg-green-100 text-green-700' :
+                                                        q.subject === 'Chemistry' ? 'bg-purple-100 text-purple-700' :
+                                                            q.subject === 'Mathematics' ? 'bg-orange-100 text-orange-700' :
+                                                                q.subject === 'Biology' ? 'bg-rose-100 text-rose-700' :
+                                                                    'bg-slate-100 text-slate-700'
+                                                        }`}>
+                                                        {q.subject}
+                                                    </span>
+                                                    <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
+                                                </div>
+                                            )}
+                                        </td>
 
-                                         {/* Chapter Cell with Inline Edit Dropdown */}
-                                         <td className="px-6 py-4 min-w-[150px]">
-                                             {quickEditLoading === `${q.id}-chapter` ? (
-                                                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                     <Loader2 className="animate-spin" size={12} /> Saving...
-                                                 </div>
-                                             ) : editingCell?.questionId === q.id && editingCell?.field === 'chapter' ? (
-                                                 <select
-                                                     autoFocus
-                                                     value={q.chapter}
-                                                     onChange={(e) => handleQuickUpdate(q.id, 'chapter', e.target.value)}
-                                                     onBlur={() => setEditingCell(null)}
-                                                     className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
-                                                 >
-                                                     <option value="">Select Chapter</option>
-                                                     {getChaptersForSubject(q.subject).map((ch: any) => (
-                                                         <option key={ch.id || ch.name} value={ch.name}>{ch.name}</option>
-                                                     ))}
-                                                 </select>
-                                             ) : (
-                                                 <div 
-                                                     onClick={() => setEditingCell({ questionId: q.id, field: 'chapter' })}
-                                                     className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
-                                                     title="Click to quickly change chapter"
-                                                 >
-                                                     <span className="truncate pr-1">{q.chapter || 'Select Chapter'}</span>
-                                                     <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
-                                                 </div>
-                                             )}
-                                         </td>
+                                        {/* Chapter Cell with Inline Edit Dropdown */}
+                                        <td className="px-6 py-4 min-w-[150px]">
+                                            {quickEditLoading === `${q.id}-chapter` ? (
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <Loader2 className="animate-spin" size={12} /> Saving...
+                                                </div>
+                                            ) : editingCell?.questionId === q.id && editingCell?.field === 'chapter' ? (
+                                                <select
+                                                    autoFocus
+                                                    value={q.chapter}
+                                                    onChange={(e) => handleQuickUpdate(q.id, 'chapter', e.target.value)}
+                                                    onBlur={() => setEditingCell(null)}
+                                                    className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                                >
+                                                    <option value="">Select Chapter</option>
+                                                    {getChaptersForSubject(q.subject).map((ch: any) => (
+                                                        <option key={ch.id || ch.name} value={ch.name}>{ch.name}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <div
+                                                    onClick={() => setEditingCell({ questionId: q.id, field: 'chapter' })}
+                                                    className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
+                                                    title="Click to quickly change chapter"
+                                                >
+                                                    <span className="truncate pr-1">{q.chapter || 'Select Chapter'}</span>
+                                                    <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
+                                                </div>
+                                            )}
+                                        </td>
 
-                                         {/* Topic Cell with Inline Edit Text Input */}
-                                         <td className="px-6 py-4 min-w-[150px]">
-                                             {quickEditLoading === `${q.id}-topic` ? (
-                                                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                     <Loader2 className="animate-spin" size={12} /> Saving...
-                                                 </div>
-                                             ) : editingCell?.questionId === q.id && editingCell?.field === 'topic' ? (
-                                                 <input
-                                                     type="text"
-                                                     autoFocus
-                                                     defaultValue={q.topic || ''}
-                                                     onKeyDown={(e) => {
-                                                         if (e.key === 'Enter') {
-                                                             handleQuickUpdate(q.id, 'topic', e.currentTarget.value);
-                                                         } else if (e.key === 'Escape') {
-                                                             setEditingCell(null);
-                                                         }
-                                                     }}
-                                                     onBlur={(e) => handleQuickUpdate(q.id, 'topic', e.target.value)}
-                                                     placeholder="Type topic & Enter"
-                                                     className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
-                                                 />
-                                             ) : (
-                                                 <div 
-                                                     onClick={() => setEditingCell({ questionId: q.id, field: 'topic' })}
-                                                     className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
-                                                     title="Click to quickly change topic"
-                                                 >
-                                                     <span className={`truncate pr-1 ${!q.topic || q.topic === 'None' ? 'text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded' : ''}`}>
-                                                         {q.topic || 'None'}
-                                                     </span>
-                                                     <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
-                                                 </div>
-                                             )}
-                                         </td>
+                                        {/* Topic Cell with Inline Edit Text Input */}
+                                        <td className="px-6 py-4 min-w-[150px]">
+                                            {quickEditLoading === `${q.id}-topic` ? (
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <Loader2 className="animate-spin" size={12} /> Saving...
+                                                </div>
+                                            ) : editingCell?.questionId === q.id && editingCell?.field === 'topic' ? (
+                                                <input
+                                                    type="text"
+                                                    autoFocus
+                                                    defaultValue={q.topic || ''}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            handleQuickUpdate(q.id, 'topic', e.currentTarget.value);
+                                                        } else if (e.key === 'Escape') {
+                                                            setEditingCell(null);
+                                                        }
+                                                    }}
+                                                    onBlur={(e) => handleQuickUpdate(q.id, 'topic', e.target.value)}
+                                                    placeholder="Type topic & Enter"
+                                                    className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                                />
+                                            ) : (
+                                                <div
+                                                    onClick={() => setEditingCell({ questionId: q.id, field: 'topic' })}
+                                                    className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
+                                                    title="Click to quickly change topic"
+                                                >
+                                                    <span className={`truncate pr-1 ${!q.topic || q.topic === 'None' ? 'text-amber-600 font-bold bg-amber-50 px-1.5 py-0.5 rounded' : ''}`}>
+                                                        {q.topic || 'None'}
+                                                    </span>
+                                                    <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
+                                                </div>
+                                            )}
+                                        </td>
 
-                                         {/* Exam Cell with Inline Edit Dropdown */}
-                                         <td className="px-6 py-4 min-w-[120px]">
-                                             {quickEditLoading === `${q.id}-examCategory` ? (
-                                                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                                                     <Loader2 className="animate-spin" size={12} /> Saving...
-                                                 </div>
-                                             ) : editingCell?.questionId === q.id && editingCell?.field === 'examCategory' ? (
-                                                 <select
-                                                     autoFocus
-                                                     value={q.examCategory || 'General'}
-                                                     onChange={(e) => handleQuickUpdate(q.id, 'examCategory', e.target.value)}
-                                                     onBlur={() => setEditingCell(null)}
-                                                     className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
-                                                 >
-                                                     <option value="General">General</option>
-                                                     {exams.map(exam => (
-                                                         <option key={exam} value={exam}>{exam}</option>
-                                                     ))}
-                                                 </select>
-                                             ) : (
-                                                 <div 
-                                                     onClick={() => setEditingCell({ questionId: q.id, field: 'examCategory' })}
-                                                     className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
-                                                     title="Click to quickly change exam category"
-                                                 >
-                                                     <span className="truncate pr-1">{q.examCategory || 'General'}</span>
-                                                     <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
-                                                 </div>
-                                             )}
-                                         </td>
+                                        {/* Exam Cell with Inline Edit Dropdown */}
+                                        <td className="px-6 py-4 min-w-[120px]">
+                                            {quickEditLoading === `${q.id}-examCategory` ? (
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <Loader2 className="animate-spin" size={12} /> Saving...
+                                                </div>
+                                            ) : editingCell?.questionId === q.id && editingCell?.field === 'examCategory' ? (
+                                                <select
+                                                    autoFocus
+                                                    value={q.examCategory || 'General'}
+                                                    onChange={(e) => handleQuickUpdate(q.id, 'examCategory', e.target.value)}
+                                                    onBlur={() => setEditingCell(null)}
+                                                    className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                                >
+                                                    <option value="General">General</option>
+                                                    {exams.map(exam => (
+                                                        <option key={exam} value={exam}>{exam}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <div
+                                                    onClick={() => setEditingCell({ questionId: q.id, field: 'examCategory' })}
+                                                    className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
+                                                    title="Click to quickly change exam category"
+                                                >
+                                                    <span className="truncate pr-1">{q.examCategory || 'General'}</span>
+                                                    <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
+                                                </div>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <span className={`px-2 py-1 rounded text-xs font-bold ${q.type === 'MCQ' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                                                 }`}>
@@ -1748,287 +1678,285 @@ const AdminQuestionBank = () => {
                             </div>
 
                             <div className="p-6 space-y-4 bg-slate-50/50">
-                                 {/* Formatting Guidelines & File Upload in 2-Column Grid */}
-                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                     {/* Left Panel: Excel Formatting Guide with Tabs */}
-                                     <div className="lg:col-span-2 space-y-4">
-                                         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                                             {/* Header & Tabs */}
-                                             <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                                 <div className="flex items-center gap-2">
-                                                     <BookOpen size={20} className="text-blue-600" />
-                                                     <h3 className="font-bold text-slate-800">
-                                                         Excel/CSV Template Guide
-                                                     </h3>
-                                                 </div>
-                                                 <div className="flex bg-slate-200/70 p-1 rounded-xl self-start sm:self-auto">
-                                                     <button
-                                                         type="button"
-                                                         onClick={() => setImportGuideTab('excel')}
-                                                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                                                             importGuideTab === 'excel'
-                                                                 ? 'bg-white text-slate-800 shadow-sm'
-                                                                 : 'text-slate-500 hover:text-slate-700'
-                                                         }`}
-                                                     >
-                                                         📊 Visual Excel View
-                                                     </button>
-                                                     <button
-                                                         type="button"
-                                                         onClick={() => setImportGuideTab('guide')}
-                                                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                                                             importGuideTab === 'guide'
-                                                                 ? 'bg-white text-slate-800 shadow-sm'
-                                                                 : 'text-slate-500 hover:text-slate-700'
-                                                         }`}
-                                                     >
-                                                         📋 Column Descriptions
-                                                     </button>
-                                                 </div>
-                                             </div>
+                                {/* Formatting Guidelines & File Upload in 2-Column Grid */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    {/* Left Panel: Excel Formatting Guide with Tabs */}
+                                    <div className="lg:col-span-2 space-y-4">
+                                        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                                            {/* Header & Tabs */}
+                                            <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <BookOpen size={20} className="text-blue-600" />
+                                                    <h3 className="font-bold text-slate-800">
+                                                        Excel/CSV Template Guide
+                                                    </h3>
+                                                </div>
+                                                <div className="flex bg-slate-200/70 p-1 rounded-xl self-start sm:self-auto">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setImportGuideTab('excel')}
+                                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${importGuideTab === 'excel'
+                                                            ? 'bg-white text-slate-800 shadow-sm'
+                                                            : 'text-slate-500 hover:text-slate-700'
+                                                            }`}
+                                                    >
+                                                        📊 Visual Excel View
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setImportGuideTab('guide')}
+                                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${importGuideTab === 'guide'
+                                                            ? 'bg-white text-slate-800 shadow-sm'
+                                                            : 'text-slate-500 hover:text-slate-700'
+                                                            }`}
+                                                    >
+                                                        📋 Column Descriptions
+                                                    </button>
+                                                </div>
+                                            </div>
 
-                                             <div className="p-5">
-                                                 {importGuideTab === 'excel' ? (
-                                                     <div className="space-y-4">
-                                                         <div className="flex justify-between items-center text-xs text-slate-500">
-                                                             <span>Scroll horizontally to view all columns. Pre-filled with standard sample values:</span>
-                                                             <button
-                                                                 onClick={() => downloadTemplate('questions')}
-                                                                 className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 bg-blue-50 px-2 py-1 rounded"
-                                                             >
-                                                                 <Download size={12} /> Download CSV Template
-                                                             </button>
-                                                         </div>
+                                            <div className="p-5">
+                                                {importGuideTab === 'excel' ? (
+                                                    <div className="space-y-4">
+                                                        <div className="flex justify-between items-center text-xs text-slate-500">
+                                                            <span>Scroll horizontally to view all columns. Pre-filled with standard sample values:</span>
+                                                            <button
+                                                                onClick={() => downloadTemplate('questions')}
+                                                                className="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 bg-blue-50 px-2 py-1 rounded"
+                                                            >
+                                                                <Download size={12} /> Download CSV Template
+                                                            </button>
+                                                        </div>
 
-                                                         {/* Mock Excel Sheet Container */}
-                                                         <div className="border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50">
-                                                             {/* Excel Header Toolbar */}
-                                                             <div className="bg-[#107c41] text-white px-3 py-2 text-xs font-semibold flex items-center justify-between border-b border-emerald-700">
-                                                                 <div className="flex items-center gap-2">
-                                                                     <span className="bg-white text-[#107c41] px-1 rounded text-[9px] font-bold">XLSX</span>
-                                                                     <span>questions_template.csv — Excel Grid View</span>
-                                                                 </div>
-                                                                 <span className="text-[10px] opacity-75">Comma-Separated (CSV)</span>
-                                                             </div>
+                                                        {/* Mock Excel Sheet Container */}
+                                                        <div className="border border-slate-200 rounded-xl overflow-hidden shadow-inner bg-slate-50">
+                                                            {/* Excel Header Toolbar */}
+                                                            <div className="bg-[#107c41] text-white px-3 py-2 text-xs font-semibold flex items-center justify-between border-b border-emerald-700">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="bg-white text-[#107c41] px-1 rounded text-[9px] font-bold">XLSX</span>
+                                                                    <span>questions_template.csv — Excel Grid View</span>
+                                                                </div>
+                                                                <span className="text-[10px] opacity-75">Comma-Separated (CSV)</span>
+                                                            </div>
 
-                                                             {/* Excel Grid Layout */}
-                                                             <div className="overflow-x-auto max-w-full">
-                                                                 <table className="w-full border-collapse text-left text-xs bg-white font-mono">
-                                                                     <thead>
-                                                                         {/* Column Letters Row */}
-                                                                         <tr className="bg-slate-100 text-slate-500 font-sans border-b border-slate-200">
-                                                                             <th className="px-2 py-1 border-r border-slate-200 bg-slate-200 text-center font-bold min-w-[30px]"></th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[150px]">A</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[100px]">B</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">C</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[100px]">D</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[70px]">E</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[70px]">F</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[50px]">G</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[50px]">H</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">I</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">J</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">K</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">L</th>
-                                                                             <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[90px]">M</th>
-                                                                             <th className="px-3 py-1 border-slate-200 text-center min-w-[200px]">N</th>
-                                                                         </tr>
-                                                                         {/* CSV Headers Row */}
-                                                                         <tr className="bg-emerald-50/70 text-emerald-900 border-b border-slate-200 font-bold">
-                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-200 text-center text-slate-500 font-sans font-medium">1</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">text <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">subject <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">chapter <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">topic <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">type <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">difficulty <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">marks <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200">negativeMarks</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200">optionA</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200">optionB</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200">optionC</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200">optionD</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">correctAnswer <span className="text-red-500 font-sans">*</span></td>
-                                                                             <td className="px-3 py-1.5">explanation</td>
-                                                                         </tr>
-                                                                     </thead>
-                                                                     <tbody className="divide-y divide-slate-100 text-slate-700">
-                                                                         {/* Row 2: Biology MCQ */}
-                                                                         <tr>
-                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">2</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">The most abundant chemical in living organisms is:</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-rose-50 text-rose-800 font-semibold font-sans">Biology</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Biomolecules</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Chemical Constituents</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Easy</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-center">4</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-center">-1</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Water</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Proteins</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Carbohydrates</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Lipids</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-amber-50 text-amber-800 text-center font-bold">A</td>
-                                                                             <td className="px-3 py-1.5 truncate max-w-[150px] font-sans">Water comprises 70-90% of cellular mass.</td>
-                                                                         </tr>
-                                                                         {/* Row 3: Chemistry MCQ */}
-                                                                         <tr>
-                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">3</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">What is the atomic number of carbon?</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-emerald-50 text-emerald-800 font-semibold font-sans">Chemistry</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Structure of Atom</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Atomic Models</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Easy</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-center">4</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-center">-1</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">4</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">6</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">8</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">12</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-amber-50 text-amber-800 text-center font-bold">1</td>
-                                                                             <td className="px-3 py-1.5 truncate max-w-[150px] font-sans">Carbon has atomic number 6 (6 protons).</td>
-                                                                         </tr>
-                                                                         {/* Row 4: Physics Numerical */}
-                                                                         <tr>
-                                                                             <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">4</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">A body of mass 2 kg is moving with velocity 10 m/s. Kinetic Energy in Joules is:</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-blue-50 text-blue-800 font-semibold font-sans">Physics</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Work Energy Power</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Kinetic Energy</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Medium</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-center">4</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-center">0</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
-                                                                             <td className="px-3 py-1.5 border-r border-slate-200 bg-amber-50 text-amber-800 text-center font-bold font-sans">100</td>
-                                                                             <td className="px-3 py-1.5 truncate max-w-[150px] font-sans">KE = 0.5 * m * v^2 = 0.5 * 2 * 100 = 100 J.</td>
-                                                                         </tr>
-                                                                     </tbody>
-                                                                 </table>
-                                                             </div>
-                                                             {/* Excel Footer Sheet Tabs */}
-                                                             <div className="bg-slate-100 border-t border-slate-200 px-3 py-1 flex items-center gap-1.5 text-[10px] text-slate-600">
-                                                                 <div className="bg-white border-x border-t border-slate-300 text-emerald-700 px-3 py-1 font-bold rounded-t shadow-sm">
-                                                                     Sheet1
-                                                                 </div>
-                                                                 <span className="opacity-40">|</span>
-                                                                 <span className="cursor-pointer hover:underline text-slate-400 font-bold px-1">+</span>
-                                                             </div>
-                                                         </div>
-                                                         
-                                                         <div className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3 leading-relaxed">
-                                                             💡 <strong>Key Notice:</strong> For MCQ type, the <code className="bg-amber-100 text-amber-900 font-bold px-1 rounded">correctAnswer</code> column supports index matching (<code>0</code> for Option A, <code>1</code> for Option B, etc.) as well as direct letter indicators (<code>A</code>, <code>B</code>, <code>C</code>, <code>D</code>) or Option names. If any subject or chapter isn't already present in your database, the system scanner will let you auto-create them right below!
-                                                         </div>
-                                                     </div>
-                                                 ) : (
-                                                     /* Grid Column Specifications View */
-                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                                             <span className="font-bold text-blue-700 block mb-1">text</span>
-                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
-                                                             <p className="text-slate-600">The full question statement. Supports plain text, equations, and mathematical symbols.</p>
-                                                         </div>
-                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                                             <span className="font-bold text-blue-700 block mb-1">subject</span>
-                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
-                                                             <p className="text-slate-600">E.g., Physics, Chemistry, Biology, etc. If the subject doesn't exist, you can create it below automatically.</p>
-                                                         </div>
-                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                                             <span className="font-bold text-blue-700 block mb-1">chapter</span>
-                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
-                                                             <p className="text-slate-600">The chapter/category (e.g. Biomolecules). Can be automatically created on the fly during upload.</p>
-                                                         </div>
-                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                                             <span className="font-bold text-blue-700 block mb-1">type</span>
-                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
-                                                             <p className="text-slate-600">Must be exactly <span className="font-semibold text-slate-800">MCQ</span> or <span className="font-semibold text-slate-800">Numerical</span>.</p>
-                                                         </div>
-                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                                             <span className="font-bold text-blue-700 block mb-1">correctAnswer</span>
-                                                             <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
-                                                             <p className="text-slate-600">
-                                                                 For <strong>MCQ</strong>: Supports index (<code>0</code>-<code>3</code>) OR letter (<code>A</code>-<code>D</code>) OR full option text.
-                                                                 For <strong>Numerical</strong>: Supports decimal values (e.g. <code>9.8</code>).
-                                                             </p>
-                                                         </div>
-                                                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                                                             <span className="font-bold text-blue-700 block mb-1">optionA - optionD</span>
-                                                             <span className="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Conditional</span>
-                                                             <p className="text-slate-600">Required for MCQ questions. Leave blank if type is Numerical.</p>
-                                                         </div>
-                                                     </div>
-                                                 )}
-                                             </div>
-                                         </div>
-                                     </div>
+                                                            {/* Excel Grid Layout */}
+                                                            <div className="overflow-x-auto max-w-full">
+                                                                <table className="w-full border-collapse text-left text-xs bg-white font-mono">
+                                                                    <thead>
+                                                                        {/* Column Letters Row */}
+                                                                        <tr className="bg-slate-100 text-slate-500 font-sans border-b border-slate-200">
+                                                                            <th className="px-2 py-1 border-r border-slate-200 bg-slate-200 text-center font-bold min-w-[30px]"></th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[150px]">A</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[100px]">B</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">C</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[100px]">D</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[70px]">E</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[70px]">F</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[50px]">G</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[50px]">H</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">I</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">J</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">K</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[120px]">L</th>
+                                                                            <th className="px-3 py-1 border-r border-slate-200 text-center min-w-[90px]">M</th>
+                                                                            <th className="px-3 py-1 border-slate-200 text-center min-w-[200px]">N</th>
+                                                                        </tr>
+                                                                        {/* CSV Headers Row */}
+                                                                        <tr className="bg-emerald-50/70 text-emerald-900 border-b border-slate-200 font-bold">
+                                                                            <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-200 text-center text-slate-500 font-sans font-medium">1</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">text <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">subject <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">chapter <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">topic <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">type <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">difficulty <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">marks <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200">negativeMarks</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200">optionA</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200">optionB</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200">optionC</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200">optionD</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-blue-700">correctAnswer <span className="text-red-500 font-sans">*</span></td>
+                                                                            <td className="px-3 py-1.5">explanation</td>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody className="divide-y divide-slate-100 text-slate-700">
+                                                                        {/* Row 2: Biology MCQ */}
+                                                                        <tr>
+                                                                            <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">2</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">The most abundant chemical in living organisms is:</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 bg-rose-50 text-rose-800 font-semibold font-sans">Biology</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Biomolecules</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Chemical Constituents</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Easy</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">4</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">-1</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Water</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Proteins</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Carbohydrates</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">Lipids</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 bg-amber-50 text-amber-800 text-center font-bold">A</td>
+                                                                            <td className="px-3 py-1.5 truncate max-w-[150px] font-sans">Water comprises 70-90% of cellular mass.</td>
+                                                                        </tr>
+                                                                        {/* Row 3: Chemistry MCQ */}
+                                                                        <tr>
+                                                                            <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">3</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">What is the atomic number of carbon?</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 bg-emerald-50 text-emerald-800 font-semibold font-sans">Chemistry</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Structure of Atom</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Atomic Models</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Easy</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">4</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">-1</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">4</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">6</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">8</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[100px] font-sans">12</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 bg-amber-50 text-amber-800 text-center font-bold">1</td>
+                                                                            <td className="px-3 py-1.5 truncate max-w-[150px] font-sans">Carbon has atomic number 6 (6 protons).</td>
+                                                                        </tr>
+                                                                        {/* Row 4: Physics Numerical */}
+                                                                        <tr>
+                                                                            <td className="px-2 py-1.5 border-r border-slate-200 bg-slate-100 text-center text-slate-400 font-sans font-medium">4</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 truncate max-w-[150px] font-sans">A body of mass 2 kg is moving with velocity 10 m/s. Kinetic Energy in Joules is:</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 bg-blue-50 text-blue-800 font-semibold font-sans">Physics</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Work Energy Power</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Kinetic Energy</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 font-sans">Medium</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">4</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-center">0</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 text-slate-300 italic text-[10px]">Leave Blank</td>
+                                                                            <td className="px-3 py-1.5 border-r border-slate-200 bg-amber-50 text-amber-800 text-center font-bold font-sans">100</td>
+                                                                            <td className="px-3 py-1.5 truncate max-w-[150px] font-sans">KE = 0.5 * m * v^2 = 0.5 * 2 * 100 = 100 J.</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            {/* Excel Footer Sheet Tabs */}
+                                                            <div className="bg-slate-100 border-t border-slate-200 px-3 py-1 flex items-center gap-1.5 text-[10px] text-slate-600">
+                                                                <div className="bg-white border-x border-t border-slate-300 text-emerald-700 px-3 py-1 font-bold rounded-t shadow-sm">
+                                                                    Sheet1
+                                                                </div>
+                                                                <span className="opacity-40">|</span>
+                                                                <span className="cursor-pointer hover:underline text-slate-400 font-bold px-1">+</span>
+                                                            </div>
+                                                        </div>
 
-                                     {/* Right Panel: File Upload & Action Center */}
-                                     <div className="space-y-4">
-                                         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-                                             <h4 className="font-bold text-slate-800 flex items-center gap-2">
-                                                 <Upload size={18} className="text-purple-600" />
-                                                 Upload CSV File
-                                             </h4>
-                                             
-                                             {/* Premium Drag & Drop or Custom File Selector Box */}
-                                             <div className="relative group border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/20 rounded-xl p-4 transition-all duration-200 text-center">
-                                                 <input
-                                                     type="file"
-                                                     accept=".csv"
-                                                     onChange={handleFileSelect}
-                                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                                 />
-                                                 <div className="space-y-2">
-                                                     <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                                                         <Upload size={18} />
-                                                     </div>
-                                                     <div className="text-xs font-semibold text-slate-700">
-                                                         {importFile ? importFile.name : 'Choose Questions CSV file'}
-                                                     </div>
-                                                     <div className="text-[10px] text-slate-400">
-                                                         {importFile ? `${(importFile.size / 1024).toFixed(1)} KB` : 'or drag and drop here'}
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                             
-                                             {/* Dynamic Elements Auto-creation Box */}
-                                             {(missingSubjects.length > 0 || missingChapters.length > 0) && (
-                                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 shadow-sm animate-pulse-once">
-                                                     <div>
-                                                         <h4 className="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
-                                                             <AlertTriangle size={16} className="text-amber-600" /> Registry Additions Detected
-                                                         </h4>
-                                                         <p className="text-[10px] text-amber-800 mt-1">
-                                                             This CSV refers to new subjects or chapters. Select the button below to register them in the database instantly:
-                                                         </p>
-                                                         <div className="flex flex-wrap gap-1 mt-2">
-                                                             {missingSubjects.map(sub => (
-                                                                 <span key={sub} className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded text-[9px] font-bold border border-rose-200 flex items-center gap-0.5">
-                                                                     Subject: {sub}
-                                                                 </span>
-                                                             ))}
-                                                             {missingChapters.map(chap => (
-                                                                 <span key={chap.name} className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold border border-blue-200 flex items-center gap-0.5">
-                                                                     Chapter: {chap.name} ({chap.subject})
-                                                                 </span>
-                                                             ))}
-                                                         </div>
-                                                     </div>
-                                                     <button
-                                                         type="button"
-                                                         onClick={handleCreateMissingElements}
-                                                         disabled={isCreatingMissing}
-                                                         className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all text-xs shadow disabled:opacity-50 flex items-center justify-center gap-2"
-                                                     >
-                                                         {isCreatingMissing ? <Loader2 className="animate-spin" size={12} /> : null}
-                                                         Auto-Create Registry Entries
-                                                     </button>
-                                                 </div>
-                                             )}
-                                         </div>
-                                     </div>
-                                 </div>
+                                                        <div className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200 rounded-xl p-3 leading-relaxed">
+                                                            💡 <strong>Key Notice:</strong> For MCQ type, the <code className="bg-amber-100 text-amber-900 font-bold px-1 rounded">correctAnswer</code> column supports index matching (<code>0</code> for Option A, <code>1</code> for Option B, etc.) as well as direct letter indicators (<code>A</code>, <code>B</code>, <code>C</code>, <code>D</code>) or Option names. If any subject or chapter isn't already present in your database, the system scanner will let you auto-create them right below!
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    /* Grid Column Specifications View */
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                            <span className="font-bold text-blue-700 block mb-1">text</span>
+                                                            <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                            <p className="text-slate-600">The full question statement. Supports plain text, equations, and mathematical symbols.</p>
+                                                        </div>
+                                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                            <span className="font-bold text-blue-700 block mb-1">subject</span>
+                                                            <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                            <p className="text-slate-600">E.g., Physics, Chemistry, Biology, etc. If the subject doesn't exist, you can create it below automatically.</p>
+                                                        </div>
+                                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                            <span className="font-bold text-blue-700 block mb-1">chapter</span>
+                                                            <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                            <p className="text-slate-600">The chapter/category (e.g. Biomolecules). Can be automatically created on the fly during upload.</p>
+                                                        </div>
+                                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                            <span className="font-bold text-blue-700 block mb-1">type</span>
+                                                            <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                            <p className="text-slate-600">Must be exactly <span className="font-semibold text-slate-800">MCQ</span> or <span className="font-semibold text-slate-800">Numerical</span>.</p>
+                                                        </div>
+                                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                            <span className="font-bold text-blue-700 block mb-1">correctAnswer</span>
+                                                            <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Required</span>
+                                                            <p className="text-slate-600">
+                                                                For <strong>MCQ</strong>: Supports index (<code>0</code>-<code>3</code>) OR letter (<code>A</code>-<code>D</code>) OR full option text.
+                                                                For <strong>Numerical</strong>: Supports decimal values (e.g. <code>9.8</code>).
+                                                            </p>
+                                                        </div>
+                                                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                                            <span className="font-bold text-blue-700 block mb-1">optionA - optionD</span>
+                                                            <span className="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider mb-1 inline-block">Conditional</span>
+                                                            <p className="text-slate-600">Required for MCQ questions. Leave blank if type is Numerical.</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Panel: File Upload & Action Center */}
+                                    <div className="space-y-4">
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                                            <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                                                <Upload size={18} className="text-purple-600" />
+                                                Upload CSV File
+                                            </h4>
+
+                                            {/* Premium Drag & Drop or Custom File Selector Box */}
+                                            <div className="relative group border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/20 rounded-xl p-4 transition-all duration-200 text-center">
+                                                <input
+                                                    type="file"
+                                                    accept=".csv"
+                                                    onChange={handleFileSelect}
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                />
+                                                <div className="space-y-2">
+                                                    <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                                                        <Upload size={18} />
+                                                    </div>
+                                                    <div className="text-xs font-semibold text-slate-700">
+                                                        {importFile ? importFile.name : 'Choose Questions CSV file'}
+                                                    </div>
+                                                    <div className="text-[10px] text-slate-400">
+                                                        {importFile ? `${(importFile.size / 1024).toFixed(1)} KB` : 'or drag and drop here'}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Dynamic Elements Auto-creation Box */}
+                                            {(missingSubjects.length > 0 || missingChapters.length > 0) && (
+                                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 shadow-sm animate-pulse-once">
+                                                    <div>
+                                                        <h4 className="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
+                                                            <AlertTriangle size={16} className="text-amber-600" /> Registry Additions Detected
+                                                        </h4>
+                                                        <p className="text-[10px] text-amber-800 mt-1">
+                                                            This CSV refers to new subjects or chapters. Select the button below to register them in the database instantly:
+                                                        </p>
+                                                        <div className="flex flex-wrap gap-1 mt-2">
+                                                            {missingSubjects.map(sub => (
+                                                                <span key={sub} className="px-2 py-0.5 bg-rose-100 text-rose-800 rounded text-[9px] font-bold border border-rose-200 flex items-center gap-0.5">
+                                                                    Subject: {sub}
+                                                                </span>
+                                                            ))}
+                                                            {missingChapters.map(chap => (
+                                                                <span key={chap.name} className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold border border-blue-200 flex items-center gap-0.5">
+                                                                    Chapter: {chap.name} ({chap.subject})
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleCreateMissingElements}
+                                                        disabled={isCreatingMissing}
+                                                        className="w-full py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all text-xs shadow disabled:opacity-50 flex items-center justify-center gap-2"
+                                                    >
+                                                        {isCreatingMissing ? <Loader2 className="animate-spin" size={12} /> : null}
+                                                        Auto-Create Registry Entries
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
 
                                 {/* Preview and Validation */}
                                 {parsedRows.length > 0 && (
@@ -2064,8 +1992,8 @@ const AdminQuestionBank = () => {
 
                                                         return (
                                                             <tr key={index} className={
-                                                                isValid 
-                                                                    ? (hasWarnings ? 'bg-amber-50/50' : 'bg-emerald-50/50') 
+                                                                isValid
+                                                                    ? (hasWarnings ? 'bg-amber-50/50' : 'bg-emerald-50/50')
                                                                     : 'bg-rose-50/50'
                                                             }>
                                                                 <td className="px-3 py-2">

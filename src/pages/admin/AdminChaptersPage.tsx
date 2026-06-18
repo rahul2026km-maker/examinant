@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Trash2, X, Save, Loader2, FolderPlus, BookOpen, Edit2, Upload, Download, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Trash2, X, Save, Loader2, FolderPlus, BookOpen, Edit2, Upload, Download, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { useSubjectList } from '../../hooks/useSubjectList';
@@ -29,6 +29,7 @@ const AdminChaptersPage = () => {
     const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterSubject, setFilterSubject] = useState<string>('all');
+    const [showAllStats, setShowAllStats] = useState(false);
 
     // CSV Import states
     const [isImporting, setIsImporting] = useState(false);
@@ -334,29 +335,55 @@ const AdminChaptersPage = () => {
             </div>
 
             {/* Statistics */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
-                    <div className="text-3xl font-bold text-blue-600">{chapters.length}</div>
-                    <div className="text-sm text-slate-600 mt-1">Total Chapters</div>
-                </div>
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
-                    <div className="text-3xl font-bold text-green-600">
-                        {chapters.filter(t => t.subject === 'Physics').length}
+            <div className="space-y-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                        <div className="text-3xl font-bold text-blue-600">{chapters.length}</div>
+                        <div className="text-sm text-slate-600 mt-1">Total Chapters</div>
                     </div>
-                    <div className="text-sm text-slate-600 mt-1">Physics</div>
+                    
+                    {(showAllStats ? subjects : subjects.slice(0, 3)).map((subject, index) => {
+                        const count = chapters.filter(t => t.subject === subject).length;
+                        // Dynamic color selection based on index to ensure variety
+                        const colors = [
+                            { bg: 'from-green-50 to-emerald-50', border: 'border-green-200', text: 'text-green-600' },
+                            { bg: 'from-purple-50 to-violet-50', border: 'border-purple-200', text: 'text-purple-600' },
+                            { bg: 'from-orange-50 to-amber-50', border: 'border-orange-200', text: 'text-orange-600' },
+                            { bg: 'from-rose-50 to-pink-50', border: 'border-rose-200', text: 'text-rose-600' },
+                            { bg: 'from-cyan-50 to-sky-50', border: 'border-cyan-200', text: 'text-cyan-600' },
+                            { bg: 'from-fuchsia-50 to-pink-50', border: 'border-fuchsia-200', text: 'text-fuchsia-600' }
+                        ];
+                        const theme = colors[index % colors.length];
+                        
+                        return (
+                            <div key={subject} className={`bg-gradient-to-br ${theme.bg} p-4 rounded-xl border ${theme.border}`}>
+                                <div className={`text-3xl font-bold ${theme.text}`}>
+                                    {count}
+                                </div>
+                                <div className="text-sm text-slate-600 mt-1">{subject}</div>
+                            </div>
+                        );
+                    })}
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-violet-50 p-4 rounded-xl border border-purple-200">
-                    <div className="text-3xl font-bold text-purple-600">
-                        {chapters.filter(t => t.subject === 'Chemistry').length}
+                
+                {subjects.length > 3 && (
+                    <div className="flex justify-center pt-2">
+                        <button 
+                            onClick={() => setShowAllStats(!showAllStats)}
+                            className="text-sm font-bold text-slate-700 hover:text-blue-600 bg-white border-2 border-slate-200 hover:border-blue-300 shadow-sm hover:shadow px-6 py-2 rounded-xl transition-all duration-200 flex items-center gap-2"
+                        >
+                            {showAllStats ? (
+                                <>
+                                    <ChevronUp size={18} /> Show Less Subjects
+                                </>
+                            ) : (
+                                <>
+                                    <ChevronDown size={18} /> Show All Subjects ({subjects.length})
+                                </>
+                            )}
+                        </button>
                     </div>
-                    <div className="text-sm text-slate-600 mt-1">Chemistry</div>
-                </div>
-                <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
-                    <div className="text-3xl font-bold text-orange-600">
-                        {chapters.filter(t => t.subject === 'Mathematics').length}
-                    </div>
-                    <div className="text-sm text-slate-600 mt-1">Mathematics</div>
-                </div>
+                )}
             </div>
 
             {/* Filters */}
