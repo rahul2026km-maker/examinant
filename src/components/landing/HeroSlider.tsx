@@ -6,6 +6,9 @@ import slider1 from '../../assets/slider1.png';
 import slider2 from '../../assets/slider2.png';
 import desktopslider2 from '../../assets/desktopslider2.png';
 import desktopslider1 from '../../assets/desktopslider1.png';
+import desktopslider3 from '../../assets/desktopslider3.png';
+import desktopslider4 from '../../assets/desktopslider4.png';
+import desktopslider5 from '../../assets/desktopslider5.png';
 import slider3 from '../../assets/slider3.png';
 import slider4 from '../../assets/slioder4.png';
 import slider5 from '../../assets/slider5.png';
@@ -13,9 +16,9 @@ import slider5 from '../../assets/slider5.png';
 const BANNERS = [
   { mobile: slider1, desktop: desktopslider1 },
   { mobile: slider2, desktop: desktopslider2 },
-  { mobile: slider3, desktop: slider3 },
-  { mobile: slider4, desktop: slider4 },
-  { mobile: slider5, desktop: slider5 }
+  { mobile: slider3, desktop: desktopslider3 },
+  { mobile: slider4, desktop: desktopslider4 },
+  { mobile: slider5, desktop: desktopslider5 }
 ];
 
 const HeroSlider = () => {
@@ -37,7 +40,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <section className="relative w-full mt-[72px] overflow-hidden bg-[#081028] group md:h-[340px] lg:h-[440px] xl:h-[540px]">
+    <section className="relative w-full mt-[72px] overflow-hidden bg-[#081028] group md:h-[450px] lg:h-[450px] xl:h-[610px] 2xl:h-[600px]">
       {/* Invisible placeholder dictates the slider height naturally based on the image's aspect ratio on mobile */}
       <img src={BANNERS[0].mobile} alt="placeholder" className="w-full h-auto invisible pointer-events-none md:hidden" />
 
