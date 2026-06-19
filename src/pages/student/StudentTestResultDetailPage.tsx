@@ -11,11 +11,14 @@ import { useAuth } from '../../contexts/AuthContext';
 interface Question {
     id: string;
     text: string;
+    textHindi?: string;
     options: string[];
+    optionsHindi?: string[];
     correctAnswer: number | string;
     subject: string;
     type: 'MCQ' | 'Numerical';
     explanation?: string;
+    explanationHindi?: string;
     section?: string;
 }
 
@@ -458,12 +461,18 @@ const StudentTestResultDetailPage = () => {
                                         <p className="text-slate-800 font-medium text-lg leading-relaxed">
                                             {q.text}
                                         </p>
+                                        {q.textHindi && (
+                                            <p className="text-slate-500 font-medium text-base leading-relaxed mt-1.5 border-l-2 border-slate-300 pl-3 italic">
+                                                {q.textHindi}
+                                            </p>
+                                        )}
 
                                         {q.type === 'MCQ' ? (
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 {q.options.map((opt, optIdx) => {
                                                     const isSelected = userAnswer === optIdx;
                                                     const isCorrect = String(q.correctAnswer) === String(optIdx);
+                                                    const hasHindiOption = q.optionsHindi && q.optionsHindi[optIdx] && q.optionsHindi[optIdx].trim() !== '';
 
                                                     let className = "p-3 rounded-lg border-2 text-sm flex items-center gap-3 ";
                                                     if (isCorrect) className += "border-green-500 bg-green-50 text-green-900";
@@ -478,7 +487,14 @@ const StudentTestResultDetailPage = () => {
                                                                 }`}>
                                                                 {(isCorrect || isSelected) && <div className="w-2 h-2 bg-white rounded-full" />}
                                                             </div>
-                                                            <span className="font-medium">{opt}</span>
+                                                            <span className="font-medium flex-1">
+                                                                {opt}
+                                                                {hasHindiOption && (
+                                                                    <span className="block text-xs text-slate-500 mt-1 font-normal italic">
+                                                                        {q.optionsHindi![optIdx]}
+                                                                    </span>
+                                                                )}
+                                                            </span>
                                                         </div>
                                                     );
                                                 })}
@@ -500,12 +516,24 @@ const StudentTestResultDetailPage = () => {
                                             </div>
                                         )}
 
-                                        {q.explanation && (
-                                            <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm">
-                                                <p className="font-bold mb-1 flex items-center gap-2">
-                                                    <BookOpen size={16} /> Explanation:
-                                                </p>
-                                                {q.explanation}
+                                        {(q.explanation || q.explanationHindi) && (
+                                            <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm space-y-3">
+                                                {q.explanation && (
+                                                    <div>
+                                                        <p className="font-bold mb-1 flex items-center gap-2">
+                                                            <BookOpen size={16} /> Explanation:
+                                                        </p>
+                                                        <p className="whitespace-pre-wrap">{q.explanation}</p>
+                                                    </div>
+                                                )}
+                                                {q.explanationHindi && (
+                                                    <div className={q.explanation ? "pt-3 border-t border-blue-200/50" : ""}>
+                                                        <p className="font-bold mb-1 flex items-center gap-2 text-indigo-700">
+                                                            <BookOpen size={16} /> व्याख्या (Explanation in Hindi):
+                                                        </p>
+                                                        <p className="whitespace-pre-wrap text-slate-700">{q.explanationHindi}</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>

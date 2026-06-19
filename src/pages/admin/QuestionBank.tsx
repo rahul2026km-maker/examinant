@@ -26,6 +26,7 @@ interface Question {
     marks?: number; // Default marks for this question (default: 4)
     negativeMarks?: number; // Negative marking (optional, default: -1 for MCQ)
     explanation?: string; // Solution/explanation text (optional)
+    explanationHindi?: string; // Solution/explanation text in Hindi (optional)
     imageUrls?: string[];
     createdAt: any;
 }
@@ -192,6 +193,7 @@ const AdminQuestionBank = () => {
         marks: 4,
         negativeMarks: -1,
         explanation: '',
+        explanationHindi: '',
         imageUrls: [] as string[]
     });
 
@@ -282,6 +284,7 @@ const AdminQuestionBank = () => {
                 marks: formData.marks,
                 negativeMarks: formData.type === 'MCQ' ? formData.negativeMarks : 0,
                 explanation: formData.explanation || '',
+                explanationHindi: formData.explanationHindi || '',
                 imageUrls: [...formData.imageUrls, ...uploadUrls],
                 createdAt: serverTimestamp()
             };
@@ -316,6 +319,7 @@ const AdminQuestionBank = () => {
                 marks: 4,
                 negativeMarks: -1,
                 explanation: '',
+                explanationHindi: '',
                 imageUrls: []
             });
         } catch (error) {
@@ -362,6 +366,7 @@ const AdminQuestionBank = () => {
             marks: question.marks || 4,
             negativeMarks: question.negativeMarks || -1,
             explanation: question.explanation || '',
+            explanationHindi: question.explanationHindi || '',
             imageUrls: question.imageUrls || []
         });
         setImageFiles([]);
@@ -400,6 +405,7 @@ const AdminQuestionBank = () => {
                 marks: formData.marks,
                 negativeMarks: formData.type === 'MCQ' ? formData.negativeMarks : 0,
                 explanation: formData.explanation || '',
+                explanationHindi: formData.explanationHindi || '',
                 imageUrls: [...(formData.imageUrls || []), ...uploadUrls]
             };
 
@@ -434,6 +440,7 @@ const AdminQuestionBank = () => {
                 marks: 4,
                 negativeMarks: -1,
                 explanation: '',
+                explanationHindi: '',
                 imageUrls: []
             });
         } catch (error) {
@@ -1318,6 +1325,18 @@ const AdminQuestionBank = () => {
                                     <p className="text-xs text-slate-500 mt-1">Add step-by-step solution for students</p>
                                 </div>
 
+                                {/* Explanation in Hindi (Optional) */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Explanation in Hindi (Optional)</label>
+                                    <textarea
+                                        value={formData.explanationHindi}
+                                        onChange={e => setFormData({ ...formData, explanationHindi: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg h-24 resize-none"
+                                        placeholder="Detailed solution or explanation in Hindi..."
+                                    />
+                                    <p className="text-xs text-slate-500 mt-1">Add step-by-step solution in Hindi for students</p>
+                                </div>
+
                                 <button
                                     type="submit"
                                     className="w-full py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
@@ -1641,6 +1660,18 @@ const AdminQuestionBank = () => {
                                         placeholder="Provide a detailed solution or explanation for this question..."
                                     />
                                     <p className="text-xs text-slate-500 mt-1">Add step-by-step solution for students</p>
+                                </div>
+
+                                {/* Explanation in Hindi (Optional) */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Explanation in Hindi (Optional)</label>
+                                    <textarea
+                                        value={formData.explanationHindi}
+                                        onChange={e => setFormData({ ...formData, explanationHindi: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg h-24 resize-none"
+                                        placeholder="Detailed solution or explanation in Hindi..."
+                                    />
+                                    <p className="text-xs text-slate-500 mt-1">Add step-by-step solution in Hindi for students</p>
                                 </div>
 
                                 <button
@@ -2005,7 +2036,14 @@ const AdminQuestionBank = () => {
                                                                         <span className="text-emerald-600 font-bold">✓</span>
                                                                     )}
                                                                 </td>
-                                                                <td className="px-3 py-2 max-w-xs truncate text-slate-700">{row.text}</td>
+                                                                <td className="px-3 py-2 max-w-xs text-slate-700">
+                                                                    <div className="truncate font-medium">{row.text}</div>
+                                                                    {row.textHindi && (
+                                                                        <div className="text-xs text-slate-500 italic mt-0.5 truncate border-l border-slate-300 pl-1.5" title={row.textHindi}>
+                                                                            {row.textHindi}
+                                                                        </div>
+                                                                    )}
+                                                                </td>
                                                                 <td className="px-3 py-2 text-slate-600">{row.subject}</td>
                                                                 <td className="px-3 py-2 text-slate-600">{row.chapter}</td>
                                                                 <td className="px-3 py-2 text-slate-600">{row.type}</td>

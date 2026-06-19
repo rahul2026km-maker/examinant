@@ -11,7 +11,9 @@ import { useAuth } from '../../contexts/AuthContext';
 interface Question {
     id: string;
     text: string;
+    textHindi?: string;
     options: string[]; // For MCQ
+    optionsHindi?: string[];
     correctAnswer: number | string; // index for MCQ, value for Numerical
     subject: string;
     chapter: string;
@@ -43,6 +45,7 @@ const StudentTestAttemptPage = () => {
     const [answers, setAnswers] = useState<Record<number, number | string>>({}); // questionIndex -> answer
     const [markedForReview, setMarkedForReview] = useState<Set<number>>(new Set());
     const [visitedQuestions, setVisitedQuestions] = useState<Set<number>>(new Set([0]));
+    const [testLanguage, setTestLanguage] = useState<'english' | 'hindi'>('english');
 
     // Section B selections (5 out of 10)
     const [sectionBSelections, setSectionBSelections] = useState<Record<string, Set<number>>>({
@@ -527,55 +530,90 @@ const StudentTestAttemptPage = () => {
                                         <p className="text-xs text-slate-400">{currentQuestion.chapter}</p>
                                     </div>
                                 </div>
-                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${currentQuestion.type === 'MCQ' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
-                                    }`}>
-                                    {currentQuestion.type}
-                                </span>
+                                <div className="flex items-center gap-3">
+                                    {/* Language Switcher Toggle */}
+                                    {(currentQuestion.textHindi || (currentQuestion.optionsHindi && currentQuestion.optionsHindi.some(o => o.trim() !== ''))) && (
+                                        <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-semibold">
+                                            <button
+                                                type="button"
+                                                onClick={() => setTestLanguage('english')}
+                                                className={`px-2 py-1 rounded transition-colors ${testLanguage === 'english'
+                                                    ? 'bg-white text-blue-600 shadow-sm'
+                                                    : 'text-slate-500 hover:text-slate-800'
+                                                    }`}
+                                            >
+                                                English
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setTestLanguage('hindi')}
+                                                className={`px-2 py-1 rounded transition-colors ${testLanguage === 'hindi'
+                                                    ? 'bg-white text-blue-600 shadow-sm'
+                                                    : 'text-slate-500 hover:text-slate-800'
+                                                    }`}
+                                            >
+                                                हिंदी
+                                            </button>
+                                        </div>
+                                    )}
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${currentQuestion.type === 'MCQ' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                                        }`}>
+                                        {currentQuestion.type}
+                                    </span>
+                                </div>
                             </div>
 
                             {/* Question Text */}
                             <div className="mb-6">
                                 <p className="text-lg md:text-xl font-medium text-slate-900 leading-relaxed">
-                                    {currentQuestion.text}
+                                    {testLanguage === 'hindi' && currentQuestion.textHindi
+                                        ? currentQuestion.textHindi
+                                        : currentQuestion.text}
                                 </p>
                             </div>
 
                             {/* Answer Options */}
                             {currentQuestion.type === 'MCQ' ? (
                                 <div className="space-y-3">
-                                    {currentQuestion.options.map((option, oIdx) => (
-                                        <label
-                                            key={oIdx}
-                                            className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${answers[currentQuestionIndex] === oIdx
-                                                ? 'bg-blue-50 border-blue-500 shadow-md shadow-blue-500/20'
-                                                : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'
-                                                }`}
-                                        >
-                                            <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${answers[currentQuestionIndex] === oIdx
-                                                ? 'border-blue-600 bg-blue-600'
-                                                : 'border-slate-300 bg-white'
-                                                }`}>
-                                                {answers[currentQuestionIndex] === oIdx && (
-                                                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                                                )}
-                                            </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-slate-700">
-                                                        {String.fromCharCode(65 + oIdx)}.
-                                                    </span>
-                                                    <span className="text-slate-800">{option}</span>
+                                    {currentQuestion.options.map((option, oIdx) => {
+                                        const hasHindiOption = currentQuestion.optionsHindi && currentQuestion.optionsHindi[oIdx] && currentQuestion.optionsHindi[oIdx].trim() !== '';
+                                        const displayText = (testLanguage === 'hindi' && hasHindiOption)
+                                            ? currentQuestion.optionsHindi![oIdx]
+                                            : option;
+                                        return (
+                                            <label
+                                                key={oIdx}
+                                                className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${answers[currentQuestionIndex] === oIdx
+                                                    ? 'bg-blue-50 border-blue-500 shadow-md shadow-blue-500/20'
+                                                    : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300'
+                                                    }`}
+                                            >
+                                                <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${answers[currentQuestionIndex] === oIdx
+                                                    ? 'border-blue-600 bg-blue-600'
+                                                    : 'border-slate-300 bg-white'
+                                                    }`}>
+                                                    {answers[currentQuestionIndex] === oIdx && (
+                                                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                                                    )}
                                                 </div>
-                                            </div>
-                                            <input
-                                                type="radio"
-                                                name={`q-${currentQuestionIndex}`}
-                                                className="hidden"
-                                                checked={answers[currentQuestionIndex] === oIdx}
-                                                onChange={() => handleAnswer(oIdx)}
-                                            />
-                                        </label>
-                                    ))}
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-slate-700">
+                                                            {String.fromCharCode(65 + oIdx)}.
+                                                        </span>
+                                                        <span className="text-slate-800">{displayText}</span>
+                                                    </div>
+                                                </div>
+                                                <input
+                                                    type="radio"
+                                                    name={`q-${currentQuestionIndex}`}
+                                                    className="hidden"
+                                                    checked={answers[currentQuestionIndex] === oIdx}
+                                                    onChange={() => handleAnswer(oIdx)}
+                                                />
+                                            </label>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div>

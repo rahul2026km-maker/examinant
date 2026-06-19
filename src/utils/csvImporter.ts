@@ -16,6 +16,7 @@ export interface ChapterCSVRow {
 
 export interface QuestionCSVRow {
     text: string;
+    textHindi?: string;
     subject: string;
     chapter: string;
     topic: string;
@@ -27,8 +28,13 @@ export interface QuestionCSVRow {
     optionB: string;
     optionC: string;
     optionD: string;
+    optionAHindi?: string;
+    optionBHindi?: string;
+    optionCHindi?: string;
+    optionDHindi?: string;
     correctAnswer: string;
     explanation: string;
+    explanationHindi?: string;
 }
 
 export interface ValidationResult {
@@ -358,6 +364,7 @@ export const batchUploadQuestions = async (
 
                 const questionData: any = {
                     text: rows[i].text.trim(),
+                    textHindi: rows[i].textHindi?.trim() || '',
                     subject: subject,
                     chapter: rows[i].chapter.trim(),
                     topic: rows[i].topic.trim(),
@@ -366,19 +373,27 @@ export const batchUploadQuestions = async (
                     marks: Number(rows[i].marks),
                     negativeMarks: rows[i].negativeMarks ? Number(rows[i].negativeMarks) : (rows[i].type === 'MCQ' ? -1 : 0),
                     explanation: rows[i].explanation?.trim() || '',
+                    explanationHindi: rows[i].explanationHindi?.trim() || '',
                     createdAt: serverTimestamp()
                 };
 
                 if (rows[i].type === 'MCQ') {
                     questionData.options = [
-                        rows[i].optionA.trim(),
-                        rows[i].optionB.trim(),
-                        rows[i].optionC.trim(),
-                        rows[i].optionD.trim()
+                        rows[i].optionA?.trim() || '',
+                        rows[i].optionB?.trim() || '',
+                        rows[i].optionC?.trim() || '',
+                        rows[i].optionD?.trim() || ''
+                    ];
+                    questionData.optionsHindi = [
+                        rows[i].optionAHindi?.trim() || '',
+                        rows[i].optionBHindi?.trim() || '',
+                        rows[i].optionCHindi?.trim() || '',
+                        rows[i].optionDHindi?.trim() || ''
                     ];
                     questionData.correctAnswer = Number(normalizeCorrectAnswer(rows[i].correctAnswer));
                 } else {
                     questionData.options = [];
+                    questionData.optionsHindi = [];
                     questionData.correctAnswer = rows[i].correctAnswer.trim();
                 }
 

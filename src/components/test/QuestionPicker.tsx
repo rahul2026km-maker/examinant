@@ -7,6 +7,7 @@ import { db } from '../../firebase';
 interface Question {
     id: string;
     text: string;
+    textHindi?: string;
     subject: string;
     chapter: string;
     type: 'MCQ' | 'Numerical';
@@ -241,6 +242,11 @@ const QuestionPicker = ({
                                                     {/* Strip HTML if needed, simplistic approach here */}
                                                     {question.text.replace(/<[^>]*>/g, '')}
                                                 </p>
+                                                {question.textHindi && (
+                                                    <p className="text-slate-500 text-xs italic mt-1 line-clamp-1 border-l border-slate-300 pl-2">
+                                                        {question.textHindi.replace(/<[^>]*>/g, '')}
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
