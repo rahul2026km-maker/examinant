@@ -40,9 +40,11 @@ const HeroSlider = () => {
   };
 
   return (
-    <section className="relative w-full mt-[72px] overflow-hidden bg-[#081028] group md:h-[450px] lg:h-[450px] xl:h-[610px] 2xl:h-[600px]">
+    <section className="relative w-full mt-[72px] overflow-hidden bg-[#081028] group">
       {/* Invisible placeholder dictates the slider height naturally based on the image's aspect ratio on mobile */}
       <img src={BANNERS[0].mobile} alt="placeholder" className="w-full h-auto invisible pointer-events-none md:hidden" />
+      {/* Invisible placeholder dictates the slider height naturally based on the image's aspect ratio on desktop */}
+      <img src={BANNERS[0].desktop} alt="placeholder" className="hidden md:block w-full h-auto invisible pointer-events-none" />
 
       <div className="absolute inset-0">
         <AnimatePresence initial={false} mode="wait">
