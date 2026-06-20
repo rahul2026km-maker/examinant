@@ -7,6 +7,7 @@ interface AuthContextType {
     currentUser: User | null;
     loading: boolean;
     userRole: 'student' | 'admin' | null;
+    profileData: any;
     resetPassword: (email: string) => Promise<void>;
 }
 
@@ -19,6 +20,7 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [userRole, setUserRole] = useState<'student' | 'admin' | null>(null);
+    const [profileData, setProfileData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const resetPassword = (email: string) => {
@@ -41,16 +43,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     if (userDoc.exists()) {
                         const data = userDoc.data();
                         setUserRole(data.role as 'student' | 'admin');
+                        setProfileData(data);
                     } else {
                         // Default to student if document doesn't exist but user is auth'd
                         setUserRole('student');
+                        setProfileData(null);
                     }
                 } catch (error) {
                     console.error("Error fetching user role:", error);
                     setUserRole('student'); // Fail safe
+                    setProfileData(null);
                 }
             } else {
                 setUserRole(null);
+                setProfileData(null);
             }
 
             setLoading(false);
@@ -63,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         currentUser,
         loading,
         userRole,
+        profileData,
         resetPassword
     };
 

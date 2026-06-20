@@ -31,6 +31,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const authContext = useAuth();
     const currentUser = authContext?.currentUser;
+    const profileData = authContext?.profileData;
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -201,14 +202,14 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
                                 <p className="text-[13px] font-semibold text-gray-900 leading-none">
-                                    {currentUser?.displayName || 'User'}
+                                    {profileData?.fullName || profileData?.displayName || currentUser?.displayName || 'User'}
                                 </p>
                                 <p className="text-[11px] font-medium text-gray-500 mt-1">
                                     {role === 'admin' ? 'Administrator' : 'Student'}
                                 </p>
                             </div>
-                            <div className="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold text-sm shadow-sm ring-2 ring-white">
-                                {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
+                            <div className="w-9 h-9 rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold text-sm shadow-sm ring-2 ring-white uppercase">
+                                {(profileData?.fullName || profileData?.displayName || currentUser?.email || 'U').charAt(0)}
                             </div>
                         </div>
                     </div>

@@ -17,6 +17,7 @@ const StudentDashboard = () => {
     const navigate = useNavigate();
     const auth = useAuth();
     const currentUser = auth?.currentUser;
+    const profileData = auth?.profileData;
 
     const [stats, setStats] = useState<StudentStats>({
         totalTests: 0,
@@ -88,7 +89,7 @@ const StudentDashboard = () => {
             {/* Welcome Header */}
             <motion.div variants={itemVariants} className="space-y-2">
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                    Welcome back, {currentUser?.displayName?.split(' ')[0] || 'Scholar'}! 👋
+                    Welcome back, {profileData?.fullName?.split(' ')[0] || profileData?.displayName?.split(' ')[0] || currentUser?.displayName?.split(' ')[0] || 'Scholar'}! 👋
                 </h1>
                 <p className="text-slate-500 font-medium">Here's a summary of your academic progress.</p>
             </motion.div>
