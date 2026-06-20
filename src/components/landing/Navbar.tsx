@@ -5,12 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logo.png';
 import { getAllTestSeries } from '../../services/testSeriesService';
 import { useAuth } from '../../contexts/AuthContext';
+import { auth } from '../../firebase';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const auth = useAuth();
-    const currentUser = auth?.currentUser;
+    const authContext = useAuth();
+    const currentUser = authContext?.currentUser;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -35,6 +36,15 @@ const Navbar = () => {
 
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+            navigate('/');
+        } catch (error) {
+            console.error("Failed to log out", error);
+        }
+    };
 
     const navItems = [
         { label: 'Home', path: '/' },
@@ -118,12 +128,20 @@ const Navbar = () => {
                     {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-4 z-10">
                         {currentUser ? (
-                            <button
-                                onClick={() => navigate('/dashboard')}
-                                className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
-                            >
-                                Dashboard
-                            </button>
+                            <>
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
+                                >
+                                    Dashboard
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="px-6 py-2.5 text-[13px] font-black text-slate-300 hover:text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all"
+                                >
+                                    Logout
+                                </button>
+                            </>
                         ) : (
                             <>
                                 <button
@@ -182,12 +200,20 @@ const Navbar = () => {
                         </div>
                         <div className="mt-8 pt-8 border-t border-white/5 flex flex-col gap-4">
                             {currentUser ? (
-                                <button
-                                    onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
-                                    className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
-                                >
-                                    Dashboard
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
+                                        className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
+                                    >
+                                        Dashboard
+                                    </button>
+                                    <button
+                                        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                                        className="w-full py-4 text-white font-black border border-white/10 rounded-2xl"
+                                    >
+                                        Logout
+                                    </button>
+                                </>
                             ) : (
                                 <>
                                     <button

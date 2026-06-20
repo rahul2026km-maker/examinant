@@ -53,6 +53,7 @@ const Footer = () => {
                         </h4>
                         <ul className="space-y-4 mt-8">
                             <li><Link to="/contact" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Contact us</Link></li>
+                            <li><Link to="/privacy" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Privacy policy</Link></li>
                             <li><Link to="/refund-policy" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Refund policy</Link></li>
                             <li><Link to="/terms" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Terms and conditions</Link></li>
                             <li><Link to="#" className="text-slate-300 hover:text-white transition-colors text-sm font-medium">Exam Motivation</Link></li>
