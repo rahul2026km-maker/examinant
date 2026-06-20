@@ -16,6 +16,9 @@ const AdminStudentsPage = () => {
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [studentAttempts, setStudentAttempts] = useState<any[]>([]);
     const [isLoadingAttempts, setIsLoadingAttempts] = useState(false);
+    const [studentPurchases, setStudentPurchases] = useState<any[]>([]);
+    const [isLoadingPurchases, setIsLoadingPurchases] = useState(false);
+    const [modalTab, setModalTab] = useState<'attempts' | 'purchases'>('attempts');
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [inviteFormData, setInviteFormData] = useState({ displayName: '', email: '' });
     const [isSubmittingInvite, setIsSubmittingInvite] = useState(false);
@@ -92,17 +95,26 @@ const AdminStudentsPage = () => {
         document.body.removeChild(link);
     };
 
-    const fetchStudentAttempts = async (studentId: string) => {
+    const fetchStudentAttemptsAndPurchases = async (studentId: string) => {
         setIsLoadingAttempts(true);
+        setIsLoadingPurchases(true);
         try {
+            // Fetch attempts
             const attemptsRef = collection(db, 'users', studentId, 'attempts');
             const snapshot = await getDocs(attemptsRef);
             const attempts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setStudentAttempts(attempts);
+
+            // Fetch purchases
+            const purchasesRef = collection(db, 'users', studentId, 'purchases');
+            const purchasesSnapshot = await getDocs(purchasesRef);
+            const purchases = purchasesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setStudentPurchases(purchases);
         } catch (error) {
-            console.error("Error fetching attempts:", error);
+            console.error("Error fetching student details:", error);
         } finally {
             setIsLoadingAttempts(false);
+            setIsLoadingPurchases(false);
         }
     };
 
@@ -260,7 +272,8 @@ const AdminStudentsPage = () => {
                                         className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
                                         onClick={() => {
                                             setSelectedStudent(student);
-                                            fetchStudentAttempts(student.id);
+                                            setModalTab('attempts');
+                                            fetchStudentAttemptsAndPurchases(student.id);
                                         }}
                                     >
                                         <td className="px-6 py-4">
@@ -393,28 +406,81 @@ const AdminStudentsPage = () => {
                                     </div>
                                 </div>
 
+                                {/* Tab Selector */}
+                                <div className="flex border-b border-slate-100 mb-4">
+                                    <button
+                                        onClick={() => setModalTab('attempts')}
+                                        className={`flex-1 pb-3 text-sm font-bold border-b-2 transition-all ${
+                                            modalTab === 'attempts'
+                                                ? 'border-blue-600 text-blue-600'
+                                                : 'border-transparent text-slate-400 hover:text-slate-600'
+                                        }`}
+                                    >
+                                        Test Attempts
+                                    </button>
+                                    <button
+                                        onClick={() => setModalTab('purchases')}
+                                        className={`flex-1 pb-3 text-sm font-bold border-b-2 transition-all ${
+                                            modalTab === 'purchases'
+                                                ? 'border-blue-600 text-blue-600'
+                                                : 'border-transparent text-slate-400 hover:text-slate-600'
+                                        }`}
+                                    >
+                                        Purchased Courses
+                                    </button>
+                                </div>
+
                                 <div>
-                                    <h4 className="text-sm font-bold text-slate-700 mb-4 px-1 flex items-center gap-2">
-                                        <FileText size={18} /> Test Attempt History
-                                    </h4>
-                                    {isLoadingAttempts ? (
-                                        <div className="flex justify-center py-10"><Loader2 className="animate-spin text-blue-600" /></div>
-                                    ) : studentAttempts.length === 0 ? (
-                                        <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 font-medium">No attempts recorded yet.</div>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {studentAttempts.map((attempt: any) => (
-                                                <div key={attempt.id} className="p-4 bg-white border border-slate-200 rounded-xl flex justify-between items-center transition-all hover:border-blue-300 shadow-sm">
-                                                    <div>
-                                                        <div className="font-bold text-slate-800">{attempt.testTitle}</div>
-                                                        <div className="text-xs text-slate-500">Attempted: {new Date(attempt.attemptDate?.toDate()).toLocaleString()}</div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <div className="text-lg font-extrabold text-blue-600">{attempt.score}</div>
-                                                        <div className="text-[10px] font-bold text-slate-400 uppercase">Score</div>
-                                                    </div>
+                                    {modalTab === 'attempts' ? (
+                                        <div>
+                                            {isLoadingAttempts ? (
+                                                <div className="flex justify-center py-10"><Loader2 className="animate-spin text-blue-600" /></div>
+                                            ) : studentAttempts.length === 0 ? (
+                                                <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 font-medium">No attempts recorded yet.</div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {studentAttempts.map((attempt: any) => (
+                                                        <div key={attempt.id} className="p-4 bg-white border border-slate-200 rounded-xl flex justify-between items-center transition-all hover:border-blue-300 shadow-sm">
+                                                            <div>
+                                                                <div className="font-bold text-slate-800">{attempt.testTitle}</div>
+                                                                <div className="text-xs text-slate-500">Attempted: {attempt.attemptDate?.toDate ? new Date(attempt.attemptDate.toDate()).toLocaleString() : new Date(attempt.attemptDate).toLocaleString()}</div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-lg font-extrabold text-blue-600">{attempt.score}%</div>
+                                                                <div className="text-[10px] font-bold text-slate-400 uppercase">Score</div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            {isLoadingPurchases ? (
+                                                <div className="flex justify-center py-10"><Loader2 className="animate-spin text-blue-600" /></div>
+                                            ) : studentPurchases.length === 0 ? (
+                                                <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 font-medium">No courses purchased yet.</div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    {studentPurchases.map((purchase: any) => (
+                                                        <div key={purchase.id} className="p-4 bg-white border border-slate-200 rounded-xl flex justify-between items-center transition-all hover:border-blue-300 shadow-sm">
+                                                            <div>
+                                                                <div className="font-bold text-slate-800">{purchase.seriesTitle || purchase.testTitle}</div>
+                                                                <div className="text-xs text-slate-500">
+                                                                    Status: <span className="capitalize font-semibold text-blue-600">{purchase.paymentStatus || 'free'}</span>
+                                                                    {purchase.paymentId && purchase.paymentId !== 'free' && ` | ID: ${purchase.paymentId}`}
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className="text-lg font-extrabold text-slate-700">
+                                                                    {purchase.price > 0 ? `₹${purchase.price}` : 'Free'}
+                                                                </div>
+                                                                <div className="text-[10px] font-bold text-slate-400 uppercase">Price</div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

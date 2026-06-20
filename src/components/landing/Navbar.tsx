@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/logo.png';
 import { getAllTestSeries } from '../../services/testSeriesService';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const auth = useAuth();
+    const currentUser = auth?.currentUser;
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -114,18 +117,29 @@ const Navbar = () => {
 
                     {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-4 z-10">
-                        <button
-                            onClick={() => navigate('/login')}
-                            className="px-6 py-2.5 text-[13px] font-black text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all"
-                        >
-                            Login
-                        </button>
-                        <button
-                            onClick={() => navigate('/signup')}
-                            className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
-                        >
-                            Sign Up Free
-                        </button>
+                        {currentUser ? (
+                            <button
+                                onClick={() => navigate('/dashboard')}
+                                className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
+                            >
+                                Dashboard
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => navigate('/login')}
+                                    className="px-6 py-2.5 text-[13px] font-black text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all"
+                                >
+                                    Login
+                                </button>
+                                <button
+                                    onClick={() => navigate('/signup')}
+                                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
+                                >
+                                    Sign Up Free
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -167,18 +181,29 @@ const Navbar = () => {
                             ))}
                         </div>
                         <div className="mt-8 pt-8 border-t border-white/5 flex flex-col gap-4">
-                            <button
-                                onClick={() => navigate('/login')}
-                                className="w-full py-4 text-white font-black border border-white/10 rounded-2xl"
-                            >
-                                Login
-                            </button>
-                            <button
-                                onClick={() => navigate('/signup')}
-                                className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
-                            >
-                                Sign Up Free
-                            </button>
+                            {currentUser ? (
+                                <button
+                                    onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
+                                    className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
+                                >
+                                    Dashboard
+                                </button>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
+                                        className="w-full py-4 text-white font-black border border-white/10 rounded-2xl"
+                                    >
+                                        Login
+                                    </button>
+                                    <button
+                                        onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }}
+                                        className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
+                                    >
+                                        Sign Up Free
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </motion.div>
                 )}

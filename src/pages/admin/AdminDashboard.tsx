@@ -16,12 +16,16 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { dashboardService, type DashboardStats } from '../../services/dashboardService';
+import { db } from '../../firebase';
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
     const [chartData, setChartData] = useState<number[]>([]);
+
+    const [recentPurchases, setRecentPurchases] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -33,6 +37,20 @@ const AdminDashboard = () => {
                 ]);
                 setDashboardStats(stats);
                 setChartData(analytics);
+
+                // Fetch recent purchases
+                const purchasesRef = collection(db, 'purchases');
+                const purchasesQuery = query(purchasesRef, orderBy('purchaseDate', 'desc'), limit(5));
+                const purchasesSnapshot = await getDocs(purchasesQuery);
+                const purchasesList = purchasesSnapshot.docs.map(doc => {
+                    const docData = doc.data();
+                    return {
+                        id: doc.id,
+                        ...docData,
+                        purchaseDate: docData.purchaseDate?.toDate ? docData.purchaseDate.toDate() : new Date(docData.purchaseDate)
+                    };
+                });
+                setRecentPurchases(purchasesList);
             } catch (error) {
                 console.error("Failed to load dashboard data", error);
             } finally {
@@ -239,6 +257,75 @@ const AdminDashboard = () => {
                     </div>
                 </motion.div>
             </div>
+
+            {/* Recent Purchases Section */}
+            <motion.div variants={itemVariants} className="bg-white rounded-[40px] p-10 border border-slate-100 shadow-sm">
+                <div className="flex justify-between items-center mb-8">
+                    <div className="space-y-1">
+                        <h2 className="text-xl font-black text-slate-900 tracking-tight">Recent Enrollments & Payments</h2>
+                        <p className="text-xs text-slate-500 font-medium">Latest test series purchases and active enrollments.</p>
+                    </div>
+                    <button
+                        onClick={() => navigate('/admin-dashboard/payments')}
+                        className="flex items-center gap-2 text-xs font-black text-blue-600 uppercase tracking-widest hover:text-blue-700 transition-colors"
+                    >
+                        View All Payments <ArrowUpRight size={14} />
+                    </button>
+                </div>
+
+                {recentPurchases.length === 0 ? (
+                    <div className="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-sm font-medium">
+                        No transactions recorded yet.
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr className="text-slate-400 text-xs font-black uppercase tracking-widest border-b border-slate-100 pb-3">
+                                    <th className="pb-3">Student</th>
+                                    <th className="pb-3">Course / Test Series</th>
+                                    <th className="pb-3">Price</th>
+                                    <th className="pb-3">Status</th>
+                                    <th className="pb-3 text-right">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {recentPurchases.map((purchase) => (
+                                    <tr key={purchase.id} className="group hover:bg-slate-50/30 transition-colors">
+                                        <td className="py-4">
+                                            <div>
+                                                <div className="font-bold text-slate-800">{purchase.studentName}</div>
+                                                <div className="text-xs text-slate-400">{purchase.studentEmail}</div>
+                                            </div>
+                                        </td>
+                                        <td className="py-4">
+                                            <div className="font-semibold text-slate-700">{purchase.seriesTitle}</div>
+                                            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{purchase.category}</div>
+                                        </td>
+                                        <td className="py-4 font-extrabold text-slate-800">
+                                            {purchase.price > 0 ? `₹${purchase.price}` : <span className="text-emerald-600">Free</span>}
+                                        </td>
+                                        <td className="py-4">
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                purchase.paymentStatus === 'completed'
+                                                    ? 'bg-blue-50 text-blue-700'
+                                                    : purchase.paymentStatus === 'free'
+                                                    ? 'bg-emerald-50 text-emerald-700'
+                                                    : 'bg-yellow-50 text-yellow-700'
+                                            }`}>
+                                                {purchase.paymentStatus === 'completed' ? 'Paid' : purchase.paymentStatus}
+                                            </span>
+                                        </td>
+                                        <td className="py-4 text-right text-xs text-slate-500 font-medium">
+                                            {purchase.purchaseDate.toLocaleDateString()}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </motion.div>
         </motion.div>
     );
 };

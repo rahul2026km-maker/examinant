@@ -15,7 +15,8 @@ import {
     FolderTree,
     Award,
     ListChecks,
-    Mail
+    Mail,
+    CreditCard
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -83,6 +84,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             title: 'Management',
             links: [
                 { icon: <Users size={18} />, label: 'Students', path: '/admin-dashboard/students' },
+                { icon: <CreditCard size={18} />, label: 'Payments', path: '/admin-dashboard/payments' },
                 { icon: <Mail size={18} />, label: 'Inquiries', path: '/admin-dashboard/inquiries' },
                 { icon: <Settings size={18} />, label: 'Settings', path: '/admin-dashboard/settings' },
             ]
@@ -116,9 +118,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             >
                 {/* Header / Logo */}
                 <div className="px-6 pt-6 pb-6 flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#111827] rounded-lg flex items-center justify-center shadow-sm shrink-0">
-                        <img src={logo} alt="Logo" className="w-5 h-5 brightness-0 invert" />
-                    </div>
+                    <img src={logo} alt="Logo" className="w-9 h-9 rounded-lg object-contain shadow-sm shrink-0" />
                     <div className="min-w-0">
                         <h2 className="text-[18px] font-bold text-gray-900 tracking-tight truncate leading-tight">
                             Examinantt

@@ -132,10 +132,11 @@ export const studentService = {
     /**
      * Enroll student in a test series (record purchase)
      */
-    enrollInTestSeries: async (userId: string, series: any) => {
+    enrollInTestSeries: async (userId: string, series: any, paymentDetails?: { paymentId?: string, paymentStatus?: string }) => {
         try {
-            // Check if already enrolled (optional but good practice)
-            // For now, we rely on the UI to disable the button, but we could add a check here.
+            // Get user details from Firestore
+            const userSnap = await getDoc(doc(db, 'users', userId));
+            const userData = userSnap.exists() ? userSnap.data() : null;
 
             const purchaseData = {
                 seriesId: series.id,
@@ -143,13 +144,26 @@ export const studentService = {
                 type: 'series',
                 seriesTitle: series.name,
                 testTitle: series.name, // Fallback
-                category: series.examCategory,
-                price: series.pricing.type === 'free' ? 0 : series.pricing.amount,
+                category: series.examCategory || 'General',
+                price: series.pricing.type === 'free' ? 0 : (series.pricing.amount || 0),
                 purchaseDate: serverTimestamp(),
-                status: 'active'
+                status: 'active',
+                paymentId: paymentDetails?.paymentId || 'free',
+                paymentStatus: paymentDetails?.paymentStatus || (series.pricing.type === 'free' ? 'free' : 'completed')
             };
 
+            // Write to student's private purchases collection
             await addDoc(collection(db, 'users', userId, 'purchases'), purchaseData);
+
+            // Also write to global purchases collection for admin view
+            await addDoc(collection(db, 'purchases'), {
+                ...purchaseData,
+                userId,
+                studentName: userData?.fullName || userData?.displayName || 'Student',
+                studentEmail: userData?.email || 'student@example.com',
+                studentMobile: userData?.mobile || userData?.phone || ''
+            });
+
             return true;
         } catch (error) {
             console.error("Error enrolling in test series:", error);

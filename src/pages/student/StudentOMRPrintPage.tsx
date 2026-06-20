@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { QRCodeSVG } from 'qrcode.react';
-import { Loader2, Printer } from 'lucide-react';
+import { Loader2, Printer, ChevronLeft } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface OMRSection {
@@ -30,6 +30,7 @@ interface TestData {
 
 const StudentOMRPrintPage = () => {
     const { testId } = useParams();
+    const navigate = useNavigate();
     const auth = useAuth();
     const [studentName, setStudentName] = useState<string>('Student');
     const [testData, setTestData] = useState<TestData | null>(null);
@@ -106,6 +107,18 @@ const StudentOMRPrintPage = () => {
         window.print();
     };
 
+    const handleBack = () => {
+        try {
+            window.close();
+        } catch (e) {
+            console.error('Failed to close window:', e);
+        }
+        // Fallback if window.close is not allowed
+        setTimeout(() => {
+            navigate('/dashboard/tests');
+        }, 150);
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -127,17 +140,26 @@ const StudentOMRPrintPage = () => {
         <div className="min-h-screen bg-slate-100 py-10 print:bg-white print:py-0">
             {/* Control Bar (Hidden on Print) */}
             <div className="max-w-[210mm] mx-auto mb-6 flex justify-between items-center px-4 print:hidden">
-                <div className="flex items-center gap-2 text-slate-600">
-                    <Printer size={20} />
-                    <span className="text-sm font-medium">A4 Portrait Recommended</span>
-                </div>
                 <button
-                    onClick={handlePrint}
-                    className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
+                    onClick={handleBack}
+                    className="flex items-center gap-2 text-slate-600 hover:text-slate-900 bg-white px-4 py-2 rounded-lg border border-slate-200 transition-colors font-semibold text-sm shadow-sm"
                 >
-                    <Printer size={18} />
-                    Print OMR Sheet
+                    <ChevronLeft size={18} />
+                    Back
                 </button>
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-slate-600">
+                        <Printer size={20} />
+                        <span className="text-sm font-medium">A4 Portrait Recommended</span>
+                    </div>
+                    <button
+                        onClick={handlePrint}
+                        className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2"
+                    >
+                        <Printer size={18} />
+                        Print OMR Sheet
+                    </button>
+                </div>
             </div>
 
             {/* OMR Sheet (A4 Size) */}

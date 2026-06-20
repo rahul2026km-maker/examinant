@@ -72,9 +72,12 @@ const StudentMarketPage = () => {
                     name: 'Examinant',
                     description: `Purchase: ${series.name}`,
                     image: 'https://examinantt.web.app/logo192.png',
-                    handler: async function (_response: any) {
+                    handler: async function (response: any) {
                         try {
-                            await studentService.enrollInTestSeries(currentUser.uid, series);
+                            await studentService.enrollInTestSeries(currentUser.uid, series, {
+                                paymentId: response.razorpay_payment_id,
+                                paymentStatus: 'completed'
+                            });
                             alert('Success! You are now enrolled.');
                             navigate('/dashboard/tests');
                         } catch (err) {
@@ -93,15 +96,9 @@ const StudentMarketPage = () => {
                 paymentObject.open();
                 setEnrollingId(null);
             } else {
-                await addDoc(collection(db, 'users', currentUser.uid, 'purchases'), {
-                    seriesId: series.id,
-                    testId: series.id,
-                    type: 'series',
-                    seriesTitle: series.name,
-                    testTitle: series.name,
-                    category: series.examCategory,
-                    price: 0,
-                    purchaseDate: serverTimestamp()
+                await studentService.enrollInTestSeries(currentUser.uid, series, {
+                    paymentId: 'free',
+                    paymentStatus: 'free'
                 });
                 setEnrollingId(null);
                 navigate('/dashboard/tests');

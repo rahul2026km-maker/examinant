@@ -42,6 +42,7 @@ const AdminAddPYQPage = React.lazy(() => import('./pages/admin/AdminAddPYQPage')
 const AdminResourcesPage = React.lazy(() => import('./pages/admin/AdminResourcesPage'));
 const AdminAddResourcePage = React.lazy(() => import('./pages/admin/AdminAddResourcePage'));
 const AdminStudentsPage = React.lazy(() => import('./pages/admin/AdminStudentsPage'));
+const AdminPaymentsPage = React.lazy(() => import('./pages/admin/AdminPaymentsPage'));
 const AdminSettingsPage = React.lazy(() => import('./pages/admin/AdminSettingsPage'));
 const QuestionBank = React.lazy(() => import('./pages/admin/QuestionBank'));
 const AdminChaptersPage = React.lazy(() => import('./pages/admin/AdminChaptersPage'));
@@ -154,6 +155,7 @@ function App() {
                   <Route path="/admin-dashboard/resources" element={<AdminResourcesPage />} />
                   <Route path="/admin-dashboard/resources/new" element={<AdminAddResourcePage />} />
                   <Route path="/admin-dashboard/students" element={<AdminStudentsPage />} />
+                  <Route path="/admin-dashboard/payments" element={<AdminPaymentsPage />} />
                   <Route path="/admin-dashboard/settings" element={<AdminSettingsPage />} />
                   <Route path="/admin-dashboard/inquiries" element={<AdminInquiriesPage />} />
                   {/* OMR Test Creation Route (New) */}

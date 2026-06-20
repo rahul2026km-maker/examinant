@@ -60,7 +60,7 @@ const TestSeriesDetailsPage = () => {
 
     const handleEnroll = async () => {
         if (!currentUser) {
-            navigate('/login');
+            navigate('/login', { state: { from: window.location.pathname } });
             return;
         }
 
@@ -84,13 +84,16 @@ const TestSeriesDetailsPage = () => {
                     name: 'Examinant',
                     description: `Purchase ${series.name}`,
                     image: 'https://examinantt.web.app/logo192.png', // Optional logic for logo
-                    handler: async function (_response: any) {
+                    handler: async function (response: any) {
                         try {
                             // In a real app, verify signature on backend: response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature
-                            await studentService.enrollInTestSeries(currentUser.uid, series);
+                            await studentService.enrollInTestSeries(currentUser.uid, series, {
+                                paymentId: response.razorpay_payment_id,
+                                paymentStatus: 'completed'
+                            });
                             setIsOwned(true);
                             alert('Payment Successful!');
-                            navigate('/dashboard');
+                            navigate('/dashboard/tests');
                         } catch (err) {
                             console.error("Enrollment error after payment:", err);
                             alert("Payment successful but enrollment failed. Please contact support.");
@@ -116,10 +119,13 @@ const TestSeriesDetailsPage = () => {
                 return; // Stop here, handler takes over
             } else {
                 // Free Series
-                await studentService.enrollInTestSeries(currentUser.uid, series);
+                await studentService.enrollInTestSeries(currentUser.uid, series, {
+                    paymentId: 'free',
+                    paymentStatus: 'free'
+                });
                 setIsOwned(true);
                 alert('Enrolled successfully!');
-                navigate('/dashboard');
+                navigate('/dashboard/tests');
             }
         } catch (error) {
             console.error("Enrollment failed:", error);
@@ -266,7 +272,7 @@ const TestSeriesDetailsPage = () => {
 
                             {isOwned ? (
                                 <button
-                                    onClick={() => navigate('/dashboard')}
+                                    onClick={() => navigate('/dashboard/tests')}
                                     className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2"
                                 >
                                     Go to Dashboard
