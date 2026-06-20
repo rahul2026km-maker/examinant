@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MoreVertical, Loader2, UserX, UserCheck, Mail, X, Download, Trash2, Calendar, FileText, BarChart3 } from 'lucide-react';
+import { Search, MoreVertical, Loader2, UserX, UserCheck, Mail, X, Download, Trash2, Calendar, BarChart3 } from 'lucide-react';
 import { studentService, type Student } from '../../services/studentService';
 import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';

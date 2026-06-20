@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader2, Sparkles, Filter, ChevronRight } from 'lucide-react';
 import { db } from '../../firebase';
-import { collection, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import type { TestSeries } from '../../types/test.types';
 import { getAllTestSeries } from '../../services/testSeriesService';
