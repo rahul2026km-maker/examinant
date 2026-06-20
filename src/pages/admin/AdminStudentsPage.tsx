@@ -60,7 +60,11 @@ const AdminStudentsPage = () => {
         try {
             await studentService.updateStudent(editingStudent.id, {
                 displayName: editingStudent.displayName,
-                email: editingStudent.email
+                fullName: editingStudent.fullName,
+                email: editingStudent.email,
+                mobile: editingStudent.mobile,
+                state: editingStudent.state,
+                district: editingStudent.district
             });
             setStudents(prev => prev.map(s => s.id === editingStudent.id ? editingStudent : s));
             setIsEditModalOpen(false);
@@ -74,10 +78,13 @@ const AdminStudentsPage = () => {
     };
 
     const exportToCSV = () => {
-        const headers = ["Name", "Email", "Status", "Exams Taken", "Joined Date"];
+        const headers = ["Name", "Email", "Mobile", "State", "District", "Status", "Exams Taken", "Joined Date"];
         const rows = filteredStudents.map(s => [
-            s.displayName || "Unnamed",
+            s.fullName || s.displayName || "Unnamed",
             s.email,
+            s.mobile || s.phone || "N/A",
+            s.state || "N/A",
+            s.district || "N/A",
             s.status,
             s.testsTaken || 0,
             new Date(s.joinedDate).toLocaleDateString()
@@ -157,7 +164,11 @@ const AdminStudentsPage = () => {
             const lowerSearch = searchTerm.toLowerCase();
             temp = temp.filter(s =>
                 (s.displayName?.toLowerCase() || '').includes(lowerSearch) ||
-                (s.email?.toLowerCase() || '').includes(lowerSearch)
+                (s.fullName?.toLowerCase() || '').includes(lowerSearch) ||
+                (s.email?.toLowerCase() || '').includes(lowerSearch) ||
+                (s.mobile || s.phone || '').includes(lowerSearch) ||
+                (s.state?.toLowerCase() || '').includes(lowerSearch) ||
+                (s.district?.toLowerCase() || '').includes(lowerSearch)
             );
         }
 
@@ -246,6 +257,8 @@ const AdminStudentsPage = () => {
                         <thead className="bg-slate-50/50 text-slate-500 text-xs font-bold uppercase tracking-wider">
                             <tr>
                                 <th className="px-6 py-4">Name</th>
+                                <th className="px-6 py-4">Mobile</th>
+                                <th className="px-6 py-4">Location</th>
                                 <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">Exams Taken</th>
                                 <th className="px-6 py-4">Joined Date</th>
@@ -255,13 +268,13 @@ const AdminStudentsPage = () => {
                         <tbody className="divide-y divide-slate-100">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="py-12 text-center">
+                                    <td colSpan={7} className="py-12 text-center">
                                         <Loader2 className="animate-spin inline text-blue-600" size={32} />
                                     </td>
                                 </tr>
                             ) : filteredStudents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-12 text-center text-slate-500">
+                                    <td colSpan={7} className="py-12 text-center text-slate-500">
                                         No students found matching your criteria.
                                     </td>
                                 </tr>
@@ -280,18 +293,26 @@ const AdminStudentsPage = () => {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-sm font-bold text-slate-600 overflow-hidden">
                                                     {student.photoURL ? (
-                                                        <img src={student.photoURL} alt={student.displayName} className="w-full h-full object-cover" />
+                                                        <img src={student.photoURL} alt={student.fullName || student.displayName} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        (student.displayName || student.email).charAt(0).toUpperCase()
+                                                        (student.fullName || student.displayName || student.email).charAt(0).toUpperCase()
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium text-slate-800">{student.displayName || 'Unnamed Student'}</div>
+                                                    <div className="font-medium text-slate-800">{student.fullName || student.displayName || 'Unnamed Student'}</div>
                                                     <div className="text-xs text-slate-500 flex items-center gap-1">
                                                         <Mail size={10} /> {student.email}
                                                     </div>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-700 font-semibold">
+                                            {student.mobile || student.phone || 'N/A'}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-slate-600">
+                                            {student.district && student.state
+                                                ? `${student.district}, ${student.state}`
+                                                : student.state || student.district || 'N/A'}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${student.status === 'active'
@@ -403,6 +424,24 @@ const AdminStudentsPage = () => {
                                             {selectedStudent.status}
                                         </div>
                                         <div className="text-[10px] uppercase font-bold text-slate-400">Status</div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
+                                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 text-left">Registration Details</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-left">
+                                        <div>
+                                            <span className="font-semibold text-slate-500 block text-xs">Mobile Number</span>
+                                            <span className="font-bold text-slate-800">{selectedStudent.mobile || selectedStudent.phone || 'N/A'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="font-semibold text-slate-500 block text-xs">State</span>
+                                            <span className="font-bold text-slate-800">{selectedStudent.state || 'N/A'}</span>
+                                        </div>
+                                        <div>
+                                            <span className="font-semibold text-slate-500 block text-xs">District</span>
+                                            <span className="font-bold text-slate-800">{selectedStudent.district || 'N/A'}</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -589,8 +628,8 @@ const AdminStudentsPage = () => {
                                     <input
                                         type="text"
                                         required
-                                        value={editingStudent.displayName || ''}
-                                        onChange={(e) => setEditingStudent({ ...editingStudent, displayName: e.target.value })}
+                                        value={editingStudent.displayName || editingStudent.fullName || ''}
+                                        onChange={(e) => setEditingStudent({ ...editingStudent, displayName: e.target.value, fullName: e.target.value })}
                                         className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
                                         placeholder="Full Name"
                                     />
@@ -604,6 +643,36 @@ const AdminStudentsPage = () => {
                                         onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
                                         className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
                                         placeholder="student@example.com"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">Mobile Number</label>
+                                    <input
+                                        type="text"
+                                        value={editingStudent.mobile || editingStudent.phone || ''}
+                                        onChange={(e) => setEditingStudent({ ...editingStudent, mobile: e.target.value, phone: e.target.value })}
+                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
+                                        placeholder="10-digit mobile number"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">State</label>
+                                    <input
+                                        type="text"
+                                        value={editingStudent.state || ''}
+                                        onChange={(e) => setEditingStudent({ ...editingStudent, state: e.target.value })}
+                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
+                                        placeholder="State"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">District</label>
+                                    <input
+                                        type="text"
+                                        value={editingStudent.district || ''}
+                                        onChange={(e) => setEditingStudent({ ...editingStudent, district: e.target.value })}
+                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
+                                        placeholder="District"
                                     />
                                 </div>
                                 <div className="pt-4 flex gap-3">

@@ -89,6 +89,16 @@ const LoginPage = () => {
                 return;
             }
 
+            // Check if mobile number is registered in Firestore BEFORE signing in via confirmationResult.confirm
+            const q = query(collection(db, 'users'), where('mobile', '==', mobile));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                setError('यह मोबाइल नंबर पंजीकृत नहीं है। कृपया पहले साइन अप करें। (This mobile number is not registered. Please sign up first.)');
+                setLoading(false);
+                return;
+            }
+
             const result = await confirmationResult.confirm(otpCode);
             const user = result.user;
 
@@ -98,17 +108,6 @@ const LoginPage = () => {
             const from = (location.state as any)?.from || '/dashboard';
 
             if (!userDoc.exists()) {
-                // Check if any existing student has registered with this mobile number
-                const q = query(collection(db, 'users'), where('mobile', '==', mobile));
-                const querySnapshot = await getDocs(q);
-
-                if (querySnapshot.empty) {
-                    await auth.signOut();
-                    setError('(This mobile number is not registered. Please sign up first.)');
-                    setLoading(false);
-                    return;
-                }
-
                 const existingDoc = querySnapshot.docs[0];
                 const existingData = existingDoc.data();
                 const existingProfile = {

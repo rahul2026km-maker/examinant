@@ -17,6 +17,7 @@ import {
 export interface Student {
     id: string;
     displayName?: string;
+    fullName?: string;
     email: string;
     photoURL?: string;
     role: 'student' | 'admin';
@@ -26,6 +27,9 @@ export interface Student {
     testsTaken?: number;
     avgScore?: number;
     phone?: string;
+    mobile?: string;
+    state?: string;
+    district?: string;
 }
 
 export const studentService = {
