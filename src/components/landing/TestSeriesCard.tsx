@@ -1,8 +1,12 @@
-import { CheckCircle, ArrowRight, Zap, Target, ScrollText, Award, Sparkles, BookOpen } from 'lucide-react';
+import { CheckCircle, ArrowRight, Zap, Target, ScrollText, Award, Sparkles, BookOpen, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
+import { useState, useEffect } from 'react';
+import { db } from '../../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 interface TestSeriesProps {
+    id?: string;
     title: string;
     description?: string;
     isNew?: boolean;
@@ -18,6 +22,7 @@ interface TestSeriesProps {
 }
 
 const TestSeriesCard = ({ 
+    id,
     title, 
     description,
     isNew, 
@@ -31,18 +36,57 @@ const TestSeriesCard = ({
     thumbnailUrl
 }: TestSeriesProps) => {
 
+    const [tests, setTests] = useState<any[]>([]);
+    const [loadingTests, setLoadingTests] = useState(false);
+    const [showPopover, setShowPopover] = useState(false);
+
+    useEffect(() => {
+        const fetchTests = async () => {
+            if (!id || tests.length > 0) return;
+            setLoadingTests(true);
+            try {
+                const q = query(
+                    collection(db, 'tests'),
+                    where('seriesId', '==', id)
+                );
+                const snapshot = await getDocs(q);
+                const fetched = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setTests(fetched);
+            } catch (error) {
+                console.error("Error fetching tests for series", error);
+            } finally {
+                setLoadingTests(false);
+            }
+        };
+
+        if (showPopover) {
+            fetchTests();
+        }
+    }, [id, showPopover, tests.length]);
+
+    const handleMouseEnter = () => {
+        setShowPopover(true);
+    };
+
+    const handleMouseLeave = () => {
+        setShowPopover(false);
+    };
+
     return (
         <motion.div 
             whileHover={{ y: -10, scale: 1.01 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="group relative bg-white rounded-[32px] overflow-hidden border border-slate-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(37,99,235,0.15)] flex flex-col h-full"
+            className="group relative bg-white rounded-[32px] border border-slate-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(37,99,235,0.15)] flex flex-col h-full"
         >
             {/* Top Glow Accent */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 rounded-t-[32px]"></div>
 
             {/* Thumbnail Image */}
             {thumbnailUrl && (
-                <div className="w-full h-40 overflow-hidden relative border-b border-slate-100 shrink-0">
+                <div className="w-full h-40 overflow-hidden relative border-b border-slate-100 shrink-0 rounded-t-[32px]">
                     <img 
                         src={thumbnailUrl} 
                         alt={title} 
@@ -84,10 +128,58 @@ const TestSeriesCard = ({
                 </div>
 
                 {/* Info Pills */}
-                <div className="flex flex-wrap gap-2 mb-8">
-                    <div className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
+                <div className="flex flex-wrap gap-2 mb-8 relative">
+                    <div 
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPopover(!showPopover);
+                        }}
+                        className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-all relative"
+                    >
                         <ScrollText size={14} className="text-blue-600" />
-                        <span className="text-xs font-bold text-slate-700">{testCount || 12} Full Tests</span>
+                        <span className="text-xs font-bold text-slate-700">{testCount !== undefined ? `${testCount} Full Tests` : '12 Full Tests'}</span>
+
+                        {/* Popover */}
+                        {showPopover && (
+                            <div 
+                                className="absolute bottom-full left-0 mb-3 w-80 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 z-50 p-4 max-h-64 overflow-y-auto text-left cursor-default"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <h4 className="text-xs font-black text-[#0B4F97] uppercase tracking-wider mb-3 pb-2 border-b border-slate-100">
+                                    Tests in this Series
+                                </h4>
+                                {loadingTests ? (
+                                    <div className="flex items-center justify-center py-6">
+                                        <Loader2 className="animate-spin text-blue-600" size={20} />
+                                    </div>
+                                ) : tests.length === 0 ? (
+                                    <p className="text-xs text-slate-400 font-semibold py-3 text-center">No tests added to this series yet.</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {tests.map((test, index) => (
+                                            <div 
+                                                key={test.id} 
+                                                className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors"
+                                            >
+                                                <span className="flex-shrink-0 w-6 h-6 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-[10px] font-black">
+                                                    {index + 1}
+                                                </span>
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-bold text-slate-800 truncate leading-tight">
+                                                        {test.name || test.title}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                                                        {test.settings?.duration || test.duration || 180} mins
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <div className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
                         <Target size={14} className="text-indigo-600" />

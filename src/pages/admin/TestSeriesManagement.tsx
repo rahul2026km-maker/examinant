@@ -354,6 +354,7 @@ const TestSeriesManagement = () => {
                     {filteredSeries.map((series) => (
                         <TestSeriesCard
                             key={series.id}
+                            id={series.id}
                             title={series.name}
                             description={series.description}
                             features={series?.features || []}

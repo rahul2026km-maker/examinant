@@ -204,6 +204,7 @@ const StudentMarketPage = () => {
                         return (
                             <div key={series.id} className="relative">
                                 <TestSeriesCard
+                                    id={series.id}
                                     title={series.name}
                                     description={series.description}
                                     isNew={!!(series as any).isNew}

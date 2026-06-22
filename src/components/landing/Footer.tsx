@@ -110,7 +110,7 @@ const Footer = () => {
                             <a href="#" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-orange-500 transition-colors">
                                 <Twitter size={14} fill="currentColor" />
                             </a>
-                            <a href="#" className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white hover:bg-orange-600 transition-colors">
+                            <a href="#" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-orange-500 transition-colors">
                                 <Instagram size={14} />
                             </a>
                             <a href="#" className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-orange-500 transition-colors">

@@ -57,6 +57,7 @@ const TestSeriesPage = () => {
                             {filteredSeries.map((item) => (
                                 <TestSeriesCard
                                     key={item.id}
+                                    id={item.id}
                                     title={item.name}
                                     isNew={item.status === 'published'}
                                     originalPrice={(item.pricing?.amount || 0) * 1.5} // Mock original price
@@ -69,6 +70,7 @@ const TestSeriesPage = () => {
                                     ]}
                                     onExplore={() => navigate(`/test-series/${item.id}`)}
                                     thumbnailUrl={item.thumbnailUrl}
+                                    testCount={item.stats?.totalTests || 0}
                                 />
                             ))}
                         </div>
