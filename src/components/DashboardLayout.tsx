@@ -55,7 +55,8 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         {
             title: 'Learning',
             links: [
-                { icon: <BookOpen size={18} />, label: 'My Tests', path: '/dashboard/tests' },
+                { icon: <BookOpen size={18} />, label: 'My Courses', path: '/dashboard/tests' },
+                { icon: <BookMarked size={18} />, label: 'PYQs', path: '/dashboard/pyqs' },
                 { icon: <Award size={18} />, label: 'Test Results', path: '/dashboard/results' },
                 { icon: <FileText size={18} />, label: 'Buy Series', path: '/dashboard/market' },
             ]

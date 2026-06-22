@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Timer, ArrowLeft, Save, Loader2, ChevronLeft, ChevronRight, Flag
+    Timer, ArrowLeft, Save, Loader2, ChevronLeft, ChevronRight, Flag, Clock
 } from 'lucide-react';
 import { db } from '../../firebase';
 import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -60,6 +60,13 @@ const StudentTestAttemptPage = () => {
     const [timeRemaining, setTimeRemaining] = useState(3 * 60 * 60); // Default 3 hours
     const [showInstructions, setShowInstructions] = useState(true);
     const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+    const [questionTimes, setQuestionTimes] = useState<Record<number, number>>({});
+
+    const formatQuestionTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
 
     useEffect(() => {
         const fetchTest = async () => {
@@ -157,10 +164,14 @@ const StudentTestAttemptPage = () => {
                     }
                     return newTime;
                 });
+                setQuestionTimes(prev => ({
+                    ...prev,
+                    [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + 1
+                }));
             }, 1000);
             return () => clearInterval(timer);
         }
-    }, [showInstructions, timeRemaining]);
+    }, [showInstructions, timeRemaining, currentQuestionIndex]);
 
     const formatTime = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
@@ -323,6 +334,7 @@ const StudentTestAttemptPage = () => {
                 duration: (testData.duration ? testData.duration * 60 : 180 * 60) - timeRemaining,
                 answers: answers,
                 markedForReview: Array.from(markedForReview),
+                questionTimes: questionTimes,
                 sectionBSelections: Object.keys(sectionBSelections).reduce((acc, key) => {
                     acc[key] = Array.from(sectionBSelections[key]);
                     return acc;
@@ -559,6 +571,10 @@ const StudentTestAttemptPage = () => {
                                             </button>
                                         </div>
                                     )}
+                                    <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">
+                                        <Clock size={13} className="text-slate-500" />
+                                        <span>Time spent: {formatQuestionTime(questionTimes[currentQuestionIndex] || 0)}</span>
+                                    </div>
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${currentQuestion.type === 'MCQ' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                                         }`}>
                                         {currentQuestion.type}

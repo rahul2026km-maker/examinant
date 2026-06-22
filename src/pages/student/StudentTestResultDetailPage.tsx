@@ -38,6 +38,7 @@ interface AttemptData {
     answers: Record<number, number | string>;
     attemptDate: any;
     isOMR?: boolean;
+    questionTimes?: Record<string, number>;
 }
 
 interface TestData {
@@ -197,6 +198,16 @@ const StudentTestResultDetailPage = () => {
         const minutes = Math.floor((seconds % 3600) / 60);
         const secs = seconds % 60;
         return `${hours}h ${minutes}m ${secs}s`;
+    };
+
+    const formatQuestionDuration = (seconds: number) => {
+        if (!seconds) return '0s';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        if (m > 0) {
+            return `${m}m ${s}s`;
+        }
+        return `${s}s`;
     };
 
     const getAnswerStatus = (questionIndex: number, question: Question) => {
@@ -459,6 +470,12 @@ const StudentTestResultDetailPage = () => {
                                             <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
                                                 {q.type}
                                             </span>
+                                            {attempt.questionTimes && (attempt.questionTimes[q.index] !== undefined || attempt.questionTimes[String(q.index)] !== undefined) && (
+                                                <span className="bg-slate-50 text-slate-600 px-2 py-0.5 rounded font-semibold flex items-center gap-1 border border-slate-200/50">
+                                                    <Clock size={12} className="text-slate-500" />
+                                                    Time Spent: {formatQuestionDuration(attempt.questionTimes[q.index] ?? attempt.questionTimes[String(q.index)] ?? 0)}
+                                                </span>
+                                            )}
                                             {status === 'correct' && (
                                                 <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold flex items-center gap-1">
                                                     <CheckCircle size={12} /> Correct (+4)
