@@ -50,8 +50,9 @@ export interface ParsedData<T> {
 }
 // ========== HELPERS ==========
 
-export const normalizeCorrectAnswer = (answer: string): string => {
-    const trimmed = answer.trim().toLowerCase();
+export const normalizeCorrectAnswer = (answer: any): string => {
+    if (answer === undefined || answer === null) return '';
+    const trimmed = String(answer).trim().toLowerCase();
     
     // Exact matches
     if (trimmed === 'a' || trimmed === '1' || trimmed === 'option a' || trimmed === 'option_a') return '0';
@@ -65,7 +66,7 @@ export const normalizeCorrectAnswer = (answer: string): string => {
     if (trimmed.endsWith(' c')) return '2';
     if (trimmed.endsWith(' d')) return '3';
     
-    return answer.trim();
+    return String(answer).trim();
 };
 // ========== CSV PARSERS ==========
 
@@ -178,7 +179,7 @@ export const validateQuestion = async (
     const type = row.type?.trim() || '';
     const difficulty = row.difficulty?.trim() || '';
     const marks = row.marks?.trim() || '';
-    const rawAnswer = row.correctAnswer?.trim() || '';
+    const rawAnswer = row.correctAnswer !== undefined && row.correctAnswer !== null ? String(row.correctAnswer).trim() : '';
     const correctAnswer = type === 'MCQ' ? normalizeCorrectAnswer(rawAnswer) : rawAnswer;
 
     // Normalize subject (Capitalize first letter)
@@ -190,6 +191,10 @@ export const validateQuestion = async (
     // Required fields
     if (!text) {
         errors.push(`Row ${index + 1}: Question text is required`);
+    }
+
+    if (rawAnswer === '') {
+        errors.push(`Row ${index + 1}: Correct answer is required`);
     }
 
     const defaultSubs = allowedSubjects || ['Physics', 'Chemistry', 'Mathematics', 'Biology'];
@@ -366,13 +371,13 @@ export const batchUploadQuestions = async (
         for (const row of chunk) {
             try {
                 // Normalize subject
-                let subject = row.subject.trim();
+                let subject = row.subject ? String(row.subject).trim() : '';
                 if (subject.toLowerCase() === 'physics') subject = 'Physics';
                 if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
                 if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
                 if (subject.toLowerCase() === 'biology') subject = 'Biology';
 
-                const text = row.text.trim();
+                const text = row.text ? String(row.text).trim() : '';
                 const key = `${text.toLowerCase()}|${subject.toLowerCase()}`;
 
                 // Check duplicate against existing + current batch
@@ -386,37 +391,37 @@ export const batchUploadQuestions = async (
 
                     const questionData: any = {
                         text: text,
-                        textHindi: row.textHindi?.trim() || '',
+                        textHindi: row.textHindi ? String(row.textHindi).trim() : '',
                         subject: subject,
-                        chapter: row.chapter.trim(),
-                        topic: row.topic.trim(),
-                        type: row.type.trim(),
-                        difficulty: row.difficulty.trim(),
+                        chapter: row.chapter ? String(row.chapter).trim() : '',
+                        topic: row.topic ? String(row.topic).trim() : '',
+                        type: row.type ? String(row.type).trim() : '',
+                        difficulty: row.difficulty ? String(row.difficulty).trim() : '',
                         marks: Number(row.marks),
                         negativeMarks: row.negativeMarks ? Number(row.negativeMarks) : (row.type === 'MCQ' ? -1 : 0),
-                        explanation: row.explanation?.trim() || '',
-                        explanationHindi: row.explanationHindi?.trim() || '',
+                        explanation: row.explanation ? String(row.explanation).trim() : '',
+                        explanationHindi: row.explanationHindi ? String(row.explanationHindi).trim() : '',
                         createdAt: serverTimestamp()
                     };
 
                     if (row.type === 'MCQ') {
                         questionData.options = [
-                            row.optionA?.trim() || '',
-                            row.optionB?.trim() || '',
-                            row.optionC?.trim() || '',
-                            row.optionD?.trim() || ''
+                            row.optionA ? String(row.optionA).trim() : '',
+                            row.optionB ? String(row.optionB).trim() : '',
+                            row.optionC ? String(row.optionC).trim() : '',
+                            row.optionD ? String(row.optionD).trim() : ''
                         ];
                         questionData.optionsHindi = [
-                            row.optionAHindi?.trim() || '',
-                            row.optionBHindi?.trim() || '',
-                            row.optionCHindi?.trim() || '',
-                            row.optionDHindi?.trim() || ''
+                            row.optionAHindi ? String(row.optionAHindi).trim() : '',
+                            row.optionBHindi ? String(row.optionBHindi).trim() : '',
+                            row.optionCHindi ? String(row.optionCHindi).trim() : '',
+                            row.optionDHindi ? String(row.optionDHindi).trim() : ''
                         ];
                         questionData.correctAnswer = Number(normalizeCorrectAnswer(row.correctAnswer));
                     } else {
                         questionData.options = [];
                         questionData.optionsHindi = [];
-                        questionData.correctAnswer = row.correctAnswer.trim();
+                        questionData.correctAnswer = row.correctAnswer ? String(row.correctAnswer).trim() : '';
                     }
 
                     // Create new document reference in 'questions' collection
