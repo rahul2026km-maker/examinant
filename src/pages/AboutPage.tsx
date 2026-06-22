@@ -58,9 +58,9 @@ const AboutPage = () => {
                             {/* Director */}
                             <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col items-center text-center group">
                                 <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-6 border border-slate-100 relative">
-                                    <img src={directorImg} alt="Rahul Sir" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <img src={directorImg} alt="Aditya Kushwaha" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 </div>
-                                <h4 className="text-xl font-extrabold text-slate-800 tracking-tight">Rahul Sir</h4>
+                                <h4 className="text-xl font-extrabold text-slate-800 tracking-tight">Aditya Kushwaha</h4>
                                 <p className="text-xs text-orange-500 font-bold uppercase tracking-wider mt-1.5 bg-orange-50 border border-orange-100 px-3 py-1 rounded-full">Director</p>
                             </div>
 
