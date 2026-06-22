@@ -179,7 +179,13 @@ export const validateQuestion = async (
     const type = row.type?.trim() || '';
     const difficulty = row.difficulty?.trim() || '';
     const marks = row.marks?.trim() || '';
-    const rawAnswer = row.correctAnswer !== undefined && row.correctAnswer !== null ? String(row.correctAnswer).trim() : '';
+    const answerField = (row as any).correctAnswer !== undefined ? (row as any).correctAnswer :
+                        (row as any).correctOp !== undefined ? (row as any).correctOp :
+                        (row as any).correctOption !== undefined ? (row as any).correctOption :
+                        (row as any).correct_answer !== undefined ? (row as any).correct_answer :
+                        (row as any).correct_option !== undefined ? (row as any).correct_option :
+                        (row as any).answer;
+    const rawAnswer = answerField !== undefined && answerField !== null ? String(answerField).trim() : '';
     const correctAnswer = type === 'MCQ' ? normalizeCorrectAnswer(rawAnswer) : rawAnswer;
 
     // Normalize subject (Capitalize first letter)
@@ -389,6 +395,19 @@ export const batchUploadQuestions = async (
                 } else {
                     localUploadedKeys.add(key);
 
+                    const rawNegMarks = (row as any).negativeMarks !== undefined ? (row as any).negativeMarks :
+                                        (row as any).negativeM !== undefined ? (row as any).negativeM :
+                                        (row as any).negative_marks !== undefined ? (row as any).negative_marks :
+                                        (row as any).negative_mark !== undefined ? (row as any).negative_mark :
+                                        (row as any).negative;
+
+                    const answerField = (row as any).correctAnswer !== undefined ? (row as any).correctAnswer :
+                                        (row as any).correctOp !== undefined ? (row as any).correctOp :
+                                        (row as any).correctOption !== undefined ? (row as any).correctOption :
+                                        (row as any).correct_answer !== undefined ? (row as any).correct_answer :
+                                        (row as any).correct_option !== undefined ? (row as any).correct_option :
+                                        (row as any).answer;
+
                     const questionData: any = {
                         text: text,
                         textHindi: row.textHindi ? String(row.textHindi).trim() : '',
@@ -398,7 +417,7 @@ export const batchUploadQuestions = async (
                         type: row.type ? String(row.type).trim() : '',
                         difficulty: row.difficulty ? String(row.difficulty).trim() : '',
                         marks: Number(row.marks),
-                        negativeMarks: row.negativeMarks ? Number(row.negativeMarks) : (row.type === 'MCQ' ? -1 : 0),
+                        negativeMarks: rawNegMarks !== undefined && rawNegMarks !== '' ? Number(rawNegMarks) : (row.type === 'MCQ' ? -1 : 0),
                         explanation: row.explanation ? String(row.explanation).trim() : '',
                         explanationHindi: row.explanationHindi ? String(row.explanationHindi).trim() : '',
                         createdAt: serverTimestamp()
@@ -417,11 +436,11 @@ export const batchUploadQuestions = async (
                             row.optionCHindi ? String(row.optionCHindi).trim() : '',
                             row.optionDHindi ? String(row.optionDHindi).trim() : ''
                         ];
-                        questionData.correctAnswer = Number(normalizeCorrectAnswer(row.correctAnswer));
+                        questionData.correctAnswer = Number(normalizeCorrectAnswer(answerField));
                     } else {
                         questionData.options = [];
                         questionData.optionsHindi = [];
-                        questionData.correctAnswer = row.correctAnswer ? String(row.correctAnswer).trim() : '';
+                        questionData.correctAnswer = answerField ? String(answerField).trim() : '';
                     }
 
                     // Create new document reference in 'questions' collection
