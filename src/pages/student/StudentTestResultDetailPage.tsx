@@ -20,6 +20,9 @@ interface Question {
     explanation?: string;
     explanationHindi?: string;
     section?: string;
+    chapter?: string;
+    unit?: string;
+    examCategory?: string;
 }
 
 interface AttemptData {
@@ -438,6 +441,21 @@ const StudentTestResultDetailPage = () => {
                                             <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
                                                 {q.subject}
                                             </span>
+                                            {q.examCategory && q.examCategory !== 'General' && (
+                                                <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-100">
+                                                    {q.examCategory}
+                                                </span>
+                                            )}
+                                            {q.unit && (
+                                                <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold border border-purple-100">
+                                                    Unit: {q.unit}
+                                                </span>
+                                            )}
+                                            {q.chapter && (
+                                                <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
+                                                    Chapter: {q.chapter}
+                                                </span>
+                                            )}
                                             <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
                                                 {q.type}
                                             </span>

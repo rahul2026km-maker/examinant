@@ -6,7 +6,7 @@ import { useSubjectList } from '../../hooks/useSubjectList';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useExamList } from '../../hooks/useExamList';
-import { parseQuestionsCSV, validateQuestion, batchUploadQuestions, downloadTemplate } from '../../utils/csvImporter';
+import { parseQuestionsCSV, validateQuestion, batchUploadQuestions, downloadTemplate, getRowValue } from '../../utils/csvImporter';
 
 import type { QuestionCSVRow, ValidationResult } from '../../utils/csvImporter';
 
@@ -19,6 +19,7 @@ interface Question {
     correctAnswer: number | string; // index for MCQ, value for numerical
     subject: string;
     chapter: string; // Chapter name
+    unit?: string; // Add unit field here
     topic?: string; // Topic from selected chapter
     examCategory?: string;
     type: 'MCQ' | 'Numerical';
@@ -67,11 +68,12 @@ const AdminQuestionBank = () => {
     // New states for auto-creation options
     const [missingSubjects, setMissingSubjects] = useState<string[]>([]);
     const [missingChapters, setMissingChapters] = useState<{ name: string, subject: string }[]>([]);
+    const [missingExams, setMissingExams] = useState<string[]>([]);
     const [isCreatingMissing, setIsCreatingMissing] = useState(false);
     const [importGuideTab, setImportGuideTab] = useState<'excel' | 'guide'>('excel');
 
     // Inline quick edit states
-    const [editingCell, setEditingCell] = useState<{ questionId: string, field: 'subject' | 'chapter' | 'topic' | 'examCategory' } | null>(null);
+    const [editingCell, setEditingCell] = useState<{ questionId: string, field: 'subject' | 'chapter' | 'topic' | 'examCategory' | 'unit' } | null>(null);
     const [quickEditLoading, setQuickEditLoading] = useState<string | null>(null);
 
     // Bulk selection state
@@ -186,6 +188,7 @@ const AdminQuestionBank = () => {
         correctAnswer: '0',
         subject: 'Physics',
         chapter: '',
+        unit: '',
         topic: '',
         examCategory: 'JEE',
         type: 'MCQ' as 'MCQ' | 'Numerical',
@@ -277,6 +280,7 @@ const AdminQuestionBank = () => {
                 textHindi: formData.textHindi || '',
                 subject: formData.subject,
                 chapter: formData.chapter,
+                unit: formData.unit || '',
                 topic: formData.topic || '',
                 examCategory: formData.examCategory || 'General',
                 type: formData.type,
@@ -312,6 +316,7 @@ const AdminQuestionBank = () => {
                 correctAnswer: '0',
                 subject: 'Physics',
                 chapter: '',
+                unit: '',
                 topic: '',
                 examCategory: 'JEE',
                 type: 'MCQ',
@@ -359,6 +364,7 @@ const AdminQuestionBank = () => {
             correctAnswer: typeof question.correctAnswer === 'number' ? String(question.correctAnswer) : question.correctAnswer,
             subject: question.subject,
             chapter: question.chapter,
+            unit: question.unit || '',
             topic: question.topic || '',
             examCategory: question.examCategory || 'JEE',
             type: question.type,
@@ -398,6 +404,7 @@ const AdminQuestionBank = () => {
                 textHindi: formData.textHindi || '',
                 subject: formData.subject,
                 chapter: formData.chapter,
+                unit: formData.unit || '',
                 topic: formData.topic || '',
                 examCategory: formData.examCategory || 'General',
                 type: formData.type,
@@ -433,6 +440,7 @@ const AdminQuestionBank = () => {
                 correctAnswer: '0',
                 subject: 'Physics',
                 chapter: '',
+                unit: '',
                 topic: '',
                 examCategory: 'JEE',
                 type: 'MCQ',
@@ -451,7 +459,7 @@ const AdminQuestionBank = () => {
         }
     };
 
-    const handleQuickUpdate = async (questionId: string, field: 'subject' | 'chapter' | 'topic' | 'examCategory', value: string) => {
+    const handleQuickUpdate = async (questionId: string, field: 'subject' | 'chapter' | 'topic' | 'examCategory' | 'unit', value: string) => {
         setQuickEditLoading(`${questionId}-${field}`);
         try {
             const questionRef = doc(db, 'questions', questionId);
@@ -535,6 +543,13 @@ const AdminQuestionBank = () => {
             );
             setMissingChapters(missingChaps);
 
+            // Check for missing exams
+            const csvExams = Array.from(new Set(result.data.map(row => {
+                return String(getRowValue(row, ['exam', 'examCategory', 'exam_category']) || '').trim() || 'General';
+            })));
+            const missingExamsList = csvExams.filter(exam => exam && exam !== 'General' && !exams.includes(exam));
+            setMissingExams(missingExamsList);
+
         } catch (error) {
             console.error('Error parsing CSV:', error);
             alert('Error parsing CSV file. Please check the format.');
@@ -567,12 +582,22 @@ const AdminQuestionBank = () => {
                 });
             }
 
-            alert("Successfully created missing subjects and chapters in the system!");
+            // 3. Create missing exams
+            for (const exam of missingExams) {
+                await addDoc(collection(db, 'exams'), {
+                    name: exam,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+            }
+
+            alert("Successfully created missing subjects, chapters, and exam categories in the system!");
 
             // Local cache update and re-validation
             const newSubjects = [...subjects, ...missingSubjects];
             setMissingSubjects([]);
             setMissingChapters([]);
+            setMissingExams([]);
 
             if (importFile) {
                 const result = await parseQuestionsCSV(importFile);
@@ -877,6 +902,7 @@ const AdminQuestionBank = () => {
                                 )}
                                 <th className="px-6 py-4">Question</th>
                                 <th className="px-6 py-4">Subject</th>
+                                <th className="px-6 py-4">Unit</th>
                                 <th className="px-6 py-4">Chapter</th>
                                 <th className="px-6 py-4">Topic</th>
                                 <th className="px-6 py-4">Exam</th>
@@ -887,9 +913,9 @@ const AdminQuestionBank = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {isLoading ? (
-                                <tr><td colSpan={isSelectionMode ? 9 : 8} className="text-center py-8"><Loader2 className="animate-spin inline" /></td></tr>
+                                <tr><td colSpan={isSelectionMode ? 10 : 9} className="text-center py-8"><Loader2 className="animate-spin inline" /></td></tr>
                             ) : filteredQuestions.length === 0 ? (
-                                <tr><td colSpan={isSelectionMode ? 9 : 8} className="text-center py-8 text-slate-500">No questions found. Add some to get started.</td></tr>
+                                <tr><td colSpan={isSelectionMode ? 10 : 9} className="text-center py-8 text-slate-500">No questions found. Add some to get started.</td></tr>
                             ) : (
                                 filteredQuestions.map((q) => (
                                     <tr
@@ -940,6 +966,41 @@ const AdminQuestionBank = () => {
                                                                     'bg-slate-100 text-slate-700'
                                                         }`}>
                                                         {q.subject}
+                                                    </span>
+                                                    <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
+                                                </div>
+                                            )}
+                                        </td>
+                                        {/* Unit Cell with Inline Edit Text Input */}
+                                        <td className="px-6 py-4 min-w-[150px]">
+                                            {quickEditLoading === `${q.id}-unit` ? (
+                                                <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <Loader2 className="animate-spin" size={12} /> Saving...
+                                                </div>
+                                            ) : editingCell?.questionId === q.id && editingCell?.field === 'unit' ? (
+                                                <input
+                                                    type="text"
+                                                    autoFocus
+                                                    defaultValue={q.unit || chapters.find(ch => ch.name === q.chapter && ch.subject === q.subject)?.unit || ''}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            handleQuickUpdate(q.id, 'unit', e.currentTarget.value);
+                                                        } else if (e.key === 'Escape') {
+                                                            setEditingCell(null);
+                                                        }
+                                                    }}
+                                                    onBlur={(e) => handleQuickUpdate(q.id, 'unit', e.target.value)}
+                                                    placeholder="Type unit & Enter"
+                                                    className="w-full px-2 py-1 text-xs border border-slate-300 rounded bg-white font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm"
+                                                />
+                                            ) : (
+                                                <div
+                                                    onClick={() => setEditingCell({ questionId: q.id, field: 'unit' })}
+                                                    className="group cursor-pointer hover:bg-slate-100/70 p-1.5 rounded-lg transition-all flex items-center justify-between border border-transparent hover:border-slate-200 text-sm text-slate-600 font-medium"
+                                                    title="Click to quickly change unit"
+                                                >
+                                                    <span className={`truncate pr-1 ${(!q.unit && !chapters.find(ch => ch.name === q.chapter && ch.subject === q.subject)?.unit) ? 'text-slate-400 italic' : ''}`}>
+                                                        {q.unit || chapters.find(ch => ch.name === q.chapter && ch.subject === q.subject)?.unit || 'None'}
                                                     </span>
                                                     <Edit2 size={12} className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1.5 flex-shrink-0" />
                                                 </div>
@@ -1121,14 +1182,18 @@ const AdminQuestionBank = () => {
                                     </div>
                                 </div>
 
-                                {/* Chapter, Difficulty and Exam */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                {/* Chapter, Unit, Difficulty and Exam */}
+                                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-1">Chapter *</label>
                                         <select
                                             required
                                             value={formData.chapter}
-                                            onChange={e => setFormData({ ...formData, chapter: e.target.value, topic: '' })}
+                                            onChange={e => {
+                                                const chName = e.target.value;
+                                                const matchedCh = chapters.find(ch => ch.name === chName);
+                                                setFormData({ ...formData, chapter: chName, unit: matchedCh?.unit || '', topic: '' });
+                                            }}
                                             className="w-full px-4 py-2 border rounded-lg bg-white"
                                             disabled={!formData.subject}
                                         >
@@ -1137,6 +1202,16 @@ const AdminQuestionBank = () => {
                                                 <option key={ch.id} value={ch.name}>{ch.name}</option>
                                             ))}
                                         </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 mb-1">Unit</label>
+                                        <input
+                                            type="text"
+                                            value={formData.unit}
+                                            onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                                            className="w-full px-4 py-2 border rounded-lg"
+                                            placeholder="Unit name"
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-1">Difficulty *</label>
@@ -1458,14 +1533,18 @@ const AdminQuestionBank = () => {
                                     </div>
                                 </div>
 
-                                {/* Chapter, Difficulty and Exam */}
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                {/* Chapter, Unit, Difficulty and Exam */}
+                                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-1">Chapter *</label>
                                         <select
                                             required
                                             value={formData.chapter}
-                                            onChange={e => setFormData({ ...formData, chapter: e.target.value, topic: '' })}
+                                            onChange={e => {
+                                                const chName = e.target.value;
+                                                const matchedCh = chapters.find(ch => ch.name === chName);
+                                                setFormData({ ...formData, chapter: chName, unit: matchedCh?.unit || '', topic: '' });
+                                            }}
                                             className="w-full px-4 py-2 border rounded-lg bg-white"
                                             disabled={!formData.subject}
                                         >
@@ -1474,6 +1553,16 @@ const AdminQuestionBank = () => {
                                                 <option key={ch.id} value={ch.name}>{ch.name}</option>
                                             ))}
                                         </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 mb-1">Unit</label>
+                                        <input
+                                            type="text"
+                                            value={formData.unit}
+                                            onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                                            className="w-full px-4 py-2 border rounded-lg"
+                                            placeholder="Unit name"
+                                        />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-semibold text-slate-700 mb-1">Difficulty *</label>
@@ -1963,14 +2052,14 @@ const AdminQuestionBank = () => {
                                             </div>
 
                                             {/* Dynamic Elements Auto-creation Box */}
-                                            {(missingSubjects.length > 0 || missingChapters.length > 0) && (
+                                            {(missingSubjects.length > 0 || missingChapters.length > 0 || missingExams.length > 0) && (
                                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3 shadow-sm animate-pulse-once">
                                                     <div>
                                                         <h4 className="font-bold text-amber-950 flex items-center gap-1.5 text-xs">
                                                             <AlertTriangle size={16} className="text-amber-600" /> Registry Additions Detected
                                                         </h4>
                                                         <p className="text-[10px] text-amber-800 mt-1">
-                                                            This CSV refers to new subjects or chapters. Select the button below to register them in the database instantly:
+                                                            This CSV refers to new subjects, chapters, or exam categories. Select the button below to register them in the database instantly:
                                                         </p>
                                                         <div className="flex flex-wrap gap-1 mt-2">
                                                             {missingSubjects.map(sub => (
@@ -1981,6 +2070,11 @@ const AdminQuestionBank = () => {
                                                             {missingChapters.map(chap => (
                                                                 <span key={chap.name} className="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-[9px] font-bold border border-blue-200 flex items-center gap-0.5">
                                                                     Chapter: {chap.name} ({chap.subject})
+                                                                </span>
+                                                            ))}
+                                                            {missingExams.map(exam => (
+                                                                <span key={exam} className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-bold border border-emerald-200 flex items-center gap-0.5">
+                                                                    Exam: {exam}
                                                                 </span>
                                                             ))}
                                                         </div>

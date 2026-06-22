@@ -19,6 +19,9 @@ export interface QuestionCSVRow {
     textHindi?: string;
     subject: string;
     chapter: string;
+    unit?: string;
+    exam?: string;
+    examCategory?: string;
     topic: string;
     type: string;
     difficulty: string;
@@ -415,13 +418,17 @@ export const batchUploadQuestions = async (
                     const answerField = getRowValue(row, ['correctAnswer', 'correctOp', 'correctOption', 'correct_answer', 'correct_option', 'answer', 'correct']);
 
                     const rowType = String(getRowValue(row, ['type']) || '').trim();
+                    const examCategory = String(getRowValue(row, ['exam', 'examCategory', 'exam_category']) || '').trim() || 'General';
+                    const unit = String(getRowValue(row, ['unit']) || '').trim();
 
                     const questionData: any = {
                         text: text,
                         textHindi: String(getRowValue(row, ['textHindi', 'questionHindi', 'question_hindi', 'text_hindi']) || '').trim(),
                         subject: subject,
                         chapter: String(getRowValue(row, ['chapter', 'chap']) || '').trim(),
+                        unit: unit,
                         topic: String(getRowValue(row, ['topic']) || '').trim(),
+                        examCategory: examCategory,
                         type: rowType,
                         difficulty: String(getRowValue(row, ['difficulty', 'diff']) || '').trim(),
                         marks: Number(getRowValue(row, ['marks', 'mark']) || 0),

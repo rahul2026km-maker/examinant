@@ -17,6 +17,7 @@ interface Question {
     correctAnswer: number | string; // index for MCQ, value for Numerical
     subject: string;
     chapter: string;
+    unit?: string;
     type: 'MCQ' | 'Numerical';
     section: 'A' | 'B'; // Added for JEE Mains structure
 }
@@ -527,7 +528,9 @@ const StudentTestAttemptPage = () => {
                                         <p className="text-sm font-semibold text-slate-500">
                                             {currentQuestion.subject} • Section {currentQuestion.section}
                                         </p>
-                                        <p className="text-xs text-slate-400">{currentQuestion.chapter}</p>
+                                        <p className="text-xs text-slate-400">
+                                            {currentQuestion.unit ? `${currentQuestion.unit} > ` : ''}{currentQuestion.chapter}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
