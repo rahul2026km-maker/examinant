@@ -50,6 +50,21 @@ export interface ParsedData<T> {
 }
 // ========== HELPERS ==========
 
+export const getRowValue = (row: any, possibleKeys: string[]): any => {
+    if (!row || typeof row !== 'object') return undefined;
+    
+    // Normalize possible search keys by removing non-alphanumeric characters and lowercase
+    const normalizedSearches = possibleKeys.map(k => k.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    
+    for (const key of Object.keys(row)) {
+        const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (normalizedSearches.includes(normalizedKey)) {
+            return row[key];
+        }
+    }
+    return undefined;
+};
+
 export const normalizeCorrectAnswer = (answer: any): string => {
     if (answer === undefined || answer === null) return '';
     const trimmed = String(answer).trim().toLowerCase();
@@ -171,20 +186,16 @@ export const validateQuestion = async (
     const errors: string[] = [];
     const warnings: string[] = [];
 
-    // Trim all inputs
-    const text = row.text?.trim() || '';
-    let subject = row.subject?.trim() || '';
-    const chapter = row.chapter?.trim() || '';
-    const topic = row.topic?.trim() || '';
-    const type = row.type?.trim() || '';
-    const difficulty = row.difficulty?.trim() || '';
-    const marks = row.marks?.trim() || '';
-    const answerField = (row as any).correctAnswer !== undefined ? (row as any).correctAnswer :
-                        (row as any).correctOp !== undefined ? (row as any).correctOp :
-                        (row as any).correctOption !== undefined ? (row as any).correctOption :
-                        (row as any).correct_answer !== undefined ? (row as any).correct_answer :
-                        (row as any).correct_option !== undefined ? (row as any).correct_option :
-                        (row as any).answer;
+    // Trim all inputs and resolve fields safely using helper
+    const text = String(getRowValue(row, ['text', 'question', 'questionText', 'question_text', 'textEnglish', 'text_english']) || '').trim();
+    let subject = String(getRowValue(row, ['subject', 'sub']) || '').trim();
+    const chapter = String(getRowValue(row, ['chapter', 'chap']) || '').trim();
+    const topic = String(getRowValue(row, ['topic']) || '').trim();
+    const type = String(getRowValue(row, ['type']) || '').trim();
+    const difficulty = String(getRowValue(row, ['difficulty', 'diff']) || '').trim();
+    const marks = String(getRowValue(row, ['marks', 'mark']) || '').trim();
+    
+    const answerField = getRowValue(row, ['correctAnswer', 'correctOp', 'correctOption', 'correct_answer', 'correct_option', 'answer', 'correct']);
     const rawAnswer = answerField !== undefined && answerField !== null ? String(answerField).trim() : '';
     const correctAnswer = type === 'MCQ' ? normalizeCorrectAnswer(rawAnswer) : rawAnswer;
 
@@ -232,7 +243,12 @@ export const validateQuestion = async (
 
     // Type-specific validation
     if (type === 'MCQ') {
-        if (!row.optionA?.trim() || !row.optionB?.trim() || !row.optionC?.trim() || !row.optionD?.trim()) {
+        const optA = String(getRowValue(row, ['optionA', 'optA', 'option_A', 'opt_A', 'A']) || '').trim();
+        const optB = String(getRowValue(row, ['optionB', 'optB', 'option_B', 'opt_B', 'B']) || '').trim();
+        const optC = String(getRowValue(row, ['optionC', 'optC', 'option_C', 'opt_C', 'C']) || '').trim();
+        const optD = String(getRowValue(row, ['optionD', 'optD', 'option_D', 'opt_D', 'D']) || '').trim();
+
+        if (!optA || !optB || !optC || !optD) {
             errors.push(`Row ${index + 1}: MCQ questions must have all 4 options`);
         }
 
@@ -377,13 +393,13 @@ export const batchUploadQuestions = async (
         for (const row of chunk) {
             try {
                 // Normalize subject
-                let subject = row.subject ? String(row.subject).trim() : '';
+                let subject = String(getRowValue(row, ['subject', 'sub']) || '').trim();
                 if (subject.toLowerCase() === 'physics') subject = 'Physics';
                 if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
                 if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
                 if (subject.toLowerCase() === 'biology') subject = 'Biology';
 
-                const text = row.text ? String(row.text).trim() : '';
+                const text = String(getRowValue(row, ['text', 'question', 'questionText', 'question_text', 'textEnglish', 'text_english']) || '').trim();
                 const key = `${text.toLowerCase()}|${subject.toLowerCase()}`;
 
                 // Check duplicate against existing + current batch
@@ -395,52 +411,44 @@ export const batchUploadQuestions = async (
                 } else {
                     localUploadedKeys.add(key);
 
-                    const rawNegMarks = (row as any).negativeMarks !== undefined ? (row as any).negativeMarks :
-                                        (row as any).negativeM !== undefined ? (row as any).negativeM :
-                                        (row as any).negative_marks !== undefined ? (row as any).negative_marks :
-                                        (row as any).negative_mark !== undefined ? (row as any).negative_mark :
-                                        (row as any).negative;
+                    const rawNegMarks = getRowValue(row, ['negativeMarks', 'negativeM', 'negative_marks', 'negative_mark', 'negativeMark', 'negative']);
+                    const answerField = getRowValue(row, ['correctAnswer', 'correctOp', 'correctOption', 'correct_answer', 'correct_option', 'answer', 'correct']);
 
-                    const answerField = (row as any).correctAnswer !== undefined ? (row as any).correctAnswer :
-                                        (row as any).correctOp !== undefined ? (row as any).correctOp :
-                                        (row as any).correctOption !== undefined ? (row as any).correctOption :
-                                        (row as any).correct_answer !== undefined ? (row as any).correct_answer :
-                                        (row as any).correct_option !== undefined ? (row as any).correct_option :
-                                        (row as any).answer;
+                    const rowType = String(getRowValue(row, ['type']) || '').trim();
 
                     const questionData: any = {
                         text: text,
-                        textHindi: row.textHindi ? String(row.textHindi).trim() : '',
+                        textHindi: String(getRowValue(row, ['textHindi', 'questionHindi', 'question_hindi', 'text_hindi']) || '').trim(),
                         subject: subject,
-                        chapter: row.chapter ? String(row.chapter).trim() : '',
-                        topic: row.topic ? String(row.topic).trim() : '',
-                        type: row.type ? String(row.type).trim() : '',
-                        difficulty: row.difficulty ? String(row.difficulty).trim() : '',
-                        marks: Number(row.marks),
-                        negativeMarks: rawNegMarks !== undefined && rawNegMarks !== '' ? Number(rawNegMarks) : (row.type === 'MCQ' ? -1 : 0),
-                        explanation: row.explanation ? String(row.explanation).trim() : '',
-                        explanationHindi: row.explanationHindi ? String(row.explanationHindi).trim() : '',
+                        chapter: String(getRowValue(row, ['chapter', 'chap']) || '').trim(),
+                        topic: String(getRowValue(row, ['topic']) || '').trim(),
+                        type: rowType,
+                        difficulty: String(getRowValue(row, ['difficulty', 'diff']) || '').trim(),
+                        marks: Number(getRowValue(row, ['marks', 'mark']) || 0),
+                        negativeMarks: rawNegMarks !== undefined && rawNegMarks !== '' ? Number(rawNegMarks) : (rowType === 'MCQ' ? -1 : 0),
+                        explanation: String(getRowValue(row, ['explanation', 'exp']) || '').trim(),
+                        explanationHindi: String(getRowValue(row, ['explanationHindi', 'explanation_hindi', 'exp_hindi']) || '').trim(),
                         createdAt: serverTimestamp()
                     };
 
-                    if (row.type === 'MCQ') {
+                    if (rowType === 'MCQ') {
                         questionData.options = [
-                            row.optionA ? String(row.optionA).trim() : '',
-                            row.optionB ? String(row.optionB).trim() : '',
-                            row.optionC ? String(row.optionC).trim() : '',
-                            row.optionD ? String(row.optionD).trim() : ''
+                            String(getRowValue(row, ['optionA', 'optA', 'option_A', 'opt_A', 'A']) || '').trim(),
+                            String(getRowValue(row, ['optionB', 'optB', 'option_B', 'opt_B', 'B']) || '').trim(),
+                            String(getRowValue(row, ['optionC', 'optC', 'option_C', 'opt_C', 'C']) || '').trim(),
+                            String(getRowValue(row, ['optionD', 'optD', 'option_D', 'opt_D', 'D']) || '').trim()
                         ];
                         questionData.optionsHindi = [
-                            row.optionAHindi ? String(row.optionAHindi).trim() : '',
-                            row.optionBHindi ? String(row.optionBHindi).trim() : '',
-                            row.optionCHindi ? String(row.optionCHindi).trim() : '',
-                            row.optionDHindi ? String(row.optionDHindi).trim() : ''
+                            String(getRowValue(row, ['optionAHindi', 'optionA_Hindi', 'optionA_hindi', 'optAHindi', 'AHindi']) || '').trim(),
+                            String(getRowValue(row, ['optionBHindi', 'optionB_Hindi', 'optionB_hindi', 'optBHindi', 'BHindi']) || '').trim(),
+                            String(getRowValue(row, ['optionCHindi', 'optionC_Hindi', 'optionC_hindi', 'optCHindi', 'CHindi']) || '').trim(),
+                            String(getRowValue(row, ['optionDHindi', 'optionD_Hindi', 'optionD_hindi', 'optDHindi', 'DHindi']) || '').trim()
                         ];
                         questionData.correctAnswer = Number(normalizeCorrectAnswer(answerField));
                     } else {
                         questionData.options = [];
                         questionData.optionsHindi = [];
-                        questionData.correctAnswer = answerField ? String(answerField).trim() : '';
+                        questionData.correctAnswer = answerField !== undefined && answerField !== null ? String(answerField).trim() : '';
                     }
 
                     // Create new document reference in 'questions' collection
