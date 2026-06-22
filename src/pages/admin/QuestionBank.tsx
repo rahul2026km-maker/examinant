@@ -480,8 +480,13 @@ const AdminQuestionBank = () => {
             const result = await parseQuestionsCSV(file);
             setParsedRows(result.data);
 
+            // Construct existing keys set to do fast local duplicate check
+            const existingKeysSet = new Set(
+                questions.map(q => `${q.text.trim().toLowerCase()}|${q.subject.trim().toLowerCase()}`)
+            );
+
             // Validate all rows in parallel using full dynamic subjects list
-            const validationPromises = result.data.map((row, index) => validateQuestion(row, index, subjects));
+            const validationPromises = result.data.map((row, index) => validateQuestion(row, index, subjects, existingKeysSet));
             const validationList = await Promise.all(validationPromises);
 
             const validations = new Map<number, ValidationResult>();
@@ -571,7 +576,10 @@ const AdminQuestionBank = () => {
 
             if (importFile) {
                 const result = await parseQuestionsCSV(importFile);
-                const validationPromises = result.data.map((row, index) => validateQuestion(row, index, newSubjects));
+                const existingKeysSet = new Set(
+                    questions.map(q => `${q.text.trim().toLowerCase()}|${q.subject.trim().toLowerCase()}`)
+                );
+                const validationPromises = result.data.map((row, index) => validateQuestion(row, index, newSubjects, existingKeysSet));
                 const validationList = await Promise.all(validationPromises);
                 const validations = new Map<number, ValidationResult>();
                 validationList.forEach((validation, index) => {
@@ -606,9 +614,12 @@ const AdminQuestionBank = () => {
         setUploadProgress(0);
 
         try {
+            const existingKeysSet = new Set(
+                questions.map(q => `${q.text.trim().toLowerCase()}|${q.subject.trim().toLowerCase()}`)
+            );
             const result = await batchUploadQuestions(validRows, (progress) => {
                 setUploadProgress(progress);
-            });
+            }, existingKeysSet);
 
             alert(`Import complete!\nSuccessfully imported: ${result.success}\nSkipped (duplicates): ${result.skipped}\nFailed: ${result.failed}`);
 

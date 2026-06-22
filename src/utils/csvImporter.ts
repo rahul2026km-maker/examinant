@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { collection, addDoc, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, query, where, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // ========== TYPES ==========
@@ -161,7 +161,12 @@ export const validateChapter = async (row: ChapterCSVRow, index: number, allowed
     };
 };
 
-export const validateQuestion = async (row: QuestionCSVRow, index: number, allowedSubjects?: string[]): Promise<ValidationResult> => {
+export const validateQuestion = async (
+    row: QuestionCSVRow,
+    index: number,
+    allowedSubjects?: string[],
+    existingKeysSet?: Set<string>
+): Promise<ValidationResult> => {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -260,19 +265,27 @@ export const validateQuestion = async (row: QuestionCSVRow, index: number, allow
     // Check for duplicate questions
     let isDuplicate = false;
     if (errors.length === 0 && text && subject) {
-        try {
-            const duplicateQuery = query(
-                collection(db, 'questions'),
-                where('text', '==', text),
-                where('subject', '==', subject)
-            );
-            const snapshot = await getDocs(duplicateQuery);
-            if (!snapshot.empty) {
+        if (existingKeysSet) {
+            const key = `${text.toLowerCase()}|${subject.toLowerCase()}`;
+            if (existingKeysSet.has(key)) {
                 isDuplicate = true;
                 errors.push(`Row ${index + 1}: Duplicate - Question already exists`);
             }
-        } catch (error) {
-            console.error('Error checking for duplicate questions:', error);
+        } else {
+            try {
+                const duplicateQuery = query(
+                    collection(db, 'questions'),
+                    where('text', '==', text),
+                    where('subject', '==', subject)
+                );
+                const snapshot = await getDocs(duplicateQuery);
+                if (!snapshot.empty) {
+                    isDuplicate = true;
+                    errors.push(`Row ${index + 1}: Duplicate - Question already exists`);
+                }
+            } catch (error) {
+                console.error('Error checking for duplicate questions:', error);
+            }
         }
     }
 
@@ -335,77 +348,100 @@ export const batchUploadChapters = async (
 
 export const batchUploadQuestions = async (
     rows: QuestionCSVRow[],
-    onProgress: (progress: number, current: number, total: number) => void
+    onProgress: (progress: number, current: number, total: number) => void,
+    existingKeysSet?: Set<string>
 ): Promise<{ success: number; failed: number; skipped: number }> => {
     let success = 0;
     let failed = 0;
     let skipped = 0;
 
-    for (let i = 0; i < rows.length; i++) {
-        try {
-            // Check if already exists before uploading
-            const duplicateQuery = query(
-                collection(db, 'questions'),
-                where('text', '==', rows[i].text.trim()),
-                where('subject', '==', rows[i].subject.trim())
-            );
-            const snapshot = await getDocs(duplicateQuery);
+    const batchSize = 100; // Write in batches of 100
+    const localUploadedKeys = new Set<string>();
 
-            if (!snapshot.empty) {
-                console.log(`Skipping duplicate question`);
-                skipped++;
-            } else {
+    for (let i = 0; i < rows.length; i += batchSize) {
+        const chunk = rows.slice(i, i + batchSize);
+        const batch = writeBatch(db);
+        let batchCount = 0;
+
+        for (const row of chunk) {
+            try {
                 // Normalize subject
-                let subject = rows[i].subject.trim();
+                let subject = row.subject.trim();
                 if (subject.toLowerCase() === 'physics') subject = 'Physics';
                 if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
                 if (subject.toLowerCase() === 'mathematics' || subject.toLowerCase() === 'maths') subject = 'Mathematics';
                 if (subject.toLowerCase() === 'biology') subject = 'Biology';
 
-                const questionData: any = {
-                    text: rows[i].text.trim(),
-                    textHindi: rows[i].textHindi?.trim() || '',
-                    subject: subject,
-                    chapter: rows[i].chapter.trim(),
-                    topic: rows[i].topic.trim(),
-                    type: rows[i].type.trim(),
-                    difficulty: rows[i].difficulty.trim(),
-                    marks: Number(rows[i].marks),
-                    negativeMarks: rows[i].negativeMarks ? Number(rows[i].negativeMarks) : (rows[i].type === 'MCQ' ? -1 : 0),
-                    explanation: rows[i].explanation?.trim() || '',
-                    explanationHindi: rows[i].explanationHindi?.trim() || '',
-                    createdAt: serverTimestamp()
-                };
+                const text = row.text.trim();
+                const key = `${text.toLowerCase()}|${subject.toLowerCase()}`;
 
-                if (rows[i].type === 'MCQ') {
-                    questionData.options = [
-                        rows[i].optionA?.trim() || '',
-                        rows[i].optionB?.trim() || '',
-                        rows[i].optionC?.trim() || '',
-                        rows[i].optionD?.trim() || ''
-                    ];
-                    questionData.optionsHindi = [
-                        rows[i].optionAHindi?.trim() || '',
-                        rows[i].optionBHindi?.trim() || '',
-                        rows[i].optionCHindi?.trim() || '',
-                        rows[i].optionDHindi?.trim() || ''
-                    ];
-                    questionData.correctAnswer = Number(normalizeCorrectAnswer(rows[i].correctAnswer));
+                // Check duplicate against existing + current batch
+                const isDuplicate = (existingKeysSet && existingKeysSet.has(key)) || localUploadedKeys.has(key);
+
+                if (isDuplicate) {
+                    console.log(`Skipping duplicate question`);
+                    skipped++;
                 } else {
-                    questionData.options = [];
-                    questionData.optionsHindi = [];
-                    questionData.correctAnswer = rows[i].correctAnswer.trim();
-                }
+                    localUploadedKeys.add(key);
 
-                await addDoc(collection(db, 'questions'), questionData);
-                success++;
+                    const questionData: any = {
+                        text: text,
+                        textHindi: row.textHindi?.trim() || '',
+                        subject: subject,
+                        chapter: row.chapter.trim(),
+                        topic: row.topic.trim(),
+                        type: row.type.trim(),
+                        difficulty: row.difficulty.trim(),
+                        marks: Number(row.marks),
+                        negativeMarks: row.negativeMarks ? Number(row.negativeMarks) : (row.type === 'MCQ' ? -1 : 0),
+                        explanation: row.explanation?.trim() || '',
+                        explanationHindi: row.explanationHindi?.trim() || '',
+                        createdAt: serverTimestamp()
+                    };
+
+                    if (row.type === 'MCQ') {
+                        questionData.options = [
+                            row.optionA?.trim() || '',
+                            row.optionB?.trim() || '',
+                            row.optionC?.trim() || '',
+                            row.optionD?.trim() || ''
+                        ];
+                        questionData.optionsHindi = [
+                            row.optionAHindi?.trim() || '',
+                            row.optionBHindi?.trim() || '',
+                            row.optionCHindi?.trim() || '',
+                            row.optionDHindi?.trim() || ''
+                        ];
+                        questionData.correctAnswer = Number(normalizeCorrectAnswer(row.correctAnswer));
+                    } else {
+                        questionData.options = [];
+                        questionData.optionsHindi = [];
+                        questionData.correctAnswer = row.correctAnswer.trim();
+                    }
+
+                    // Create new document reference in 'questions' collection
+                    const newDocRef = doc(collection(db, 'questions'));
+                    batch.set(newDocRef, questionData);
+                    batchCount++;
+                }
+            } catch (rowError) {
+                console.error(`Error preparation for uploading question:`, rowError);
+                failed++;
             }
-        } catch (error) {
-            console.error(`Error uploading question:`, error);
-            failed++;
         }
 
-        onProgress(((i + 1) / rows.length) * 100, i + 1, rows.length);
+        if (batchCount > 0) {
+            try {
+                await batch.commit();
+                success += batchCount;
+            } catch (batchError) {
+                console.error(`Error committing batch upload:`, batchError);
+                failed += batchCount;
+            }
+        }
+
+        const currentCompleted = Math.min(i + batchSize, rows.length);
+        onProgress((currentCompleted / rows.length) * 100, currentCompleted, rows.length);
     }
 
     return { success, failed, skipped };
