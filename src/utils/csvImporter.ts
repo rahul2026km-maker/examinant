@@ -202,6 +202,13 @@ export const validateQuestion = async (
     const rawAnswer = answerField !== undefined && answerField !== null ? String(answerField).trim() : '';
     const correctAnswer = type === 'MCQ' ? normalizeCorrectAnswer(rawAnswer) : rawAnswer;
 
+    // Extract options
+    const optA = String(getRowValue(row, ['optionA', 'optA', 'option_A', 'opt_A', 'A']) || '').trim();
+    const optB = String(getRowValue(row, ['optionB', 'optB', 'option_B', 'opt_B', 'B']) || '').trim();
+    const optC = String(getRowValue(row, ['optionC', 'optC', 'option_C', 'opt_C', 'C']) || '').trim();
+    const optD = String(getRowValue(row, ['optionD', 'optD', 'option_D', 'opt_D', 'D']) || '').trim();
+    const rowOptions = type === 'MCQ' ? [optA, optB, optC, optD].map(o => o.toLowerCase()) : [];
+
     // Normalize subject (Capitalize first letter)
     if (subject.toLowerCase() === 'physics') subject = 'Physics';
     if (subject.toLowerCase() === 'chemistry') subject = 'Chemistry';
@@ -246,11 +253,6 @@ export const validateQuestion = async (
 
     // Type-specific validation
     if (type === 'MCQ') {
-        const optA = String(getRowValue(row, ['optionA', 'optA', 'option_A', 'opt_A', 'A']) || '').trim();
-        const optB = String(getRowValue(row, ['optionB', 'optB', 'option_B', 'opt_B', 'B']) || '').trim();
-        const optC = String(getRowValue(row, ['optionC', 'optC', 'option_C', 'opt_C', 'C']) || '').trim();
-        const optD = String(getRowValue(row, ['optionD', 'optD', 'option_D', 'opt_D', 'D']) || '').trim();
-
         if (!optA || !optB || !optC || !optD) {
             errors.push(`Row ${index + 1}: MCQ questions must have all 4 options`);
         }
@@ -295,8 +297,9 @@ export const validateQuestion = async (
     // Check for duplicate questions
     let isDuplicate = false;
     if (errors.length === 0 && text && subject) {
+        const optionsStr = rowOptions.join('|');
+        const key = `${text.toLowerCase()}|${subject.toLowerCase()}|${optionsStr}|${String(correctAnswer).toLowerCase()}`;
         if (existingKeysSet) {
-            const key = `${text.toLowerCase()}|${subject.toLowerCase()}`;
             if (existingKeysSet.has(key)) {
                 isDuplicate = true;
                 errors.push(`Row ${index + 1}: Duplicate - Question already exists`);
@@ -310,8 +313,18 @@ export const validateQuestion = async (
                 );
                 const snapshot = await getDocs(duplicateQuery);
                 if (!snapshot.empty) {
-                    isDuplicate = true;
-                    errors.push(`Row ${index + 1}: Duplicate - Question already exists`);
+                    // Check if any existing question is a complete match (text, subject, options, correctAnswer)
+                    const isMatch = snapshot.docs.some(doc => {
+                        const data = doc.data();
+                        const existingOptions = Array.isArray(data.options) ? data.options.map((o: any) => String(o || '').trim().toLowerCase()) : [];
+                        const matchesOptions = existingOptions.length === rowOptions.length && existingOptions.every((val, idx) => val === rowOptions[idx]);
+                        const matchesAnswer = String(data.correctAnswer || '').trim().toLowerCase() === String(correctAnswer).trim().toLowerCase();
+                        return matchesOptions && matchesAnswer;
+                    });
+                    if (isMatch) {
+                        isDuplicate = true;
+                        errors.push(`Row ${index + 1}: Duplicate - Question already exists`);
+                    }
                 }
             } catch (error) {
                 console.error('Error checking for duplicate questions:', error);
@@ -403,7 +416,19 @@ export const batchUploadQuestions = async (
                 if (subject.toLowerCase() === 'biology') subject = 'Biology';
 
                 const text = String(getRowValue(row, ['text', 'question', 'questionText', 'question_text', 'textEnglish', 'text_english']) || '').trim();
-                const key = `${text.toLowerCase()}|${subject.toLowerCase()}`;
+                const optA = String(getRowValue(row, ['optionA', 'optA', 'option_A', 'opt_A', 'A']) || '').trim();
+                const optB = String(getRowValue(row, ['optionB', 'optB', 'option_B', 'opt_B', 'B']) || '').trim();
+                const optC = String(getRowValue(row, ['optionC', 'optC', 'option_C', 'opt_C', 'C']) || '').trim();
+                const optD = String(getRowValue(row, ['optionD', 'optD', 'option_D', 'opt_D', 'D']) || '').trim();
+
+                const answerField = getRowValue(row, ['correctAnswer', 'correctOp', 'correctOption', 'correct_answer', 'correct_option', 'answer', 'correct']);
+                const rowType = String(getRowValue(row, ['type']) || '').trim();
+
+                const normAnswer = rowType === 'MCQ' ? normalizeCorrectAnswer(answerField) : (answerField !== undefined && answerField !== null ? String(answerField).trim() : '');
+                const rowOptions = rowType === 'MCQ' ? [optA, optB, optC, optD].map(o => o.toLowerCase()) : [];
+                const optionsStr = rowOptions.join('|');
+
+                const key = `${text.toLowerCase()}|${subject.toLowerCase()}|${optionsStr}|${normAnswer.toLowerCase()}`;
 
                 // Check duplicate against existing + current batch
                 const isDuplicate = (existingKeysSet && existingKeysSet.has(key)) || localUploadedKeys.has(key);

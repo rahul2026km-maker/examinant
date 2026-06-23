@@ -490,7 +490,13 @@ const AdminQuestionBank = () => {
 
             // Construct existing keys set to do fast local duplicate check
             const existingKeysSet = new Set(
-                questions.map(q => `${q.text.trim().toLowerCase()}|${q.subject.trim().toLowerCase()}`)
+                questions.map(q => {
+                    const text = (q.text || '').trim().toLowerCase();
+                    const subject = (q.subject || '').trim().toLowerCase();
+                    const options = Array.isArray(q.options) ? q.options.map((o: any) => String(o || '').trim().toLowerCase()).join('|') : '';
+                    const correctAnswer = String(q.correctAnswer || '').trim().toLowerCase();
+                    return `${text}|${subject}|${options}|${correctAnswer}`;
+                })
             );
 
             // Validate all rows in parallel using full dynamic subjects list
@@ -602,7 +608,13 @@ const AdminQuestionBank = () => {
             if (importFile) {
                 const result = await parseQuestionsCSV(importFile);
                 const existingKeysSet = new Set(
-                    questions.map(q => `${q.text.trim().toLowerCase()}|${q.subject.trim().toLowerCase()}`)
+                    questions.map(q => {
+                        const text = (q.text || '').trim().toLowerCase();
+                        const subject = (q.subject || '').trim().toLowerCase();
+                        const options = Array.isArray(q.options) ? q.options.map((o: any) => String(o || '').trim().toLowerCase()).join('|') : '';
+                        const correctAnswer = String(q.correctAnswer || '').trim().toLowerCase();
+                        return `${text}|${subject}|${options}|${correctAnswer}`;
+                    })
                 );
                 const validationPromises = result.data.map((row, index) => validateQuestion(row, index, newSubjects, existingKeysSet));
                 const validationList = await Promise.all(validationPromises);
@@ -640,7 +652,13 @@ const AdminQuestionBank = () => {
 
         try {
             const existingKeysSet = new Set(
-                questions.map(q => `${q.text.trim().toLowerCase()}|${q.subject.trim().toLowerCase()}`)
+                questions.map(q => {
+                    const text = (q.text || '').trim().toLowerCase();
+                    const subject = (q.subject || '').trim().toLowerCase();
+                    const options = Array.isArray(q.options) ? q.options.map((o: any) => String(o || '').trim().toLowerCase()).join('|') : '';
+                    const correctAnswer = String(q.correctAnswer || '').trim().toLowerCase();
+                    return `${text}|${subject}|${options}|${correctAnswer}`;
+                })
             );
             const result = await batchUploadQuestions(validRows, (progress) => {
                 setUploadProgress(progress);
