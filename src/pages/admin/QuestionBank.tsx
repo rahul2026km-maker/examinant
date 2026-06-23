@@ -51,9 +51,22 @@ const AdminQuestionBank = () => {
 
     // Filters
     const [filterSubject, setFilterSubject] = useState<string>('all');
+    const [filterChapter, setFilterChapter] = useState<string>('all');
+    const [filterTopic, setFilterTopic] = useState<string>('all');
     const [filterType, setFilterType] = useState<string>('all');
     const [filterDifficulty, setFilterDifficulty] = useState<string>('all');
     const [filterExam, setFilterExam] = useState<string>('all');
+
+    const handleSubjectFilterChange = (val: string) => {
+        setFilterSubject(val);
+        setFilterChapter('all');
+        setFilterTopic('all');
+    };
+
+    const handleChapterFilterChange = (val: string) => {
+        setFilterChapter(val);
+        setFilterTopic('all');
+    };
 
     // CSV Import states
     const [isImporting, setIsImporting] = useState(false);
@@ -680,16 +693,23 @@ const AdminQuestionBank = () => {
         }
     };
 
+    // Available chapters and topics for filtering
+    const availableChapters = filterSubject === 'all' ? chapters : chapters.filter(c => c.subject === filterSubject);
+    const selectedChapterObj = chapters.find(c => c.name.toLowerCase() === filterChapter.toLowerCase());
+    const availableTopics = selectedChapterObj ? selectedChapterObj.topics || [] : [];
+
     // Apply filters
     const filteredQuestions = questions.filter(q => {
         const matchesSearch = q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
             q.chapter.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSubject = filterSubject === 'all' || q.subject === filterSubject;
+        const matchesChapter = filterChapter === 'all' || q.chapter.toLowerCase() === filterChapter.toLowerCase();
+        const matchesTopic = filterTopic === 'all' || (q.topic && q.topic.toLowerCase() === filterTopic.toLowerCase());
         const matchesType = filterType === 'all' || q.type === filterType;
         const matchesDifficulty = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
         const matchesExam = filterExam === 'all' || q.examCategory === filterExam;
 
-        return matchesSearch && matchesSubject && matchesType && matchesDifficulty && matchesExam;
+        return matchesSearch && matchesSubject && matchesChapter && matchesTopic && matchesType && matchesDifficulty && matchesExam;
     });
 
     // Calculate statistics
@@ -802,8 +822,8 @@ const AdminQuestionBank = () => {
 
             {/* Filters and Search */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div className="md:col-span-2 relative">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-8 gap-4">
+                    <div className="lg:col-span-2 sm:col-span-2 md:col-span-3 relative">
                         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                             type="text"
@@ -815,12 +835,33 @@ const AdminQuestionBank = () => {
                     </div>
                     <select
                         value={filterSubject}
-                        onChange={(e) => setFilterSubject(e.target.value)}
+                        onChange={(e) => handleSubjectFilterChange(e.target.value)}
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                     >
                         <option value="all">All Subjects</option>
                         {subjects.map(subject => (
                             <option key={subject} value={subject}>{subject}</option>
+                        ))}
+                    </select>
+                    <select
+                        value={filterChapter}
+                        onChange={(e) => handleChapterFilterChange(e.target.value)}
+                        className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
+                    >
+                        <option value="all">All Chapters</option>
+                        {availableChapters.map(ch => (
+                            <option key={ch.id} value={ch.name}>{ch.name}</option>
+                        ))}
+                    </select>
+                    <select
+                        value={filterTopic}
+                        disabled={filterChapter === 'all'}
+                        onChange={(e) => setFilterTopic(e.target.value)}
+                        className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white disabled:opacity-50"
+                    >
+                        <option value="all">All Topics</option>
+                        {availableTopics.map((top: string) => (
+                            <option key={top} value={top}>{top}</option>
                         ))}
                     </select>
                     <select

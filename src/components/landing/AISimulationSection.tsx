@@ -19,7 +19,7 @@ const AISimulationSection = () => {
 
         {/* AI Analytics Section */}
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -56,13 +56,13 @@ const AISimulationSection = () => {
             </div>
 
             <div className="flex flex-wrap gap-4 pt-4">
-              <button 
+              <button
                 onClick={() => navigate('/signup')}
                 className="btn-primary-premium text-sm"
               >
                 Unlock Insights
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/resources')}
                 className="px-6 py-3 text-slate-600 font-bold hover:text-blue-600 transition-colors"
               >
@@ -71,7 +71,7 @@ const AISimulationSection = () => {
             </div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -80,7 +80,7 @@ const AISimulationSection = () => {
             {/* The "Dark Mode" Tech Dashboard */}
             <div className="bg-slate-900 rounded-[40px] p-8 lg:p-12 shadow-2xl relative overflow-hidden border border-slate-800">
               <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(37,99,235,0.15),transparent)]"></div>
-              
+
               <div className="relative space-y-10">
                 <div className="flex justify-between items-center">
                   <div className="space-y-1">
@@ -98,7 +98,7 @@ const AISimulationSection = () => {
                     <p className="text-3xl font-black text-white tracking-tighter">92.4 <span className="text-lg text-slate-500">/ 100</span></p>
                   </div>
                   <div className="h-3 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       whileInView={{ width: '92.4%' }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
@@ -137,7 +137,7 @@ const AISimulationSection = () => {
             </div>
 
             {/* Floating Elements */}
-            <motion.div 
+            <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
               className="absolute -top-6 right-2 sm:-right-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 z-20"
@@ -158,14 +158,14 @@ const AISimulationSection = () => {
 
 
         {/* CTA Summary Box */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[48px] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl"
         >
           <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent)]"></div>
-          
+
           <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
             <div className="space-y-6">
               <h3 className="text-3xl sm:text-4xl font-black leading-tight">Eliminate Exam Day <br />Anxiety Forever.</h3>
@@ -173,13 +173,13 @@ const AISimulationSection = () => {
                 Join 12,000+ aspirants who have mastered the art of test-taking through our AI-simulated ecosystem.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
-                <button 
+                <button
                   onClick={() => navigate('/test-series')}
                   className="px-8 py-4 bg-white text-blue-700 font-black rounded-2xl hover:shadow-xl transition-all active:scale-95"
                 >
                   Try Demo Now
                 </button>
-                <button 
+                <button
                   onClick={() => navigate('/signup')}
                   className="px-8 py-4 bg-blue-600/30 text-white border border-white/20 rounded-2xl font-black backdrop-blur-sm hover:bg-blue-600/50 transition-all"
                 >
@@ -211,4 +211,4 @@ const AISimulationSection = () => {
   );
 };
 
-export default AISimulationSection;
+export default AISimulationSection;

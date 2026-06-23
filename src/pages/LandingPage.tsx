@@ -94,7 +94,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
           {/* HEADER */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -140,9 +140,9 @@ const LandingPage = () => {
                   {/* Thumbnail Image */}
                   {series.thumbnailUrl && (
                     <div className="w-full h-40 overflow-hidden relative z-10 border-b border-gray-100">
-                      <img 
-                        src={series.thumbnailUrl} 
-                        alt={series.name} 
+                      <img
+                        src={series.thumbnailUrl}
+                        alt={series.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
@@ -176,15 +176,15 @@ const LandingPage = () => {
                   {/* Features */}
                   <div className="px-6 mt-6 space-y-3 text-sm text-gray-600 relative z-10">
                     <p className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span> 
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span>
                       <span className="font-medium">Detailed Solutions</span>
                     </p>
                     <p className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span> 
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span>
                       <span className="font-medium">All India Ranking</span>
                     </p>
                     <p className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span> 
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span>
                       <span className="font-medium">Performance Analytics</span>
                     </p>
                   </div>
@@ -207,7 +207,7 @@ const LandingPage = () => {
                         </span>
                       )}
                     </div>
-                    
+
                     <button
                       onClick={() => handleBuy(series.id)}
                       className="w-full relative overflow-hidden bg-[#1D64D0] text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-md group-hover:shadow-blue-500/30 group-hover:bg-blue-700"
@@ -227,7 +227,7 @@ const LandingPage = () => {
             </div>
 
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm"
