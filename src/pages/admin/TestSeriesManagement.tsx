@@ -15,9 +15,11 @@ import {
     duplicateTestSeries
 } from '../../services/testSeriesService';
 import { useExamList } from '../../hooks/useExamList';
+import { useAuth } from '../../contexts/AuthContext';
 
 const TestSeriesManagement = () => {
     const navigate = useNavigate();
+    const { currentUser } = useAuth() || {};
     const [testSeries, setTestSeries] = useState<TestSeries[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
@@ -90,7 +92,7 @@ const TestSeriesManagement = () => {
             }
 
             await delay(1000); // Artificial delay
-            await createTestSeries(finalData, 'admin');
+            await createTestSeries(finalData, currentUser?.uid || 'admin');
             await loadTestSeries();
             setIsCreating(false);
             resetForm();
@@ -149,7 +151,7 @@ const TestSeriesManagement = () => {
 
     const handleDuplicate = async (series: TestSeries) => {
         try {
-            await duplicateTestSeries(series.id, `${series.name} (Copy)`, 'admin');
+            await duplicateTestSeries(series.id, `${series.name} (Copy)`, currentUser?.uid || 'admin');
             await loadTestSeries();
         } catch (error) {
             console.error('Error duplicating test series:', error);
@@ -587,8 +589,8 @@ const TestSeriesManagement = () => {
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                         placeholder="Describe this test series..."
-                                        rows={4}
-                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none shadow-sm"
+                                        rows={6}
+                                        className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y shadow-sm"
                                     />
                                 </div>
 

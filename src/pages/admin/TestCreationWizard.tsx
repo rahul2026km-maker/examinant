@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check, Loader2, X, AlertTriangle } from 'lucide-
 import type { TestFormData } from '../../types/test.types';
 import { createTest, generateQuestionsAuto, generateQuestionsCustom, saveQuestionsToTest, publishTest } from '../../services/testService';
 import { toast, ToastContainer } from '../../components/common/Toast';
+import { useAuth } from '../../contexts/AuthContext';
 
 import BasicInfoStep from '../../components/test/BasicInfoStep';
 import GenerationMethodStep from '../../components/test/GenerationMethodStep';
@@ -39,6 +40,7 @@ const STEP_COMPONENTS = [
 
 const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWizardProps) => {
     const navigate = useNavigate();
+    const { currentUser } = useAuth() || {};
     const [currentStep, setCurrentStep] = useState(0);
     const [highestVisited, setHighestVisited] = useState(0);
     const [isSaving, setIsSaving] = useState(false);
@@ -158,7 +160,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
         setIsSaving(true);
         try {
             await delay(800);
-            await createTest(formData as TestFormData, 'admin');
+            await createTest(formData as TestFormData, currentUser?.uid || 'admin');
             toast.success('Draft saved!', 'You can continue editing later.');
             if (onComplete) {
                 onComplete();
@@ -190,7 +192,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
 
         try {
             await delay(1000);
-            const testId = await createTest({ ...formData, status: 'published' } as TestFormData, 'admin');
+            const testId = await createTest({ ...formData, status: 'published' } as TestFormData, currentUser?.uid || 'admin');
 
             let questionIds: string[] = [];
 
