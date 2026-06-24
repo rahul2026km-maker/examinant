@@ -82,7 +82,7 @@ const TestSeriesManagement = () => {
             const finalData = {
                 ...formData,
                 examCategory: isCustom ? customCategory : formData.examCategory,
-                thumbnailUrl: formData.thumbnailUrl || undefined
+                thumbnailUrl: formData.thumbnailUrl || ""
             };
 
             if (isCustom && !customCategory) {
@@ -112,7 +112,7 @@ const TestSeriesManagement = () => {
             const finalData = {
                 ...formData,
                 examCategory: isCustom ? customCategory : formData.examCategory,
-                thumbnailUrl: formData.thumbnailUrl || undefined
+                thumbnailUrl: formData.thumbnailUrl || ""
             };
 
             if (isCustom && !customCategory) {
