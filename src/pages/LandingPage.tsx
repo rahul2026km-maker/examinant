@@ -44,6 +44,75 @@ const LandingPage = () => {
       {/* 1 & 2. Hero Slider */}
       <HeroSlider />
 
+      {/* Auto-scrolling Exams Strip */}
+      <div className="w-full bg-slate-50 py-7 border-y border-slate-100 overflow-hidden relative select-none">
+        {/* Left and Right Fade Overlays */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
+
+        <div className="animate-marquee flex gap-8 items-center">
+          {[
+            'JEE Mains/Adv', 'NEET UG', 'SSC CGL', 'Banking (IBPS/SBI)', 'Railways (RRB)', 
+            'Defence (NDA/CDS)', 'State PCS (UPSC)', 'Teaching (CTET/STET)', 'UPSI', 
+            'UPP Constable', 'UPSSSC', 'NDA', 'Boards'
+          ].concat([
+            'JEE Mains/Adv', 'NEET UG', 'SSC CGL', 'Banking (IBPS/SBI)', 'Railways (RRB)', 
+            'Defence (NDA/CDS)', 'State PCS (UPSC)', 'Teaching (CTET/STET)', 'UPSI', 
+            'UPP Constable', 'UPSSSC', 'NDA', 'Boards'
+          ]).concat([
+            'JEE Mains/Adv', 'NEET UG', 'SSC CGL', 'Banking (IBPS/SBI)', 'Railways (RRB)', 
+            'Defence (NDA/CDS)', 'State PCS (UPSC)', 'Teaching (CTET/STET)', 'UPSI', 
+            'UPP Constable', 'UPSSSC', 'NDA', 'Boards'
+          ]).map((exam, idx) => {
+            const getExamRoute = (name: string) => {
+              switch (name) {
+                case 'JEE Mains/Adv':
+                  return '/test-series?category=Engineering%20entrance&subcategory=JEE';
+                case 'NEET UG':
+                  return '/test-series?category=Medical%20entrance&subcategory=NEET';
+                case 'SSC CGL':
+                  return '/test-series?category=SSC';
+                case 'Banking (IBPS/SBI)':
+                  return '/test-series?category=Banking';
+                case 'Railways (RRB)':
+                  return '/test-series?category=Railways';
+                case 'Defence (NDA/CDS)':
+                  return '/test-series?category=Defence%20exams&subcategory=NDA';
+                case 'State PCS (UPSC)':
+                  return '/test-series?category=State%20PCS';
+                case 'Teaching (CTET/STET)':
+                  return '/test-series?category=Teaching%20exams';
+                case 'UPSI':
+                  return '/test-series?category=State%20govt.%20Exam&subcategory=UPSI';
+                case 'UPP Constable':
+                  return '/test-series?category=State%20govt.%20Exam&subcategory=UPP%20contable';
+                case 'UPSSSC':
+                  return '/test-series?category=State%20govt.%20Exam&subcategory=UPSSSC';
+                case 'NDA':
+                  return '/test-series?category=Defence%20exams&subcategory=NDA';
+                case 'Boards':
+                  return '/test-series?category=Boards';
+                default:
+                  return '/test-series';
+              }
+            };
+
+            return (
+              <div 
+                key={idx}
+                onClick={() => navigate(getExamRoute(exam))}
+                className="flex items-center gap-3 px-6 py-3.5 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_22px_-4px_rgba(0,0,0,0.05)] text-[13px] font-black text-slate-800 transition-all hover:scale-105 cursor-pointer hover:border-blue-200 shrink-0 whitespace-nowrap"
+              >
+                <span className="flex items-center justify-center bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none animate-pulse">
+                  LIVE
+                </span>
+                <span className="tracking-wide uppercase">{exam}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* 4. AI Analysis and Real Exam Simulation Demo */}
       <AISimulationSection />
 
