@@ -13,8 +13,25 @@ export const DEFAULT_EXAMS: string[] = [
     'NEET',
     'SSC',
     'Boards',
-    'Other'
+    'Other',
+    'Engineering entrance',
+    'Medical entrance',
+    'State govt. Exam',
+    'State PCS',
+    'Teaching exams',
+    'Banking',
+    'Railways',
+    'Defence exams'
 ];
+
+export const EXAM_SUBCATEGORIES: Record<string, string[]> = {
+    'Engineering entrance': ['JEE'],
+    'Medical entrance': ['NEET'],
+    'State govt. Exam': ['UPSI', 'UPP contable', 'UPSSSC'],
+    'Teaching exams': ['CTET', 'STET'],
+    'Defence exams': ['NDA']
+};
+
 
 const examsCollection = collection(db, 'exams');
 

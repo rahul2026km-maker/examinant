@@ -9,6 +9,8 @@ import { getAllTestSeries } from '../../services/testSeriesService';
 import TestSeriesCard from '../../components/landing/TestSeriesCard';
 import { loadRazorpay } from '../../utils/razorpay';
 import { studentService } from '../../services/studentService';
+import { useExamList } from '../../hooks/useExamList';
+import { EXAM_SUBCATEGORIES } from '../../services/examService';
 
 const StudentMarketPage = () => {
     const navigate = useNavigate();
@@ -19,7 +21,9 @@ const StudentMarketPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedSubCategory, setSelectedSubCategory] = useState('All');
     const [enrollingId, setEnrollingId] = useState<string | null>(null);
+    const exams = useExamList();
 
     // Fetch Tests (Real Data)
     useEffect(() => {
@@ -112,10 +116,25 @@ const StudentMarketPage = () => {
     const filteredTests = tests.filter(test => {
         const seriesName = test.name || (test as any).title || '';
         const category = test.examCategory || '';
+        const subCategory = test.examSubCategory || '';
         const matchesSearch = seriesName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             category.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Legacy fallback matching:
+        if (selectedCategory === 'Engineering entrance') {
+            if (category === 'JEE') {
+                return matchesSearch && (selectedSubCategory === 'All' || selectedSubCategory === 'JEE');
+            }
+        }
+        if (selectedCategory === 'Medical entrance') {
+            if (category === 'NEET') {
+                return matchesSearch && (selectedSubCategory === 'All' || selectedSubCategory === 'NEET');
+            }
+        }
+
         const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
-        return matchesSearch && matchesCategory;
+        const matchesSubCategory = selectedSubCategory === 'All' || subCategory === selectedSubCategory;
+        return matchesSearch && matchesCategory && matchesSubCategory;
     });
 
     return (
@@ -135,15 +154,35 @@ const StudentMarketPage = () => {
                         <Filter size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" />
                         <select
                             value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            onChange={(e) => {
+                                setSelectedCategory(e.target.value);
+                                setSelectedSubCategory('All');
+                            }}
                             className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 text-slate-700 font-bold text-sm shadow-sm transition-all appearance-none cursor-pointer"
                         >
                             <option value="All">All Categories</option>
-                            <option value="NEET">NEET UG</option>
-                            <option value="JEE">JEE Mains/Adv</option>
-                            <option value="SSC">SSC Exams</option>
+                            {exams
+                                .filter(exam => exam.toLowerCase() !== 'jee' && exam.toLowerCase() !== 'neet')
+                                .map(exam => (
+                                    <option key={exam} value={exam}>{exam}</option>
+                                ))}
                         </select>
                     </div>
+                    {EXAM_SUBCATEGORIES[selectedCategory] && (
+                        <div className="relative group min-w-[200px]">
+                            <Filter size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                            <select
+                                value={selectedSubCategory}
+                                onChange={(e) => setSelectedSubCategory(e.target.value)}
+                                className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 text-slate-700 font-bold text-sm shadow-sm transition-all appearance-none cursor-pointer"
+                            >
+                                <option value="All">All Subcategories</option>
+                                {EXAM_SUBCATEGORIES[selectedCategory].map(sub => (
+                                    <option key={sub} value={sub}>{sub}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     <div className="relative flex-1 sm:min-w-[400px] group">
                         <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
                         <input
@@ -213,6 +252,7 @@ const StudentMarketPage = () => {
                                     price={series.pricing?.type === 'paid' ? `${series.pricing.amount}` : 'Free'}
                                     colorTheme="blue"
                                     examCategory={series.examCategory}
+                                    examSubCategory={series.examSubCategory}
                                     testCount={(series as any).testIds?.length || 0}
                                     actions={actionButton}
                                 />

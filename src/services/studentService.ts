@@ -149,6 +149,7 @@ export const studentService = {
                 seriesTitle: series.name,
                 testTitle: series.name, // Fallback
                 category: series.examCategory || 'General',
+                subCategory: series.examSubCategory || '',
                 price: series.pricing.type === 'free' ? 0 : (series.pricing.amount || 0),
                 purchaseDate: serverTimestamp(),
                 status: 'active',

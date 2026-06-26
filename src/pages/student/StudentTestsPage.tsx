@@ -13,6 +13,7 @@ interface PurchasedTest {
     testTitle: string; // or seriesTitle
     seriesTitle?: string;
     category?: string;
+    subCategory?: string;
     price: number;
     purchaseDate: any;
 }
@@ -187,7 +188,7 @@ const SeriesCard = ({ purchase, attemptsMap }: { purchase: PurchasedTest, attemp
                         <div className="flex items-center gap-3">
                             <h3 className="text-xl font-black text-slate-900 tracking-tight">{title}</h3>
                             <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100">
-                                {purchase.category || 'Expert'}
+                                {purchase.category || 'Expert'}{purchase.subCategory ? ` (${purchase.subCategory})` : ''}
                             </span>
                         </div>
                         <p className="text-slate-400 text-xs font-bold mt-1 uppercase tracking-wider">

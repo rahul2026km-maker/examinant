@@ -16,6 +16,7 @@ import {
 } from '../../services/testSeriesService';
 import { useExamList } from '../../hooks/useExamList';
 import { useAuth } from '../../contexts/AuthContext';
+import { EXAM_SUBCATEGORIES } from '../../services/examService';
 
 const TestSeriesManagement = () => {
     const navigate = useNavigate();
@@ -44,6 +45,7 @@ const TestSeriesManagement = () => {
     const [formData, setFormData] = useState<{
         name: string;
         examCategory: 'JEE' | 'NEET' | 'SSC' | string;
+        examSubCategory: string;
         pricing: { type: 'free' | 'paid'; amount: number };
         description: string;
         status: 'draft' | 'published' | 'archived';
@@ -51,6 +53,7 @@ const TestSeriesManagement = () => {
     }>({
         name: '',
         examCategory: 'JEE',
+        examSubCategory: '',
         pricing: { type: 'free', amount: 0 },
         description: '',
         status: 'draft',
@@ -82,6 +85,7 @@ const TestSeriesManagement = () => {
             const finalData = {
                 ...formData,
                 examCategory: isCustom ? customCategory : formData.examCategory,
+                examSubCategory: EXAM_SUBCATEGORIES[isCustom ? customCategory : formData.examCategory] ? formData.examSubCategory : '',
                 thumbnailUrl: formData.thumbnailUrl || ""
             };
 
@@ -112,6 +116,7 @@ const TestSeriesManagement = () => {
             const finalData = {
                 ...formData,
                 examCategory: isCustom ? customCategory : formData.examCategory,
+                examSubCategory: EXAM_SUBCATEGORIES[isCustom ? customCategory : formData.examCategory] ? formData.examSubCategory : '',
                 thumbnailUrl: formData.thumbnailUrl || ""
             };
 
@@ -166,6 +171,7 @@ const TestSeriesManagement = () => {
         setFormData({
             name: series.name,
             examCategory: isPredefined ? series.examCategory : 'Custom',
+            examSubCategory: series.examSubCategory || '',
             pricing: {
                 type: series.pricing.type,
                 amount: series.pricing.amount || 0
@@ -188,6 +194,7 @@ const TestSeriesManagement = () => {
         setFormData({
             name: '',
             examCategory: 'JEE',
+            examSubCategory: '',
             pricing: { type: 'free', amount: 0 },
             description: '',
             status: 'draft',
@@ -362,8 +369,10 @@ const TestSeriesManagement = () => {
                             features={series?.features || []}
                             originalPrice={series.pricing?.type === 'paid' ? `${(series.pricing.amount || 0) * 1.2}` : '0'}
                             price={series.pricing?.type === 'paid' ? `${series.pricing.amount}` : 'Free'}
+                            onExplore={() => navigate(`/test-series/${series.id}`)}
                             examCategory={series.examCategory}
-                            testCount={series.testIds?.length || 0}
+                            examSubCategory={series.examSubCategory}
+                            testCount={series.stats?.totalTests || 0}
                             actions={
                                 <div className="grid grid-cols-4 gap-2 w-full">
                                     <button
@@ -510,14 +519,16 @@ const TestSeriesManagement = () => {
                                         value={formData.examCategory}
                                         onChange={(e) => {
                                             const val = e.target.value;
-                                            setFormData({ ...formData, examCategory: val as any });
+                                            setFormData({ ...formData, examCategory: val as any, examSubCategory: '' });
                                             setIsCustom(val === 'Custom');
                                         }}
                                         className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                                     >
-                                        {exams.map(exam => (
-                                            <option key={exam} value={exam}>{exam}</option>
-                                        ))}
+                                        {exams
+                                            .filter(exam => exam.toLowerCase() !== 'jee' && exam.toLowerCase() !== 'neet')
+                                            .map(exam => (
+                                                <option key={exam} value={exam}>{exam}</option>
+                                            ))}
                                         <option value="Custom">Custom</option>
                                     </select>
                                     {isCustom && (
@@ -534,6 +545,27 @@ const TestSeriesManagement = () => {
                                                 className="w-full px-4 py-2.5 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50/30"
                                                 autoFocus
                                             />
+                                        </motion.div>
+                                    )}
+                                    {EXAM_SUBCATEGORIES[isCustom ? customCategory : formData.examCategory] && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="mt-3"
+                                        >
+                                            <label className="block text-xs font-semibold text-slate-500 mb-1">
+                                                Examination Sub-category
+                                            </label>
+                                            <select
+                                                value={formData.examSubCategory}
+                                                onChange={(e) => setFormData({ ...formData, examSubCategory: e.target.value })}
+                                                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white text-sm"
+                                            >
+                                                <option value="">Select Sub-category (Optional)</option>
+                                                {EXAM_SUBCATEGORIES[isCustom ? customCategory : formData.examCategory].map(sub => (
+                                                    <option key={sub} value={sub}>{sub}</option>
+                                                ))}
+                                            </select>
                                         </motion.div>
                                     )}
                                 </div>

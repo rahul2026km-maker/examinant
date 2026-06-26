@@ -154,8 +154,8 @@ const LandingPage = () => {
                       New
                     </span>
 
-                    <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
-                      Test Series
+                    <span className="text-xs text-[#1D64D0] font-bold uppercase tracking-wider">
+                      {series.examCategory || 'Test Series'}{series.examSubCategory ? ` (${series.examSubCategory})` : ''}
                     </span>
                   </div>
 

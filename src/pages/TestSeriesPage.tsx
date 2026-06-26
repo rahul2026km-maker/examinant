@@ -12,6 +12,7 @@ const TestSeriesPage = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const categoryParam = searchParams.get('category');
+    const subcategoryParam = searchParams.get('subcategory');
 
     useEffect(() => {
         const fetchSeries = async () => {
@@ -27,9 +28,23 @@ const TestSeriesPage = () => {
         fetchSeries();
     }, []);
 
-    const filteredSeries = categoryParam 
-        ? series.filter(item => item.examCategory?.toLowerCase() === categoryParam.toLowerCase())
-        : series;
+    const filteredSeries = series.filter(item => {
+        // Legacy fallback matching:
+        if (categoryParam?.toLowerCase() === 'engineering entrance') {
+            if (item.examCategory?.toLowerCase() === 'jee') {
+                return !subcategoryParam || subcategoryParam.toLowerCase() === 'jee';
+            }
+        }
+        if (categoryParam?.toLowerCase() === 'medical entrance') {
+            if (item.examCategory?.toLowerCase() === 'neet') {
+                return !subcategoryParam || subcategoryParam.toLowerCase() === 'neet';
+            }
+        }
+
+        const matchesCategory = !categoryParam || item.examCategory?.toLowerCase() === categoryParam.toLowerCase();
+        const matchesSubcategory = !subcategoryParam || item.examSubCategory?.toLowerCase() === subcategoryParam.toLowerCase();
+        return matchesCategory && matchesSubcategory;
+    });
 
     return (
         <PageLayout>

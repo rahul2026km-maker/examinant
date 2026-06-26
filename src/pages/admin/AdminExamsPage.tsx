@@ -18,7 +18,7 @@ const AdminExamsPage = () => {
             setExams(records);
             setIsLoading(false);
             
-            if (!isSeeding && !localStorage.getItem('hasSeededExams_v1')) {
+            if (!isSeeding && !localStorage.getItem('hasSeededExams_v2')) {
                 isSeeding = true;
                 try {
                     const existingNames = records.map(r => r.name.toLowerCase());
@@ -27,7 +27,7 @@ const AdminExamsPage = () => {
                             await examService.create(def);
                         }
                     }
-                    localStorage.setItem('hasSeededExams_v1', 'true');
+                    localStorage.setItem('hasSeededExams_v2', 'true');
                 } catch (err) {
                     console.error("Error during seeding", err);
                 }

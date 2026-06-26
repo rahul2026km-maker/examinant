@@ -17,6 +17,7 @@ interface TestSeriesProps {
     onExplore?: () => void;
     actions?: ReactNode; // For Admin side
     examCategory?: string;
+    examSubCategory?: string;
     testCount?: number;
     thumbnailUrl?: string;
 }
@@ -32,6 +33,7 @@ const TestSeriesCard = ({
     onExplore,
     actions,
     examCategory,
+    examSubCategory,
     testCount,
     thumbnailUrl
 }: TestSeriesProps) => {
@@ -101,7 +103,7 @@ const TestSeriesCard = ({
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div>
                         <span className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">
-                            {examCategory || 'Academic'} Mastery
+                            {examCategory || 'Academic'}{examSubCategory ? ` (${examSubCategory})` : ''} Mastery
                         </span>
                     </div>
                     {isNew && (

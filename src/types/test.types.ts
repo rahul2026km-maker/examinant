@@ -5,6 +5,7 @@ export interface TestSeries {
     id: string;
     name: string;
     examCategory: 'JEE' | 'NEET' | 'SSC' | string;
+    examSubCategory?: string;
     pricing: {
         type: 'free' | 'paid';
         amount?: number;
@@ -122,6 +123,7 @@ export interface TestSchedule {
 export interface TestSeriesFormData {
     name: string;
     examCategory: 'JEE' | 'NEET' | 'SSC' | string;
+    examSubCategory?: string;
     pricing: {
         type: 'free' | 'paid';
         amount?: number;
