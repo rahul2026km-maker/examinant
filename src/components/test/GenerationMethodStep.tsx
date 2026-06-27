@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import type { TestFormData } from '../../types/test.types';
-import { Zap, Sliders, ChevronDown, ChevronRight, CheckSquare, Square, Search } from 'lucide-react';
+import { Zap, Sliders, ChevronDown, ChevronRight, CheckSquare, Square, Search, Loader2 } from 'lucide-react';
 import { JEE_MAINS_2024_WEIGHTAGE } from '../../data/jeeMainsWeightage2024';
 import QuestionPicker from './QuestionPicker';
 import { useSubjectList } from '../../hooks/useSubjectList';
+import { db } from '../../firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 interface GenerationMethodStepProps {
     formData: Partial<TestFormData>;
@@ -15,21 +17,85 @@ const GenerationMethodStep = ({ formData, updateFormData }: GenerationMethodStep
     const [selectedSubjects, setSelectedSubjects] = useState<string[]>(
         formData.autoConfig?.subjects || formData.customConfig?.subjects || []
     );
-    // Ensure default question selection when switching to custom mode
+    // Synchronize selected subjects whenever generationType or selectedSubjects list changes
     useEffect(() => {
-        if (formData.generationType === 'custom' && !formData.customConfig?.questionSelection) {
-            updateFormData({
-                customConfig: {
-                    ...formData.customConfig,
-                    questionSelection: 'all',
-                },
-            });
+        if (formData.generationType === 'auto') {
+            const questionsPerSubject = formData.questionConfig?.totalQuestions
+                ? Math.floor(formData.questionConfig.totalQuestions / Math.max(selectedSubjects.length, 1))
+                : 30;
+
+            const currentAutoSubjects = formData.autoConfig?.subjects || [];
+            const isMatch = currentAutoSubjects.length === selectedSubjects.length &&
+                currentAutoSubjects.every(s => selectedSubjects.includes(s));
+
+            if (!isMatch) {
+                updateFormData({
+                    autoConfig: {
+                        subjects: selectedSubjects as any,
+                        totalQuestions: formData.questionConfig?.totalQuestions || 90,
+                        questionsPerSubject,
+                        useWeightage: true
+                    }
+                });
+            }
+        } else {
+            const currentCustomSubjects = formData.customConfig?.subjects || [];
+            const isMatch = currentCustomSubjects.length === selectedSubjects.length &&
+                currentCustomSubjects.every(s => selectedSubjects.includes(s));
+
+            if (!isMatch || !formData.customConfig?.questionSelection) {
+                updateFormData({
+                    customConfig: {
+                        ...formData.customConfig,
+                        subjects: selectedSubjects,
+                        selectedUnits: formData.customConfig?.selectedUnits || {},
+                        selectedChapters: formData.customConfig?.selectedChapters || {},
+                        selectedTopics: formData.customConfig?.selectedTopics || {},
+                        questionSelection: formData.customConfig?.questionSelection || 'all'
+                    }
+                });
+            }
         }
-    }, [formData.generationType]);
+    }, [formData.generationType, selectedSubjects]);
+
     const [activeSubjectTab, setActiveSubjectTab] = useState<string>(selectedSubjects[0] || '');
     const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({});
     const [isQuestionPickerOpen, setIsQuestionPickerOpen] = useState(false);
     const availableSubjects = useSubjectList();
+
+    const [dbChapters, setDbChapters] = useState<any[]>([]);
+    const [loadingChapters, setLoadingChapters] = useState(false);
+
+    useEffect(() => {
+        const fetchChapters = async () => {
+            if (!activeSubjectTab) return;
+            // Check if activeSubjectTab is a hardcoded subject
+            if (JEE_MAINS_2024_WEIGHTAGE[activeSubjectTab as keyof typeof JEE_MAINS_2024_WEIGHTAGE]) {
+                setDbChapters([]);
+                return;
+            }
+
+            setLoadingChapters(true);
+            try {
+                const q = query(
+                    collection(db, 'chapters'),
+                    where('subject', '==', activeSubjectTab)
+                );
+                const snapshot = await getDocs(q);
+                const fetched = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setDbChapters(fetched);
+            } catch (err) {
+                console.error("Error fetching chapters from database:", err);
+            } finally {
+                setLoadingChapters(false);
+            }
+        };
+
+        fetchChapters();
+    }, [activeSubjectTab]);
 
     useEffect(() => {
         if (availableSubjects.length === 0) {
@@ -55,33 +121,6 @@ const GenerationMethodStep = ({ formData, updateFormData }: GenerationMethodStep
         // Update active tab if needed
         if (!updated.includes(activeSubjectTab) && updated.length > 0) {
             setActiveSubjectTab(updated[0]);
-        }
-
-        if (formData.generationType === 'auto') {
-            const questionsPerSubject = formData.questionConfig?.totalQuestions
-                ? Math.floor(formData.questionConfig.totalQuestions / updated.length)
-                : 30;
-
-            updateFormData({
-                autoConfig: {
-                    subjects: updated as any,
-                    totalQuestions: formData.questionConfig?.totalQuestions || 90,
-                    questionsPerSubject,
-                    useWeightage: true
-                }
-            });
-        } else {
-            updateFormData({
-                customConfig: {
-                    ...formData.customConfig,
-                    subjects: updated,
-                    // Preserve existing selections if any, or init empty
-                    selectedUnits: formData.customConfig?.selectedUnits || {},
-                    selectedChapters: formData.customConfig?.selectedChapters || {},
-                    selectedTopics: {},
-                    questionSelection: formData.customConfig?.questionSelection || 'all'
-                }
-            });
         }
     };
 
@@ -140,8 +179,73 @@ const GenerationMethodStep = ({ formData, updateFormData }: GenerationMethodStep
     const renderCustomSelectionUI = () => {
         if (selectedSubjects.length === 0) return null;
 
-        const subjectData = JEE_MAINS_2024_WEIGHTAGE[activeSubjectTab as keyof typeof JEE_MAINS_2024_WEIGHTAGE];
-        if (!subjectData) return null;
+        let subjectData = JEE_MAINS_2024_WEIGHTAGE[activeSubjectTab as keyof typeof JEE_MAINS_2024_WEIGHTAGE];
+
+        if (!subjectData && dbChapters.length > 0) {
+            const groupedByUnit: Record<string, { weight: number, chapters: string[] }> = {};
+            dbChapters.forEach(ch => {
+                const unitName = ch.unit || 'General Chapters';
+                if (!groupedByUnit[unitName]) {
+                    groupedByUnit[unitName] = { weight: 0, chapters: [] };
+                }
+                groupedByUnit[unitName].chapters.push(ch.name);
+            });
+            subjectData = {
+                'All Units': groupedByUnit
+            } as any;
+        }
+
+        if (!subjectData) {
+            return (
+                <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mt-6 shadow-sm p-8 text-center">
+                    {loadingChapters ? (
+                        <div className="flex flex-col items-center justify-center py-4">
+                            <Loader2 className="animate-spin text-blue-600 mb-2" size={24} />
+                            <p className="text-slate-500 text-sm">Loading chapters from database...</p>
+                        </div>
+                    ) : (
+                        <div>
+                            <p className="text-slate-600 font-medium mb-3">
+                                No chapters found for subject "{activeSubjectTab}".
+                            </p>
+                            <p className="text-slate-400 text-sm mb-4">
+                                Please add chapters for this subject in the Chapter Management section, or select "Specific Questions" below to pick individual questions.
+                            </p>
+                            
+                            <div className="border-t border-slate-100 pt-4 flex flex-col items-center">
+                                <div className="p-4 bg-slate-50 rounded-xl mb-4 w-full flex justify-center gap-6">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="questionSelection"
+                                            checked={formData.customConfig?.questionSelection === 'specific'}
+                                            onChange={() => updateFormData({
+                                                customConfig: { ...formData.customConfig || {} as any, questionSelection: 'specific' }
+                                            })}
+                                            className="text-blue-600"
+                                        />
+                                        <span className="text-sm font-medium text-slate-700">Specific Questions</span>
+                                    </label>
+                                </div>
+                                {formData.customConfig?.questionSelection === 'specific' && (
+                                    <div className="p-4 text-center">
+                                        <div className="mb-4 text-slate-500">
+                                            You have selected {formData.customConfig.selectedQuestionIds?.length || 0} specific questions.
+                                        </div>
+                                        <button
+                                            onClick={() => setIsQuestionPickerOpen(true)}
+                                            className="flex items-center gap-2 mx-auto px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md"
+                                        >
+                                            <Search size={20} /> Open Question Picker
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
         const selectedChapters = formData.customConfig?.selectedChapters?.[activeSubjectTab] || [];
 

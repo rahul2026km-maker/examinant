@@ -82,10 +82,65 @@ const QuestionConfigStep = ({ formData, updateFormData }: QuestionConfigStepProp
             )}
 
             {isCustom && (
-                <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 text-center">
-                    <p className="text-blue-700 font-medium">
-                        The question configuration will be automatically determined based on the chapters and questions you selected in the previous step.
-                    </p>
+                <div className="space-y-6">
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
+                        <h3 className="text-blue-800 font-semibold mb-2">Custom Generation Mode</h3>
+                        <p className="text-blue-700 text-sm">
+                            The question configuration is automatically determined based on your custom selections in the previous step.
+                        </p>
+                    </div>
+
+                    <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm space-y-4 animate-fade-in">
+                        <h3 className="font-bold text-slate-800 border-b border-slate-100 pb-3">Selection Summary</h3>
+                        
+                        <div>
+                            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">Selection Type</span>
+                            <div className="mt-1 font-semibold text-slate-700 bg-slate-50 px-3 py-2 rounded-lg inline-block text-sm">
+                                {formData.customConfig?.questionSelection === 'specific' 
+                                    ? 'Specific Manually Picked Questions' 
+                                    : 'All Questions from Selected Chapters'}
+                            </div>
+                        </div>
+
+                        {formData.customConfig?.questionSelection === 'specific' ? (
+                            <div>
+                                <span className="text-xs uppercase font-bold text-slate-400 tracking-wider block mb-2">Selected Questions</span>
+                                <div className="bg-slate-50 p-4 rounded-lg flex items-center justify-between">
+                                    <span className="font-semibold text-slate-800 text-lg">
+                                        {formData.customConfig.selectedQuestionIds?.length || 0} Questions Selected
+                                    </span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <span className="text-xs uppercase font-bold text-slate-400 tracking-wider block mb-1">Selected Subjects & Chapters</span>
+                                {formData.customConfig?.subjects?.map(subject => {
+                                    const chapters = formData.customConfig?.selectedChapters?.[subject] || [];
+                                    return (
+                                        <div key={subject} className="bg-slate-50 rounded-lg p-4 space-y-2 border border-slate-100">
+                                            <div className="flex items-center justify-between">
+                                                <span className="font-bold text-slate-800">{subject}</span>
+                                                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+                                                    {chapters.length} Chapters Selected
+                                                </span>
+                                            </div>
+                                            {chapters.length > 0 ? (
+                                                <div className="flex flex-wrap gap-2 pt-1">
+                                                    {chapters.map(ch => (
+                                                        <span key={ch} className="bg-white border border-slate-200 text-xs px-2.5 py-1 rounded text-slate-600 font-medium">
+                                                            {ch}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-xs text-amber-600 font-medium">No chapters selected. Click "Back" to select chapters.</p>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
 
