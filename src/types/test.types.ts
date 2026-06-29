@@ -109,6 +109,8 @@ export interface TestSettings {
     showSolutions: boolean;
     shuffleQuestions: boolean;
     shuffleOptions: boolean;
+    enableSectionTimers?: boolean;
+    sectionDurations?: Record<string, number>;
 }
 
 // Test schedule

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { getAllTestSeries } from '../services/testSeriesService';
@@ -10,11 +10,179 @@ import PYQSection from '../components/landing/PYQSection';
 import TestDevDept from '../components/landing/TestDevDept';
 import SocialProof from '../components/landing/SocialProof';
 import Footer from '../components/landing/Footer';
-// sdfsd
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+const EXAMS_LIST = [
+  { 
+    name: 'NDA', 
+    students: '1,245+ Students', 
+    bgColor: 'bg-blue-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 4L12 12C12 28 20 48 32 60C44 48 52 28 52 12L32 4Z" fill="#0B4F97" stroke="#D4AF37" strokeWidth="2"/>
+        <path d="M32 14V46" stroke="#D4AF37" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M22 26C22 26 26 34 32 34C38 34 42 26 42 26" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round"/>
+        <path d="M22 36C22 36 26 42 32 42C38 42 42 36 42 36" stroke="#D4AF37" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="32" cy="20" r="4" fill="#D4AF37"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'BOARDS', 
+    students: '3,876+ Students', 
+    bgColor: 'bg-emerald-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 50C18 45 32 48 32 48C32 48 46 45 58 50V16C46 11 32 14 32 14C32 14 18 11 6 16V50Z" fill="#10B981" stroke="#047857" strokeWidth="2" strokeLinejoin="round"/>
+        <path d="M32 14V48" stroke="#047857" strokeWidth="2"/>
+        <path d="M12 22H26" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M12 28H26" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M12 34H22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M38 22H52" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M38 28H52" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        <path d="M42 34H52" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'JEE MAINS/ADV', 
+    students: '8,765+ Students', 
+    bgColor: 'bg-blue-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Circular joint head */}
+        <circle cx="32" cy="14" r="4.5" stroke="#1D64D0" strokeWidth="3.5" fill="none"/>
+        <circle cx="32" cy="14" r="1.5" fill="#1D64D0"/>
+        {/* Left leg */}
+        <path d="M29.5 17.5L18 52" stroke="#1D64D0" strokeWidth="4" strokeLinecap="round"/>
+        {/* Right leg */}
+        <path d="M34.5 17.5L46 52" stroke="#1D64D0" strokeWidth="4" strokeLinecap="round"/>
+        {/* Curved arc (arch) */}
+        <path d="M23 40C26 35 38 35 41 40" stroke="#1D64D0" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+        {/* Center screw dial */}
+        <circle cx="32" cy="37" r="3" fill="#1D64D0"/>
+        <line x1="27" y1="37" x2="37" y2="37" stroke="#1D64D0" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'NEET UG', 
+    students: '6,432+ Students', 
+    bgColor: 'bg-[#EAFDF5]',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Strand 1 (Left to Right Wave) */}
+        <path d="M20 12C20 22 44 22 44 32C44 42 20 42 20 52" stroke="#0EAD69" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+        {/* Strand 2 (Right to Left Wave) */}
+        <path d="M44 12C44 22 20 22 20 32C20 42 44 42 44 52" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" fill="none"/>
+        {/* Rungs (connecting bars) */}
+        <line x1="23" y1="16" x2="41" y2="16" stroke="#34D399" strokeWidth="2" />
+        <line x1="28" y1="24" x2="36" y2="24" stroke="#34D399" strokeWidth="2" />
+        <line x1="28" y1="40" x2="36" y2="40" stroke="#34D399" strokeWidth="2" />
+        <line x1="23" y1="48" x2="41" y2="48" stroke="#34D399" strokeWidth="2" />
+      </svg>
+    )
+  },
+  { 
+    name: 'SSC CGL', 
+    students: '9,876+ Students', 
+    bgColor: 'bg-purple-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 56H56" stroke="#7C3AED" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M8 56V8" stroke="#7C3AED" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M14 42L26 28L38 34L52 14" stroke="#7C3AED" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M44 14H52V22" stroke="#7C3AED" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="14" cy="42" r="3.5" fill="#7C3AED"/>
+        <circle cx="26" cy="28" r="3.5" fill="#7C3AED"/>
+        <circle cx="38" cy="34" r="3.5" fill="#7C3AED"/>
+        <circle cx="52" cy="14" r="3.5" fill="#7C3AED"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'BANKING (IBPS/SBI)', 
+    students: '4,321+ Students', 
+    bgColor: 'bg-blue-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 8L6 20V24H58V20L32 8Z" fill="#1E40AF" stroke="#1E3A8A" strokeWidth="2"/>
+        <rect x="12" y="24" width="6" height="24" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="2"/>
+        <rect x="24" y="24" width="6" height="24" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="2"/>
+        <rect x="36" y="24" width="6" height="24" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="2"/>
+        <rect x="48" y="24" width="6" height="24" fill="#1D4ED8" stroke="#1E3A8A" strokeWidth="2"/>
+        <rect x="8" y="48" width="48" height="8" fill="#1E40AF" stroke="#1E3A8A" strokeWidth="2"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'RAILWAYS (RRB)', 
+    students: '5,621+ Students', 
+    bgColor: 'bg-teal-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="14" y="10" width="36" height="40" rx="8" fill="#0D9488" stroke="#0f766e" strokeWidth="2"/>
+        <rect x="18" y="14" width="28" height="16" rx="4" fill="white"/>
+        <circle cx="22" cy="42" r="3.5" fill="white"/>
+        <circle cx="42" cy="42" r="3.5" fill="white"/>
+        <rect x="22" y="34" width="20" height="2.5" fill="white"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'DEFENCE (NDA/CDS)', 
+    students: '2,987+ Students', 
+    bgColor: 'bg-blue-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 4L12 12C12 28 20 48 32 60C44 48 52 28 52 12L32 4Z" fill="#1D64D0" stroke="#0B4F97" strokeWidth="2"/>
+        <path d="M32 14V46" stroke="#0B4F97" strokeWidth="3" strokeLinecap="round"/>
+        <circle cx="32" cy="20" r="4" fill="#0B4F97"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'STATE PCS (UPSC)', 
+    students: '4,654+ Students', 
+    bgColor: 'bg-indigo-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="20" width="44" height="32" rx="4" fill="#4F46E5" stroke="#4338ca" strokeWidth="2"/>
+        <path d="M22 20V12C22 10.8954 22.8954 10 24 10H40C41.1046 10 42 10.8954 42 12V20" stroke="#4338ca" strokeWidth="3"/>
+        <rect x="28" y="30" width="8" height="6" rx="1" fill="#D4AF37"/>
+      </svg>
+    )
+  },
+  { 
+    name: 'TEACHING (CTET/STET)', 
+    students: '3,210+ Students', 
+    bgColor: 'bg-cyan-50/60',
+    renderIcon: () => (
+      <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 8L58 20L32 32L6 20L32 8Z" fill="#0891B2" stroke="#0e7490" strokeWidth="2"/>
+        <path d="M16 25V39C16 43 23 46 32 46C41 46 48 43 48 39V25" stroke="#0e7490" strokeWidth="3"/>
+        <path d="M50 20V36C50 36 48 38 46 38" stroke="#D4AF37" strokeWidth="2"/>
+      </svg>
+    )
+  }
+];
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const [testSeries, setTestSeries] = useState<TestSeries[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -240, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 240, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const fetchTestSeries = async () => {
@@ -44,38 +212,81 @@ const LandingPage = () => {
       {/* 1 & 2. Hero Slider */}
       <HeroSlider />
 
-      {/* Auto-scrolling Exams Strip */}
-      <div className="w-full bg-slate-50 py-7 border-y border-slate-100 overflow-hidden relative select-none">
-        {/* Left and Right Fade Overlays */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none"></div>
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none"></div>
+      {/* Exams Running Strip / Slider Carousel */}
+      <div className="w-full bg-[#FAFBFC] py-10 px-4 sm:px-8 md:px-12 border-y border-slate-100 relative select-none mt-2">
+        {/* Upper right decorative curves */}
+        <div className="absolute right-0 top-0 bottom-0 w-[240px] pointer-events-none z-10 overflow-hidden hidden md:block">
+          <svg className="w-full h-full" viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M240 10 C140 30, 130 90, 240 120" stroke="#0B4F97" strokeWidth="8" strokeLinecap="round" fill="none" opacity="0.9"/>
+            <path d="M240 25 C160 45, 150 95, 240 115" stroke="#FF6B00" strokeWidth="20" strokeLinecap="round" fill="none" opacity="0.95"/>
+          </svg>
+        </div>
 
-        <div className="animate-marquee flex gap-8 items-center">
-          {[
-            'JEE Mains/Adv', 'NEET UG', 'SSC CGL', 'Banking (IBPS/SBI)', 'Railways (RRB)', 
-            'Defence (NDA/CDS)', 'State PCS (UPSC)', 'Teaching (CTET/STET)', 'UPSI', 
-            'UPP Constable', 'UPSSSC', 'NDA', 'Boards'
-          ].concat([
-            'JEE Mains/Adv', 'NEET UG', 'SSC CGL', 'Banking (IBPS/SBI)', 'Railways (RRB)', 
-            'Defence (NDA/CDS)', 'State PCS (UPSC)', 'Teaching (CTET/STET)', 'UPSI', 
-            'UPP Constable', 'UPSSSC', 'NDA', 'Boards'
-          ]).concat([
-            'JEE Mains/Adv', 'NEET UG', 'SSC CGL', 'Banking (IBPS/SBI)', 'Railways (RRB)', 
-            'Defence (NDA/CDS)', 'State PCS (UPSC)', 'Teaching (CTET/STET)', 'UPSI', 
-            'UPP Constable', 'UPSSSC', 'NDA', 'Boards'
-          ]).map((exam, idx) => {
-            return (
-              <div 
-                key={idx}
-                className="flex items-center gap-3 px-6 py-3.5 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_22px_-4px_rgba(0,0,0,0.05)] text-[13px] font-black text-slate-800 shrink-0 whitespace-nowrap"
-              >
-                <span className="flex items-center justify-center bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none animate-pulse">
-                  LIVE
-                </span>
-                <span className="tracking-wide uppercase">{exam}</span>
-              </div>
-            );
-          })}
+        {/* EXAMS RUNNING Badge */}
+        <div className="absolute top-0 left-8 md:left-14 -translate-y-1/2 bg-[#0B4F97] text-white text-[10px] sm:text-xs font-extrabold px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-md uppercase tracking-wider z-20">
+          <span>🔥</span> Exams Running
+        </div>
+
+        {/* Outer Wrapper for Slider and Buttons */}
+        <div className="max-w-7xl mx-auto relative px-6 sm:px-8">
+          
+          {/* Left Arrow Button */}
+          <button 
+            onClick={scrollLeft} 
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
+            title="Scroll Left"
+          >
+            <ChevronLeft size={20} className="stroke-[2.5]" />
+          </button>
+
+          {/* Right Arrow Button */}
+          <button 
+            onClick={scrollRight} 
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
+            title="Scroll Right"
+          >
+            <ChevronRight size={20} className="stroke-[2.5]" />
+          </button>
+
+          {/* Carousel Slider */}
+          <div 
+            ref={scrollRef}
+            className="flex gap-4 overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden [scrollbar-width:none] py-4 px-2 w-full"
+          >
+            {EXAMS_LIST.map((exam, idx) => {
+              return (
+                <div 
+                  key={idx}
+                  className="relative flex items-center p-4 pt-6 bg-white border border-slate-100 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] w-[210px] shrink-0 hover:scale-[1.02] hover:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.08)] hover:border-slate-200 transition-all duration-300"
+                >
+                  {/* LIVE Badge */}
+                  <span className="absolute top-2.5 left-3 bg-[#FF6B00] text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none">
+                    LIVE
+                  </span>
+                  
+                  <div className="flex items-center gap-3 w-full mt-1.5">
+                    {/* Icon wrapper */}
+                    <div className={`p-1.5 rounded-xl ${exam.bgColor} flex items-center justify-center shrink-0 w-12 h-12`}>
+                      {exam.renderIcon()}
+                    </div>
+                    {/* Text content */}
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[12px] font-extrabold text-slate-800 tracking-wide uppercase truncate leading-tight">
+                        {exam.name}
+                      </span>
+                      <span className="text-[9px] font-bold text-orange-500 mt-1 leading-none">
+                        Live Tests
+                      </span>
+                      <span className="text-[9px] font-medium text-slate-400 mt-1.5 leading-none">
+                        {exam.students}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
 

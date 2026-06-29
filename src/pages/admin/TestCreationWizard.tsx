@@ -105,6 +105,17 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
                 if (!formData.settings?.duration || formData.settings.duration < 1) {
                     errors.push('Duration must be at least 1 minute.');
                 }
+                if (formData.settings?.enableSectionTimers) {
+                    const selectedSubjects = formData.generationType === 'auto'
+                        ? formData.autoConfig?.subjects || []
+                        : formData.customConfig?.subjects || [];
+                    for (const subject of selectedSubjects) {
+                        const dur = formData.settings?.sectionDurations?.[subject];
+                        if (!dur || dur < 1) {
+                            errors.push(`Duration for subject "${subject}" must be at least 1 minute.`);
+                        }
+                    }
+                }
                 if (!formData.settings?.marksPerQuestion || formData.settings.marksPerQuestion < 1) {
                     errors.push('Marks per question must be at least 1.');
                 }

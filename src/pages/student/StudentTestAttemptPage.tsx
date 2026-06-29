@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Timer, ArrowLeft, Save, Loader2, ChevronLeft, ChevronRight, Flag, Clock
+    Timer, ArrowLeft, Save, Loader2, ChevronLeft, ChevronRight, Flag, Clock, Lock, Check
 } from 'lucide-react';
 import { db } from '../../firebase';
 import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -28,6 +28,8 @@ interface TestData {
     questions: Question[];
     duration?: number; // in minutes
     testPattern?: string;
+    enableSectionTimers?: boolean;
+    sectionDurations?: Record<string, number>;
 }
 
 type QuestionStatus = 'notVisited' | 'notAnswered' | 'answered' | 'markedForReview' | 'answeredAndMarked';
@@ -61,6 +63,10 @@ const StudentTestAttemptPage = () => {
     const [showInstructions, setShowInstructions] = useState(true);
     const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
     const [questionTimes, setQuestionTimes] = useState<Record<number, number>>({});
+    
+    // Timed section states
+    const [sectionTimeRemaining, setSectionTimeRemaining] = useState<number>(0);
+    const [completedSubjects, setCompletedSubjects] = useState<Set<string>>(new Set());
 
     const formatQuestionTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
@@ -118,7 +124,9 @@ const StudentTestAttemptPage = () => {
                             title: rawData.name,
                             questions: fullQuestions,
                             duration: rawData.settings?.duration || rawData.duration || 180,
-                            testPattern: rawData.testPattern || (fullQuestions.some(q => q.type === 'Numerical') ? 'JEE_MAINS' : 'STANDARD')
+                            testPattern: rawData.testPattern || (fullQuestions.some(q => q.type === 'Numerical') ? 'JEE_MAINS' : 'STANDARD'),
+                            enableSectionTimers: rawData.settings?.enableSectionTimers || false,
+                            sectionDurations: rawData.settings?.sectionDurations || {}
                         };
 
                         setTestData(data);
@@ -137,6 +145,11 @@ const StudentTestAttemptPage = () => {
                         // Set timer
                         if (data.duration) {
                             setTimeRemaining(data.duration * 60);
+                        }
+                        if (data.enableSectionTimers && fullQuestions.length > 0) {
+                            const firstSub = fullQuestions[0].subject;
+                            const subDur = data.sectionDurations?.[firstSub] || 30;
+                            setSectionTimeRemaining(subDur * 60);
                         }
                     } else {
                         alert('Test not found');
@@ -164,6 +177,9 @@ const StudentTestAttemptPage = () => {
                     }
                     return newTime;
                 });
+                if (testData?.enableSectionTimers) {
+                    setSectionTimeRemaining(prev => Math.max(0, prev - 1));
+                }
                 setQuestionTimes(prev => ({
                     ...prev,
                     [currentQuestionIndex]: (prev[currentQuestionIndex] || 0) + 1
@@ -171,13 +187,93 @@ const StudentTestAttemptPage = () => {
             }, 1000);
             return () => clearInterval(timer);
         }
-    }, [showInstructions, timeRemaining, currentQuestionIndex]);
+    }, [showInstructions, timeRemaining, currentQuestionIndex, testData]);
+
+    // Section Transition Logic
+    useEffect(() => {
+        if (testData?.enableSectionTimers && !showInstructions && sectionTimeRemaining === 0 && testData.questions.length > 0) {
+            const subjects = Array.from(new Set(testData.questions.map(q => q.subject)));
+            const activeIdx = subjects.indexOf(activeSubject);
+            
+            if (activeIdx !== -1 && activeIdx < subjects.length - 1) {
+                const nextSub = subjects[activeIdx + 1];
+                
+                // Add current subject to completed
+                setCompletedSubjects(prev => {
+                    const nextCompleted = new Set(prev);
+                    nextCompleted.add(activeSubject);
+                    return nextCompleted;
+                });
+                
+                // Switch to next subject
+                setActiveSubject(nextSub);
+                
+                // Find first question of next subject
+                const nextQIdx = testData.questions.findIndex(q => q.subject === nextSub);
+                if (nextQIdx !== -1) {
+                    setCurrentQuestionIndex(nextQIdx);
+                    setVisitedQuestions(prev => new Set(prev).add(nextQIdx));
+                }
+                
+                // Load next subject's duration
+                const nextDur = testData.sectionDurations?.[nextSub] || 30;
+                setSectionTimeRemaining(nextDur * 60);
+                
+                alert(`Time for ${activeSubject} has ended! Automatically moving to the next section: ${nextSub}.`);
+            } else if (activeIdx !== -1 && activeIdx === subjects.length - 1) {
+                // Last subject timer expired -> auto-submit the exam!
+                handleSubmit(true);
+            }
+        }
+    }, [sectionTimeRemaining, testData, showInstructions]);
+
+    const handleNextSection = () => {
+        if (!testData) return;
+        const subjects = Array.from(new Set(testData.questions.map(q => q.subject)));
+        const activeIdx = subjects.indexOf(activeSubject);
+
+        if (activeIdx !== -1) {
+            const isLast = activeIdx === subjects.length - 1;
+            const msg = isLast 
+                ? "Are you sure you want to submit this final section and complete the test?"
+                : `Are you sure you want to submit the "${activeSubject}" section and move to the next section? You will NOT be able to return to "${activeSubject}".`;
+            
+            if (window.confirm(msg)) {
+                if (!isLast) {
+                    const nextSub = subjects[activeIdx + 1];
+                    setCompletedSubjects(prev => {
+                        const nextCompleted = new Set(prev);
+                        nextCompleted.add(activeSubject);
+                        return nextCompleted;
+                    });
+                    setActiveSubject(nextSub);
+                    
+                    const nextQIdx = testData.questions.findIndex(q => q.subject === nextSub);
+                    if (nextQIdx !== -1) {
+                        setCurrentQuestionIndex(nextQIdx);
+                        setVisitedQuestions(prev => new Set(prev).add(nextQIdx));
+                    }
+                    
+                    const nextDur = testData.sectionDurations?.[nextSub] || 30;
+                    setSectionTimeRemaining(nextDur * 60);
+                } else {
+                    handleSubmit(false);
+                }
+            }
+        }
+    };
 
     const formatTime = (seconds: number) => {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
         return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    };
+
+    const formatSectionTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
     const getQuestionStatus = (qIndex: number): QuestionStatus => {
@@ -478,43 +574,110 @@ const StudentTestAttemptPage = () => {
                     </div>
 
                     <div className="flex items-center gap-3 md:gap-6">
-                        <div className={`flex items-center gap-2 font-mono text-sm md:text-lg font-bold px-3 md:px-4 py-2 rounded-lg ${timeRemaining < 300 ? 'bg-red-50 text-red-600 animate-pulse' :
-                            timeRemaining < 600 ? 'bg-orange-50 text-orange-600' :
-                                'bg-slate-100 text-slate-700'
-                            }`}>
-                            <Timer size={18} />
-                            <span className="hidden md:inline">{formatTime(timeRemaining)}</span>
-                            <span className="md:hidden">{Math.floor(timeRemaining / 60)}m</span>
-                        </div>
-                        <button
-                            onClick={() => setShowSubmitConfirm(true)}
-                            disabled={isSubmitting}
-                            className="flex items-center gap-2 px-4 md:px-6 py-2 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-500/20 text-sm md:text-base"
-                        >
-                            <Save size={16} />
-                            <span className="hidden md:inline">Submit</span>
-                        </button>
+                        {testData.enableSectionTimers ? (
+                            <div className="flex flex-col items-end gap-1">
+                                <div className="text-xs font-mono text-slate-500 font-semibold px-2 py-0.5 rounded bg-slate-100">
+                                    Total: {formatTime(timeRemaining)}
+                                </div>
+                                <div className={`flex items-center gap-1.5 font-mono text-sm md:text-base font-bold px-3 py-1 rounded-lg border-2 ${
+                                    sectionTimeRemaining < 60
+                                        ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
+                                        : sectionTimeRemaining < 300
+                                            ? 'bg-orange-50 text-orange-600 border-orange-200'
+                                            : 'bg-blue-50 text-blue-700 border-blue-200'
+                                }`}>
+                                    <Timer size={16} />
+                                    <span>{activeSubject}: {formatSectionTime(sectionTimeRemaining)}</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className={`flex items-center gap-2 font-mono text-sm md:text-lg font-bold px-3 md:px-4 py-2 rounded-lg ${timeRemaining < 300 ? 'bg-red-50 text-red-600 animate-pulse' :
+                                timeRemaining < 600 ? 'bg-orange-50 text-orange-600' :
+                                    'bg-slate-100 text-slate-700'
+                                }`}>
+                                <Timer size={18} />
+                                <span className="hidden md:inline">{formatTime(timeRemaining)}</span>
+                                <span className="md:hidden">{Math.floor(timeRemaining / 60)}m</span>
+                            </div>
+                        )}
+
+                        {testData.enableSectionTimers ? (
+                            (() => {
+                                const subjectsList = Array.from(new Set(testData.questions.map(q => q.subject)));
+                                const activeIdx = subjectsList.indexOf(activeSubject);
+                                const isLast = activeIdx === subjectsList.length - 1;
+
+                                return isLast ? (
+                                    <button
+                                        onClick={() => setShowSubmitConfirm(true)}
+                                        disabled={isSubmitting}
+                                        className="flex items-center gap-2 px-4 md:px-6 py-2 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-500/20 text-sm md:text-base"
+                                    >
+                                        <Save size={16} />
+                                        <span>Submit Exam</span>
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={handleNextSection}
+                                        disabled={isSubmitting}
+                                        className="flex items-center gap-2 px-4 md:px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/20 text-sm md:text-base"
+                                    >
+                                        <ChevronRight size={16} />
+                                        <span>Next Section</span>
+                                    </button>
+                                );
+                            })()
+                        ) : (
+                            <button
+                                onClick={() => setShowSubmitConfirm(true)}
+                                disabled={isSubmitting}
+                                className="flex items-center gap-2 px-4 md:px-6 py-2 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-500/20 text-sm md:text-base"
+                            >
+                                <Save size={16} />
+                                <span className="hidden md:inline">Submit</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 
                 {/* Subject Tabs */}
-                <div className="mt-3 flex gap-2 overflow-x-auto">
-                    {subjectsInTest.map(subject => (
-                        <button
-                            key={subject}
-                            onClick={() => {
-                                setActiveSubject(subject);
-                                const firstQuestionOfSubject = testData.questions.findIndex(q => q.subject === subject);
-                                if (firstQuestionOfSubject !== -1) goToQuestion(firstQuestionOfSubject);
-                            }}
-                            className={`px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-colors ${activeSubject === subject
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                <div className="mt-3 flex gap-2 overflow-x-auto py-1">
+                    {subjectsInTest.map(subject => {
+                        const isActive = activeSubject === subject;
+                        const isComp = completedSubjects.has(subject);
+                        const isLock = testData.enableSectionTimers && !isActive && !isComp;
+
+                        return (
+                            <button
+                                key={subject}
+                                disabled={!!testData.enableSectionTimers}
+                                onClick={() => {
+                                    if (testData.enableSectionTimers) return;
+                                    setActiveSubject(subject);
+                                    const firstQuestionOfSubject = testData.questions.findIndex(q => q.subject === subject);
+                                    if (firstQuestionOfSubject !== -1) goToQuestion(firstQuestionOfSubject);
+                                }}
+                                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg font-semibold whitespace-nowrap transition-all ${
+                                    isActive
+                                        ? 'bg-blue-600 text-white shadow-md'
+                                        : isComp
+                                            ? 'bg-green-50 text-green-700 border border-green-200 opacity-80 cursor-not-allowed'
+                                            : isLock
+                                                ? 'bg-slate-100 text-slate-400 border border-slate-200 opacity-55 cursor-not-allowed'
+                                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                 }`}
-                        >
-                            {subject}
-                        </button>
-                    ))}
+                            >
+                                {isComp && <Check size={14} className="text-green-600" />}
+                                {isLock && <Lock size={14} className="text-slate-400" />}
+                                <span>{subject}</span>
+                                {testData.enableSectionTimers && isActive && (
+                                    <span className="text-[10px] bg-blue-700 text-blue-100 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider animate-pulse ml-1">
+                                        Active
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
             </header>
 
@@ -678,24 +841,35 @@ const StudentTestAttemptPage = () => {
                     </AnimatePresence>
 
                     {/* Navigation Buttons */}
-                    <div className="flex justify-between items-center mt-6 max-w-4xl mx-auto">
-                        <button
-                            onClick={previousQuestion}
-                            disabled={currentQuestionIndex === 0}
-                            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ChevronLeft size={20} />
-                            Previous
-                        </button>
-                        <button
-                            onClick={saveAndNext}
-                            disabled={currentQuestionIndex === testData.questions.length - 1}
-                            className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Save & Next
-                            <ChevronRight size={20} />
-                        </button>
-                    </div>
+                    {(() => {
+                        const activeSubjectQuestions = testData.questions.filter(q => q.subject === activeSubject);
+                        const firstActiveSubjectQIdx = activeSubjectQuestions.length > 0 ? testData.questions.indexOf(activeSubjectQuestions[0]) : 0;
+                        const lastActiveSubjectQIdx = activeSubjectQuestions.length > 0 ? testData.questions.indexOf(activeSubjectQuestions[activeSubjectQuestions.length - 1]) : 0;
+
+                        const isPrevDisabled = testData.enableSectionTimers ? currentQuestionIndex === firstActiveSubjectQIdx : currentQuestionIndex === 0;
+                        const isNextDisabled = testData.enableSectionTimers ? currentQuestionIndex === lastActiveSubjectQIdx : currentQuestionIndex === testData.questions.length - 1;
+
+                        return (
+                            <div className="flex justify-between items-center mt-6 max-w-4xl mx-auto">
+                                <button
+                                    onClick={previousQuestion}
+                                    disabled={isPrevDisabled}
+                                    className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <ChevronLeft size={20} />
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={saveAndNext}
+                                    disabled={isNextDisabled}
+                                    className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Save & Next
+                                    <ChevronRight size={20} />
+                                </button>
+                            </div>
+                        );
+                    })()}
                 </main>
 
                 {/* Question Palette Sidebar */}
@@ -780,7 +954,8 @@ const StudentTestAttemptPage = () => {
                             </>
                         ) : (
                             <div className="grid grid-cols-5 gap-2">
-                                {testData.questions.map((_, idx) => {
+                                {testData.questions.map((q, idx) => {
+                                    if (testData.enableSectionTimers && q.subject !== activeSubject) return null;
                                     const status = getQuestionStatus(idx);
                                     return (
                                         <button

@@ -163,7 +163,21 @@ const ReviewStep = ({ formData }: ReviewStepProps) => {
                         </div>
                     ))}
                 </div>
+                {formData.settings?.enableSectionTimers && (
+                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3 text-xs space-y-2 mt-2">
+                        <span className="font-bold text-slate-700 block">Subject Durations:</span>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {subjects.map(subject => (
+                                <div key={subject} className="flex justify-between bg-white px-2.5 py-1.5 rounded border border-slate-200">
+                                    <span className="font-semibold text-slate-600">{subject}</span>
+                                    <span className="font-bold text-blue-600">{formData.settings?.sectionDurations?.[subject] || 30}m</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <div className="flex flex-wrap gap-2">
+                    {formData.settings?.enableSectionTimers && <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">Subject Timers Enabled</span>}
                     {formData.settings?.allowReview && <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Review Allowed</span>}
                     {formData.settings?.showSolutions && <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Show Solutions</span>}
                     {formData.settings?.shuffleQuestions && <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">Shuffle Questions</span>}
