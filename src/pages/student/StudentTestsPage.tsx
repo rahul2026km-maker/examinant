@@ -8,7 +8,7 @@ import { collection, onSnapshot, query, where, getDocs, orderBy } from 'firebase
 
 const TYPE_LABELS: Record<string, string> = {
     practice: 'Practice',
-    mock: 'Mock',
+    mock: 'Full Length Mock',
     previous_year: 'Prev Year',
     full_length: 'Full Length Mock',
     subject_wise: 'Subject Wise',

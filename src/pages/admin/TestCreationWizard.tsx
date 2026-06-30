@@ -53,7 +53,7 @@ const TestCreationWizard = ({ seriesId, onComplete, onCancel }: TestCreationWiza
     const [formData, setFormData] = useState<Partial<TestFormData>>({
         name: '',
         seriesId: seriesId || '',
-        testType: 'practice',
+        testType: 'mock',
         generationType: 'auto',
         questionConfig: {
             totalQuestions: 90,

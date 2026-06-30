@@ -9,13 +9,11 @@ interface BasicInfoStepProps {
 }
 
 const TEST_TYPES = [
-    { value: 'practice', label: 'Practice Test', desc: 'Students can attempt anytime, see results immediately' },
-    { value: 'mock', label: 'Mock Test', desc: 'Timed simulation of the exam' },
-    { value: 'previous_year', label: 'Previous Year', desc: 'Past exam papers with official answers' },
-    { value: 'full_length', label: 'Full Length Mock', desc: 'Timed full simulation of the actual exam pattern' },
+    { value: 'mock', label: 'Full Length Mock', desc: 'Timed full simulation of the actual exam pattern' },
     { value: 'subject_wise', label: 'Subject Wise Test', desc: 'Focus on a single subject' },
     { value: 'unit_wise', label: 'Unitwise Test', desc: 'Focus on a specific unit of the syllabus' },
     { value: 'chapter_wise', label: 'Chapterwise Test', desc: 'Focus on individual chapters' },
+    { value: 'previous_year', label: 'Previous Year', desc: 'Past exam papers with official answers' },
 ];
 
 const BasicInfoStep = ({ formData, updateFormData }: BasicInfoStepProps) => {

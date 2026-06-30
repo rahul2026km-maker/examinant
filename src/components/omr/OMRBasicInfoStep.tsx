@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { OMRTestFormData } from '../../types/omr.types';
 import { getAllTestSeries } from '../../services/testSeriesService';
-import { FileText, FlaskConical, BookMarked, Award, BookOpen, Target, ClipboardList } from 'lucide-react';
+import { FileText, FlaskConical, BookOpen, Target, ClipboardList } from 'lucide-react';
 
 interface OMRBasicInfoStepProps {
     formData: Partial<OMRTestFormData>;
@@ -9,13 +9,11 @@ interface OMRBasicInfoStepProps {
 }
 
 const TEST_TYPE_OPTIONS = [
-    { value: 'practice', label: 'Practice Test', desc: 'Practice for students', icon: BookMarked, color: 'blue' },
-    { value: 'mock', label: 'Mock Test', desc: 'Full simulation exam', icon: FlaskConical, color: 'purple' },
-    { value: 'previous_year', label: 'Previous Year', desc: 'Past exam papers', icon: FileText, color: 'green' },
-    { value: 'full_length', label: 'Full Length Mock', desc: 'Timed full simulation of the actual exam pattern', icon: Award, color: 'emerald' },
+    { value: 'mock', label: 'Full Length Mock', desc: 'Timed full simulation of the actual exam pattern', icon: FlaskConical, color: 'purple' },
     { value: 'subject_wise', label: 'Subject Wise Test', desc: 'Focus on a single subject', icon: BookOpen, color: 'indigo' },
     { value: 'unit_wise', label: 'Unitwise Test', desc: 'Focus on a specific unit of the syllabus', icon: Target, color: 'pink' },
     { value: 'chapter_wise', label: 'Chapterwise Test', desc: 'Focus on individual chapters', icon: ClipboardList, color: 'amber' },
+    { value: 'previous_year', label: 'Previous Year', desc: 'Past exam papers', icon: FileText, color: 'green' },
 ];
 
 const OMRBasicInfoStep = ({ formData, updateFormData }: OMRBasicInfoStepProps) => {
