@@ -525,7 +525,12 @@ const TestSeriesManagement = () => {
                                         className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
                                     >
                                         {exams
-                                            .filter(exam => exam.toLowerCase() !== 'jee' && exam.toLowerCase() !== 'neet')
+                                            .filter(exam => {
+                                                const subcategories = Object.values(EXAM_SUBCATEGORIES)
+                                                    .flat()
+                                                    .map(sub => sub.toLowerCase());
+                                                return !subcategories.includes(exam.toLowerCase());
+                                            })
                                             .map(exam => (
                                                 <option key={exam} value={exam}>{exam}</option>
                                             ))}

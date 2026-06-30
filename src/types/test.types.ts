@@ -31,7 +31,7 @@ export interface Test {
     id: string;
     seriesId: string; // Parent test series ID
     name: string;
-    testType: 'practice' | 'mock' | 'previous_year';
+    testType: 'practice' | 'mock' | 'previous_year' | 'full_length' | 'subject_wise' | 'unit_wise' | 'chapter_wise';
     generationType: 'auto' | 'custom';
 
     // Auto-generation configuration
@@ -138,7 +138,7 @@ export interface TestSeriesFormData {
 export interface TestFormData {
     name: string;
     seriesId: string;
-    testType: 'practice' | 'mock' | 'previous_year';
+    testType: 'practice' | 'mock' | 'previous_year' | 'full_length' | 'subject_wise' | 'unit_wise' | 'chapter_wise';
     generationType: 'auto' | 'custom';
     autoConfig?: Partial<AutoGenerationConfig>;
     customConfig?: Partial<CustomTopicConfig>;

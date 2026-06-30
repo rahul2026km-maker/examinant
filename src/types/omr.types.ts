@@ -41,7 +41,7 @@ export interface OMRTest {
     seriesId: string;
     name: string;
     isOMR: true; // Flag to distinguish from digital tests
-    testType: 'practice' | 'mock' | 'previous_year';
+    testType: 'practice' | 'mock' | 'previous_year' | 'full_length' | 'subject_wise' | 'unit_wise' | 'chapter_wise';
     omrTemplate: OMRTemplate;
     questionMappings: OMRQuestionMapping[];
     settings: {
@@ -90,7 +90,7 @@ export interface OMRAttemptResult {
 export interface OMRTestFormData {
     name: string;
     seriesId: string;
-    testType: 'practice' | 'mock' | 'previous_year';
+    testType: 'practice' | 'mock' | 'previous_year' | 'full_length' | 'subject_wise' | 'unit_wise' | 'chapter_wise';
     omrTemplate: Partial<OMRTemplate>;
     questionMappings: OMRQuestionMapping[];
     settings: {

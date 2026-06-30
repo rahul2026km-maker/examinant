@@ -162,7 +162,12 @@ const StudentMarketPage = () => {
                         >
                             <option value="All">All Categories</option>
                             {exams
-                                .filter(exam => exam.toLowerCase() !== 'jee' && exam.toLowerCase() !== 'neet')
+                                .filter(exam => {
+                                    const subcategories = Object.values(EXAM_SUBCATEGORIES)
+                                        .flat()
+                                        .map(sub => sub.toLowerCase());
+                                    return !subcategories.includes(exam.toLowerCase());
+                                })
                                 .map(exam => (
                                     <option key={exam} value={exam}>{exam}</option>
                                 ))}

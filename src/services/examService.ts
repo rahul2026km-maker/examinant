@@ -25,9 +25,9 @@ export const DEFAULT_EXAMS: string[] = [
 ];
 
 export const EXAM_SUBCATEGORIES: Record<string, string[]> = {
-    'Engineering entrance': ['JEE'],
+    'Engineering entrance': ['JEE', 'JEE Mains'],
     'Medical entrance': ['NEET'],
-    'State govt. Exam': ['UPSI', 'UPP contable', 'UPSSSC'],
+    'State govt. Exam': ['UPSI', 'UPP Constable', 'UPP contable', 'UPSSSC'],
     'Teaching exams': ['CTET', 'STET'],
     'Defence exams': ['NDA']
 };

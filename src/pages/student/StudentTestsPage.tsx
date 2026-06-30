@@ -6,6 +6,26 @@ import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, where, getDocs, orderBy } from 'firebase/firestore';
 
+const TYPE_LABELS: Record<string, string> = {
+    practice: 'Practice',
+    mock: 'Mock',
+    previous_year: 'Prev Year',
+    full_length: 'Full Length Mock',
+    subject_wise: 'Subject Wise',
+    unit_wise: 'Unitwise',
+    chapter_wise: 'Chapterwise',
+};
+
+const TYPE_COLORS: Record<string, string> = {
+    practice: 'bg-blue-50 text-blue-700 border border-blue-100',
+    mock: 'bg-purple-50 text-purple-700 border border-purple-100',
+    previous_year: 'bg-green-50 text-green-700 border border-green-100',
+    full_length: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+    subject_wise: 'bg-indigo-50 text-indigo-700 border border-indigo-100',
+    unit_wise: 'bg-pink-50 text-pink-700 border border-pink-100',
+    chapter_wise: 'bg-amber-50 text-amber-700 border border-amber-100',
+};
+
 interface PurchasedTest {
     id: string; // Purchase ID
     seriesId?: string; // New field
@@ -21,6 +41,7 @@ interface PurchasedTest {
 interface TestItem {
     id: string;
     name: string;
+    testType?: string;
     settings: {
         duration: number;
     };
@@ -241,6 +262,11 @@ const SeriesCard = ({ purchase, attemptsMap }: { purchase: PurchasedTest, attemp
                                                                 <FileText size={12} />
                                                                 {test.questionIds?.length || 0} Qs
                                                             </div>
+                                                            {test.testType && (
+                                                                <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${TYPE_COLORS[test.testType] || 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                                                                    {TYPE_LABELS[test.testType] || test.testType}
+                                                                </span>
+                                                            )}
                                                             {hasAttempted && (
                                                                 <div className="px-2 py-0.5 bg-green-50 text-green-600 rounded-md text-[10px] font-black uppercase tracking-widest">
                                                                     Best: {Math.max(...testAttempts.map(a => a.score))}%

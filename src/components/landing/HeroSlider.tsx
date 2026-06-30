@@ -2,20 +2,24 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import slider1 from '../../assets/slider1.png';
-import slider2 from '../../assets/slider2.png';
-import desktopslider2 from '../../assets/desktopslider2.png';
-import desktopslider1 from '../../assets/desktopslider1.png';
 import desktopslider3 from '../../assets/desktopslider3.png';
 import desktopslider4 from '../../assets/desktopslider4.png';
 import desktopslider5 from '../../assets/desktopslider5.png';
 import slider3 from '../../assets/slider3.png';
 import slider4 from '../../assets/slioder4.png';
 import slider5 from '../../assets/slider5.png';
+import slider7 from '../../assets/slider7.png';
+import slider8 from '../../assets/slider8.png';
+import slider9 from '../../assets/slider9.png';
+import slider10 from '../../assets/slider10.png';
+import slider11 from '../../assets/slider11.png';
 
 const BANNERS = [
-  { mobile: slider1, desktop: desktopslider1 },
-  { mobile: slider2, desktop: desktopslider2 },
+  { mobile: slider11, desktop: slider11 },
+  { mobile: slider10, desktop: slider10 },
+  { mobile: slider9, desktop: slider9 },
+  { mobile: slider8, desktop: slider8 },
+  { mobile: slider7, desktop: slider7 },
   { mobile: slider3, desktop: desktopslider3 },
   { mobile: slider4, desktop: desktopslider4 },
   { mobile: slider5, desktop: desktopslider5 }

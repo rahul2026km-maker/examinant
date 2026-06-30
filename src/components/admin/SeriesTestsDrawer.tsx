@@ -52,6 +52,20 @@ const TYPE_LABELS: Record<string, string> = {
     practice: 'Practice',
     mock: 'Mock',
     previous_year: 'Prev Year',
+    full_length: 'Full Length Mock',
+    subject_wise: 'Subject Wise',
+    unit_wise: 'Unitwise',
+    chapter_wise: 'Chapterwise',
+};
+
+const TYPE_COLORS: Record<string, string> = {
+    practice: 'bg-blue-50 text-blue-700 border border-blue-200',
+    mock: 'bg-purple-50 text-purple-700 border border-purple-200',
+    previous_year: 'bg-green-50 text-green-700 border border-green-200',
+    full_length: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    subject_wise: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+    unit_wise: 'bg-pink-50 text-pink-700 border border-pink-200',
+    chapter_wise: 'bg-amber-50 text-amber-700 border border-amber-200',
 };
 
 export default function SeriesTestsDrawer({ seriesId, seriesName, isOpen, onClose }: SeriesTestsDrawerProps) {
@@ -231,7 +245,7 @@ export default function SeriesTestsDrawer({ seriesId, seriesName, isOpen, onClos
                                                                 <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${STATUS_COLORS[test.status]}`}>
                                                                     {test.status}
                                                                 </span>
-                                                                <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                                                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${TYPE_COLORS[test.testType] || 'bg-slate-100 text-slate-600'}`}>
                                                                     {TYPE_LABELS[test.testType] || test.testType}
                                                                 </span>
                                                                 {test.isOMR && (

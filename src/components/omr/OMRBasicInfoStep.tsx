@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { OMRTestFormData } from '../../types/omr.types';
 import { getAllTestSeries } from '../../services/testSeriesService';
-import { FileText, FlaskConical, BookMarked } from 'lucide-react';
+import { FileText, FlaskConical, BookMarked, Award, BookOpen, Target, ClipboardList } from 'lucide-react';
 
 interface OMRBasicInfoStepProps {
     formData: Partial<OMRTestFormData>;
@@ -12,6 +12,10 @@ const TEST_TYPE_OPTIONS = [
     { value: 'practice', label: 'Practice Test', desc: 'Practice for students', icon: BookMarked, color: 'blue' },
     { value: 'mock', label: 'Mock Test', desc: 'Full simulation exam', icon: FlaskConical, color: 'purple' },
     { value: 'previous_year', label: 'Previous Year', desc: 'Past exam papers', icon: FileText, color: 'green' },
+    { value: 'full_length', label: 'Full Length Mock', desc: 'Timed full simulation of the actual exam pattern', icon: Award, color: 'emerald' },
+    { value: 'subject_wise', label: 'Subject Wise Test', desc: 'Focus on a single subject', icon: BookOpen, color: 'indigo' },
+    { value: 'unit_wise', label: 'Unitwise Test', desc: 'Focus on a specific unit of the syllabus', icon: Target, color: 'pink' },
+    { value: 'chapter_wise', label: 'Chapterwise Test', desc: 'Focus on individual chapters', icon: ClipboardList, color: 'amber' },
 ];
 
 const OMRBasicInfoStep = ({ formData, updateFormData }: OMRBasicInfoStepProps) => {
@@ -89,18 +93,26 @@ const OMRBasicInfoStep = ({ formData, updateFormData }: OMRBasicInfoStepProps) =
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                     Test Type <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {TEST_TYPE_OPTIONS.map(({ value, label, desc, icon: Icon, color }) => {
                         const isSelected = formData.testType === value;
                         const colorMap: Record<string, string> = {
-                            blue: isSelected ? 'border-blue-600 bg-blue-50' : 'border-slate-200 hover:border-slate-300',
-                            purple: isSelected ? 'border-purple-600 bg-purple-50' : 'border-slate-200 hover:border-slate-300',
-                            green: isSelected ? 'border-green-600 bg-green-50' : 'border-slate-200 hover:border-slate-300',
+                            blue: isSelected ? 'border-blue-600 bg-blue-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
+                            purple: isSelected ? 'border-purple-600 bg-purple-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
+                            green: isSelected ? 'border-green-600 bg-green-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
+                            emerald: isSelected ? 'border-emerald-600 bg-emerald-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
+                            indigo: isSelected ? 'border-indigo-600 bg-indigo-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
+                            pink: isSelected ? 'border-pink-600 bg-pink-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
+                            amber: isSelected ? 'border-amber-600 bg-amber-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50',
                         };
                         const iconColorMap: Record<string, string> = {
                             blue: 'text-blue-600',
                             purple: 'text-purple-600',
                             green: 'text-green-600',
+                            emerald: 'text-emerald-600',
+                            indigo: 'text-indigo-600',
+                            pink: 'text-pink-600',
+                            amber: 'text-amber-600',
                         };
                         return (
                             <label

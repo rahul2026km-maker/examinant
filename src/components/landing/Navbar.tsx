@@ -27,9 +27,12 @@ const Navbar = () => {
         window.addEventListener('scroll', handleScroll);
 
         const unsubscribeExams = examService.subscribe((records) => {
+            const subcategories = Object.values(EXAM_SUBCATEGORIES)
+                .flat()
+                .map(sub => sub.toLowerCase());
             const filtered = records
                 .map(r => r.name)
-                .filter(name => name.toLowerCase() !== 'jee' && name.toLowerCase() !== 'neet');
+                .filter(name => !subcategories.includes(name.toLowerCase()));
             setTestCategories(filtered);
         });
 

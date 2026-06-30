@@ -10,8 +10,12 @@ interface BasicInfoStepProps {
 
 const TEST_TYPES = [
     { value: 'practice', label: 'Practice Test', desc: 'Students can attempt anytime, see results immediately' },
-    { value: 'mock', label: 'Mock Test', desc: 'Timed full simulation of the actual exam' },
+    { value: 'mock', label: 'Mock Test', desc: 'Timed simulation of the exam' },
     { value: 'previous_year', label: 'Previous Year', desc: 'Past exam papers with official answers' },
+    { value: 'full_length', label: 'Full Length Mock', desc: 'Timed full simulation of the actual exam pattern' },
+    { value: 'subject_wise', label: 'Subject Wise Test', desc: 'Focus on a single subject' },
+    { value: 'unit_wise', label: 'Unitwise Test', desc: 'Focus on a specific unit of the syllabus' },
+    { value: 'chapter_wise', label: 'Chapterwise Test', desc: 'Focus on individual chapters' },
 ];
 
 const BasicInfoStep = ({ formData, updateFormData }: BasicInfoStepProps) => {
@@ -109,7 +113,7 @@ const BasicInfoStep = ({ formData, updateFormData }: BasicInfoStepProps) => {
                 <label className="block text-sm font-semibold text-slate-700 mb-3">
                     Test Type <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {TEST_TYPES.map((type) => {
                         const isSelected = formData.testType === type.value;
                         return (
