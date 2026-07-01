@@ -29,6 +29,16 @@ const HeroSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    // Preload all banner images in the background to ensure instant transitions
+    BANNERS.forEach((banner) => {
+      const imgMobile = new Image();
+      imgMobile.src = banner.mobile;
+      const imgDesktop = new Image();
+      imgDesktop.src = banner.desktop;
+    });
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
     }, 5000);

@@ -21,7 +21,7 @@ const ScheduleStep = ({ formData, updateFormData }: ScheduleStepProps) => {
         <div className="space-y-6">
             <div>
                 <h2 className="text-xl font-bold text-slate-800 mb-2">Schedule Test (Optional)</h2>
-                <p className="text-slate-500">Set start and end dates for this test</p>
+                <p className="text-slate-500">Set daily start and end times for this test</p>
             </div>
 
             {/* Enable Scheduling */}
@@ -34,37 +34,37 @@ const ScheduleStep = ({ formData, updateFormData }: ScheduleStepProps) => {
                 />
                 <div>
                     <span className="font-semibold text-slate-800">Enable Test Scheduling</span>
-                    <p className="text-xs text-slate-500">Restrict test access to specific dates</p>
+                    <p className="text-xs text-slate-500">Restrict test access to specific daily times</p>
                 </div>
             </label>
 
             {schedule.isScheduled && (
                 <div className="space-y-4">
-                    {/* Start Date */}
+                    {/* Start Time */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            Start Date & Time
+                            Start Time
                         </label>
                         <input
-                            type="datetime-local"
+                            type="time"
+                            value={schedule.startTime || ''}
                             onChange={(e) => {
-                                const date = new Date(e.target.value);
-                                updateSchedule('startDate', date);
+                                updateSchedule('startTime', e.target.value);
                             }}
                             className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
-                    {/* End Date */}
+                    {/* End Time */}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-2">
-                            End Date & Time
+                            End Time
                         </label>
                         <input
-                            type="datetime-local"
+                            type="time"
+                            value={schedule.endTime || ''}
                             onChange={(e) => {
-                                const date = new Date(e.target.value);
-                                updateSchedule('endDate', date);
+                                updateSchedule('endTime', e.target.value);
                             }}
                             className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                         />

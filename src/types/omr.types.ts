@@ -54,6 +54,8 @@ export interface OMRTest {
         isScheduled: boolean;
         startDate?: Timestamp;
         endDate?: Timestamp;
+        startTime?: string;
+        endTime?: string;
     };
     status: 'draft' | 'published';
     createdBy: string;
@@ -103,6 +105,8 @@ export interface OMRTestFormData {
         isScheduled: boolean;
         startDate?: string;
         endDate?: string;
+        startTime?: string;
+        endTime?: string;
     };
     status: 'draft' | 'published';
 }

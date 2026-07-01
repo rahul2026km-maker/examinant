@@ -23,6 +23,52 @@ interface QuestionPickerProps {
     maxSelection?: number;
 }
 
+const getSubjectCandidates = (subject: string): string[] => {
+    if (!subject) return [];
+    const trimmed = subject.trim();
+    const lower = trimmed.toLowerCase();
+    
+    const candidates = new Set<string>([
+        subject,
+        trimmed,
+        lower,
+        trimmed.toUpperCase(),
+    ]);
+    
+    // Add title casing
+    const titleCase = trimmed.replace(/\b\w/g, c => c.toUpperCase());
+    candidates.add(titleCase);
+    
+    // Add sentence casing
+    const sentenceCase = trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+    candidates.add(sentenceCase);
+    
+    // Add specific common typos/variations
+    if (lower.includes('english')) {
+        candidates.add('English Comprehension');
+        candidates.add('English comprehension');
+        candidates.add('english comprehension');
+    }
+    if (lower.includes('awareness') || lower.includes('awarencess')) {
+        candidates.add('General Awareness');
+        candidates.add('General Awarencess');
+        candidates.add('general awareness');
+    }
+    if (lower.includes('quantitative') || lower.includes('aptitude')) {
+        candidates.add('Quantitative Aptitude ');
+        candidates.add('Quantitative Aptitude');
+        candidates.add('quantitative aptitude');
+        candidates.add('quantitative aptitude ');
+    }
+    if (lower.includes('intelligence') || lower.includes('reasoning')) {
+        candidates.add('General Intelligence & Reasoning');
+        candidates.add('General Intelligence and Reasoning');
+        candidates.add('general intelligence & reasoning');
+    }
+    
+    return Array.from(candidates).filter(Boolean);
+};
+
 const QuestionPicker = ({
     isOpen,
     onClose,
@@ -40,6 +86,13 @@ const QuestionPicker = ({
     const [activeSubject, setActiveSubject] = useState<string>(subjects[0] || '');
     const [filterDifficulty, setFilterDifficulty] = useState<'all' | 'Easy' | 'Medium' | 'Hard'>('all');
     const [filterType, setFilterType] = useState<'all' | 'MCQ' | 'Numerical'>('all');
+    const [filterChapter, setFilterChapter] = useState<string>('all');
+
+    useEffect(() => {
+        setFilterChapter('all');
+    }, [activeSubject]);
+
+    const uniqueChapters = Array.from(new Set(questions.map(q => q.chapter))).filter(Boolean);
 
     useEffect(() => {
         if (isOpen) {
@@ -57,9 +110,10 @@ const QuestionPicker = ({
     const fetchQuestions = async () => {
         setIsLoading(true);
         try {
+            const candidates = getSubjectCandidates(activeSubject);
             let q = query(
                 collection(db, 'questions'),
-                where('subject', '==', activeSubject),
+                where('subject', 'in', candidates),
                 limit(200)
             );
 
@@ -111,9 +165,11 @@ const QuestionPicker = ({
         onClose();
     };
 
-    const filteredQuestions = questions.filter(q =>
-        q.text.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredQuestions = questions.filter(q => {
+        const matchesSearch = q.text.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesChapter = filterChapter === 'all' || q.chapter === filterChapter;
+        return matchesSearch && matchesChapter;
+    });
 
     return (
         <AnimatePresence>
@@ -173,6 +229,17 @@ const QuestionPicker = ({
                                 </div>
 
                                 <div className="flex gap-2">
+                                    <select
+                                        value={filterChapter}
+                                        onChange={(e) => setFilterChapter(e.target.value)}
+                                        className="px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white max-w-[200px]"
+                                    >
+                                        <option value="all">All Chapters</option>
+                                        {uniqueChapters.map(chap => (
+                                            <option key={chap} value={chap}>{chap}</option>
+                                        ))}
+                                    </select>
+
                                     <select
                                         value={filterDifficulty}
                                         onChange={(e) => setFilterDifficulty(e.target.value as any)}

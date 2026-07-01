@@ -118,6 +118,8 @@ export interface TestSchedule {
     isScheduled: boolean;
     startDate?: Timestamp;
     endDate?: Timestamp;
+    startTime?: string;
+    endTime?: string;
     timezone?: string;
 }
 

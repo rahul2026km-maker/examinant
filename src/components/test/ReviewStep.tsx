@@ -195,8 +195,8 @@ const ReviewStep = ({ formData }: ReviewStepProps) => {
                         Schedule
                     </h3>
                     <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
-                        Available from <strong>{formData.schedule.startDate?.toString()}</strong> to{' '}
-                        <strong>{formData.schedule.endDate?.toString()}</strong>
+                        Available daily from <strong>{formData.schedule.startTime || '—'}</strong> to{' '}
+                        <strong>{formData.schedule.endTime || '—'}</strong> ({formData.schedule.timezone || 'Asia/Kolkata'})
                     </div>
                 </div>
             )}
