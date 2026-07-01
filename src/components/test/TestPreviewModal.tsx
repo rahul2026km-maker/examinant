@@ -339,25 +339,57 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
     const [loadingLive, setLoadingLive] = useState(false);
     const [liveError, setLiveError] = useState<string | null>(null);
 
-    // Fetch real test when testId is supplied
+    // Fetch real test when testId is supplied OR when wizard mode has specific question IDs selected
     useEffect(() => {
-        if (!isOpen || !testId) return;
+        if (!isOpen) return;
+
+        const qIds = testId 
+            ? [] 
+            : (formData?.customConfig?.selectedQuestionIds || []);
+
+        if (!testId && qIds.length === 0) {
+            setLiveQuestions([]);
+            setLiveMeta(null);
+            setLoadingLive(false);
+            return;
+        }
+
         let cancelled = false;
         setLoadingLive(true);
         setLiveError(null);
 
         (async () => {
             try {
-                const testSnap = await getDoc(doc(db, 'tests', testId));
-                if (!testSnap.exists()) { setLiveError('Test not found.'); return; }
+                let actualQIds = qIds;
+                let subjects: string[] = [];
+                let testName = formData?.name || 'Untitled Test';
+                let duration = formData?.settings?.duration || 180;
+                let marksPerQ = formData?.settings?.marksPerQuestion || 4;
+                let negMarks = formData?.settings?.negativeMarking ?? -1;
+                let instructions = formData?.settings?.instructions;
 
-                const test = { id: testSnap.id, ...testSnap.data() } as any;
-                const qIds: string[] = test.questionIds || [];
+                if (testId) {
+                    const testSnap = await getDoc(doc(db, 'tests', testId));
+                    if (!testSnap.exists()) { 
+                        if (!cancelled) setLiveError('Test not found.'); 
+                        return; 
+                    }
+                    const test = { id: testSnap.id, ...testSnap.data() } as any;
+                    actualQIds = test.questionIds || [];
+                    subjects = test.subjects || (test.autoConfig?.subjects || test.customConfig?.subjects || ['Physics', 'Chemistry', 'Mathematics']);
+                    testName = test.name || 'Untitled Test';
+                    duration = test.settings?.duration || 180;
+                    marksPerQ = test.settings?.marksPerQuestion || 4;
+                    negMarks = test.settings?.negativeMarking ?? -1;
+                    instructions = test.settings?.instructions;
+                } else {
+                    subjects = (formData?.customConfig?.subjects || formData?.autoConfig?.subjects || ['Physics', 'Chemistry', 'Mathematics']) as string[];
+                }
 
                 // Fetch questions in batches of 10
                 const fetched: PreviewQuestion[] = [];
-                for (let i = 0; i < qIds.length; i += 10) {
-                    const chunk = qIds.slice(i, i + 10);
+                for (let i = 0; i < actualQIds.length; i += 10) {
+                    const chunk = actualQIds.slice(i, i + 10);
                     const snaps = await Promise.all(chunk.map((id: string) => getDoc(doc(db, 'questions', id))));
                     snaps.forEach(s => {
                         if (s.exists()) {
@@ -374,15 +406,8 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
                 }
 
                 if (!cancelled) {
-                    let subjects = Array.from(new Set(fetched.map(q => q.subject)));
-                    if (subjects.length === 0) {
-                        subjects = test.subjects || (test.autoConfig?.subjects || test.customConfig?.subjects || ['Physics', 'Chemistry', 'Mathematics']);
-                    }
-                    
-                    const totalQ = qIds.length || test.totalQuestions || test.questionConfig?.totalQuestions || 90;
-                    
-                    // If no questions are found in the test (e.g. empty/draft test), generate dynamic questions
-                    if (fetched.length === 0) {
+                    if (fetched.length === 0 && testId) {
+                        const totalQ = actualQIds.length || 90;
                         subjects.forEach((sub: string, subIdx: number) => {
                             const baseCount = Math.floor(totalQ / subjects.length);
                             const extra = subIdx < (totalQ % subjects.length) ? 1 : 0;
@@ -411,14 +436,19 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
                         });
                     }
 
+                    let finalSubjects = subjects;
+                    if (finalSubjects.length === 0) {
+                        finalSubjects = Array.from(new Set(fetched.map(q => q.subject)));
+                    }
+
                     setLiveQuestions(fetched);
                     setLiveMeta({
-                        name: test.name || 'Untitled Test',
-                        duration: test.settings?.duration || 180,
-                        marksPerQ: test.settings?.marksPerQuestion || 4,
-                        negMarks: test.settings?.negativeMarking ?? -1,
-                        instructions: test.settings?.instructions,
-                        subjects,
+                        name: testName,
+                        duration,
+                        marksPerQ,
+                        negMarks,
+                        instructions,
+                        subjects: finalSubjects,
                     });
                 }
             } catch (e) {
@@ -430,18 +460,18 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
         })();
 
         return () => { cancelled = true; };
-    }, [isOpen, testId]);
+    }, [isOpen, testId, formData?.customConfig?.selectedQuestionIds]);
 
     if (!isOpen) return null;
 
-    const isLiveMode = !!testId;
+    const hasSelectedQuestions = formData?.customConfig?.selectedQuestionIds && formData.customConfig.selectedQuestionIds.length > 0;
+    const isLiveOrFetchedMode = !!testId || hasSelectedQuestions;
 
-    // Wizard mode — use sample questions + formData
-    if (!isLiveMode && formData) {
+    // Wizard mode with no specific questions selected — use sample questions
+    if (!isLiveOrFetchedMode && formData) {
         const subjects = (formData.autoConfig?.subjects || formData.customConfig?.subjects || ['Physics', 'Chemistry', 'Mathematics']) as string[];
         const totalQ = formData.questionConfig?.totalQuestions || 90;
-        
-        // Generate the full set of questions dynamically distributed across all configured subjects
+
         const sampleQs: PreviewQuestion[] = [];
         subjects.forEach((sub, subIdx) => {
             const baseCount = Math.floor(totalQ / subjects.length);
@@ -488,7 +518,7 @@ const TestPreviewModal = ({ isOpen, onClose, formData, testId }: TestPreviewModa
         );
     }
 
-    // Live mode — loading / error / ready
+    // Live mode / Selected questions mode — loading / error / ready
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             {loadingLive ? (
