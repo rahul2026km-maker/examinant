@@ -5,6 +5,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import desktopslider3 from '../../assets/desktopslider3.png';
 import desktopslider4 from '../../assets/desktopslider4.png';
 import desktopslider5 from '../../assets/desktopslider5.png';
+import desktopslider7 from '../../assets/desktopslider7.png';
+import desktopslider8 from '../../assets/desktopslider8.png';
+import desktopslider9 from '../../assets/desktopslider9.png';
+import desktopslider10 from '../../assets/desktopslider10.webp';
 import slider3 from '../../assets/slider3.png';
 import slider4 from '../../assets/slioder4.png';
 import slider5 from '../../assets/slider5.png';
@@ -16,10 +20,10 @@ import slider11 from '../../assets/slider11.png';
 
 const BANNERS = [
   { mobile: slider11, desktop: slider11 },
-  { mobile: slider10, desktop: slider10 },
-  { mobile: slider9, desktop: slider9 },
-  { mobile: slider8, desktop: slider8 },
-  { mobile: slider7, desktop: slider7 },
+  { mobile: slider10, desktop: desktopslider10 },
+  { mobile: slider9, desktop: desktopslider9 },
+  { mobile: slider8, desktop: desktopslider8 },
+  { mobile: slider7, desktop: desktopslider7 },
   { mobile: slider3, desktop: desktopslider3 },
   { mobile: slider4, desktop: desktopslider4 },
   { mobile: slider5, desktop: desktopslider5 }
