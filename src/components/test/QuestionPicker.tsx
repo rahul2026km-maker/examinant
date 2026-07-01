@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Check, Loader2, BookOpen } from 'lucide-react';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 interface Question {
@@ -87,6 +87,11 @@ const QuestionPicker = ({
     const [filterDifficulty, setFilterDifficulty] = useState<'all' | 'Easy' | 'Medium' | 'Hard'>('all');
     const [filterType, setFilterType] = useState<'all' | 'MCQ' | 'Numerical'>('all');
     const [filterChapter, setFilterChapter] = useState<string>('all');
+    const [displayLimit, setDisplayLimit] = useState(40);
+
+    useEffect(() => {
+        setDisplayLimit(40);
+    }, [activeSubject, filterDifficulty, filterType, filterChapter, searchTerm]);
 
     useEffect(() => {
         setFilterChapter('all');
@@ -113,8 +118,7 @@ const QuestionPicker = ({
             const candidates = getSubjectCandidates(activeSubject);
             let q = query(
                 collection(db, 'questions'),
-                where('subject', 'in', candidates),
-                limit(200)
+                where('subject', 'in', candidates)
             );
 
             const snapshot = await getDocs(q);
@@ -271,53 +275,66 @@ const QuestionPicker = ({
                                     <Loader2 className="animate-spin text-blue-600" size={32} />
                                 </div>
                             ) : filteredQuestions.length > 0 ? (
-                                filteredQuestions.map(question => (
-                                    <div
-                                        key={question.id}
-                                        onClick={() => toggleSelection(question.id)}
-                                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${selectedIds.includes(question.id)
-                                            ? 'border-blue-500 bg-blue-50/50'
-                                            : 'border-white bg-white hover:border-blue-200'
-                                            }`}
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            <div className={`mt-1 w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.includes(question.id)
-                                                ? 'bg-blue-600 border-blue-600'
-                                                : 'border-slate-300 bg-white'
-                                                }`}>
-                                                {selectedIds.includes(question.id) && <Check size={14} className="text-white" />}
-                                            </div>
-
-                                            <div className="flex-1 space-y-2">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${question.type === 'MCQ' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'
-                                                        }`}>
-                                                        {question.type}
-                                                    </span>
-                                                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${question.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                                                        question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-red-100 text-red-700'
-                                                        }`}>
-                                                        {question.difficulty}
-                                                    </span>
-                                                    <span className="text-xs text-slate-400 flex items-center gap-1">
-                                                        <BookOpen size={12} /> {question.chapter}
-                                                    </span>
+                                <>
+                                    {filteredQuestions.slice(0, displayLimit).map(question => (
+                                        <div
+                                            key={question.id}
+                                            onClick={() => toggleSelection(question.id)}
+                                            className={`p-4 rounded-xl border-2 cursor-pointer transition-all hover:shadow-md ${selectedIds.includes(question.id)
+                                                ? 'border-blue-500 bg-blue-50/50'
+                                                : 'border-white bg-white hover:border-blue-200'
+                                                }`}
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <div className={`mt-1 w-5 h-5 rounded border flex items-center justify-center transition-colors ${selectedIds.includes(question.id)
+                                                    ? 'bg-blue-600 border-blue-600'
+                                                    : 'border-slate-300 bg-white'
+                                                    }`}>
+                                                    {selectedIds.includes(question.id) && <Check size={14} className="text-white" />}
                                                 </div>
 
-                                                <p className="text-slate-800 text-sm font-medium line-clamp-2">
-                                                    {/* Strip HTML if needed, simplistic approach here */}
-                                                    {question.text.replace(/<[^>]*>/g, '')}
-                                                </p>
-                                                {question.textHindi && (
-                                                    <p className="text-slate-500 text-xs italic mt-1 line-clamp-1 border-l border-slate-300 pl-2">
-                                                        {question.textHindi.replace(/<[^>]*>/g, '')}
+                                                <div className="flex-1 space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${question.type === 'MCQ' ? 'bg-purple-100 text-purple-700' : 'bg-orange-100 text-orange-700'
+                                                            }`}>
+                                                            {question.type}
+                                                        </span>
+                                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${question.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
+                                                            question.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                                'bg-red-100 text-red-700'
+                                                            }`}>
+                                                            {question.difficulty}
+                                                        </span>
+                                                        <span className="text-xs text-slate-400 flex items-center gap-1">
+                                                            <BookOpen size={12} /> {question.chapter}
+                                                        </span>
+                                                    </div>
+
+                                                    <p className="text-slate-800 text-sm font-medium line-clamp-2">
+                                                        {/* Strip HTML if needed, simplistic approach here */}
+                                                        {question.text.replace(/<[^>]*>/g, '')}
                                                     </p>
-                                                )}
+                                                    {question.textHindi && (
+                                                        <p className="text-slate-500 text-xs italic mt-1 line-clamp-1 border-l border-slate-300 pl-2">
+                                                            {question.textHindi.replace(/<[^>]*>/g, '')}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))
+                                    ))}
+                                    {filteredQuestions.length > displayLimit && (
+                                        <div className="flex justify-center pt-2 pb-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setDisplayLimit(prev => prev + 40)}
+                                                className="px-6 py-2.5 bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-lg border border-slate-200 shadow-sm transition-all hover:shadow text-sm"
+                                            >
+                                                Load More (+{Math.min(40, filteredQuestions.length - displayLimit)} Questions)
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
                             ) : (
                                 <div className="text-center py-12 text-slate-500">
                                     <p>No questions found matching your filters.</p>
