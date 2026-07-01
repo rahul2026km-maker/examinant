@@ -84,7 +84,7 @@ const HeroSlider = () => {
             <img
               src={BANNERS[currentIndex].desktop}
               alt={`Slide ${currentIndex + 1} Desktop`}
-              className="hidden md:block w-full h-full object-cover object-center"
+              className="hidden md:block w-full h-full object-fill object-center"
             />
           </motion.div>
         </AnimatePresence>

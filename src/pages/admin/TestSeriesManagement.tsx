@@ -217,7 +217,7 @@ const TestSeriesManagement = () => {
         try {
             const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const imageRef = ref(storage, `test-series-thumbnails/${Date.now()}_${safeName}`);
-            
+
             const uploadTask = uploadBytesResumable(imageRef, file);
 
             // Added a 15-second timeout since Firebase SDK will silently retry on CORS errors forever
@@ -421,10 +421,10 @@ const TestSeriesManagement = () => {
                             initial={{ scale: 0.95, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-white w-full max-w-2xl rounded-2xl shadow-xl my-8"
+                            className="bg-white w-full max-w-2xl rounded-2xl shadow-xl my-8 flex flex-col max-h-[85vh] overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
+                            <div className="p-6 border-b border-slate-200 flex justify-between items-center shrink-0">
                                 <h2 className="text-xl font-bold text-slate-800">
                                     {editingSeries ? 'Edit Test Series' : 'Create New Test Series'}
                                 </h2>
@@ -436,7 +436,7 @@ const TestSeriesManagement = () => {
                                 </button>
                             </div>
 
-                            <div className="p-6 space-y-4">
+                            <div className="p-6 space-y-4 overflow-y-auto flex-grow">
                                 {/* Name */}
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -494,7 +494,7 @@ const TestSeriesManagement = () => {
                                                         <><Upload size={16} /> {formData.thumbnailUrl ? 'Change Image' : 'Choose Image'}</>
                                                     )}
                                                 </label>
-                                                
+
                                                 {formData.thumbnailUrl && (
                                                     <button
                                                         type="button"
@@ -648,7 +648,7 @@ const TestSeriesManagement = () => {
                                 </div>
                             </div>
 
-                            <div className="p-6 border-t border-slate-200 flex gap-3 bg-slate-50 rounded-b-2xl">
+                            <div className="p-6 border-t border-slate-200 flex gap-3 bg-slate-50 rounded-b-2xl shrink-0">
                                 <button
                                     type="button"
                                     onClick={() => { setIsCreating(false); setEditingSeries(null); resetForm(); }}
