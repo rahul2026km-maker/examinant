@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import {
   Clock,
   PieChart as PieChartIcon,
@@ -7,8 +8,131 @@ import {
   CheckCircle,
   Zap,
   Activity,
-  Layers
+  Layers,
+  ArrowRight,
+  MessageSquare,
+  Sparkles,
+  Crown,
+  ShieldCheck
 } from 'lucide-react';
+
+interface TransparentImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  src: string;
+  threshold?: number;
+  mode?: 'black' | 'green';
+}
+
+const TransparentImage = ({ src, threshold = 35, mode = 'black', ...props }: TransparentImageProps) => {
+  const [processedSrc, setProcessedSrc] = useState('');
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      
+      // Make dark/black pixels transparent
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        
+        if (mode === 'green') {
+          // Detect green-screen chroma key color (high green, low red/blue)
+          if (g > 120 && r < 110 && b < 110) {
+            data[i+3] = 0;
+          }
+        } else {
+          // Detect black/dark pixels
+          if (r < threshold && g < threshold && b < threshold) {
+            data[i+3] = 0;
+          }
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      setProcessedSrc(canvas.toDataURL());
+    };
+  }, [src, threshold, mode]);
+
+  if (!processedSrc) {
+    return <div className="animate-pulse bg-slate-800/40 rounded-3xl" style={{ width: props.width || '100%', height: props.height || '200px' }} />;
+  }
+
+  return <img src={processedSrc} {...props} />;
+};
+
+const Target3DIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] shrink-0">
+    <circle cx="12" cy="12" r="10" stroke="#3b82f6" strokeWidth="2" fill="url(#targetGrad)" />
+    <circle cx="12" cy="12" r="6" stroke="#60a5fa" strokeWidth="1.5" />
+    <circle cx="12" cy="12" r="2" fill="#06b6d4" />
+    <path d="M12 12 L19 5" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" />
+    <polygon points="19,5 18,8 15,7" fill="#FF7A00" />
+    <defs>
+      <radialGradient id="targetGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#1e3a8a" stopOpacity="0.8" />
+        <stop offset="100%" stopColor="#000E2F" stopOpacity="0.9" />
+      </radialGradient>
+    </defs>
+  </svg>
+);
+
+const Brain3DIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_8px_rgba(99,102,241,0.8)] shrink-0">
+    <path d="M12 4C9.5 4 7.5 5.5 6.5 7.5C5 8 4 9.5 4 11C4 13 5.5 14.5 7 14.5C7.5 15.5 8.5 16.5 10 17C10.5 18.5 12 19.5 13.5 19.5" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    <path d="M12 4C14.5 4 16.5 5.5 17.5 7.5C19 8 20 9.5 20 11C20 13 18.5 14.5 17 14.5C16.5 15.5 15.5 16.5 14 17C13.5 18.5 12 19.5 10.5 19.5" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    <circle cx="12" cy="7" r="1.5" fill="#a5b4fc" />
+    <circle cx="9" cy="11" r="1.5" fill="#818cf8" />
+    <circle cx="15" cy="11" r="1.5" fill="#818cf8" />
+    <circle cx="12" cy="15" r="1.5" fill="#6366f1" />
+    <line x1="12" y1="7" x2="9" y2="11" stroke="#4f46e5" strokeWidth="1" />
+    <line x1="12" y1="7" x2="15" y2="11" stroke="#4f46e5" strokeWidth="1" />
+    <line x1="9" y1="11" x2="12" y2="15" stroke="#4f46e5" strokeWidth="1" />
+    <line x1="15" y1="11" x2="12" y2="15" stroke="#4f46e5" strokeWidth="1" />
+  </svg>
+);
+
+const Sheet3DIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_8px_rgba(56,189,248,0.8)] shrink-0">
+    <rect x="5" y="3" width="14" height="18" rx="2" stroke="#38bdf8" strokeWidth="1.5" fill="url(#sheetGrad)" />
+    <line x1="8" y1="7" x2="16" y2="7" stroke="#0ea5e9" strokeWidth="1.5" />
+    <circle cx="9" cy="12" r="1.2" stroke="#38bdf8" strokeWidth="1" fill="#38bdf8" />
+    <circle cx="12" cy="12" r="1.2" stroke="#38bdf8" strokeWidth="1" />
+    <circle cx="15" cy="12" r="1.2" stroke="#38bdf8" strokeWidth="1" />
+    
+    <circle cx="9" cy="16" r="1.2" stroke="#38bdf8" strokeWidth="1" />
+    <circle cx="12" cy="16" r="1.2" stroke="#38bdf8" strokeWidth="1" fill="#38bdf8" />
+    <circle cx="15" cy="16" r="1.2" stroke="#38bdf8" strokeWidth="1" />
+    <defs>
+      <linearGradient id="sheetGrad" x1="5" y1="3" x2="19" y2="21">
+        <stop offset="0%" stopColor="#0c4a6e" stopOpacity="0.6" />
+        <stop offset="100%" stopColor="#000E2F" stopOpacity="0.9" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const Trophy3DIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_8px_rgba(245,158,11,0.8)] shrink-0">
+    <path d="M6 4 H18 V12 C18 15 15 17 12 17 C9 17 6 15 6 12 Z" fill="url(#trophyGrad)" stroke="#f59e0b" strokeWidth="1.5" />
+    <path d="M10 17 L8 21 H16 L14 17 Z" fill="#d97706" />
+    <path d="M6 6 C4 6 4 9 6 10" stroke="#f59e0b" strokeWidth="1.5" fill="none" />
+    <path d="M18 6 C20 6 20 9 18 10" stroke="#f59e0b" strokeWidth="1.5" fill="none" />
+    <defs>
+      <linearGradient id="trophyGrad" x1="6" y1="4" x2="18" y2="17">
+        <stop offset="0%" stopColor="#fbbf24" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 const AISimulationSection = () => {
   const navigate = useNavigate();
@@ -185,54 +309,180 @@ const AISimulationSection = () => {
 
 
 
-        {/* CTA Summary Box */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[48px] p-8 md:p-16 text-white relative overflow-hidden shadow-2xl"
-        >
-          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent)]"></div>
+        {/* Redesigned CTA Summary Box */}
+        <div className="relative">
+          {/* Floating Student Mascot Character with Orbit Platform Structure */}
+          <div className="absolute right-0 -top-20 w-28 sm:w-36 lg:w-52 lg:-right-14 lg:-top-32 z-20 pointer-events-none">
+            {/* Glowing circular orbit ring behind the boy */}
+            <div className="absolute inset-0 m-auto w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 bg-gradient-to-tr from-blue-500/20 to-indigo-500/10 rounded-full border border-blue-500/30 animate-pulse blur-[1px] -z-10"></div>
+            <div className="absolute inset-0 m-auto w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-slate-900/60 rounded-full border border-indigo-500/20 -z-10 shadow-[inset_0_0_20px_rgba(99,102,241,0.2)]"></div>
+            
+            <TransparentImage 
+              src="/@fs/C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/student_mascot_green_bg_1783080372553.png" 
+              alt="3D Student Mascot" 
+              className="w-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)] lg:drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
+              mode="green"
+            />
+          </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div className="space-y-6">
-              <h3 className="text-3xl sm:text-4xl font-black leading-tight">Eliminate Exam Day <br />Anxiety Forever.</h3>
-              <p className="text-blue-100 text-lg leading-relaxed opacity-80">
-                Join 12,000+ aspirants who have mastered the art of test-taking through our AI-simulated ecosystem.
-              </p>
-              <div className="flex flex-wrap gap-4 pt-4">
-                <button
-                  onClick={() => navigate('/test-series')}
-                  className="px-8 py-4 bg-white text-blue-700 font-black rounded-2xl hover:shadow-xl transition-all active:scale-95"
-                >
-                  Try Demo Now
-                </button>
-                <button
-                  onClick={() => navigate('/signup')}
-                  className="px-8 py-4 bg-blue-600/30 text-white border border-white/20 rounded-2xl font-black backdrop-blur-sm hover:bg-blue-600/50 transition-all"
-                >
-                  Contact Counselor
-                </button>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-[#000E2F] rounded-[32px] sm:rounded-[40px] p-6 sm:p-8 md:p-12 text-white overflow-hidden shadow-2xl border border-blue-500/20 relative"
+          >
+            {/* Background Orbits / Glowing spots */}
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.15),transparent_60%)] pointer-events-none"></div>
+            <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_80%,rgba(99,102,241,0.1),transparent_60%)] pointer-events-none"></div>
+
+            {/* Orange glowing spot on the bottom-left to match reference image */}
+            <div className="absolute -left-24 -bottom-24 w-80 h-80 rounded-full bg-[#FF7A00]/15 blur-[80px] pointer-events-none"></div>
+            
+            {/* Glowing stars/dots for cosmic space effect */}
+            <div className="absolute top-10 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+            <div className="absolute top-24 left-1/4 w-1.5 h-1.5 bg-blue-400/30 rounded-full blur-[0.5px] animate-ping"></div>
+            <div className="absolute top-16 right-1/3 w-1 h-1 bg-white/50 rounded-full"></div>
+            <div className="absolute bottom-16 left-1/3 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+            <div className="absolute bottom-24 right-1/4 w-1.5 h-1.5 bg-indigo-400/40 rounded-full blur-[0.5px] animate-pulse"></div>
+            <div className="absolute top-1/2 left-[15%] w-1 h-1 bg-white/60 rounded-full"></div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              {/* Left Info Column */}
+              <div className="lg:col-span-5 space-y-5">
+                <h3 className="text-2.5xl sm:text-3.5xl lg:text-4xl font-black leading-tight tracking-tight text-white pr-20 lg:pr-0">
+                  Eliminate <span className="text-[#3b82f6]">Exam Day</span> <br />
+                  <span className="text-[#FF7A00]">Anxiety</span> Forever.
+                </h3>
+                <p className="text-slate-300 text-xs sm:text-sm leading-relaxed max-w-sm">
+                  Join 12,000+ aspirants who have mastered the art of test-taking through our AI-simulated ecosystem.
+                </p>
+
+                {/* Rating Banner */}
+                <div className="flex items-center gap-3 pt-1">
+                  <div className="flex -space-x-2">
+                    {[
+                      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=64&q=80',
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=64&q=80',
+                      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=64&q=80',
+                      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=64&q=80',
+                    ].map((src, idx) => (
+                      <img key={idx} className="w-8 h-8 rounded-full border-2 border-[#000E2F] object-cover" src={src} alt="Student avatar" />
+                    ))}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-black text-white">12,000+</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Active Aspirants</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <div className="flex text-[#FF7A00] text-[10px]">★★★★★</div>
+                      <span className="text-[9px] font-bold text-slate-400 ml-1">4.8/5 Trusted by Students</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-3 pt-3">
+                  <button
+                    onClick={() => navigate('/test-series')}
+                    className="px-5 py-3 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-[#FF7A00]/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>Try Demo Now</span>
+                    <ArrowRight size={14} />
+                  </button>
+                  <button
+                    onClick={() => navigate('/signup')}
+                    className="px-5 py-3 bg-transparent text-white border border-white/10 hover:bg-white/5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <span>Contact Counselor</span>
+                    <MessageSquare size={14} className="text-blue-400" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Middle 3D Clipboard Column with responsive sci-fi scanning pedestal */}
+              <div className="lg:col-span-3 flex items-center justify-center relative min-h-[180px] lg:min-h-[240px] my-4 lg:my-0">
+                {/* Glowing sci-fi scanner platform behind the clipboard */}
+                {/* Base soft blue glow */}
+                <div className="absolute w-40 h-40 lg:w-56 lg:h-56 bg-blue-600/10 rounded-full blur-[35px] lg:blur-[45px] -z-10"></div>
+                {/* Horizontal scanner perspective ellipse */}
+                <div className="absolute w-48 h-12 lg:w-60 lg:h-16 bg-gradient-to-t from-blue-500/20 to-transparent rounded-full border border-blue-500/30 transform translate-y-12 lg:translate-y-20 rotate-[-5deg] -z-10"></div>
+                {/* Inner smaller glowing ring */}
+                <div className="absolute w-32 h-8 lg:w-44 lg:h-12 bg-indigo-500/10 rounded-full border border-indigo-400/40 transform translate-y-12 lg:translate-y-20 rotate-[-5deg] animate-pulse -z-10"></div>
+                {/* Glowing scanner center point */}
+                <div className="absolute w-12 h-4 lg:w-16 lg:h-5 bg-cyan-400/30 rounded-full blur-[4px] transform translate-y-12 lg:translate-y-20 rotate-[-5deg] -z-10"></div>
+                {/* Futuristic vertical laser/data rays */}
+                <div className="absolute w-0.5 h-16 lg:w-0.5 lg:h-24 bg-gradient-to-t from-cyan-400/40 to-transparent transform -translate-x-12 lg:-translate-x-16 translate-y-2 -z-10 blur-[0.5px]"></div>
+                <div className="absolute w-0.5 h-12 lg:w-0.5 lg:h-20 bg-gradient-to-t from-blue-400/40 to-transparent transform translate-x-16 lg:translate-x-20 translate-y-6 -z-10 blur-[0.5px]"></div>
+
+                <TransparentImage 
+                  src="/@fs/C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/omr_clipboard_black_bg_1783079896186.png" 
+                  alt="3D OMR Clipboard" 
+                  className="w-40 lg:w-56 object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(59,130,246,0.3)] lg:drop-shadow-[0_12px_30px_rgba(59,130,246,0.35)] animate-float"
+                  threshold={35}
+                />
+              </div>
+
+              {/* Right Features Column */}
+              <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[
+                  {
+                    title: "100% Pattern Match",
+                    desc: "Real exam. Real pressure. Real results.",
+                    icon: <Target3DIcon />,
+                    bg: "bg-blue-950/20 border-blue-500/30"
+                  },
+                  {
+                    title: "AI-Driven Logic",
+                    desc: "Smart algorithms for smarter you.",
+                    icon: <Brain3DIcon />,
+                    bg: "bg-indigo-950/20 border-blue-500/30"
+                  },
+                  {
+                    title: "Physical OMR Sheets",
+                    desc: "Practice like real exams with OMR.",
+                    icon: <Sheet3DIcon />,
+                    bg: "bg-sky-950/20 border-blue-500/30"
+                  },
+                  {
+                    title: "Advanced Rankings",
+                    desc: "See where you stand. Rise above the rest.",
+                    icon: <Trophy3DIcon />,
+                    bg: "bg-amber-950/20 border-blue-500/30"
+                  }
+                ].map((feat, i) => (
+                  <div key={i} className={`p-4 rounded-2xl border ${feat.bg} flex flex-col justify-between relative overflow-hidden backdrop-blur-sm group hover:border-blue-400/50 transition-all duration-300`}>
+                    {/* Glowing Neon Corner Light Flare */}
+                    <div className="absolute top-0 left-0 w-12 h-[1px] bg-gradient-to-r from-cyan-400 to-transparent"></div>
+                    <div className="absolute top-0 left-0 w-[1px] h-12 bg-gradient-to-b from-cyan-400 to-transparent"></div>
+                    <div className="absolute top-[-1.5px] left-4 w-3 h-[3px] bg-white shadow-[0_0_8px_#fff] rounded-full"></div>
+
+                    <div>
+                      {/* Icon and Title Row */}
+                      <div className="flex items-center gap-3">
+                        <div className="shrink-0 scale-110">
+                          {feat.icon}
+                        </div>
+                        <h4 className="text-[12px] font-black text-white leading-tight">{feat.title}</h4>
+                      </div>
+                      
+                      {/* Description Below */}
+                      <p className="text-[10px] text-slate-300 font-medium leading-relaxed mt-2.5">{feat.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              {[
-                "100% Pattern Match",
-                "AI-Driven Logic",
-                "Physical OMR Sheets",
-                "Advanced Rankings"
-              ].map((text, i) => (
-                <div key={i} className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400">
-                    <CheckCircle size={16} />
-                  </div>
-                  <p className="text-xs font-bold">{text}</p>
-                </div>
-              ))}
+            {/* Bottom Value Props Bar */}
+            <div className="mt-8 pt-4 border-t border-white/5 flex flex-wrap justify-between items-center gap-4 text-[9px] font-bold text-slate-400">
+              <div className="flex items-center gap-1.5"><Sparkles size={12} className="text-blue-400" /> AI-Powered Analytics</div>
+              <div className="flex items-center gap-1.5"><Zap size={12} className="text-blue-400" /> Real Exam Simulation</div>
+              <div className="flex items-center gap-1.5"><Crown size={12} className="text-[#FF7A00]" /> Trusted by Top Rankers</div>
+              <div className="flex items-center gap-1.5"><ShieldCheck size={12} className="text-emerald-400" /> Secure & Reliable Platform</div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
       </div>
     </section>

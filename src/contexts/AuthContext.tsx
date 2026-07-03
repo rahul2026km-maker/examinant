@@ -9,6 +9,8 @@ interface AuthContextType {
     userRole: 'student' | 'admin' | null;
     profileData: any;
     resetPassword: (email: string) => Promise<void>;
+    selectedExam: string;
+    setSelectedExam: (exam: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +24,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [userRole, setUserRole] = useState<'student' | 'admin' | null>(null);
     const [profileData, setProfileData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedExam, setSelectedExamState] = useState<string>(() => localStorage.getItem('selectedTargetExam') || 'SSC');
+
+    const setSelectedExam = (exam: string) => {
+        setSelectedExamState(exam);
+        localStorage.setItem('selectedTargetExam', exam);
+    };
 
     const resetPassword = (email: string) => {
         return sendPasswordResetEmail(auth, email);
@@ -70,7 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         userRole,
         profileData,
-        resetPassword
+        resetPassword,
+        selectedExam,
+        setSelectedExam
     };
 
     return (

@@ -11,4 +11,12 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['pdfjs-dist'],
   },
+  server: {
+    fs: {
+      allow: [
+        '.',
+        'C:/Users/UPL/.gemini/antigravity-ide/brain'
+      ]
+    }
+  }
 })
