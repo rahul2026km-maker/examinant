@@ -82,7 +82,20 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             title: 'Dashboard',
             links: [
                 { icon: <Home size={18} />, label: 'Dashboard', path: '/dashboard' },
-                { icon: <TrendingUp size={18} />, label: 'Analytics', path: '/dashboard/analytics' },
+                { 
+                    icon: <TrendingUp size={18} />, 
+                    label: 'Analytics', 
+                    path: '/dashboard/analytics',
+                    subLinks: [
+                        { label: 'Performance Overview', tab: 'overall' },
+                        { label: 'Accuracy Trend', tab: 'accuracy' },
+                        { label: 'Speed Analysis', tab: 'speed' },
+                        { label: 'Time Management', tab: 'time' },
+                        { label: 'Consistency', tab: 'consistency' },
+                        { label: 'Score Trend', tab: 'score' },
+                        { label: 'Comparative Analysis', tab: 'compare' }
+                    ]
+                },
             ]
         },
         {
@@ -182,27 +195,60 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{section.title}</h3>
                                 <div className="w-12 h-px bg-slate-100"></div>
                             </div>
-                            <div className="space-y-0.5">
+                            <div className="space-y-1">
                                 {section.links.map((link) => {
                                     const isActive = location.pathname === link.path;
+                                    const hasSubLinks = (link as any).subLinks && (link as any).subLinks.length > 0;
+                                    const searchParams = new URLSearchParams(location.search);
+                                    const currentTab = searchParams.get('tab') || 'overall';
+
                                     return (
-                                        <NavLink
-                                            key={link.label}
-                                            to={link.path}
-                                            onClick={() => setIsSidebarOpen(false)}
-                                            className={`
-                                                flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[13px]
-                                                ${isActive
-                                                    ? 'bg-[#0B1E43] text-white font-semibold shadow-md shadow-blue-900/10'
-                                                    : 'text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-900'
-                                                }
-                                            `}
-                                        >
-                                            <span className={`${isActive ? 'text-white' : 'text-slate-400'}`}>
-                                                {link.icon}
-                                            </span>
-                                            <span className="flex-1">{link.label}</span>
-                                        </NavLink>
+                                        <div key={link.label} className="space-y-0.5">
+                                            <NavLink
+                                                to={hasSubLinks ? `${link.path}?tab=overall` : link.path}
+                                                onClick={() => setIsSidebarOpen(false)}
+                                                className={`
+                                                    flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[13px]
+                                                    ${isActive
+                                                        ? 'bg-[#0B1E43] text-white font-semibold shadow-md shadow-blue-900/10'
+                                                        : 'text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-900'
+                                                    }
+                                                `}
+                                            >
+                                                <span className={`${isActive ? 'text-white' : 'text-slate-400'}`}>
+                                                    {link.icon}
+                                                </span>
+                                                <span className="flex-1">{link.label}</span>
+                                                {hasSubLinks && (
+                                                    <ChevronDown size={14} className={`transform transition-transform ${isActive ? 'rotate-180' : ''}`} />
+                                                )}
+                                            </NavLink>
+                                            
+                                            {/* Collapsible Sublinks */}
+                                            {hasSubLinks && isActive && (
+                                                <div className="pl-6 pr-1 py-1 space-y-0.5">
+                                                    {(link as any).subLinks.map((sub: any) => {
+                                                        const isSubActive = currentTab === sub.tab;
+                                                        return (
+                                                            <NavLink
+                                                                key={sub.label}
+                                                                to={`${link.path}?tab=${sub.tab}`}
+                                                                className={`
+                                                                    flex items-center gap-2 py-2 px-3 rounded-lg text-[11px] font-bold transition-all
+                                                                    ${isSubActive
+                                                                        ? 'text-[#FF7A00] bg-orange-50/50'
+                                                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                                                    }
+                                                                `}
+                                                            >
+                                                                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? 'bg-[#FF7A00]' : 'bg-transparent'}`}></div>
+                                                                <span className="truncate">{sub.label}</span>
+                                                            </NavLink>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
                                     );
                                 })}
                             </div>

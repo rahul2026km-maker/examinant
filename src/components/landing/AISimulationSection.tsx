@@ -318,7 +318,7 @@ const AISimulationSection = () => {
             <div className="absolute inset-0 m-auto w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-slate-900/60 rounded-full border border-indigo-500/20 -z-10 shadow-[inset_0_0_20px_rgba(99,102,241,0.2)]"></div>
             
             <TransparentImage 
-              src="/@fs/C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/student_mascot_green_bg_1783080372553.png" 
+              src="/student_mascot.png" 
               alt="3D Student Mascot" 
               className="w-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)] lg:drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
               mode="green"
@@ -416,7 +416,7 @@ const AISimulationSection = () => {
                 <div className="absolute w-0.5 h-12 lg:w-0.5 lg:h-20 bg-gradient-to-t from-blue-400/40 to-transparent transform translate-x-16 lg:translate-x-20 translate-y-6 -z-10 blur-[0.5px]"></div>
 
                 <TransparentImage 
-                  src="/@fs/C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/omr_clipboard_black_bg_1783079896186.png" 
+                  src="/omr_clipboard.png" 
                   alt="3D OMR Clipboard" 
                   className="w-40 lg:w-56 object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(59,130,246,0.3)] lg:drop-shadow-[0_12px_30px_rgba(59,130,246,0.35)] animate-float"
                   threshold={35}
