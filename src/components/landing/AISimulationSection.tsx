@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
 import {
   Clock,
   PieChart as PieChartIcon,
@@ -15,58 +14,6 @@ import {
   Crown,
   ShieldCheck
 } from 'lucide-react';
-
-interface TransparentImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string;
-  threshold?: number;
-  mode?: 'black' | 'green';
-}
-
-const TransparentImage = ({ src, threshold = 35, mode = 'black', ...props }: TransparentImageProps) => {
-  const [processedSrc, setProcessedSrc] = useState('');
-
-  useEffect(() => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.drawImage(img, 0, 0);
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imgData.data;
-      
-      // Make dark/black pixels transparent
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
-        
-        if (mode === 'green') {
-          // Detect green-screen chroma key color (high green, low red/blue)
-          if (g > 120 && r < 110 && b < 110) {
-            data[i+3] = 0;
-          }
-        } else {
-          // Detect black/dark pixels
-          if (r < threshold && g < threshold && b < threshold) {
-            data[i+3] = 0;
-          }
-        }
-      }
-      ctx.putImageData(imgData, 0, 0);
-      setProcessedSrc(canvas.toDataURL());
-    };
-  }, [src, threshold, mode]);
-
-  if (!processedSrc) {
-    return <div className="animate-pulse bg-slate-800/40 rounded-3xl" style={{ width: props.width || '100%', height: props.height || '200px' }} />;
-  }
-
-  return <img src={processedSrc} {...props} />;
-};
 
 const Target3DIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] shrink-0">
@@ -317,11 +264,11 @@ const AISimulationSection = () => {
             <div className="absolute inset-0 m-auto w-20 h-20 sm:w-28 sm:h-28 lg:w-40 lg:h-40 bg-gradient-to-tr from-blue-500/20 to-indigo-500/10 rounded-full border border-blue-500/30 animate-pulse blur-[1px] -z-10"></div>
             <div className="absolute inset-0 m-auto w-16 h-16 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-slate-900/60 rounded-full border border-indigo-500/20 -z-10 shadow-[inset_0_0_20px_rgba(99,102,241,0.2)]"></div>
             
-            <TransparentImage 
+            <img 
               src="/student_mascot.png" 
               alt="3D Student Mascot" 
               className="w-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)] lg:drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
-              mode="green"
+              loading="lazy"
             />
           </div>
 
@@ -415,11 +362,11 @@ const AISimulationSection = () => {
                 <div className="absolute w-0.5 h-16 lg:w-0.5 lg:h-24 bg-gradient-to-t from-cyan-400/40 to-transparent transform -translate-x-12 lg:-translate-x-16 translate-y-2 -z-10 blur-[0.5px]"></div>
                 <div className="absolute w-0.5 h-12 lg:w-0.5 lg:h-20 bg-gradient-to-t from-blue-400/40 to-transparent transform translate-x-16 lg:translate-x-20 translate-y-6 -z-10 blur-[0.5px]"></div>
 
-                <TransparentImage 
+                <img 
                   src="/omr_clipboard.png" 
                   alt="3D OMR Clipboard" 
                   className="w-40 lg:w-56 object-contain relative z-10 drop-shadow-[0_10px_20px_rgba(59,130,246,0.3)] lg:drop-shadow-[0_12px_30px_rgba(59,130,246,0.35)] animate-float"
-                  threshold={35}
+                  loading="lazy"
                 />
               </div>
 

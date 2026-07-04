@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const srcMascot = "C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/student_mascot_green_bg_1783080372553.png";
+const srcMascot = "C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/student_character_3d_1783079242171.png";
 const destMascot = path.join(__dirname, 'public', 'student_mascot.png');
 
-const srcClipboard = "C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/omr_clipboard_black_bg_1783079896186.png";
+const srcClipboard = "C:/Users/UPL/.gemini/antigravity-ide/brain/1a0b99db-2fdb-4afc-997b-6f6826dbdd44/omr_clipboard_3d_1783079220193.png";
 const destClipboard = path.join(__dirname, 'public', 'omr_clipboard.png');
 
 try {

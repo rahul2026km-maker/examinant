@@ -33,13 +33,16 @@ const HeroSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    // Preload all banner images in the background to ensure instant transitions
-    BANNERS.forEach((banner) => {
-      const imgMobile = new Image();
-      imgMobile.src = banner.mobile;
-      const imgDesktop = new Image();
-      imgDesktop.src = banner.desktop;
-    });
+    // Preload background banners after a 2-second delay to keep the initial page load super fast
+    const timer = setTimeout(() => {
+      BANNERS.slice(1).forEach((banner) => {
+        const imgMobile = new Image();
+        imgMobile.src = banner.mobile;
+        const imgDesktop = new Image();
+        imgDesktop.src = banner.desktop;
+      });
+    }, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -60,10 +63,10 @@ const HeroSlider = () => {
   return (
     <section className="relative w-full mt-[72px] overflow-hidden bg-[#081028] group">
       {/* Invisible placeholder dictates the slider height naturally based on the image's aspect ratio on mobile */}
-      <img src={BANNERS[0].mobile} alt="placeholder" className="w-full h-auto invisible pointer-events-none md:hidden" />
+      <img src={BANNERS[0].mobile} alt="placeholder" className="w-full h-auto invisible pointer-events-none md:hidden" fetchPriority="high" />
       {/* Invisible placeholder dictates the slider height naturally based on the image's aspect ratio on desktop */}
-      <img src={BANNERS[0].desktop} alt="placeholder" className="hidden md:block w-full h-auto invisible pointer-events-none" />
-
+      <img src={BANNERS[0].desktop} alt="placeholder" className="hidden md:block w-full h-auto invisible pointer-events-none" fetchPriority="high" />
+ 
       <div className="absolute inset-0">
         <AnimatePresence initial={false} mode="wait">
           <motion.div
@@ -79,12 +82,14 @@ const HeroSlider = () => {
               src={BANNERS[currentIndex].mobile}
               alt={`Slide ${currentIndex + 1} Mobile`}
               className="w-full h-full object-fill object-center md:hidden"
+              fetchPriority={currentIndex === 0 ? "high" : "auto"}
             />
             {/* Desktop Image */}
             <img
               src={BANNERS[currentIndex].desktop}
               alt={`Slide ${currentIndex + 1} Desktop`}
               className="hidden md:block w-full h-full object-fill object-center"
+              fetchPriority={currentIndex === 0 ? "high" : "auto"}
             />
           </motion.div>
         </AnimatePresence>
