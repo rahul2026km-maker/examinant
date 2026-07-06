@@ -65,6 +65,31 @@ const TestSeriesDetailsPage = () => {
     const [activeTab, setActiveTab] = useState<'all' | 'mock' | 'subject' | 'unit' | 'chapter'>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+    const [couponError, setCouponError] = useState<string | null>(null);
+    const [couponDiscount, setCouponDiscount] = useState(0);
+
+    const handleApplyCoupon = () => {
+        if (!couponCode.trim()) return;
+        const code = couponCode.trim().toUpperCase();
+        if (code === 'SAVE50' || code === 'EXAM50') {
+            const discount = Math.round((series?.pricing.amount || 0) * 0.5);
+            setCouponDiscount(discount);
+            setAppliedCoupon(code);
+            setCouponError(null);
+        } else if (code === 'DISCOUNT10' || code === 'GET10') {
+            const discount = Math.round((series?.pricing.amount || 0) * 0.1);
+            setCouponDiscount(discount);
+            setAppliedCoupon(code);
+            setCouponError(null);
+        } else {
+            setCouponError('Invalid coupon code');
+            setCouponDiscount(0);
+            setAppliedCoupon(null);
+        }
+    };
+
     const filteredAndSearchedTests = tests.filter(test => {
         // Search Filter
         if (searchQuery && !test.name.toLowerCase().includes(searchQuery.toLowerCase())) {
@@ -152,9 +177,11 @@ const TestSeriesDetailsPage = () => {
                     return;
                 }
 
+                const finalPrice = Math.max(0, (series.pricing.amount || 0) - couponDiscount);
+
                 const options = {
                     key: 'rzp_test_S7lSvWtu89c6zD', // Enter the Key ID generated from the Dashboard
-                    amount: (series.pricing.amount || 0) * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                    amount: finalPrice * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                     currency: 'INR',
                     name: 'Examinant',
                     description: `Purchase ${series.name}`,
@@ -634,18 +661,68 @@ const TestSeriesDetailsPage = () => {
                                     <p className="text-xs font-semibold text-slate-400">Total Price</p>
                                     <div className="flex items-center justify-center gap-3">
                                         {series.pricing.type === 'paid' && (
-                                            <span className="text-2xl text-slate-400 line-through">₹{series.pricing.amount ? Math.round(series.pricing.amount * 1.5) : 523}</span>
+                                            <span className="text-2xl text-slate-400 line-through">
+                                                ₹{series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)}
+                                            </span>
                                         )}
                                         <span className="text-5xl font-black text-slate-900">
-                                            {series.pricing.type === 'free' ? 'Free' : `₹${series.pricing.amount}`}
+                                            {series.pricing.type === 'free' ? 'Free' : `₹${Math.max(0, (series.pricing.amount || 0) - couponDiscount)}`}
                                         </span>
                                     </div>
                                     {series.pricing.type === 'paid' && (
                                         <span className="inline-block px-3 py-1 bg-green-50 border border-green-200 text-green-600 font-bold text-xs rounded-full">
-                                            You Save ₹{series.pricing.amount ? Math.round(series.pricing.amount * 0.5) : 174} (33%)
+                                            You Save ₹{
+                                                series.pricing.amount === 349 && couponDiscount === 0
+                                                    ? 1051
+                                                    : (series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) - Math.max(0, (series.pricing.amount || 0) - couponDiscount)
+                                            } ({
+                                                series.pricing.amount === 349 && couponDiscount === 0
+                                                    ? 75
+                                                    : Math.round(((series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) - Math.max(0, (series.pricing.amount || 0) - couponDiscount)) / (series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) * 100)
+                                            }%)
                                         </span>
                                     )}
                                 </div>
+
+                                {/* Discount code section */}
+                                {series.pricing.type === 'paid' && (
+                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Get more discount...</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="text"
+                                                placeholder="Enter discount code"
+                                                value={couponCode}
+                                                onChange={(e) => {
+                                                    setCouponCode(e.target.value);
+                                                    setCouponError(null);
+                                                }}
+                                                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-sm font-semibold outline-none uppercase placeholder:normal-case"
+                                            />
+                                            <button
+                                                onClick={handleApplyCoupon}
+                                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shrink-0"
+                                            >
+                                                Apply
+                                            </button>
+                                        </div>
+                                        {couponError && (
+                                            <p className="text-xs font-bold text-red-500">{couponError}</p>
+                                        )}
+                                        {appliedCoupon && (
+                                            <p className="text-xs font-bold text-green-600 flex items-center gap-1">
+                                                <Check size={12} strokeWidth={3} /> Code <strong>{appliedCoupon}</strong> applied (₹{couponDiscount} off)
+                                            </p>
+                                        )}
+                                        {!appliedCoupon && (
+                                            <p className="text-[10px] text-slate-400 font-medium">
+                                                Use coupon code <strong className="text-blue-600 cursor-pointer" onClick={() => { setCouponCode('SAVE50'); }}>SAVE50</strong> for extra 50% discount!
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                                 {/* Checklist */}
                                 <ul className="space-y-3 pt-4 border-t border-slate-100 text-slate-700 font-medium text-sm">
