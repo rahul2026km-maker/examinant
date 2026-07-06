@@ -15,7 +15,9 @@ import {
     Star,
     ShieldCheck,
     Smartphone,
-    Lock
+    Lock,
+    Search,
+    Check
 } from 'lucide-react';
 import { loadRazorpay } from '../utils/razorpay';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,6 +28,26 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import type { TestSeries, Test } from '../types/test.types';
 import Navbar from '../components/landing/Navbar';
 import Footer from '../components/landing/Footer';
+
+const TYPE_LABELS: Record<string, string> = {
+    practice: 'Practice',
+    mock: 'Full Length Mock',
+    previous_year: 'Prev Year',
+    full_length: 'Full Length Mock',
+    subject_wise: 'Subject Wise',
+    unit_wise: 'Unitwise',
+    chapter_wise: 'Chapterwise',
+};
+
+const TYPE_COLORS: Record<string, string> = {
+    practice: 'bg-blue-50 text-blue-700 border border-blue-100',
+    mock: 'bg-purple-50 text-purple-700 border border-purple-100',
+    previous_year: 'bg-green-50 text-green-700 border border-green-100',
+    full_length: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+    subject_wise: 'bg-indigo-50 text-indigo-700 border border-indigo-100',
+    unit_wise: 'bg-pink-50 text-pink-700 border border-pink-100',
+    chapter_wise: 'bg-amber-50 text-amber-700 border border-amber-100',
+};
 
 const TestSeriesDetailsPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -39,6 +61,26 @@ const TestSeriesDetailsPage = () => {
     const [isOwned, setIsOwned] = useState(false);
 
     const [timeLeft, setTimeLeft] = useState({ days: 2, hours: 10, minutes: 46, seconds: 39 });
+
+    const [activeTab, setActiveTab] = useState<'all' | 'mock' | 'subject' | 'unit' | 'chapter'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredAndSearchedTests = tests.filter(test => {
+        // Search Filter
+        if (searchQuery && !test.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+            return false;
+        }
+
+        // Tab Filter
+        if (activeTab === 'all') return true;
+        if (activeTab === 'mock') {
+            return test.testType === 'full_length' || test.testType === 'mock' || test.testType === 'previous_year';
+        }
+        if (activeTab === 'subject') return test.testType === 'subject_wise';
+        if (activeTab === 'unit') return test.testType === 'unit_wise';
+        if (activeTab === 'chapter') return test.testType === 'chapter_wise';
+        return true;
+    });
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -414,6 +456,110 @@ const TestSeriesDetailsPage = () => {
                                     <h4 className="font-bold text-slate-900">Built by Experts. Trusted by Thousands.</h4>
                                     <p className="text-sm text-slate-600 leading-relaxed font-light">Join thousands of serious aspirants on their journey to success with high-quality mock test structures.</p>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Tests Included in this Series Section */}
+                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
+                                    <h2 className="text-2xl font-bold text-slate-900">Tests Included</h2>
+                                </div>
+                                <div className="relative w-full md:w-64">
+                                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                    <input 
+                                        type="text"
+                                        placeholder="Search tests..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Filters Tab */}
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { id: 'all', label: 'All Tests' },
+                                    { id: 'mock', label: 'Full Mocks' },
+                                    { id: 'subject', label: 'Subject Wise' },
+                                    { id: 'unit', label: 'Unit Wise' },
+                                    { id: 'chapter', label: 'Chapter Wise' }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as any)}
+                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all border ${
+                                            activeTab === tab.id
+                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
+                                                : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Tests List */}
+                            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                                {filteredAndSearchedTests.length === 0 ? (
+                                    <div className="text-center py-10 text-slate-400 font-semibold text-sm">
+                                        No tests match your filter or search query.
+                                    </div>
+                                ) : (
+                                    filteredAndSearchedTests.map((test, index) => {
+                                        const typeLabel = TYPE_LABELS[test.testType] || test.testType || 'Test';
+                                        const typeColor = TYPE_COLORS[test.testType] || 'bg-slate-50 text-slate-600 border border-slate-100';
+                                        const duration = test.settings?.duration || 180;
+                                        const questionsCount = test.questionConfig?.totalQuestions || test.questionIds?.length || 0;
+
+                                        return (
+                                            <div 
+                                                key={test.id}
+                                                className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 hover:border-blue-100 transition-all group"
+                                            >
+                                                <div className="flex items-center gap-4 min-w-0">
+                                                    <span className="flex-shrink-0 w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xs font-black">
+                                                        {index + 1}
+                                                    </span>
+                                                    <div className="min-w-0 space-y-1">
+                                                        <p className="font-bold text-slate-900 text-sm truncate leading-tight">
+                                                            {test.name}
+                                                        </p>
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${typeColor}`}>
+                                                                {typeLabel}
+                                                            </span>
+                                                            <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+                                                                <Clock size={11} /> {duration} mins
+                                                            </span>
+                                                            <span className="text-[11px] text-slate-400 font-semibold">
+                                                                • {questionsCount} Qs
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-shrink-0 ml-4">
+                                                    {isOwned ? (
+                                                        <button 
+                                                            onClick={() => navigate('/dashboard/tests')}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl text-xs font-bold transition-all"
+                                                        >
+                                                            <Check size={12} strokeWidth={3} />
+                                                            <span>Attempt</span>
+                                                        </button>
+                                                    ) : (
+                                                        <div className="p-2 bg-slate-100 text-slate-400 rounded-xl">
+                                                            <Lock size={14} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
                             </div>
                         </div>
 
