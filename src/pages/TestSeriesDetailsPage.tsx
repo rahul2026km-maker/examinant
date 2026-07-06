@@ -73,14 +73,9 @@ const TestSeriesDetailsPage = () => {
     const handleApplyCoupon = () => {
         if (!couponCode.trim()) return;
         const code = couponCode.trim().toUpperCase();
-        if (code === 'SAVE50' || code === 'EXAM50') {
-            const discount = Math.round((series?.pricing.amount || 0) * 0.5);
-            setCouponDiscount(discount);
-            setAppliedCoupon(code);
-            setCouponError(null);
-        } else if (code === 'DISCOUNT10' || code === 'GET10') {
-            const discount = Math.round((series?.pricing.amount || 0) * 0.1);
-            setCouponDiscount(discount);
+        const validCodes = ['SAVE50', 'EXAM50', 'GET50', 'EXTRA50', 'OFF50'];
+        if (validCodes.includes(code)) {
+            setCouponDiscount(50); // Flat ₹50 discount
             setAppliedCoupon(code);
             setCouponError(null);
         } else {
@@ -89,6 +84,13 @@ const TestSeriesDetailsPage = () => {
             setAppliedCoupon(null);
         }
     };
+
+    const sortedTests = [...tests].sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeA - timeB;
+    });
+    const firstTestId = sortedTests[0]?.id;
 
     const filteredAndSearchedTests = tests.filter(test => {
         // Search Filter
@@ -351,6 +353,129 @@ const TestSeriesDetailsPage = () => {
                     {/* Left & Middle Column (2 cols) */}
                     <div className="lg:col-span-2 space-y-10">
                         
+                        {/* Tests Included in this Series Section */}
+                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                                <div className="flex items-center gap-3">
+                                    <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
+                                    <h2 className="text-2xl font-bold text-slate-900">Tests Included</h2>
+                                </div>
+                                <div className="relative w-full md:w-64">
+                                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                    <input 
+                                        type="text"
+                                        placeholder="Search tests..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Filters Tab */}
+                            <div className="flex flex-wrap gap-2">
+                                {[
+                                    { id: 'all', label: 'All Tests' },
+                                    { id: 'mock', label: 'Full Mocks' },
+                                    { id: 'subject', label: 'Subject Wise' },
+                                    { id: 'unit', label: 'Unit Wise' },
+                                    { id: 'chapter', label: 'Chapter Wise' }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as any)}
+                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all border ${
+                                            activeTab === tab.id
+                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
+                                                : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Tests List */}
+                            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                                {filteredAndSearchedTests.length === 0 ? (
+                                    <div className="text-center py-10 text-slate-400 font-semibold text-sm">
+                                        No tests match your filter or search query.
+                                    </div>
+                                ) : (
+                                    filteredAndSearchedTests.map((test, index) => {
+                                        const typeLabel = TYPE_LABELS[test.testType] || test.testType || 'Test';
+                                        const typeColor = TYPE_COLORS[test.testType] || 'bg-slate-50 text-slate-600 border border-slate-100';
+                                        const duration = test.settings?.duration || 180;
+                                        const questionsCount = test.questionConfig?.totalQuestions || test.questionIds?.length || 0;
+
+                                        return (
+                                            <div 
+                                                key={test.id}
+                                                className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 hover:border-blue-100 transition-all group"
+                                            >
+                                                <div className="flex items-center gap-4 min-w-0">
+                                                    <span className="flex-shrink-0 w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xs font-black">
+                                                        {index + 1}
+                                                    </span>
+                                                    <div className="min-w-0 space-y-1">
+                                                        <p className="font-bold text-slate-900 text-sm truncate leading-tight">
+                                                            {test.name}
+                                                        </p>
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${typeColor}`}>
+                                                                {typeLabel}
+                                                            </span>
+                                                            <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
+                                                                <Clock size={11} /> {duration} mins
+                                                            </span>
+                                                            <span className="text-[11px] text-slate-400 font-semibold">
+                                                                • {questionsCount} Qs
+                                                            </span>
+                                                            {test.id === firstTestId && !isOwned && (
+                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse">
+                                                                    Free Demo
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-shrink-0 ml-4">
+                                                    {isOwned ? (
+                                                        <button 
+                                                            onClick={() => navigate('/dashboard/tests')}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl text-xs font-bold transition-all"
+                                                        >
+                                                            <Check size={12} strokeWidth={3} />
+                                                            <span>Attempt</span>
+                                                        </button>
+                                                    ) : test.id === firstTestId ? (
+                                                        <button 
+                                                            onClick={() => {
+                                                                if (!currentUser) {
+                                                                    navigate('/login', { state: { from: `/dashboard/attempt/${test.id}` } });
+                                                                } else {
+                                                                    navigate(`/dashboard/attempt/${test.id}`);
+                                                                }
+                                                            }}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-xl text-xs font-bold transition-all"
+                                                        >
+                                                            <PlayCircle size={12} />
+                                                            <span>Start Free</span>
+                                                        </button>
+                                                    ) : (
+                                                        <div className="p-2 bg-slate-100 text-slate-400 rounded-xl">
+                                                            <Lock size={14} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </div>
+                        
                         {/* About This Test Series */}
                         <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
                             <div className="flex items-center gap-3">
@@ -486,110 +611,6 @@ const TestSeriesDetailsPage = () => {
                             </div>
                         </div>
 
-                        {/* Tests Included in this Series Section */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-                                <div className="flex items-center gap-3">
-                                    <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
-                                    <h2 className="text-2xl font-bold text-slate-900">Tests Included</h2>
-                                </div>
-                                <div className="relative w-full md:w-64">
-                                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                    <input 
-                                        type="text"
-                                        placeholder="Search tests..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Filters Tab */}
-                            <div className="flex flex-wrap gap-2">
-                                {[
-                                    { id: 'all', label: 'All Tests' },
-                                    { id: 'mock', label: 'Full Mocks' },
-                                    { id: 'subject', label: 'Subject Wise' },
-                                    { id: 'unit', label: 'Unit Wise' },
-                                    { id: 'chapter', label: 'Chapter Wise' }
-                                ].map((tab) => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id as any)}
-                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all border ${
-                                            activeTab === tab.id
-                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
-                                                : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
-                                        }`}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Tests List */}
-                            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-                                {filteredAndSearchedTests.length === 0 ? (
-                                    <div className="text-center py-10 text-slate-400 font-semibold text-sm">
-                                        No tests match your filter or search query.
-                                    </div>
-                                ) : (
-                                    filteredAndSearchedTests.map((test, index) => {
-                                        const typeLabel = TYPE_LABELS[test.testType] || test.testType || 'Test';
-                                        const typeColor = TYPE_COLORS[test.testType] || 'bg-slate-50 text-slate-600 border border-slate-100';
-                                        const duration = test.settings?.duration || 180;
-                                        const questionsCount = test.questionConfig?.totalQuestions || test.questionIds?.length || 0;
-
-                                        return (
-                                            <div 
-                                                key={test.id}
-                                                className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 hover:border-blue-100 transition-all group"
-                                            >
-                                                <div className="flex items-center gap-4 min-w-0">
-                                                    <span className="flex-shrink-0 w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xs font-black">
-                                                        {index + 1}
-                                                    </span>
-                                                    <div className="min-w-0 space-y-1">
-                                                        <p className="font-bold text-slate-900 text-sm truncate leading-tight">
-                                                            {test.name}
-                                                        </p>
-                                                        <div className="flex flex-wrap items-center gap-2">
-                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${typeColor}`}>
-                                                                {typeLabel}
-                                                            </span>
-                                                            <span className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
-                                                                <Clock size={11} /> {duration} mins
-                                                            </span>
-                                                            <span className="text-[11px] text-slate-400 font-semibold">
-                                                                • {questionsCount} Qs
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex-shrink-0 ml-4">
-                                                    {isOwned ? (
-                                                        <button 
-                                                            onClick={() => navigate('/dashboard/tests')}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl text-xs font-bold transition-all"
-                                                        >
-                                                            <Check size={12} strokeWidth={3} />
-                                                            <span>Attempt</span>
-                                                        </button>
-                                                    ) : (
-                                                        <div className="p-2 bg-slate-100 text-slate-400 rounded-xl">
-                                                            <Lock size={14} />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                )}
-                            </div>
-                        </div>
-
                         {/* Why Aspirants Trust Section */}
                         <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
                             <div className="flex items-center gap-3">
@@ -718,7 +739,7 @@ const TestSeriesDetailsPage = () => {
                                         )}
                                         {!appliedCoupon && (
                                             <p className="text-[10px] text-slate-400 font-medium">
-                                                Use coupon code <strong className="text-blue-600 cursor-pointer" onClick={() => { setCouponCode('SAVE50'); }}>SAVE50</strong> for extra 50% discount!
+                                                If you have a promo code, please enter it above.
                                             </p>
                                         )}
                                     </div>
