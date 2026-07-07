@@ -158,7 +158,53 @@ export const duplicateTestSeries = async (seriesId: string, newName: string, use
         status: 'draft'
     };
 
-    return createTestSeries(duplicateData, userId);
+    const newSeriesId = await createTestSeries(duplicateData, userId);
+
+    // Get original tests
+    const originalTests = await getTestsBySeriesId(seriesId);
+
+    if (originalTests && originalTests.length > 0) {
+        const newTestIds: string[] = [];
+
+        for (const test of originalTests) {
+            const testData: any = {
+                seriesId: newSeriesId,
+                name: test.name,
+                testType: test.testType,
+                generationType: test.generationType,
+                questionConfig: test.questionConfig,
+                settings: test.settings,
+                questionIds: test.questionIds || [],
+                status: test.status || 'draft',
+                createdBy: userId,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                stats: {
+                    totalAttempts: 0,
+                    averageScore: 0,
+                    averageTime: 0
+                }
+            };
+
+            if (test.autoConfig) testData.autoConfig = test.autoConfig;
+            if (test.customConfig) testData.customConfig = test.customConfig;
+            if (test.schedule) testData.schedule = test.schedule;
+            if (test.publishedAt) testData.publishedAt = test.publishedAt;
+
+            const newTestDocRef = await addDoc(collection(db, 'tests'), testData);
+            newTestIds.push(newTestDocRef.id);
+        }
+
+        // Update new series with duplicated test IDs and stats
+        const newSeriesRef = doc(db, TEST_SERIES_COLLECTION, newSeriesId);
+        await updateDoc(newSeriesRef, {
+            testIds: newTestIds,
+            'stats.totalTests': newTestIds.length,
+            updatedAt: serverTimestamp()
+        });
+    }
+
+    return newSeriesId;
 };
 // Get all tests for a series
 export const getTestsBySeriesId = async (seriesId: string): Promise<Test[]> => {
