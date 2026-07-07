@@ -221,28 +221,44 @@ const StudentMarketPage = () => {
                         const isFree = series.pricing?.type === 'free' || !series.pricing?.amount || series.pricing.amount === 0;
 
                         const actionButton = isOwned ? (
-                            <div className="w-full h-14 rounded-2xl bg-slate-900 text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-default">
-                                <Sparkles size={16} className="fill-blue-500 text-blue-500" />
-                                Already Enrolled
-                            </div>
+                            <>
+                                <button
+                                    onClick={() => navigate(`/test-series/${series.id}`)}
+                                    className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-slate-200"
+                                >
+                                    Explore
+                                </button>
+                                <div className="flex-1 h-14 rounded-2xl bg-slate-900 text-white font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1 cursor-default">
+                                    <Sparkles size={12} className="fill-blue-500 text-blue-500" />
+                                    Enrolled
+                                </div>
+                            </>
                         ) : (
-                            <button
-                                onClick={() => handleBuy(series)}
-                                disabled={isBuying}
-                                className="w-full group/btn relative h-14 bg-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-2xl overflow-hidden transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait shadow-xl shadow-blue-500/20"
-                            >
-                                <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
-                                <span className="relative z-10 flex items-center justify-center gap-2">
-                                    {isBuying ? (
-                                        <Loader2 className="animate-spin" size={16} />
-                                    ) : (
-                                        <>
-                                            {isFree ? 'Enroll for Free' : `Unlock for ₹${series.pricing.amount}`}
-                                            <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
-                                        </>
-                                    )}
-                                </span>
-                            </button>
+                            <>
+                                <button
+                                    onClick={() => navigate(`/test-series/${series.id}`)}
+                                    className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-slate-200"
+                                >
+                                    Explore
+                                </button>
+                                <button
+                                    onClick={() => handleBuy(series)}
+                                    disabled={isBuying}
+                                    className="flex-1 group/btn relative h-14 bg-blue-600 text-white font-black text-[10px] uppercase tracking-wider rounded-2xl overflow-hidden transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait shadow-xl shadow-blue-500/20"
+                                >
+                                    <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                                    <span className="relative z-10 flex items-center justify-center gap-1">
+                                        {isBuying ? (
+                                            <Loader2 className="animate-spin" size={14} />
+                                        ) : (
+                                            <>
+                                                {isFree ? 'Free' : `Unlock`}
+                                                <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                                            </>
+                                        )}
+                                    </span>
+                                </button>
+                            </>
                         );
 
                         return (
