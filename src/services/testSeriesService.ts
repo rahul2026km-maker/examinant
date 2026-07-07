@@ -8,6 +8,7 @@ import {
     getDocs,
     query,
     where,
+    writeBatch,
     serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -168,32 +169,44 @@ export const duplicateTestSeries = async (seriesId: string, newName: string, use
         if (originalTests && originalTests.length > 0) {
             const newTestIds: string[] = [];
 
-            for (const test of originalTests) {
-                // Destructure to exclude unique/system fields
-                const { id, createdAt, updatedAt, stats, seriesId: _, ...rest } = test as any;
+            // We split writes into batches of 400 (well within Firestore's 500 limit)
+            const BATCH_SIZE = 400;
+            for (let i = 0; i < originalTests.length; i += BATCH_SIZE) {
+                const chunk = originalTests.slice(i, i + BATCH_SIZE);
+                const batch = writeBatch(db);
 
-                const testData: any = {
-                    ...rest,
-                    seriesId: newSeriesId,
-                    createdBy: userId,
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp(),
-                    stats: {
-                        totalAttempts: 0,
-                        averageScore: 0,
-                        averageTime: 0
-                    }
-                };
+                for (const test of chunk) {
+                    // Destructure to exclude unique/system fields
+                    const { id, createdAt, updatedAt, stats, seriesId: _, ...rest } = test as any;
 
-                // Clean any undefined fields so Firestore doesn't reject the write operation
-                Object.keys(testData).forEach(key => {
-                    if (testData[key] === undefined) {
-                        delete testData[key];
-                    }
-                });
+                    const testData: any = {
+                        ...rest,
+                        seriesId: newSeriesId,
+                        createdBy: userId,
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp(),
+                        stats: {
+                            totalAttempts: 0,
+                            averageScore: 0,
+                            averageTime: 0
+                        }
+                    };
 
-                const newTestDocRef = await addDoc(collection(db, 'tests'), testData);
-                newTestIds.push(newTestDocRef.id);
+                    // Clean any undefined fields so Firestore doesn't reject the write operation
+                    Object.keys(testData).forEach(key => {
+                        if (testData[key] === undefined) {
+                            delete testData[key];
+                        }
+                    });
+
+                    // Generate a new document reference with auto-generated ID
+                    const newTestDocRef = doc(collection(db, 'tests'));
+                    batch.set(newTestDocRef, testData);
+                    newTestIds.push(newTestDocRef.id);
+                }
+
+                // Commit the batch of writes to Firestore in a single atomic request
+                await batch.commit();
             }
 
             // Update new series with duplicated test IDs and stats
