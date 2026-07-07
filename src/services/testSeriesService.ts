@@ -160,48 +160,55 @@ export const duplicateTestSeries = async (seriesId: string, newName: string, use
 
     const newSeriesId = await createTestSeries(duplicateData, userId);
 
-    // Get original tests
-    const originalTests = await getTestsBySeriesId(seriesId);
+    try {
+        // Get original tests
+        const originalTests = await getTestsBySeriesId(seriesId);
+        console.log(`Original tests fetched for cloning: ${originalTests?.length || 0}`);
 
-    if (originalTests && originalTests.length > 0) {
-        const newTestIds: string[] = [];
+        if (originalTests && originalTests.length > 0) {
+            const newTestIds: string[] = [];
 
-        for (const test of originalTests) {
-            const testData: any = {
-                seriesId: newSeriesId,
-                name: test.name,
-                testType: test.testType,
-                generationType: test.generationType,
-                questionConfig: test.questionConfig,
-                settings: test.settings,
-                questionIds: test.questionIds || [],
-                status: test.status || 'draft',
-                createdBy: userId,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-                stats: {
-                    totalAttempts: 0,
-                    averageScore: 0,
-                    averageTime: 0
-                }
-            };
+            for (const test of originalTests) {
+                // Destructure to exclude unique/system fields
+                const { id, createdAt, updatedAt, stats, seriesId: _, ...rest } = test as any;
 
-            if (test.autoConfig) testData.autoConfig = test.autoConfig;
-            if (test.customConfig) testData.customConfig = test.customConfig;
-            if (test.schedule) testData.schedule = test.schedule;
-            if (test.publishedAt) testData.publishedAt = test.publishedAt;
+                const testData: any = {
+                    ...rest,
+                    seriesId: newSeriesId,
+                    createdBy: userId,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    stats: {
+                        totalAttempts: 0,
+                        averageScore: 0,
+                        averageTime: 0
+                    }
+                };
 
-            const newTestDocRef = await addDoc(collection(db, 'tests'), testData);
-            newTestIds.push(newTestDocRef.id);
+                // Clean any undefined fields so Firestore doesn't reject the write operation
+                Object.keys(testData).forEach(key => {
+                    if (testData[key] === undefined) {
+                        delete testData[key];
+                    }
+                });
+
+                const newTestDocRef = await addDoc(collection(db, 'tests'), testData);
+                newTestIds.push(newTestDocRef.id);
+            }
+
+            // Update new series with duplicated test IDs and stats
+            const newSeriesRef = doc(db, TEST_SERIES_COLLECTION, newSeriesId);
+            await updateDoc(newSeriesRef, {
+                testIds: newTestIds,
+                'stats.totalTests': newTestIds.length,
+                updatedAt: serverTimestamp()
+            });
+            console.log(`Successfully duplicated ${newTestIds.length} tests to new series ${newSeriesId}`);
         }
-
-        // Update new series with duplicated test IDs and stats
-        const newSeriesRef = doc(db, TEST_SERIES_COLLECTION, newSeriesId);
-        await updateDoc(newSeriesRef, {
-            testIds: newTestIds,
-            'stats.totalTests': newTestIds.length,
-            updatedAt: serverTimestamp()
-        });
+    } catch (err: any) {
+        console.error('Error during test cloning loop:', err);
+        alert('Test cloning failed: ' + (err.message || err));
+        throw err;
     }
 
     return newSeriesId;

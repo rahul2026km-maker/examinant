@@ -38,6 +38,7 @@ const TestSeriesManagement = () => {
 
     // Tests drawer state
     const [drawerSeries, setDrawerSeries] = useState<TestSeries | null>(null);
+    const [cloningSeriesId, setCloningSeriesId] = useState<string | null>(null);
 
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -155,12 +156,16 @@ const TestSeriesManagement = () => {
     };
 
     const handleDuplicate = async (series: TestSeries) => {
+        setCloningSeriesId(series.id);
         try {
             await duplicateTestSeries(series.id, `${series.name} (Copy)`, currentUser?.uid || 'admin');
+            alert('🎉 Test Series and all its tests cloned successfully!');
             await loadTestSeries();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error duplicating test series:', error);
-            alert('Failed to duplicate test series');
+            alert('Failed to duplicate test series: ' + (error.message || error));
+        } finally {
+            setCloningSeriesId(null);
         }
     };
 
@@ -391,10 +396,19 @@ const TestSeriesManagement = () => {
                                     </button>
                                     <button
                                         onClick={() => handleDuplicate(series)}
-                                        className="flex items-center justify-center gap-1.5 py-3 bg-amber-50 text-amber-700 rounded-xl hover:bg-amber-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm"
+                                        disabled={cloningSeriesId !== null}
+                                        className="flex items-center justify-center gap-1.5 py-3 bg-amber-50 text-amber-700 rounded-xl hover:bg-amber-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest border border-amber-100 shadow-sm disabled:opacity-50"
                                         title="Clone Series"
                                     >
-                                        <Copy size={12} /> Clone
+                                        {cloningSeriesId === series.id ? (
+                                            <>
+                                                <Loader2 size={12} className="animate-spin" /> Cloning...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy size={12} /> Clone
+                                            </>
+                                        )}
                                     </button>
                                     <button
                                         onClick={() => setConfirmDeleteId(series.id)}
