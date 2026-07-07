@@ -24,10 +24,17 @@ import { useAuth } from '../contexts/AuthContext';
 import { getTestSeries, getTestsBySeriesId } from '../services/testSeriesService';
 import { studentService } from '../services/studentService';
 import { db } from '../firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot, orderBy } from 'firebase/firestore';
 import type { TestSeries, Test } from '../types/test.types';
 import Navbar from '../components/landing/Navbar';
 import Footer from '../components/landing/Footer';
+
+interface Attempt {
+    id: string;
+    testId: string;
+    score: number;
+    attemptDate: any;
+}
 
 const TYPE_LABELS: Record<string, string> = {
     practice: 'Practice',
@@ -56,6 +63,7 @@ const TestSeriesDetailsPage = () => {
 
     const [series, setSeries] = useState<TestSeries | null>(null);
     const [tests, setTests] = useState<Test[]>([]);
+    const [attemptsMap, setAttemptsMap] = useState<Record<string, Attempt[]>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [isEnrolling, setIsEnrolling] = useState(false);
     const [isOwned, setIsOwned] = useState(false);
@@ -159,6 +167,32 @@ const TestSeriesDetailsPage = () => {
 
         fetchSeries();
     }, [id, currentUser]);
+
+    useEffect(() => {
+        if (currentUser) {
+            const attemptsRef = collection(db, 'users', currentUser.uid, 'attempts');
+            const unsubscribeAttempts = onSnapshot(
+                query(attemptsRef, orderBy('attemptDate', 'desc')),
+                (snapshot) => {
+                    const attempts = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    })) as Attempt[];
+
+                    const map: Record<string, Attempt[]> = {};
+                    attempts.forEach(attempt => {
+                        if (!map[attempt.testId]) map[attempt.testId] = [];
+                        map[attempt.testId].push(attempt);
+                    });
+                    setAttemptsMap(map);
+                },
+                (error) => {
+                    console.error("Error listening to attempts:", error);
+                }
+            );
+            return () => unsubscribeAttempts();
+        }
+    }, [currentUser]);
 
     const handleEnroll = async () => {
         if (!currentUser) {
@@ -408,6 +442,10 @@ const TestSeriesDetailsPage = () => {
                                         const duration = test.settings?.duration || 180;
                                         const questionsCount = test.questionConfig?.totalQuestions || test.questionIds?.length || 0;
 
+                                        const testAttempts = attemptsMap[test.id] || [];
+                                        const hasAttempted = testAttempts.length > 0;
+                                        const testBestScore = hasAttempted ? Math.max(...testAttempts.map(a => a.score || 0)) : 0;
+
                                         return (
                                             <div 
                                                 key={test.id}
@@ -431,6 +469,11 @@ const TestSeriesDetailsPage = () => {
                                                             <span className="text-[11px] text-slate-400 font-semibold">
                                                                 • {questionsCount} Qs
                                                             </span>
+                                                            {hasAttempted && (
+                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700 border border-green-200">
+                                                                    Best: {testBestScore.toFixed(1)}%
+                                                                </span>
+                                                            )}
                                                             {test.id === firstTestId && !isOwned && (
                                                                 <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse">
                                                                     Free Demo
@@ -443,11 +486,15 @@ const TestSeriesDetailsPage = () => {
                                                 <div className="flex-shrink-0 ml-4">
                                                     {isOwned ? (
                                                         <button 
-                                                            onClick={() => navigate('/dashboard/tests')}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded-xl text-xs font-bold transition-all"
+                                                            onClick={() => navigate(`/dashboard/attempt/${test.id}`)}
+                                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+                                                                hasAttempted
+                                                                    ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                                                                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                            }`}
                                                         >
-                                                            <Check size={12} strokeWidth={3} />
-                                                            <span>Attempt</span>
+                                                            <PlayCircle size={12} />
+                                                            <span>{hasAttempted ? 'Reattempt' : 'Start Test'}</span>
                                                         </button>
                                                     ) : test.id === firstTestId ? (
                                                         <button 
