@@ -70,7 +70,7 @@ const StudentMarketPage = () => {
                 }
 
                 const options = {
-                    key: 'rzp_test_S7lSvWtu89c6zD',
+                    key: 'rzp_live_TAGGnZwDvZubIP',
                     amount: (series.pricing.amount || 0) * 100,
                     currency: 'INR',
                     name: 'Examinant',

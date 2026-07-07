@@ -69,7 +69,7 @@ const StudentResourcesPage = () => {
             }
 
             const options = {
-                key: 'rzp_test_S7lSvWtu89c6zD',
+                key: 'rzp_live_TAGGnZwDvZubIP',
                 amount: (resource.price || 0) * 100,
                 currency: 'INR',
                 name: 'Examinant',

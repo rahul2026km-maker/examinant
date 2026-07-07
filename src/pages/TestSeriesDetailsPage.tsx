@@ -216,7 +216,7 @@ const TestSeriesDetailsPage = () => {
                 const finalPrice = Math.max(0, (series.pricing.amount || 0) - couponDiscount);
 
                 const options = {
-                    key: 'rzp_test_S7lSvWtu89c6zD', // Enter the Key ID generated from the Dashboard
+                    key: 'rzp_live_TAGGnZwDvZubIP', // Enter the Key ID generated from the Dashboard
                     amount: finalPrice * 100, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                     currency: 'INR',
                     name: 'Examinant',

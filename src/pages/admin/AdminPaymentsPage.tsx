@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Loader2, Calendar, CreditCard, Filter, Mail, Phone, BookOpen, User, IndianRupee } from 'lucide-react';
 import { db } from '../../firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, doc, updateDoc, where } from 'firebase/firestore';
 
 interface PurchaseRecord {
     id: string;
@@ -53,6 +53,38 @@ const AdminPaymentsPage = () => {
 
         fetchPurchases();
     }, []);
+
+    const handleRefund = async (record: PurchaseRecord) => {
+        if (!window.confirm(`Are you sure you want to mark this purchase of ₹${record.price} by ${record.studentName} as refunded?`)) return;
+
+        try {
+            // 1. Update the global purchases doc
+            const purchaseRef = doc(db, 'purchases', record.id);
+            await updateDoc(purchaseRef, {
+                paymentStatus: 'refunded',
+                status: 'refunded'
+            });
+
+            // 2. Query and update the user's private purchase doc
+            const userPurchasesRef = collection(db, 'users', record.userId, 'purchases');
+            const q = query(userPurchasesRef, where('seriesId', '==', record.seriesId));
+            const userSnap = await getDocs(q);
+            if (!userSnap.empty) {
+                const userDocRef = doc(db, 'users', record.userId, 'purchases', userSnap.docs[0].id);
+                await updateDoc(userDocRef, {
+                    paymentStatus: 'refunded',
+                    status: 'refunded'
+                });
+            }
+
+            // 3. Update local state
+            setPurchases(prev => prev.map(p => p.id === record.id ? { ...p, paymentStatus: 'refunded', status: 'refunded' } : p));
+            alert('Purchase marked as refunded successfully.');
+        } catch (error) {
+            console.error("Refund failed:", error);
+            alert("Failed to process refund. Please try again.");
+        }
+    };
 
     // Filter purchases
     const filteredPurchases = purchases.filter(record => {
@@ -182,18 +214,19 @@ const AdminPaymentsPage = () => {
                                 <th className="px-6 py-4">Amount</th>
                                 <th className="px-6 py-4">Gateway & ID</th>
                                 <th className="px-6 py-4">Payment Status</th>
+                                <th className="px-6 py-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-sm">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={6} className="py-12 text-center">
+                                    <td colSpan={7} className="py-12 text-center">
                                         <Loader2 className="animate-spin inline text-blue-600" size={32} />
                                     </td>
                                 </tr>
                             ) : filteredPurchases.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-12 text-center text-slate-500 font-medium">
+                                    <td colSpan={7} className="py-12 text-center text-slate-500 font-medium">
                                         No purchase transactions found.
                                     </td>
                                 </tr>
@@ -259,21 +292,40 @@ const AdminPaymentsPage = () => {
                                         {/* Status */}
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${
-                                                record.paymentStatus === 'completed'
+                                                record.paymentStatus === 'completed' || record.paymentStatus === 'success'
                                                     ? 'bg-blue-100 text-blue-700'
                                                     : record.paymentStatus === 'free'
                                                     ? 'bg-emerald-100 text-emerald-700'
+                                                    : record.paymentStatus === 'refunded'
+                                                    ? 'bg-purple-100 text-purple-700'
+                                                    : record.paymentStatus === 'failed'
+                                                    ? 'bg-red-100 text-red-700'
                                                     : 'bg-yellow-100 text-yellow-700'
                                             }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${
-                                                    record.paymentStatus === 'completed'
+                                                    record.paymentStatus === 'completed' || record.paymentStatus === 'success'
                                                         ? 'bg-blue-500'
                                                         : record.paymentStatus === 'free'
                                                         ? 'bg-emerald-500'
+                                                        : record.paymentStatus === 'refunded'
+                                                        ? 'bg-purple-500'
+                                                        : record.paymentStatus === 'failed'
+                                                        ? 'bg-red-500'
                                                         : 'bg-yellow-500'
                                                 }`}></span>
                                                 {record.paymentStatus === 'completed' ? 'Paid' : record.paymentStatus}
                                             </span>
+                                        </td>
+                                        {/* Actions */}
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {record.price > 0 && record.paymentStatus === 'completed' && (
+                                                <button
+                                                    onClick={() => handleRefund(record)}
+                                                    className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 hover:text-red-700 text-xs font-bold transition-all"
+                                                >
+                                                    Refund
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
