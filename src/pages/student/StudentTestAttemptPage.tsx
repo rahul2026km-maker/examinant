@@ -30,6 +30,10 @@ interface TestData {
     testPattern?: string;
     enableSectionTimers?: boolean;
     sectionDurations?: Record<string, number>;
+    settings?: {
+        marksPerQuestion?: number;
+        negativeMarking?: number;
+    };
 }
 
 type QuestionStatus = 'notVisited' | 'notAnswered' | 'answered' | 'markedForReview' | 'answeredAndMarked';
@@ -126,7 +130,8 @@ const StudentTestAttemptPage = () => {
                             duration: rawData.settings?.duration || rawData.duration || 180,
                             testPattern: rawData.testPattern || (fullQuestions.some(q => q.type === 'Numerical') ? 'JEE_MAINS' : 'STANDARD'),
                             enableSectionTimers: rawData.settings?.enableSectionTimers || false,
-                            sectionDurations: rawData.settings?.sectionDurations || {}
+                            sectionDurations: rawData.settings?.sectionDurations || {},
+                            settings: rawData.settings
                         };
 
                         setTestData(data);
@@ -399,6 +404,10 @@ const StudentTestAttemptPage = () => {
             let correctCount = 0;
             let attemptedCount = 0;
 
+            const marksPerQuestion = testData.settings?.marksPerQuestion !== undefined ? Number(testData.settings.marksPerQuestion) : 4;
+            const rawNegative = testData.settings?.negativeMarking !== undefined ? Number(testData.settings.negativeMarking) : -1;
+            const negativeMarking = rawNegative > 0 ? -rawNegative : rawNegative;
+
             testData.questions.forEach((q, idx) => {
                 // For Section B, only count first 5 selected answers
                 if (q.section === 'B') {
@@ -411,10 +420,10 @@ const StudentTestAttemptPage = () => {
                 if (answers[idx] !== undefined) {
                     attemptedCount++;
                     if (String(answers[idx]) === String(q.correctAnswer)) {
-                        score += 4;
+                        score += marksPerQuestion;
                         correctCount++;
                     } else {
-                        score -= 1; // Negative marking
+                        score += negativeMarking; // Negative marking
                     }
                 }
             });
@@ -492,11 +501,15 @@ const StudentTestAttemptPage = () => {
                                     <div className="text-sm text-slate-600">Duration</div>
                                 </div>
                                 <div className="bg-slate-50 p-4 rounded-lg">
-                                    <div className="text-2xl font-bold text-purple-600">+4 / -1</div>
+                                    <div className="text-2xl font-bold text-purple-600">
+                                        +{testData.settings?.marksPerQuestion || 4} / {testData.settings?.negativeMarking || -1}
+                                    </div>
                                     <div className="text-sm text-slate-600">Marking Scheme</div>
                                 </div>
                                 <div className="bg-slate-50 p-4 rounded-lg">
-                                    <div className="text-2xl font-bold text-orange-600">{testData.questions.length * 4}</div>
+                                    <div className="text-2xl font-bold text-orange-600">
+                                        {testData.questions.length * (testData.settings?.marksPerQuestion || 4)}
+                                    </div>
                                     <div className="text-sm text-slate-600">Total Marks</div>
                                 </div>
                             </div>

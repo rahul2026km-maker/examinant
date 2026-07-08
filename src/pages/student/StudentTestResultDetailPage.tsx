@@ -45,9 +45,13 @@ interface TestData {
     id: string;
     omrTemplate?: {
         totalQuestions: number;
-        sections: { name: string; questionStartIndex: number; questionEndIndex: number; questionCount: number }[];
+        sections: { name: string; questionStartIndex: number; questionEndIndex: number; questionCount: number; marksCorrect?: number; marksWrong?: number }[];
     };
     questionMappings?: { serialNumber: number; correctOption: string; subject?: string }[];
+    settings?: {
+        marksPerQuestion?: number;
+        negativeMarking?: number;
+    };
 }
 
 const StudentTestResultDetailPage = () => {
@@ -303,7 +307,13 @@ const StudentTestResultDetailPage = () => {
                     <div>
                         <p className="text-sm text-slate-500 font-medium">Score</p>
                         <h3 className="text-2xl font-bold text-slate-800">
-                            {attempt.score} <span className="text-sm text-slate-400 font-normal">/ {attempt.isOMR ? (testData?.omrTemplate?.totalQuestions || 0) * 4 : (questions.length || attempt.totalQuestions || 0) * 4}</span>
+                            {attempt.score} <span className="text-sm text-slate-400 font-normal">/ {
+                                (attempt as any).totalMarks !== undefined 
+                                    ? (attempt as any).totalMarks 
+                                    : (attempt.isOMR && testData?.omrTemplate?.sections
+                                        ? testData.omrTemplate.sections.reduce((sum, sec) => sum + (sec.questionCount || (sec.questionEndIndex - sec.questionStartIndex + 1)) * (sec.marksCorrect || 4), 0)
+                                        : (questions.length || attempt.totalQuestions || 0) * (testData?.settings?.marksPerQuestion || 4))
+                            }</span>
                         </h3>
                     </div>
                 </div>
@@ -435,6 +445,24 @@ const StudentTestResultDetailPage = () => {
                         const status = q.status;
                         const userAnswer = attempt.answers[q.index];
 
+                        let qMarksCorrect = 4;
+                        let qMarksWrong = -1;
+
+                        if (attempt.isOMR && testData?.omrTemplate?.sections) {
+                            const qNumber = q.index + 1;
+                            const section = testData.omrTemplate.sections.find(
+                                sec => qNumber >= sec.questionStartIndex && qNumber <= sec.questionEndIndex
+                            );
+                            if (section) {
+                                qMarksCorrect = section.marksCorrect ?? 4;
+                                qMarksWrong = section.marksWrong ?? -1;
+                            }
+                        } else if (testData?.settings) {
+                            qMarksCorrect = testData.settings.marksPerQuestion ?? 4;
+                            const rawNeg = testData.settings.negativeMarking ?? -1;
+                            qMarksWrong = rawNeg > 0 ? -rawNeg : rawNeg;
+                        }
+
                         return (
                             <div key={q.id || `q-${qi}`} className="p-6 hover:bg-slate-50 transition-colors">
                                 <div className="flex items-start gap-4">
@@ -478,12 +506,12 @@ const StudentTestResultDetailPage = () => {
                                             )}
                                             {status === 'correct' && (
                                                 <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold flex items-center gap-1">
-                                                    <CheckCircle size={12} /> Correct (+4)
+                                                    <CheckCircle size={12} /> Correct (+{qMarksCorrect})
                                                 </span>
                                             )}
                                             {status === 'incorrect' && (
                                                 <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold flex items-center gap-1">
-                                                    <XCircle size={12} /> Incorrect (-1)
+                                                    <XCircle size={12} /> Incorrect ({qMarksWrong})
                                                 </span>
                                             )}
                                             {status === 'unattempted' && (
