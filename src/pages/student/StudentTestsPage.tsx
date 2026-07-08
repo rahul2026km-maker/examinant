@@ -522,6 +522,7 @@ const StudentTestsPage = () => {
     const [purchasedTests, setPurchasedTests] = useState<PurchasedTest[]>([]);
     const [attemptsMap, setAttemptsMap] = useState<Record<string, Attempt[]>>({});
     const [allTests, setAllTests] = useState<TestItem[]>([]);
+    const [validSeriesIds, setValidSeriesIds] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -563,6 +564,7 @@ const StudentTestsPage = () => {
     useEffect(() => {
         if (purchasedTests.length === 0) {
             setAllTests([]);
+            setValidSeriesIds(new Set());
             return;
         }
 
@@ -571,25 +573,52 @@ const StudentTestsPage = () => {
                 const seriesIds = purchasedTests.map(p => p.seriesId || p.testId).filter(Boolean);
                 
                 if (seriesIds.length > 0) {
-                    const chunks = [];
+                    const seriesChunks = [];
                     for (let i = 0; i < seriesIds.length; i += 30) {
-                        chunks.push(seriesIds.slice(i, i + 30));
+                        seriesChunks.push(seriesIds.slice(i, i + 30));
                     }
                     
-                    let fetched: TestItem[] = [];
-                    for (const chunk of chunks) {
-                        const q = query(
-                            collection(db, 'tests'),
-                            where('seriesId', 'in', chunk)
+                    const existing = new Set<string>();
+                    for (const chunk of seriesChunks) {
+                        const qSeries = query(
+                            collection(db, 'testSeries'),
+                            where('__name__', 'in', chunk)
                         );
-                        const snapshot = await getDocs(q);
-                        const chunkTests = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        })) as TestItem[];
-                        fetched = [...fetched, ...chunkTests];
+                        const snapshotSeries = await getDocs(qSeries);
+                        snapshotSeries.docs.forEach(doc => {
+                            existing.add(doc.id);
+                        });
                     }
-                    setAllTests(fetched);
+                    setValidSeriesIds(existing);
+
+                    const validList = Array.from(existing);
+                    if (validList.length > 0) {
+                        const chunks = [];
+                        for (let i = 0; i < validList.length; i += 30) {
+                            chunks.push(validList.slice(i, i + 30));
+                        }
+                        
+                        let fetched: TestItem[] = [];
+                        for (const chunk of chunks) {
+                            const q = query(
+                                collection(db, 'tests'),
+                                where('seriesId', 'in', chunk),
+                                where('status', '==', 'published')
+                            );
+                            const snapshot = await getDocs(q);
+                            const chunkTests = snapshot.docs.map(doc => ({
+                                id: doc.id,
+                                ...doc.data()
+                            })) as TestItem[];
+                            fetched = [...fetched, ...chunkTests];
+                        }
+                        setAllTests(fetched);
+                    } else {
+                        setAllTests([]);
+                    }
+                } else {
+                    setValidSeriesIds(new Set());
+                    setAllTests([]);
                 }
             } catch (error) {
                 console.error("Error fetching all tests for purchased series:", error);
@@ -600,7 +629,8 @@ const StudentTestsPage = () => {
     }, [purchasedTests]);
 
     // Calculate aggregated statistics for stats cards
-    const totalTestSeriesCount = purchasedTests.length;
+    const filteredPurchasedTests = purchasedTests.filter(p => validSeriesIds.has(p.seriesId || p.testId));
+    const totalTestSeriesCount = filteredPurchasedTests.length;
     const totalTestsCount = allTests.length;
     
     const attemptedTestIds = new Set(Object.keys(attemptsMap));
@@ -608,8 +638,9 @@ const StudentTestsPage = () => {
 
     let totalScore = 0;
     let attemptsCount = 0;
+    const validTestIds = new Set(allTests.map(t => t.id));
     Object.values(attemptsMap).flat().forEach(attempt => {
-        if (attempt.score !== undefined) {
+        if (attempt.score !== undefined && validTestIds.has(attempt.testId)) {
             totalScore += attempt.score;
             attemptsCount++;
         }
@@ -719,7 +750,7 @@ const StudentTestsPage = () => {
                     <div className="flex justify-center py-20">
                         <Loader2 className="animate-spin text-blue-600" size={40} />
                     </div>
-                ) : purchasedTests.length === 0 ? (
+                ) : filteredPurchasedTests.length === 0 ? (
                     <div className="text-center py-32 bg-slate-50 rounded-[48px] border-2 border-dashed border-slate-200">
                         <div className="w-20 h-20 bg-white rounded-[32px] flex items-center justify-center mx-auto mb-8 shadow-sm text-slate-300">
                             <BookOpen size={40} />
@@ -736,7 +767,7 @@ const StudentTestsPage = () => {
                         </button>
                     </div>
                 ) : (
-                    purchasedTests.map((purchase) => {
+                    filteredPurchasedTests.map((purchase) => {
                         const seriesId = purchase.seriesId || purchase.testId;
                         const seriesTests = allTests.filter(t => t.seriesId === seriesId);
                         return (
