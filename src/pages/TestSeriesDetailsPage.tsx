@@ -59,7 +59,7 @@ const TYPE_COLORS: Record<string, string> = {
 const TestSeriesDetailsPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { currentUser } = useAuth() || {};
+    const { currentUser, profileData } = useAuth() || {};
 
     const [series, setSeries] = useState<TestSeries | null>(null);
     const [tests, setTests] = useState<Test[]>([]);
@@ -228,6 +228,12 @@ const TestSeriesDetailsPage = () => {
                             await studentService.enrollInTestSeries(currentUser.uid, series, {
                                 paymentId: response.razorpay_payment_id,
                                 paymentStatus: 'completed'
+                            }, {
+                                displayName: currentUser.displayName,
+                                email: currentUser.email,
+                                phoneNumber: currentUser.phoneNumber,
+                                fullName: profileData?.fullName,
+                                mobile: profileData?.mobile
                             });
                             setIsOwned(true);
                             alert('Payment Successful!');
@@ -238,9 +244,9 @@ const TestSeriesDetailsPage = () => {
                         }
                     },
                     prefill: {
-                        name: currentUser.displayName || 'Student',
-                        email: currentUser.email || 'student@example.com',
-                        contact: '' // valid phone number could be added if available
+                        name: profileData?.fullName || currentUser.displayName || 'Student',
+                        email: profileData?.email || currentUser.email || 'student@example.com',
+                        contact: profileData?.mobile || '' // valid phone number could be added if available
                     },
                     notes: {
                         address: 'Examinant Corporate Office'
@@ -260,6 +266,12 @@ const TestSeriesDetailsPage = () => {
                 await studentService.enrollInTestSeries(currentUser.uid, series, {
                     paymentId: 'free',
                     paymentStatus: 'free'
+                }, {
+                    displayName: currentUser.displayName,
+                    email: currentUser.email,
+                    phoneNumber: currentUser.phoneNumber,
+                    fullName: profileData?.fullName,
+                    mobile: profileData?.mobile
                 });
                 setIsOwned(true);
                 alert('Enrolled successfully!');

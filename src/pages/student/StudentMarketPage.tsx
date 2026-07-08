@@ -16,6 +16,7 @@ const StudentMarketPage = () => {
     const navigate = useNavigate();
     const authContext = useAuth();
     const currentUser = authContext?.currentUser;
+    const profileData = authContext?.profileData;
     const [tests, setTests] = useState<TestSeries[]>([]);
     const [purchasedTestIds, setPurchasedTestIds] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(true);
@@ -81,6 +82,12 @@ const StudentMarketPage = () => {
                             await studentService.enrollInTestSeries(currentUser.uid, series, {
                                 paymentId: response.razorpay_payment_id,
                                 paymentStatus: 'completed'
+                            }, {
+                                displayName: currentUser.displayName,
+                                email: currentUser.email,
+                                phoneNumber: currentUser.phoneNumber,
+                                fullName: profileData?.fullName,
+                                mobile: profileData?.mobile
                             });
                             alert('Success! You are now enrolled.');
                             navigate('/dashboard/tests');
@@ -89,8 +96,8 @@ const StudentMarketPage = () => {
                         }
                     },
                     prefill: {
-                        name: currentUser.displayName || 'Student',
-                        email: currentUser.email || 'student@example.com'
+                        name: profileData?.fullName || currentUser.displayName || 'Student',
+                        email: profileData?.email || currentUser.email || 'student@example.com'
                     },
                     theme: { color: '#2563eb' },
                     modal: { ondismiss: () => setEnrollingId(null) }
@@ -103,6 +110,12 @@ const StudentMarketPage = () => {
                 await studentService.enrollInTestSeries(currentUser.uid, series, {
                     paymentId: 'free',
                     paymentStatus: 'free'
+                }, {
+                    displayName: currentUser.displayName,
+                    email: currentUser.email,
+                    phoneNumber: currentUser.phoneNumber,
+                    fullName: profileData?.fullName,
+                    mobile: profileData?.mobile
                 });
                 setEnrollingId(null);
                 navigate('/dashboard/tests');

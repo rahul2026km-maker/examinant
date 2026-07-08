@@ -136,7 +136,12 @@ export const studentService = {
     /**
      * Enroll student in a test series (record purchase)
      */
-    enrollInTestSeries: async (userId: string, series: any, paymentDetails?: { paymentId?: string, paymentStatus?: string }) => {
+    enrollInTestSeries: async (
+        userId: string, 
+        series: any, 
+        paymentDetails?: { paymentId?: string, paymentStatus?: string },
+        studentInfo?: { fullName?: string | null; email?: string | null; mobile?: string | null; displayName?: string | null; phoneNumber?: string | null }
+    ) => {
         try {
             // Get user details from Firestore
             const userSnap = await getDoc(doc(db, 'users', userId));
@@ -164,9 +169,9 @@ export const studentService = {
             await addDoc(collection(db, 'purchases'), {
                 ...purchaseData,
                 userId,
-                studentName: userData?.fullName || userData?.displayName || auth.currentUser?.displayName || 'Student',
-                studentEmail: userData?.email || auth.currentUser?.email || 'student@example.com',
-                studentMobile: userData?.mobile || userData?.phone || auth.currentUser?.phoneNumber || ''
+                studentName: userData?.fullName || userData?.displayName || studentInfo?.fullName || studentInfo?.displayName || auth.currentUser?.displayName || 'Student',
+                studentEmail: userData?.email || studentInfo?.email || auth.currentUser?.email || 'student@example.com',
+                studentMobile: userData?.mobile || userData?.phone || studentInfo?.mobile || studentInfo?.phoneNumber || auth.currentUser?.phoneNumber || ''
             });
 
             return true;
