@@ -273,7 +273,10 @@ const AdminPaymentsPage = () => {
                                         {/* Amount */}
                                         <td className="px-6 py-4 font-extrabold text-slate-800 whitespace-nowrap">
                                             {record.price > 0 ? (
-                                                <span className="text-blue-600">₹{record.price}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-blue-600">₹{record.price}</span>
+                                                    <span className="text-slate-400 line-through text-xs font-semibold">₹{Math.round(record.price * 1.2)}</span>
+                                                </div>
                                             ) : (
                                                 <span className="text-emerald-600 font-bold">Free</span>
                                             )}

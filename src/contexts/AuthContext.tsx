@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, createContext, type ReactNode } from 'react';
 import { auth, db } from '../firebase';
 import { type User, onAuthStateChanged, sendPasswordResetEmail } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface AuthContextType {
     currentUser: User | null;
@@ -47,18 +47,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (user) {
                 try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
                     if (userDoc.exists()) {
                         const data = userDoc.data();
                         setUserRole(data.role as 'student' | 'admin');
                         setProfileData(data);
                     } else {
-                        // Default to student if document doesn't exist but user is auth'd
+                        // Create the missing document in Firestore using their Auth details
+                        const newProfile = {
+                            fullName: user.displayName || 'Student',
+                            email: user.email || 'student@example.com',
+                            role: 'student',
+                            status: 'active',
+                            createdAt: new Date(),
+                            joinedDate: new Date()
+                        };
+                        await setDoc(userDocRef, newProfile);
                         setUserRole('student');
-                        setProfileData(null);
+                        setProfileData(newProfile);
                     }
                 } catch (error) {
-                    console.error("Error fetching user role:", error);
+                    console.error("Error fetching or creating user profile:", error);
                     setUserRole('student'); // Fail safe
                     setProfileData(null);
                 }

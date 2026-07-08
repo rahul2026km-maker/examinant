@@ -1,4 +1,4 @@
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import {
     collection,
     addDoc,
@@ -164,9 +164,9 @@ export const studentService = {
             await addDoc(collection(db, 'purchases'), {
                 ...purchaseData,
                 userId,
-                studentName: userData?.fullName || userData?.displayName || 'Student',
-                studentEmail: userData?.email || 'student@example.com',
-                studentMobile: userData?.mobile || userData?.phone || ''
+                studentName: userData?.fullName || userData?.displayName || auth.currentUser?.displayName || 'Student',
+                studentEmail: userData?.email || auth.currentUser?.email || 'student@example.com',
+                studentMobile: userData?.mobile || userData?.phone || auth.currentUser?.phoneNumber || ''
             });
 
             return true;
