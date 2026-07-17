@@ -408,23 +408,42 @@ const StudentTestAttemptPage = () => {
             const rawNegative = testData.settings?.negativeMarking !== undefined ? Number(testData.settings.negativeMarking) : -1;
             const negativeMarking = rawNegative > 0 ? -rawNegative : rawNegative;
 
+            const sectionWise: Record<string, { score: number; correct: number; wrong: number; unattempted: number; maxScore: number }> = {};
+
             testData.questions.forEach((q, idx) => {
-                // For Section B, only count first 5 selected answers
+                const subject = q.subject || 'General';
+                if (!sectionWise[subject]) {
+                    sectionWise[subject] = { score: 0, correct: 0, wrong: 0, unattempted: 0, maxScore: 0 };
+                }
+
+                let isSectionBEligible = true;
                 if (q.section === 'B') {
-                    const subjectSelections = Array.from(sectionBSelections[q.subject]);
+                    const subjectSelections = Array.from(sectionBSelections[q.subject] || []);
                     if (!subjectSelections.includes(idx) || subjectSelections.indexOf(idx) >= 5) {
-                        return; // Skip this question in scoring
+                        isSectionBEligible = false;
                     }
                 }
+
+                if (!isSectionBEligible) {
+                    return; // Skip this question in scoring
+                }
+
+                sectionWise[subject].maxScore += marksPerQuestion;
 
                 if (answers[idx] !== undefined) {
                     attemptedCount++;
                     if (String(answers[idx]) === String(q.correctAnswer)) {
                         score += marksPerQuestion;
                         correctCount++;
+                        sectionWise[subject].score += marksPerQuestion;
+                        sectionWise[subject].correct++;
                     } else {
-                        score += negativeMarking; // Negative marking
+                        score += negativeMarking;
+                        sectionWise[subject].score += negativeMarking;
+                        sectionWise[subject].wrong++;
                     }
+                } else {
+                    sectionWise[subject].unattempted++;
                 }
             });
 
@@ -440,6 +459,7 @@ const StudentTestAttemptPage = () => {
                 answers: answers,
                 markedForReview: Array.from(markedForReview),
                 questionTimes: questionTimes,
+                sectionWiseScore: sectionWise,
                 sectionBSelections: Object.keys(sectionBSelections).reduce((acc, key) => {
                     acc[key] = Array.from(sectionBSelections[key]);
                     return acc;

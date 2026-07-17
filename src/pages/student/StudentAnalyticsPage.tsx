@@ -464,6 +464,28 @@ const StudentAnalyticsPage = () => {
         );
     }
 
+    if (attempts.length === 0) {
+        return (
+            <div className="max-w-7xl mx-auto space-y-6">
+                <div className="flex flex-col items-center justify-center bg-white p-12 border border-slate-100 rounded-2xl shadow-sm text-center">
+                    <div className="p-4 bg-blue-50 text-[#0B1E43] rounded-full mb-4">
+                        <TrendingUp size={48} className="text-blue-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">No Performance Analytics Yet</h3>
+                    <p className="text-slate-500 text-sm max-w-md mb-6">
+                        Once you start attempting mock tests and OMR practice, detailed analytics of your scores, speed, accuracy, and consistency will appear here.
+                    </p>
+                    <button
+                        onClick={() => navigate('/dashboard/market')}
+                        className="px-6 py-3 bg-[#0B1E43] hover:bg-[#1D64D0] text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer"
+                    >
+                        Explore Test Series
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

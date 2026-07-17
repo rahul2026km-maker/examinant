@@ -52,9 +52,16 @@ const StudentDashboard = () => {
         totalTests: 0,
         averageScore: 0,
         totalTimeSpent: 0,
+        accuracy: 0,
+        currentStreak: 0,
         testsTrend: 'Start now',
         scoreTrend: '-',
-        timeTrend: '-'
+        timeTrend: '-',
+        weeklyPerformance: [],
+        subjectPerformance: [],
+        dailyGoalCompleted: 0,
+        dailyGoalTarget: 2,
+        recentAttempts: []
     });
     const [activeTests, setActiveTests] = useState<ActiveTest[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -80,143 +87,6 @@ const StudentDashboard = () => {
         };
         loadDashboardData();
     }, [currentUser]);
-
-    const getPrepData = (exam: string) => {
-        const examLower = exam.toLowerCase();
-        if (examLower.includes('neet') || examLower.includes('medical')) {
-            return [
-                {
-                    title: 'NEET Biology - Plant Kingdom Booster',
-                    desc: 'Chapter Test • 90 Questions • 45 Min',
-                    progress: 65,
-                    testId: 'neet-bio-plant'
-                },
-                {
-                    title: 'Chemistry - Organic Hydrocarbons',
-                    desc: 'Chapter Test • 45 Questions • 30 Min',
-                    progress: 40,
-                    testId: 'neet-chem-hydrocarbons'
-                },
-                {
-                    title: 'Physics - Ray Optics & Instruments',
-                    desc: 'Chapter Test • 45 Questions • 45 Min',
-                    progress: 20,
-                    testId: 'neet-phys-optics'
-                }
-            ];
-        } else if (examLower.includes('jee') || examLower.includes('engineering')) {
-            return [
-                {
-                    title: 'JEE Main - Calculus & Limits Practice',
-                    desc: 'Chapter Test • 30 Questions • 60 Min',
-                    progress: 65,
-                    testId: 'jee-math-calculus'
-                },
-                {
-                    title: 'Physics - Electrostatics & Gauss Law',
-                    desc: 'Chapter Test • 30 Questions • 60 Min',
-                    progress: 40,
-                    testId: 'jee-phys-electrostatics'
-                },
-                {
-                    title: 'Chemistry - Chemical Kinetics & Equilibrium',
-                    desc: 'Chapter Test • 30 Questions • 45 Min',
-                    progress: 20,
-                    testId: 'jee-chem-kinetics'
-                }
-            ];
-        } else if (examLower.includes('upsc') || examLower.includes('pcs')) {
-            return [
-                {
-                    title: 'UPSC CSE Prelims - Indian Polity & Gov',
-                    desc: 'Full Mock • 100 Questions • 120 Min',
-                    progress: 65,
-                    testId: 'upsc-polity'
-                },
-                {
-                    title: 'Modern Indian History - Freedom Struggle',
-                    desc: 'Chapter Test • 50 Questions • 60 Min',
-                    progress: 40,
-                    testId: 'upsc-modern-history'
-                },
-                {
-                    title: 'General Geography & Environment',
-                    desc: 'Chapter Test • 50 Questions • 60 Min',
-                    progress: 20,
-                    testId: 'upsc-geography'
-                }
-            ];
-        } else if (examLower.includes('bank') || examLower.includes('teach') || examLower.includes('rail') || examLower.includes('def')) {
-            return [
-                {
-                    title: `${exam} General Awareness Test 01`,
-                    desc: 'Practice Test • 50 Questions • 30 Min',
-                    progress: 65,
-                    testId: 'general-exam-01'
-                },
-                {
-                    title: 'Quantitative Aptitude - Data Interpretation',
-                    desc: 'Chapter Test • 25 Questions • 20 Min',
-                    progress: 40,
-                    testId: 'general-quant-di'
-                },
-                {
-                    title: 'English Comprehension & Sentence Correction',
-                    desc: 'Chapter Test • 25 Questions • 20 Min',
-                    progress: 20,
-                    testId: 'general-english'
-                }
-            ];
-        } else {
-            // Dynamic default titles based on the exam name
-            return [
-                {
-                    title: `${exam} Full Length Practice Test 01`,
-                    desc: 'Full Length Test • 100 Questions • 60 Min',
-                    progress: 65,
-                    testId: 'dynamic-mock-1'
-                },
-                {
-                    title: `${exam} Sectional Mock - Section A`,
-                    desc: 'Chapter Test • 25 Questions • 20 Min',
-                    progress: 40,
-                    testId: 'dynamic-mock-2'
-                },
-                {
-                    title: `${exam} Subject Practice Paper`,
-                    desc: 'Chapter Test • 25 Questions • 20 Min',
-                    progress: 20,
-                    testId: 'dynamic-mock-3'
-                }
-            ];
-        }
-    };
-
-    const getRecentActivityData = (exam: string) => {
-        const examLower = exam.toLowerCase();
-        if (examLower.includes('neet') || examLower.includes('medical')) {
-            return [
-                { title: 'NEET Physics - Kinematics Mini Mock', detail: 'Score: 162/180 • Rank: 250/12500' },
-                { title: 'NEET Biology - Cell Biology Full Test', detail: 'Score: 320/360 • Rank: 184/18200' },
-                { title: 'NEET Chemistry - Mole Concept Practice', detail: 'Score: 140/180 • Rank: 89/9450' },
-                { title: 'NEET Weekly Revision Mock 04', detail: 'Score: 610/720 • Rank: 1045/45670' }
-            ];
-        } else if (examLower.includes('jee') || examLower.includes('engineering')) {
-            return [
-                { title: 'JEE Main Physics - Modern Physics Mock', detail: 'Score: 84/120 • Rank: 110/6800' },
-                { title: 'JEE Main Maths - Vector Algebra Practice', detail: 'Score: 92/120 • Rank: 85/7400' },
-                { title: 'JEE Main Chemistry - Coordination Compounds', detail: 'Score: 76/120 • Rank: 320/8200' },
-                { title: 'JEE Main Physics - Mechanical Properties', detail: 'Score: 80/120 • Rank: 145/7100' }
-            ];
-        } else {
-            return [
-                { title: `${exam} Chapter-wise Mock Test 02`, detail: 'Score: 82% • Rank: 125/4567' },
-                { title: `${exam} Weekly Practice Test 01`, detail: 'Score: 76% • Rank: 234/2345' },
-                { title: `${exam} Topic Test - Set A`, detail: 'Score: 64% • Rank: 345/4567' },
-                { title: `${exam} Speed Test 05`, detail: 'Score: 58% • Rank: 567/4567' }
-            ];
-        }
-    };
 
     const getFormattedDate = () => {
         const date = new Date();
@@ -256,23 +126,34 @@ const StudentDashboard = () => {
         );
     }
 
-    // Chart mock data matching the reference image layout
-    const performanceOverviewData = [
-        { name: 'Mon', Score: 60, Accuracy: 40 },
-        { name: 'Tue', Score: 50, Accuracy: 45 },
-        { name: 'Wed', Score: 52, Accuracy: 40 },
-        { name: 'Thu', Score: 62, Accuracy: 50 },
-        { name: 'Fri', Score: 58, Accuracy: 43 },
-        { name: 'Sat', Score: 68, Accuracy: 55 },
-        { name: 'Sun', Score: 65, Accuracy: 62 },
-    ];
+    // Weekly performance data for line chart
+    const performanceOverviewData = stats.weeklyPerformance && stats.weeklyPerformance.length > 0
+        ? stats.weeklyPerformance
+        : [
+            { name: 'Mon', Score: 0, Accuracy: 0 },
+            { name: 'Tue', Score: 0, Accuracy: 0 },
+            { name: 'Wed', Score: 0, Accuracy: 0 },
+            { name: 'Thu', Score: 0, Accuracy: 0 },
+            { name: 'Fri', Score: 0, Accuracy: 0 },
+            { name: 'Sat', Score: 0, Accuracy: 0 },
+            { name: 'Sun', Score: 0, Accuracy: 0 }
+        ];
 
-    const subjectWiseData = [
-        { name: 'Quantitative Aptitude', value: 72, color: '#0B1E43' },
-        { name: 'Reasoning Ability', value: 65, color: '#1D64D0' },
-        { name: 'English Language', value: 70, color: '#3A907C' },
-        { name: 'General Awareness', value: 60, color: '#FBBF24' }
-    ];
+    // Subject accuracy data for donut chart
+    const subjectWiseData = stats.subjectPerformance && stats.subjectPerformance.length > 0
+        ? stats.subjectPerformance
+        : [
+            { name: 'Quantitative Aptitude', value: 0, color: '#0B1E43' },
+            { name: 'Reasoning Ability', value: 0, color: '#1D64D0' },
+            { name: 'English Language', value: 0, color: '#3A907C' },
+            { name: 'General Awareness', value: 0, color: '#FBBF24' }
+        ];
+
+    // Handle empty subject data for Recharts Pie (to prevent rendering empty chart issues)
+    const isPieDataEmpty = subjectWiseData.every(d => d.value === 0);
+    const chartDataForPie = isPieDataEmpty
+        ? [{ name: 'No attempts yet', value: 100, color: '#e2e8f0' }]
+        : subjectWiseData;
 
     return (
         <motion.div
@@ -302,48 +183,48 @@ const StudentDashboard = () => {
                 {[
                     {
                         label: 'Tests Attempted',
-                        value: stats.totalTests > 0 ? stats.totalTests : 24,
+                        value: stats.totalTests,
                         subText: 'Total Tests',
-                        trend: '↑ 12% this week',
-                        trendColor: 'text-emerald-500',
+                        trend: stats.totalTests > 0 ? 'Dynamic data loaded' : 'No attempts yet',
+                        trendColor: 'text-slate-500',
                         icon: <ClipboardList size={18} />,
                         iconColor: 'text-[#1D64D0]',
                         iconBg: 'bg-blue-50'
                     },
                     {
                         label: 'Average Score',
-                        value: stats.averageScore > 0 ? `${stats.averageScore}%` : '68.5%',
+                        value: stats.totalTests > 0 ? `${stats.averageScore}%` : 'N/A',
                         subText: 'Across all tests',
-                        trend: '↑ 8.4% improvement',
-                        trendColor: 'text-emerald-500',
+                        trend: stats.totalTests > 0 ? 'Overall Average' : 'No attempts yet',
+                        trendColor: 'text-slate-500',
                         icon: <Award size={18} />,
                         iconColor: 'text-purple-600',
                         iconBg: 'bg-purple-50'
                     },
                     {
                         label: 'Accuracy',
-                        value: '72.3%',
+                        value: stats.totalTests > 0 ? `${stats.accuracy}%` : 'N/A',
                         subText: 'Correct questions %',
-                        trend: '↑ 6.7% improvement',
-                        trendColor: 'text-emerald-500',
+                        trend: stats.totalTests > 0 ? 'Solving Accuracy' : 'No attempts yet',
+                        trendColor: 'text-slate-500',
                         icon: <Target size={18} />,
                         iconColor: 'text-red-500',
                         iconBg: 'bg-red-50'
                     },
                     {
                         label: 'Total Study Time',
-                        value: stats.totalTimeSpent > 0 ? formatDurationHours(stats.totalTimeSpent) : '48h 30m',
+                        value: stats.totalTimeSpent > 0 ? formatDurationHours(stats.totalTimeSpent) : '0h',
                         subText: 'Time spent in test',
-                        trend: '↑ 5h 20m this week',
-                        trendColor: 'text-emerald-500',
+                        trend: 'Learning duration',
+                        trendColor: 'text-slate-500',
                         icon: <Clock size={18} />,
                         iconColor: 'text-sky-500',
                         iconBg: 'bg-sky-50'
                     },
                     {
                         label: 'Current Streak',
-                        value: '7 Days',
-                        subText: 'Keep it up! 🔥',
+                        value: `${stats.currentStreak} Days`,
+                        subText: stats.currentStreak > 0 ? 'Keep it up! 🔥' : 'Start practicing! 🔥',
                         trend: 'Daily active learning',
                         trendColor: 'text-[#FF7A00]',
                         icon: <Flame size={18} />,
@@ -441,21 +322,23 @@ const StudentDashboard = () => {
                         <div className="relative w-28 h-28 flex items-center justify-center shrink-0">
                             <PieChart width={112} height={112}>
                                 <Pie
-                                    data={subjectWiseData}
+                                    data={chartDataForPie}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={32}
                                     outerRadius={45}
-                                    paddingAngle={2}
+                                    paddingAngle={isPieDataEmpty ? 0 : 2}
                                     dataKey="value"
                                 >
-                                    {subjectWiseData.map((entry, index) => (
+                                    {chartDataForPie.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} />
                                     ))}
                                 </Pie>
                             </PieChart>
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                                <span className="text-xs font-black text-slate-800 leading-none">68.5%</span>
+                                <span className="text-xs font-black text-slate-800 leading-none">
+                                    {stats.totalTests > 0 ? `${stats.accuracy}%` : '0%'}
+                                </span>
                                 <span className="text-[7px] text-slate-400 font-bold uppercase mt-0.5">Overall</span>
                             </div>
                         </div>
@@ -481,9 +364,9 @@ const StudentDashboard = () => {
                 >
                     <div className="flex justify-between items-center">
                         <span className="text-[11px] font-bold text-slate-300">Daily Goal</span>
-                        <ArrowRight size={14} className="text-slate-300 cursor-pointer" />
+                        <ArrowRight size={14} className="text-slate-300 cursor-pointer" onClick={() => navigate('/dashboard/market')} />
                     </div>
-                    <div className="text-[9px] text-slate-400 font-medium">Reset in 10h 30m</div>
+                    <div className="text-[9px] text-slate-400 font-medium">Reset daily at midnight</div>
 
                     {/* SVG Circle Progress */}
                     <div className="flex items-center justify-center my-3 relative">
@@ -504,17 +387,21 @@ const StudentDashboard = () => {
                                 strokeWidth="8"
                                 fill="transparent"
                                 strokeDasharray={226}
-                                strokeDashoffset={226 - (226 * 75) / 100}
+                                strokeDashoffset={226 - (226 * Math.min(Math.round(((stats.dailyGoalCompleted || 0) / (stats.dailyGoalTarget || 2)) * 100), 100)) / 100}
                                 strokeLinecap="round"
                             />
                         </svg>
                         <div className="absolute flex flex-col items-center justify-center">
-                            <span className="text-lg font-black tracking-tighter">75%</span>
+                            <span className="text-lg font-black tracking-tighter">
+                                {Math.min(Math.round(((stats.dailyGoalCompleted || 0) / (stats.dailyGoalTarget || 2)) * 100), 100)}%
+                            </span>
                         </div>
                     </div>
 
                     <div className="text-center">
-                        <p className="text-[10px] font-semibold text-slate-300">3 / 4 Tests Completed</p>
+                        <p className="text-[10px] font-semibold text-slate-300">
+                            {stats.dailyGoalCompleted || 0} / {stats.dailyGoalTarget || 2} Tests Completed
+                        </p>
                         <button
                             onClick={() => navigate('/dashboard/market')}
                             className="w-full mt-3 py-2.5 bg-[#FF7A00] hover:bg-[#FF8B1F] text-white font-bold text-[10px] uppercase tracking-wider rounded-xl transition-all shadow-md shadow-[#FF7A00]/20"
@@ -541,38 +428,48 @@ const StudentDashboard = () => {
                     </div>
 
                     <div className="space-y-3.5">
-                        {getPrepData(targetExam).map((prep, index) => (
-                            <div key={index} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
-                                <div className="p-2 bg-red-50 text-red-500 rounded-xl shrink-0">
-                                    <ClipboardList size={18} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="text-xs font-black text-slate-800 truncate leading-tight">{prep.title}</h4>
-                                    <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5 tracking-wider">{prep.desc}</p>
-                                    <div className="flex items-center gap-2 mt-1.5">
-                                        <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-[#FF7A00] rounded-full" style={{ width: `${prep.progress}%` }}></div>
-                                        </div>
-                                        <span className="text-[8px] font-bold text-slate-500">{prep.progress}%</span>
+                        {activeTests.length > 0 ? (
+                            activeTests.map((act) => (
+                                <div key={act.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100">
+                                    <div className="p-2 bg-red-50 text-red-500 rounded-xl shrink-0">
+                                        <ClipboardList size={18} />
                                     </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-xs font-black text-slate-800 truncate leading-tight">{act.title}</h4>
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5 tracking-wider">{act.category} Series</p>
+                                        <div className="flex items-center gap-2 mt-1.5">
+                                            <div className="flex-1 h-1 bg-slate-100 rounded-full overflow-hidden">
+                                                <div className="h-full bg-[#FF7A00] rounded-full" style={{ width: '0%' }}></div>
+                                            </div>
+                                            <span className="text-[8px] font-bold text-slate-500">0%</span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => navigate('/dashboard/tests')}
+                                        className="px-2.5 py-1.5 bg-[#0B1E43] hover:bg-[#1D64D0] text-white text-[9px] font-bold uppercase rounded-lg shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                                    >
+                                        <PlayCircle size={10} className="fill-white/10" />
+                                        <span>Start</span>
+                                    </button>
                                 </div>
+                            ))
+                        ) : (
+                            <div className="flex flex-col items-center justify-center p-4 text-center border border-dashed border-slate-200 rounded-xl my-2 min-h-[200px] w-full">
+                                <div className="p-2.5 bg-orange-50 text-[#FF7A00] rounded-xl mb-2.5">
+                                    <Layers size={20} />
+                                </div>
+                                <h4 className="text-[11px] font-black text-slate-800 mb-0.5">No Active Test Series</h4>
+                                <p className="text-[9px] font-semibold text-slate-400 max-w-[180px] mb-3 leading-normal">
+                                    Enroll in standard mock test series to begin your exam preparation.
+                                </p>
                                 <button
-                                    onClick={() => {
-                                        // Try to find if activeTests matches
-                                        const actual = activeTests[0];
-                                        if (actual) {
-                                            navigate(`/dashboard/attempt/${actual.testId}`);
-                                        } else {
-                                            navigate('/dashboard/tests');
-                                        }
-                                    }}
-                                    className="px-2.5 py-1.5 bg-[#0B1E43] hover:bg-[#1D64D0] text-white text-[9px] font-bold uppercase rounded-lg shadow-sm shrink-0 flex items-center gap-1 transition-all"
+                                    onClick={() => navigate('/dashboard/market')}
+                                    className="px-3 py-1.5 bg-[#0B1E43] hover:bg-[#1D64D0] text-white text-[8px] font-bold uppercase rounded-lg shadow-sm transition-all"
                                 >
-                                    <PlayCircle size={10} className="fill-white/10" />
-                                    <span>Resume</span>
+                                    Browse Market
                                 </button>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </motion.div>
 
@@ -590,17 +487,46 @@ const StudentDashboard = () => {
                     </div>
 
                     <div className="space-y-3">
-                        {getRecentActivityData(targetExam).map((act, index) => (
-                            <div key={index} className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 border border-transparent transition-all">
-                                <div className="min-w-0">
-                                    <h4 className="text-xs font-black text-slate-800 truncate leading-tight">{act.title}</h4>
-                                    <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">{act.detail}</p>
+                        {stats.recentAttempts && stats.recentAttempts.length > 0 ? (
+                            stats.recentAttempts.map((act) => {
+                                const date = act.attemptDate?.toDate ? act.attemptDate.toDate() : new Date(act.attemptDate);
+                                const formattedDate = date instanceof Date && !isNaN(date.getTime()) 
+                                    ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                                    : 'N/A';
+                                return (
+                                    <div key={act.id} className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 border border-transparent transition-all">
+                                        <div className="min-w-0">
+                                            <h4 className="text-xs font-black text-slate-800 truncate leading-tight">{act.testTitle}</h4>
+                                            <p className="text-[8px] font-semibold text-slate-400 mt-1 uppercase tracking-wider">
+                                                Score: {act.score} / {act.maxScore} • {formattedDate}
+                                            </p>
+                                        </div>
+                                        <span 
+                                            onClick={() => navigate(`/dashboard/results/${act.id}`)}
+                                            className="px-2 py-1 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 text-[8px] font-bold uppercase rounded-md shrink-0 border border-emerald-100 cursor-pointer transition-all"
+                                        >
+                                            Analysis
+                                        </span>
+                                    </div>
+                                );
+                            })
+                        ) : (
+                            <div className="flex flex-col items-center justify-center p-4 text-center border border-dashed border-slate-200 rounded-xl my-2 min-h-[200px] w-full">
+                                <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl mb-2.5">
+                                    <ClipboardList size={20} />
                                 </div>
-                                <span className="px-2 py-1 bg-emerald-50 text-emerald-600 text-[8px] font-bold uppercase rounded-md shrink-0 border border-emerald-100">
-                                    Completed
-                                </span>
+                                <h4 className="text-[11px] font-black text-slate-800 mb-0.5">No Attempt History</h4>
+                                <p className="text-[9px] font-semibold text-slate-400 max-w-[180px] mb-3 leading-normal">
+                                    Your scores, time taken, and correct answers will appear here once you take a test.
+                                </p>
+                                <button
+                                    onClick={() => navigate('/dashboard/market')}
+                                    className="px-3 py-1.5 bg-[#0B1E43] hover:bg-[#1D64D0] text-white text-[8px] font-bold uppercase rounded-lg shadow-sm transition-all"
+                                >
+                                    Start First Test
+                                </button>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </motion.div>
 

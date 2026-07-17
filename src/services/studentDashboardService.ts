@@ -12,9 +12,24 @@ export interface StudentStats {
     totalTests: number;
     averageScore: number;
     totalTimeSpent: number; // in seconds
+    accuracy: number; // in percentage
+    currentStreak: number;
     testsTrend: string; // e.g., "+2 this week"
     scoreTrend: string; // e.g., "+5% improvement"
     timeTrend: string; // e.g., "Last 30 days"
+    weeklyPerformance: { name: string; Score: number; Accuracy: number }[];
+    subjectPerformance: { name: string; value: number; color: string }[];
+    dailyGoalCompleted: number;
+    dailyGoalTarget: number;
+    recentAttempts: {
+        id: string;
+        testTitle: string;
+        score: number;
+        maxScore: number;
+        correctAnswers: number;
+        totalQuestions: number;
+        attemptDate: any;
+    }[];
 }
 
 export interface RecommendedSeries {
@@ -49,44 +64,199 @@ export const getStudentStats = async (userId: string): Promise<StudentStats> => 
         const attemptsRef = collection(db, 'users', userId, 'attempts');
         const q = query(attemptsRef, orderBy('attemptDate', 'desc'));
         const snapshot = await getDocs(q);
-        const attempts = snapshot.docs.map(doc => doc.data());
+        
+        const getLocalDateString = (dateVal: any) => {
+            if (!dateVal) return '';
+            const date = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
+            if (!(date instanceof Date) || isNaN(date.getTime())) return '';
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
 
-        const totalTests = attempts.length;
+        const parseLocalDate = (dateStr: string) => {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        };
 
-        let totalScore = 0;
-        let totalMaxScore = 0;
-        let totalTime = 0;
-
-        attempts.forEach(a => {
-            totalScore += a.score || 0;
-            // Assuming max score is usually totalQuestions * 4 for JEE, but might vary. 
-            // Using a heuristic if totalMaxScore isn't saved, but for now specific calculation:
-            // If totalQuestions is saved, max is usually * 4. 
-            // If not, we can treat raw score average or percentage if known.
-            // Let's use simple percentage if available, or just raw score.
-            // Actually, StudentResultsPage calculates percentage client side. 
-            // Let's approximate: 
-            const max = (a.totalQuestions || 0) * 4;
-            if (max > 0) {
-                totalScore += (a.score / max) * 100; // Normalize to percentage per test
-                totalMaxScore += 100;
-            }
-
-            totalTime += a.duration || 0;
+        const attempts = snapshot.docs.map(doc => {
+            const data = doc.data();
+            const totalQs = data.totalQuestions || (data.correctCount + data.wrongCount + data.unattemptedCount) || 0;
+            const maxScore = data.totalMarks || (totalQs * 4) || 1;
+            return {
+                id: doc.id,
+                testTitle: data.testTitle || data.testName || 'Unknown Test',
+                score: data.score || 0,
+                totalQuestions: totalQs,
+                maxScore: maxScore,
+                attemptDate: data.attemptDate,
+                duration: data.duration || data.timeTakenSeconds || 0,
+                attemptedQuestions: data.attemptedQuestions || (data.correctCount + data.wrongCount) || 0,
+                correctAnswers: data.correctAnswers ?? data.correctCount ?? 0,
+                sectionWiseScore: data.sectionWiseScore || {}
+            };
         });
 
-        const averageScore = totalTests > 0 ? Math.round(totalScore / totalTests) : 0;
+        const totalTests = attempts.length;
+        let totalScorePercentage = 0;
+        let totalTime = 0;
+        let totalCorrect = 0;
+        let totalAttempted = 0;
 
-        // Trends (Mock logic for now, or true calculation if we filtered by date)
-        // Real trend calculation requires complex filtering. We'll use simple dynamic strings.
+        attempts.forEach(a => {
+            const pct = Math.max(0, Math.min(100, (a.score / a.maxScore) * 100));
+            totalScorePercentage += pct;
+            totalTime += a.duration;
+            totalCorrect += a.correctAnswers;
+            totalAttempted += a.attemptedQuestions;
+        });
+
+        const averageScore = totalTests > 0 ? Math.round(totalScorePercentage / totalTests) : 0;
+        const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 1000) / 10 : 0;
+
+        // Calculate streak in local timezone
+        const calculateStreak = () => {
+            if (attempts.length === 0) return 0;
+            const attemptDates = new Set<string>();
+            attempts.forEach(a => {
+                const dateStr = getLocalDateString(a.attemptDate);
+                if (dateStr) {
+                    attemptDates.add(dateStr);
+                }
+            });
+            const sortedDates = Array.from(attemptDates).sort((a, b) => b.localeCompare(a));
+            if (sortedDates.length === 0) return 0;
+
+            const todayStr = getLocalDateString(new Date());
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = getLocalDateString(yesterday);
+
+            const latestDate = sortedDates[0];
+            if (latestDate !== todayStr && latestDate !== yesterdayStr) {
+                return 0;
+            }
+
+            let streak = 0;
+            const currentDate = parseLocalDate(latestDate);
+            for (let i = 0; i < sortedDates.length + 5; i++) {
+                const expectedStr = getLocalDateString(currentDate);
+                if (attemptDates.has(expectedStr)) {
+                    streak++;
+                    currentDate.setDate(currentDate.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        };
+        const currentStreak = calculateStreak();
+
+        // Daily goal attempts completed today in local timezone
+        const todayStr = getLocalDateString(new Date());
+        const dailyGoalCompleted = attempts.filter(a => {
+            return getLocalDateString(a.attemptDate) === todayStr;
+        }).length;
+        const dailyGoalTarget = 2; // Default daily goal of 2 tests
+
+        // Weekly Performance (Monday to Sunday of current week in local timezone)
+        const getStartOfWeek = (d: Date) => {
+            const date = new Date(d);
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+            return new Date(date.setDate(diff));
+        };
+        const startOfWeek = getStartOfWeek(new Date());
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const weeklyPerformance = weekDays.map((dayName, idx) => {
+            const targetDate = new Date(startOfWeek);
+            targetDate.setDate(targetDate.getDate() + idx);
+            const targetDateStr = getLocalDateString(targetDate);
+
+            const dayAttempts = attempts.filter(a => {
+                return getLocalDateString(a.attemptDate) === targetDateStr;
+            });
+
+            if (dayAttempts.length === 0) {
+                return { name: dayName, Score: 0, Accuracy: 0 };
+            }
+
+            const totalDayScorePct = dayAttempts.reduce((sum, a) => {
+                const pct = Math.max(0, Math.min(100, (a.score / a.maxScore) * 100));
+                return sum + pct;
+            }, 0);
+            const totalDayCorr = dayAttempts.reduce((sum, a) => sum + a.correctAnswers, 0);
+            const totalDayAtt = dayAttempts.reduce((sum, a) => sum + a.attemptedQuestions, 0);
+
+            return {
+                name: dayName,
+                Score: Math.round(totalDayScorePct / dayAttempts.length),
+                Accuracy: totalDayAtt > 0 ? Math.round((totalDayCorr / totalDayAtt) * 100) : 0
+            };
+        });
+
+        // Subject Performance
+        const subjectsList = [
+            { name: 'Quantitative Aptitude', color: '#0B1E43' },
+            { name: 'Reasoning Ability', color: '#1D64D0' },
+            { name: 'English Language', color: '#3A907C' },
+            { name: 'General Awareness', color: '#FBBF24' }
+        ];
+
+        const subjectStats: Record<string, { correct: number; attempted: number }> = {};
+        attempts.forEach(a => {
+            if (a.sectionWiseScore) {
+                Object.entries(a.sectionWiseScore).forEach(([subj, data]: [string, any]) => {
+                    const normalizedSubj = subjectsList.find(s => s.name.toLowerCase() === subj.toLowerCase() || subj.toLowerCase().includes(s.name.toLowerCase().split(' ')[0]))?.name || subj;
+                    if (!subjectStats[normalizedSubj]) {
+                        subjectStats[normalizedSubj] = { correct: 0, attempted: 0 };
+                    }
+                    const correct = data.correct ?? data.correctAnswers ?? 0;
+                    const wrong = data.wrong ?? data.wrongAnswers ?? 0;
+                    const attempted = correct + wrong;
+                    subjectStats[normalizedSubj].correct += correct;
+                    subjectStats[normalizedSubj].attempted += attempted;
+                });
+            }
+        });
+
+        const subjectPerformance = subjectsList.map(subj => {
+            const stats = subjectStats[subj.name];
+            const accuracyVal = (stats && stats.attempted > 0) ? Math.round((stats.correct / stats.attempted) * 100) : 0;
+            return {
+                name: subj.name,
+                value: accuracyVal,
+                color: subj.color
+            };
+        });
+
+        const recentAttempts = attempts.slice(0, 4).map(a => ({
+            id: a.id,
+            testTitle: a.testTitle,
+            score: a.score,
+            maxScore: a.maxScore,
+            correctAnswers: a.correctAnswers,
+            totalQuestions: a.totalQuestions,
+            attemptDate: a.attemptDate
+        }));
 
         return {
             totalTests,
             averageScore,
             totalTimeSpent: totalTime,
+            accuracy,
+            currentStreak,
             testsTrend: totalTests > 0 ? `${totalTests} total` : 'Start your journey',
             scoreTrend: totalTests > 0 ? 'based on attempts' : 'No data yet',
-            timeTrend: 'Total learning time'
+            timeTrend: 'Total learning time',
+            weeklyPerformance,
+            subjectPerformance,
+            dailyGoalCompleted,
+            dailyGoalTarget,
+            recentAttempts
         };
     } catch (error) {
         console.error("Error fetching student stats:", error);
@@ -94,9 +264,21 @@ export const getStudentStats = async (userId: string): Promise<StudentStats> => 
             totalTests: 0,
             averageScore: 0,
             totalTimeSpent: 0,
-            testsTrend: '0 this week',
-            scoreTrend: '0%',
-            timeTrend: '0h'
+            accuracy: 0,
+            currentStreak: 0,
+            testsTrend: '0 total',
+            scoreTrend: 'No data yet',
+            timeTrend: 'Total learning time',
+            weeklyPerformance: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => ({ name: day, Score: 0, Accuracy: 0 })),
+            subjectPerformance: [
+                { name: 'Quantitative Aptitude', value: 0, color: '#0B1E43' },
+                { name: 'Reasoning Ability', value: 0, color: '#1D64D0' },
+                { name: 'English Language', value: 0, color: '#3A907C' },
+                { name: 'General Awareness', value: 0, color: '#FBBF24' }
+            ],
+            dailyGoalCompleted: 0,
+            dailyGoalTarget: 2,
+            recentAttempts: []
         };
     }
 };
