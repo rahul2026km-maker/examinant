@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Clock, Loader2, ChevronDown, PlayCircle, BookOpen, Award, FileText, Zap, 
-    Download, Scan, ChevronRight, Target, Trophy, Flame, TrendingUp, X 
+    ChevronRight, Target, Trophy, Flame, TrendingUp, X 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -432,20 +432,6 @@ const SeriesCard = ({
 
                                                 {/* Actions */}
                                                 <div className="flex items-center gap-2">
-                                                    <button
-                                                        onClick={() => window.open(`/dashboard/print-omr/${test.id}`, '_blank')}
-                                                        className="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all border border-slate-100"
-                                                        title="Download OMR"
-                                                    >
-                                                        <Download size={16} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => navigate('/dashboard/omr-scan')}
-                                                        className="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-indigo-50 hover:text-indigo-600 transition-all border border-slate-100"
-                                                        title="Scan OMR"
-                                                    >
-                                                        <Scan size={16} />
-                                                    </button>
                                                     {hasAttempted && (
                                                         <button
                                                             onClick={() => navigate('/dashboard/results')}

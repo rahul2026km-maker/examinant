@@ -15,7 +15,8 @@ import {
     Timer,
     AlertCircle,
     Loader2,
-    Users
+    Users,
+    ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { examService, DEFAULT_EXAMS } from '../../services/examService';
@@ -516,15 +517,15 @@ const StudentAnalyticsPage = () => {
                         {activeTab === 'accuracy' && 'Track your accuracy improvement over time across subjects and tests.'}
                         {activeTab === 'speed' && 'Analyze your solving speed and time management across subjects and tests.'}
                         {activeTab === 'time' && 'Understand how you spend time in tests and how you can optimize it.'}
-                        {activeTab === 'consistency' && 'Track your practice consistency and build winning habits.'}
+{activeTab === 'consistency' && 'Track your practice consistency and build winning habits.'}
                         {activeTab === 'score' && 'Your overall performance snapshot across tests, subjects and topics.'}
                         {activeTab === 'compare' && 'See how you perform compared to other students.'}
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                    <div className="flex items-center gap-1.5 sm:gap-2 bg-white px-2.5 sm:px-3.5 py-1.5 border border-slate-100 rounded-xl shadow-sm hover:border-slate-200 transition-all cursor-pointer">
-                        <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none whitespace-nowrap">Target Exam</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-white px-2.5 sm:px-3.5 py-1.5 border border-slate-200 rounded-xl shadow-sm hover:border-slate-300 transition-all cursor-pointer">
+                        <span className="text-[8px] sm:text-[9px] font-bold text-[#FF7A00] uppercase tracking-wider leading-none whitespace-nowrap">Target Exam</span>
                         <select 
                             value={selectedExam}
                             onChange={(e) => setSelectedExam(e.target.value)}
@@ -534,6 +535,7 @@ const StudentAnalyticsPage = () => {
                                 <option key={examName} value={examName}>{examName}</option>
                             ))}
                         </select>
+                        <ChevronDown size={14} className="text-slate-400 pointer-events-none shrink-0" />
                     </div>
                     <button 
                         onClick={() => window.print()}

@@ -187,6 +187,27 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                     </div>
                 </div>
 
+                {/* Mobile Target Exam Selector in Sidebar */}
+                {role === 'student' && (
+                    <div className="px-4 pb-3 md:hidden">
+                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Target Exam</span>
+                            <div className="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                                <select 
+                                    value={selectedExam}
+                                    onChange={handleExamChange}
+                                    className="w-full text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 focus:ring-0"
+                                >
+                                    {examsList.map((examName) => (
+                                        <option key={examName} value={examName}>{examName}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={14} className="text-slate-400 pointer-events-none shrink-0 ml-1" />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Navigation Links */}
                 <nav className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-hide space-y-4">
                     {sections.map((section, idx) => (
@@ -290,11 +311,11 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header (Top Nav with Quote, Badge, Profile) */}
-                <header className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between bg-[#F4F7FE] print:hidden">
-                    <div className="flex items-center gap-4">
+                <header className="sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between bg-[#F4F7FE] print:hidden">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="md:hidden p-2.5 rounded-xl bg-white shadow-sm border border-slate-100 text-slate-600 hover:bg-slate-50"
+                            className="md:hidden p-2 rounded-xl bg-white shadow-sm border border-slate-100 text-slate-600 hover:bg-slate-50"
                         >
                             <Menu size={20} />
                         </button>
@@ -307,20 +328,21 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4.5 ml-auto">
+                    <div className="flex items-center gap-1.5 sm:gap-4.5 ml-auto">
                         {/* Target Exam Selector Dropdown */}
                         {role === 'student' && (
-                            <div className="flex items-center gap-1.5 sm:gap-2 bg-white px-2 sm:px-3.5 py-1.5 border border-slate-100 rounded-xl shadow-sm hover:border-slate-200 transition-all cursor-pointer">
+                            <div className="flex items-center gap-1 sm:gap-2 bg-white px-2 sm:px-3.5 py-1.5 border border-slate-200/80 rounded-xl shadow-sm hover:border-slate-300 transition-all cursor-pointer">
                                 <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none whitespace-nowrap hidden sm:inline">Target Exam</span>
                                 <select 
                                     value={selectedExam}
                                     onChange={handleExamChange}
-                                    className="text-[11px] sm:text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 pr-0.5 focus:ring-0"
+                                    className="text-[10px] sm:text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 pr-0.5 focus:ring-0 max-w-[105px] sm:max-w-none truncate"
                                 >
                                     {examsList.map((examName) => (
                                         <option key={examName} value={examName}>{examName}</option>
                                     ))}
                                 </select>
+                                <ChevronDown size={12} className="text-slate-400 pointer-events-none shrink-0" />
                             </div>
                         )}
 
