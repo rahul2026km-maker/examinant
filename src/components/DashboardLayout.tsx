@@ -310,12 +310,12 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                     <div className="flex items-center gap-4.5 ml-auto">
                         {/* Target Exam Selector Dropdown */}
                         {role === 'student' && (
-                            <div className="hidden md:flex items-center gap-2 bg-white px-3.5 py-1.5 border border-slate-100 rounded-xl shadow-sm hover:border-slate-200 transition-all cursor-pointer">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">Target Exam</span>
+                            <div className="flex items-center gap-1.5 sm:gap-2 bg-white px-2 sm:px-3.5 py-1.5 border border-slate-100 rounded-xl shadow-sm hover:border-slate-200 transition-all cursor-pointer">
+                                <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none whitespace-nowrap hidden sm:inline">Target Exam</span>
                                 <select 
                                     value={selectedExam}
                                     onChange={handleExamChange}
-                                    className="text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 pr-1 focus:ring-0"
+                                    className="text-[11px] sm:text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 pr-0.5 focus:ring-0"
                                 >
                                     {examsList.map((examName) => (
                                         <option key={examName} value={examName}>{examName}</option>

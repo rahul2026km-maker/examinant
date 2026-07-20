@@ -18,6 +18,7 @@ import {
     Users
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { examService, DEFAULT_EXAMS } from '../../services/examService';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import {
@@ -57,6 +58,9 @@ const StudentAnalyticsPage = () => {
     const navigate = useNavigate();
     const authContext = useAuth();
     const currentUser = authContext?.currentUser;
+    const selectedExam = authContext?.selectedExam || localStorage.getItem('selectedTargetExam') || 'SSC';
+    const setSelectedExam = authContext?.setSelectedExam || (() => {});
+    const [examsList, setExamsList] = useState<string[]>(DEFAULT_EXAMS);
     const [attempts, setAttempts] = useState<Attempt[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
     const tabParam = searchParams.get('tab') as TabType;
@@ -72,6 +76,14 @@ const StudentAnalyticsPage = () => {
         bestScore: 0,
         timeEfficiency: '--'
     });
+
+    useEffect(() => {
+        const unsubscribe = examService.subscribe((records) => {
+            const names = records.map(r => r.name);
+            setExamsList(names.length > 0 ? names : DEFAULT_EXAMS);
+        });
+        return unsubscribe;
+    }, []);
 
     useEffect(() => {
         if (currentUser) {
@@ -510,10 +522,18 @@ const StudentAnalyticsPage = () => {
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 border border-slate-100 rounded-xl shadow-sm">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Target Exam</span>
-                        <span className="text-xs font-black text-[#0B1E43]">{localStorage.getItem('selectedTargetExam') || 'SSC CGL Tier 1'}</span>
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <div className="flex items-center gap-1.5 sm:gap-2 bg-white px-2.5 sm:px-3.5 py-1.5 border border-slate-100 rounded-xl shadow-sm hover:border-slate-200 transition-all cursor-pointer">
+                        <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none whitespace-nowrap">Target Exam</span>
+                        <select 
+                            value={selectedExam}
+                            onChange={(e) => setSelectedExam(e.target.value)}
+                            className="text-[11px] sm:text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 pr-0.5 focus:ring-0"
+                        >
+                            {examsList.map((examName) => (
+                                <option key={examName} value={examName}>{examName}</option>
+                            ))}
+                        </select>
                     </div>
                     <button 
                         onClick={() => window.print()}
