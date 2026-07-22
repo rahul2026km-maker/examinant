@@ -282,7 +282,7 @@ const StudentMarketPage = () => {
                                     description={series.description}
                                     isNew={!!(series as any).isNew}
                                     features={(series as any).features || []}
-                                    originalPrice={series.pricing?.type === 'paid' ? `${Math.floor((series.pricing.amount || 0) * 1.5)}` : '0'}
+                                    originalPrice={series.pricing?.type === 'paid' ? `${Math.floor((series.pricing.amount || 0) * 4)}` : '0'}
                                     price={series.pricing?.type === 'paid' ? `${series.pricing.amount}` : 'Free'}
                                     colorTheme="blue"
                                     examCategory={series.examCategory}

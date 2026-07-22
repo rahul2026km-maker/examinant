@@ -372,7 +372,7 @@ const TestSeriesManagement = () => {
                             title={series.name}
                             description={series.description}
                             features={series?.features || []}
-                            originalPrice={series.pricing?.type === 'paid' ? `${(series.pricing.amount || 0) * 1.2}` : '0'}
+                            originalPrice={series.pricing?.type === 'paid' ? `${(series.pricing.amount || 0) * 4}` : '0'}
                             price={series.pricing?.type === 'paid' ? `${series.pricing.amount}` : 'Free'}
                             onExplore={() => navigate(`/test-series/${series.id}`)}
                             examCategory={series.examCategory}

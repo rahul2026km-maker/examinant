@@ -77,6 +77,16 @@ const TestSeriesCard = ({
         setShowPopover(false);
     };
 
+    const numPrice = typeof price === 'number' ? price : parseFloat(String(price).replace(/[^0-9.]/g, ''));
+    const numOriginal = typeof originalPrice === 'number' ? originalPrice : parseFloat(String(originalPrice).replace(/[^0-9.]/g, ''));
+
+    let discountPercentage = 0;
+    let savingsAmount = 0;
+    if (!isNaN(numOriginal) && !isNaN(numPrice) && numOriginal > numPrice && numPrice > 0) {
+        savingsAmount = Math.round(numOriginal - numPrice);
+        discountPercentage = Math.round((savingsAmount / numOriginal) * 100);
+    }
+
     return (
         <motion.div 
             whileHover={{ y: -10, scale: 1.01 }}
@@ -209,12 +219,17 @@ const TestSeriesCard = ({
                                 <Award size={12} className="text-amber-500" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Certified Content</span>
                             </div>
-                            <div className="flex items-baseline gap-2">
+                            <div className="flex items-baseline gap-2 flex-wrap">
                                 <span className="text-3xl font-black text-slate-900 tracking-tighter">
                                     {price === 'Free' || price === '0' || !price ? 'FREE' : `₹${price}`}
                                 </span>
                                 {price && price !== 'Free' && price !== '0' && (
-                                    <span className="text-slate-300 line-through text-sm font-bold tracking-tight">₹{originalPrice}</span>
+                                    <span className="text-slate-400 line-through text-sm font-bold tracking-tight">₹{originalPrice}</span>
+                                )}
+                                {discountPercentage > 0 && (
+                                    <span className="inline-block px-2.5 py-0.5 bg-green-50 border border-green-200 text-green-700 font-extrabold text-[11px] rounded-full shadow-xs">
+                                        You Save ₹{savingsAmount} ({discountPercentage}%)
+                                    </span>
                                 )}
                             </div>
                         </div>

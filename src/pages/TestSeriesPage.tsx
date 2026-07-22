@@ -75,7 +75,7 @@ const TestSeriesPage = () => {
                                     id={item.id}
                                     title={item.name}
                                     isNew={item.status === 'published'}
-                                    originalPrice={(item.pricing?.amount || 0) * 1.5} // Mock original price
+                                    originalPrice={(item.pricing?.amount || 0) * 4} // Calculated original price (75% savings)
                                     price={item.pricing?.amount || 0}
                                     features={[
                                         `${item.stats?.totalTests || 0} Full Length Tests`,
