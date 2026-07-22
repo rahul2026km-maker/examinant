@@ -84,9 +84,12 @@ const TestSeriesDetailsPage = () => {
         const expiredCodes = ['SAVE50', 'EXAM50', 'GET50', 'EXTRA50', 'OFF50'];
 
         if (code === 'EX14931JUL') {
-            const currentAmount = series?.pricing?.amount || 298;
-            // 50% discount on test series price
-            const discount = Math.round(currentAmount * 0.5);
+            const currentAmount = series?.pricing?.amount || 299;
+            // 50% discount on test series price (e.g. 299 - 150 = 149)
+            let discount = Math.round(currentAmount * 0.5);
+            if (currentAmount === 299) {
+                discount = 150; // Brings ₹299 down to exactly ₹149
+            }
             setCouponDiscount(discount);
             setAppliedCoupon(code);
             setCouponError(null);
