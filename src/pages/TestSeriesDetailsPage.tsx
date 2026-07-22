@@ -81,11 +81,19 @@ const TestSeriesDetailsPage = () => {
     const handleApplyCoupon = () => {
         if (!couponCode.trim()) return;
         const code = couponCode.trim().toUpperCase();
-        const validCodes = ['SAVE50', 'EXAM50', 'GET50', 'EXTRA50', 'OFF50'];
-        if (validCodes.includes(code)) {
-            setCouponDiscount(50); // Flat ₹50 discount
+        const expiredCodes = ['SAVE50', 'EXAM50', 'GET50', 'EXTRA50', 'OFF50'];
+
+        if (code === 'EX14931JUL') {
+            const currentAmount = series?.pricing?.amount || 298;
+            // 50% discount on test series price
+            const discount = Math.round(currentAmount * 0.5);
+            setCouponDiscount(discount);
             setAppliedCoupon(code);
             setCouponError(null);
+        } else if (expiredCodes.includes(code)) {
+            setCouponError('This promo code has EXPIRED. Please use EX14931JUL.');
+            setCouponDiscount(0);
+            setAppliedCoupon(null);
         } else {
             setCouponError('Invalid coupon code');
             setCouponDiscount(0);

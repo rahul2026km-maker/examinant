@@ -45,8 +45,8 @@ export const testSeriesData: TestSeries[] = [
         title: 'SSC Series',
         description: 'Boost your confidence and time management skills.',
         isNew: true,
-        originalPrice: '1999',
-        price: '999',
+        originalPrice: '298',
+        price: '149',
         features: [
             "Quant, Reasoning, English",
             "General Awareness",
