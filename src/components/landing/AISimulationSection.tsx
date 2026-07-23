@@ -15,7 +15,7 @@ import {
   Crown,
   ShieldCheck
 } from 'lucide-react';
-import laptopMobile3DImg from '/@fs/C:/Users/UPL/.gemini/antigravity-ide/brain/e7a33833-15ec-4eb4-aee9-caa786482b2c/laptop_mobile_crystal_clear_1784550494430.png';
+const laptopMobile3DImg = '/laptop_mobile_3d.png';
 
 interface TransparentImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
