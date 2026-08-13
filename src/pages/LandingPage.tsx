@@ -402,13 +402,13 @@ const LandingPage = () => {
                   {/* Price and CTA section */}
                   <div className="p-6 mt-8 bg-gray-50/80 group-hover:bg-blue-50/50 transition-colors duration-300 mt-auto border-t border-gray-100 relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      {series.pricing.type === "paid" ? (
+                      {series.pricing?.type === "paid" ? (
                         <div className="flex items-baseline gap-2">
                           <span className="text-3xl font-extrabold text-gray-900">
-                            ₹{series.pricing.amount}
+                            ₹{series.pricing?.amount}
                           </span>
                           <span className="text-sm font-medium text-gray-400 line-through">
-                            ₹{(series.pricing.amount || 0) * 1.5}
+                            ₹{(series.pricing?.amount || 0) * 1.5}
                           </span>
                         </div>
                       ) : (
