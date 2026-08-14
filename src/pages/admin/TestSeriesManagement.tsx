@@ -221,58 +221,12 @@ const TestSeriesManagement = () => {
 
         setIsUploadingImage(true);
         try {
-            if (isCloudinaryConfigured()) {
-                const downloadUrl = await uploadToCloudinary(file);
-                setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
-                setIsUploadingImage(false);
-                return;
-            }
-
-            const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const imageRef = ref(storage, `test-series-thumbnails/${Date.now()}_${safeName}`);
-
-            const uploadTask = uploadBytesResumable(imageRef, file);
-
-            // Added a 15-second timeout since Firebase SDK will silently retry on CORS errors forever
-            let isResolved = false;
-            const timeoutId = setTimeout(() => {
-                if (!isResolved) {
-                    uploadTask.cancel();
-                    alert("Upload timeout (15s). Please configure Cloudinary environment variables (VITE_CLOUDINARY_CLOUD_NAME & VITE_CLOUDINARY_UPLOAD_PRESET) in your .env file.");
-                    setIsUploadingImage(false);
-                }
-            }, 15000);
-
-            uploadTask.on(
-                'state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    console.log('Upload is ' + progress + '% done');
-                },
-                (error) => {
-                    isResolved = true;
-                    clearTimeout(timeoutId);
-                    console.error('Error during upload:', error);
-                    alert(`Upload failed: ${error.message}. Please configure Cloudinary in .env.`);
-                    setIsUploadingImage(false);
-                },
-                async () => {
-                    isResolved = true;
-                    clearTimeout(timeoutId);
-                    try {
-                        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                        setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
-                    } catch (urlError: any) {
-                        console.error('Error getting URL:', urlError);
-                        alert(`Failed to get image URL: ${urlError.message}`);
-                    } finally {
-                        setIsUploadingImage(false);
-                    }
-                }
-            );
+            const downloadUrl = await uploadToCloudinary(file);
+            setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
+            setIsUploadingImage(false);
         } catch (error: any) {
-            console.error('Error initiating upload:', error);
-            alert(`Failed to initiate upload: ${error.message}`);
+            console.error('Error uploading image:', error);
+            alert(`Upload failed: ${error.message || 'Unknown error'}.\n\nPlease ensure VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET are added to your Vercel Environment Variables.`);
             setIsUploadingImage(false);
         }
     };

@@ -261,21 +261,9 @@ const AdminQuestionBank = () => {
     };
 
     const uploadQuestionImages = async (files: File[]) => {
-        if (isCloudinaryConfigured()) {
-            return await uploadMultipleToCloudinary(files, (progress) => {
-                setUploadProgress(progress);
-            });
-        }
-
-        const urls: string[] = [];
-        for (const file of files) {
-            const safeName = sanitizeFileName(file.name);
-            const imageRef = ref(storage, `question-images/${Date.now()}_${safeName}`);
-            const snapshot = await uploadBytes(imageRef, file);
-            const downloadUrl = await getDownloadURL(snapshot.ref);
-            urls.push(downloadUrl);
-        }
-        return urls;
+        return await uploadMultipleToCloudinary(files, (progress) => {
+            setUploadProgress(progress);
+        });
     };
 
     const handleCreate = async (e: React.FormEvent) => {
