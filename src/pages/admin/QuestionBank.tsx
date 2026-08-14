@@ -7,6 +7,7 @@ import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, order
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useExamList } from '../../hooks/useExamList';
 import { parseQuestionsCSV, validateQuestion, batchUploadQuestions, downloadTemplate, getRowValue } from '../../utils/csvImporter';
+import { uploadMultipleToCloudinary, isCloudinaryConfigured } from '../../utils/cloudinary';
 
 import type { QuestionCSVRow, ValidationResult } from '../../utils/csvImporter';
 
@@ -260,6 +261,12 @@ const AdminQuestionBank = () => {
     };
 
     const uploadQuestionImages = async (files: File[]) => {
+        if (isCloudinaryConfigured()) {
+            return await uploadMultipleToCloudinary(files, (progress) => {
+                setUploadProgress(progress);
+            });
+        }
+
         const urls: string[] = [];
         for (const file of files) {
             const safeName = sanitizeFileName(file.name);
@@ -281,9 +288,9 @@ const AdminQuestionBank = () => {
             if (imageFiles.length > 0) {
                 try {
                     uploadUrls = await uploadQuestionImages(imageFiles);
-                } catch (imageError) {
+                } catch (imageError: any) {
                     console.error('Image upload failed:', imageError);
-                    alert('Image upload failed. Question will still be created without images. Please check Firebase Storage CORS and bucket configuration.');
+                    alert(`Image upload failed: ${imageError?.message || 'Unknown error'}. Please check your Cloudinary configuration in .env`);
                     uploadUrls = [];
                 }
             }
@@ -405,9 +412,9 @@ const AdminQuestionBank = () => {
             if (imageFiles.length > 0) {
                 try {
                     uploadUrls = await uploadQuestionImages(imageFiles);
-                } catch (imageError) {
+                } catch (imageError: any) {
                     console.error('Image upload failed:', imageError);
-                    alert('Image upload failed. Question will still be updated without new images. Please check Firebase Storage CORS and bucket configuration.');
+                    alert(`Image upload failed: ${imageError?.message || 'Unknown error'}. Please check your Cloudinary configuration in .env`);
                     uploadUrls = [];
                 }
             }

@@ -17,6 +17,7 @@ import {
 import { useExamList } from '../../hooks/useExamList';
 import { useAuth } from '../../contexts/AuthContext';
 import { EXAM_SUBCATEGORIES } from '../../services/examService';
+import { uploadToCloudinary, isCloudinaryConfigured } from '../../utils/cloudinary';
 
 const TestSeriesManagement = () => {
     const navigate = useNavigate();
@@ -220,6 +221,13 @@ const TestSeriesManagement = () => {
 
         setIsUploadingImage(true);
         try {
+            if (isCloudinaryConfigured()) {
+                const downloadUrl = await uploadToCloudinary(file);
+                setFormData(prev => ({ ...prev, thumbnailUrl: downloadUrl }));
+                setIsUploadingImage(false);
+                return;
+            }
+
             const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
             const imageRef = ref(storage, `test-series-thumbnails/${Date.now()}_${safeName}`);
 
@@ -230,7 +238,7 @@ const TestSeriesManagement = () => {
             const timeoutId = setTimeout(() => {
                 if (!isResolved) {
                     uploadTask.cancel();
-                    alert("Upload timeout (15s). This usually happens because Firebase Storage CORS is not configured for localhost, or Storage is not enabled in your Firebase Console. Please press F12 and check the Console for CORS errors.");
+                    alert("Upload timeout (15s). Please configure Cloudinary environment variables (VITE_CLOUDINARY_CLOUD_NAME & VITE_CLOUDINARY_UPLOAD_PRESET) in your .env file.");
                     setIsUploadingImage(false);
                 }
             }, 15000);
@@ -245,7 +253,7 @@ const TestSeriesManagement = () => {
                     isResolved = true;
                     clearTimeout(timeoutId);
                     console.error('Error during upload:', error);
-                    alert(`Upload failed: ${error.message}`);
+                    alert(`Upload failed: ${error.message}. Please configure Cloudinary in .env.`);
                     setIsUploadingImage(false);
                 },
                 async () => {
