@@ -3,8 +3,8 @@
  */
 
 export const getCloudinaryConfig = () => {
-    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || '';
-    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '';
+    const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'njd6pw71';
+    const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'gkggov';
     return { cloudName, uploadPreset };
 };
 
