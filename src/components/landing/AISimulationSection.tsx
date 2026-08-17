@@ -38,26 +38,26 @@ const TransparentImage = ({ src, threshold = 40, mode = 'black', ...props }: Tra
       ctx.drawImage(img, 0, 0);
       const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imgData.data;
-      
+
       // Make dark/black pixels transparent with smooth alpha blend
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
-        const g = data[i+1];
-        const b = data[i+2];
-        
+        const g = data[i + 1];
+        const b = data[i + 2];
+
         if (mode === 'green') {
           // Detect green-screen chroma key color (high green, low red/blue)
           if (g > 110 && r < 120 && b < 120) {
-            data[i+3] = 0;
+            data[i + 3] = 0;
           }
         } else {
           // Detect black/dark background pixels with smooth alpha feathering
           const maxVal = Math.max(r, g, b);
           if (maxVal < threshold) {
-            data[i+3] = 0;
+            data[i + 3] = 0;
           } else if (maxVal < threshold + 35) {
             const alpha = (maxVal - threshold) / 35;
-            data[i+3] = Math.floor(data[i+3] * alpha);
+            data[i + 3] = Math.floor(data[i + 3] * alpha);
           }
         }
       }
@@ -111,7 +111,7 @@ const Sheet3DIcon = () => (
     <circle cx="9" cy="12" r="1.2" stroke="#38bdf8" strokeWidth="1" fill="#38bdf8" />
     <circle cx="12" cy="12" r="1.2" stroke="#38bdf8" strokeWidth="1" />
     <circle cx="15" cy="12" r="1.2" stroke="#38bdf8" strokeWidth="1" />
-    
+
     <circle cx="9" cy="16" r="1.2" stroke="#38bdf8" strokeWidth="1" />
     <circle cx="12" cy="16" r="1.2" stroke="#38bdf8" strokeWidth="1" fill="#38bdf8" />
     <circle cx="15" cy="16" r="1.2" stroke="#38bdf8" strokeWidth="1" />
@@ -143,7 +143,7 @@ const AISimulationSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section id="ai-simulation" className="bg-white pt-6 pb-24 sm:pt-10 sm:pb-32 overflow-hidden relative">
+    <section id="ai-simulation" className="bg-white pt-6 pb-6 sm:pt-8 sm:pb-10 overflow-hidden relative">
       {/* Decorative Wavy Lines (Mockup style) */}
       <div className="absolute right-0 top-0 w-[350px] h-[350px] pointer-events-none z-0 overflow-visible hidden md:block">
         <svg className="w-full h-full" viewBox="0 0 350 350" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -177,21 +177,21 @@ const AISimulationSection = () => {
               Our advanced algorithms analyze every keystroke and OMR bubble to identify hidden patterns that standard tests miss.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
               {[
-                { title: "Mistake Audit", desc: "Pattern recognition for silly errors", icon: <AlertCircle className="w-5 h-5 text-red-500" /> },
-                { title: "Speed Metrics", desc: "Real-time velocity tracking", icon: <Clock className="w-5 h-5 text-blue-500" /> },
-                { title: "Risk Profiling", desc: "Predictive OMR failure analysis", icon: <Activity className="w-5 h-5 text-orange-500" /> },
-                { title: "Growth Path", desc: "Dynamic curriculum adjustments", icon: <Layers className="w-5 h-5 text-indigo-500" /> }
+                { title: "Mistake Audit", desc: "Pattern recognition for silly errors", icon: <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" /> },
+                { title: "Speed Metrics", desc: "Real-time velocity tracking", icon: <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" /> },
+                { title: "Risk Profiling", desc: "Predictive OMR failure analysis", icon: <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" /> },
+                { title: "Growth Path", desc: "Dynamic curriculum adjustments", icon: <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> }
               ].map((item, i) => (
-                <div key={i} className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-slate-200/60 group hover:border-blue-500/20 hover:shadow-[0_12px_30px_-8px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                <div key={i} className="p-3 sm:p-5 rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-slate-200/60 group hover:border-blue-500/20 hover:shadow-[0_12px_30px_-8px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
                       {item.icon}
                     </div>
-                    <p className="font-extrabold text-slate-800 text-xs sm:text-sm">{item.title}</p>
+                    <p className="font-extrabold text-slate-800 text-[11px] sm:text-sm leading-tight">{item.title}</p>
                   </div>
-                  <p className="text-[11px] sm:text-xs text-slate-500 font-semibold leading-relaxed pl-0.5">{item.desc}</p>
+                  <p className="text-[10px] sm:text-xs text-slate-500 font-semibold leading-relaxed pl-0.5">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -321,10 +321,10 @@ const AISimulationSection = () => {
             {/* Glowing circular orbit ring behind the boy */}
             <div className="absolute inset-0 m-auto w-14 h-14 sm:w-28 sm:h-28 lg:w-40 lg:h-40 bg-gradient-to-tr from-blue-500/20 to-indigo-500/10 rounded-full border border-blue-500/30 animate-pulse blur-[1px] -z-10"></div>
             <div className="absolute inset-0 m-auto w-10 h-10 sm:w-24 sm:h-24 lg:w-32 lg:h-32 bg-slate-900/60 rounded-full border border-indigo-500/20 -z-10 shadow-[inset_0_0_20px_rgba(99,102,241,0.2)]"></div>
-            
-            <TransparentImage 
-              src="/student_mascot.png" 
-              alt="3D Student Mascot" 
+
+            <TransparentImage
+              src="/student_mascot.png"
+              alt="3D Student Mascot"
               className="w-full object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.35)] lg:drop-shadow-[0_12px_24px_rgba(0,0,0,0.4)]"
               mode="green"
             />
@@ -342,7 +342,7 @@ const AISimulationSection = () => {
 
             {/* Orange glowing spot on the bottom-left to match reference image */}
             <div className="absolute -left-24 -bottom-24 w-80 h-80 rounded-full bg-[#FF7A00]/15 blur-[80px] pointer-events-none"></div>
-            
+
             {/* Glowing stars/dots for cosmic space effect */}
             <div className="absolute top-10 left-12 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
             <div className="absolute top-24 left-1/4 w-1.5 h-1.5 bg-blue-400/30 rounded-full blur-[0.5px] animate-ping"></div>
@@ -412,15 +412,15 @@ const AISimulationSection = () => {
                 {/* Horizontal scanner perspective ellipse */}
                 <div className="absolute w-40 h-10 sm:w-48 sm:h-12 lg:w-60 lg:h-16 bg-gradient-to-t from-blue-500/20 to-transparent rounded-full border border-blue-500/30 transform translate-y-10 lg:translate-y-20 rotate-[-5deg] -z-10"></div>
 
-                <img 
-                  src={laptopMobile3DImg} 
-                  alt="3D Laptop with Mobile Mockup" 
+                <img
+                  src={laptopMobile3DImg}
+                  alt="3D Laptop with Mobile Mockup"
                   className="w-52 sm:w-64 lg:w-80 object-contain relative z-10 mix-blend-screen [mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_75%)] contrast-[1.08] brightness-[1.05] drop-shadow-[0_0_30px_rgba(59,130,246,0.5)] animate-float"
                 />
               </div>
 
               {/* Right Features Column */}
-              <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="lg:col-span-4 grid grid-cols-2 gap-2.5 sm:gap-4">
                 {[
                   {
                     title: "100% Pattern Match",
@@ -455,15 +455,15 @@ const AISimulationSection = () => {
 
                     <div>
                       {/* Icon and Title Row */}
-                      <div className="flex items-center gap-2.5 sm:gap-3">
-                        <div className="shrink-0 scale-100 sm:scale-110">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="shrink-0 scale-90 sm:scale-100">
                           {feat.icon}
                         </div>
-                        <h4 className="text-[11px] sm:text-[12px] font-black text-white leading-tight">{feat.title}</h4>
+                        <h4 className="text-[11px] sm:text-xs font-black text-white leading-tight">{feat.title}</h4>
                       </div>
-                      
+
                       {/* Description Below */}
-                      <p className="text-[9.5px] sm:text-[10px] text-slate-300 font-medium leading-relaxed mt-2 sm:mt-2.5">{feat.desc}</p>
+                      <p className="text-[10px] sm:text-xs text-slate-300 font-medium leading-relaxed mt-1.5 sm:mt-2.5">{feat.desc}</p>
                     </div>
                   </div>
                 ))}

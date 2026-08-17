@@ -388,13 +388,12 @@ const TestSeriesDetailsPage = () => {
                     {/* Right Column - Uploaded Banner Image or Illustration */}
                     <div className="lg:col-span-5 flex justify-center items-center">
                         {series.thumbnailUrl ? (
-                            <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-700/60 bg-slate-900 group">
+                            <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-700/60 bg-slate-900/90 p-1.5 group">
                                 <img 
                                     src={series.thumbnailUrl} 
                                     alt={series.name} 
-                                    className="w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl transform group-hover:scale-105 transition-transform duration-500" 
+                                    className="w-full h-auto max-h-[480px] object-contain rounded-xl transform group-hover:scale-[1.02] transition-transform duration-500" 
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none"></div>
                             </div>
                         ) : (
                             <div className="w-full hidden lg:block">

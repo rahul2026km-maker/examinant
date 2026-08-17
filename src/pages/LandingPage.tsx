@@ -294,7 +294,7 @@ const LandingPage = () => {
       <AISimulationSection />
 
       {/* Test Series Section */}
-      <section id="test-series" className="py-24 bg-[#F8FAFC] scroll-mt-24 relative overflow-hidden">
+      <section id="test-series" className="pt-8 pb-16 sm:pt-12 sm:pb-20 bg-[#F8FAFC] scroll-mt-24 relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
           <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-100/40 blur-3xl"></div>
@@ -309,7 +309,7 @@ const LandingPage = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-20"
+            className="text-center mb-8 sm:mb-12"
           >
             <span className="inline-block text-xs font-bold text-[#1D64D0] bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full tracking-wider uppercase mb-4 shadow-sm">
               Practice & Preparation
