@@ -106,7 +106,7 @@ const LoginPage = () => {
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
 
-            const from = (location.state as any)?.from || '/dashboard';
+            const from = (location.state as any)?.from || '/';
 
             if (!userDoc.exists()) {
                 const existingDoc = querySnapshot.docs[0];
@@ -168,7 +168,7 @@ const LoginPage = () => {
             const user = result.user;
 
             const userDoc = await getDoc(doc(db, 'users', user.uid));
-            const from = (location.state as any)?.from || '/dashboard';
+            const from = (location.state as any)?.from || '/';
 
             if (userDoc.exists()) {
                 const userData = userDoc.data();
@@ -227,7 +227,7 @@ const LoginPage = () => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
 
-            const from = (location.state as any)?.from || '/dashboard';
+            const from = (location.state as any)?.from || '/';
 
             if (userDoc.exists()) {
                 const userData = userDoc.data();
@@ -258,17 +258,17 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-100 flex relative overflow-hidden font-sans">
+        <div className="h-screen w-full bg-slate-100 relative overflow-hidden font-sans">
             {/* Background Orbs */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/30 blur-[120px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none" />
             
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full min-h-screen bg-white/80 backdrop-blur-xl flex flex-col md:flex-row overflow-hidden relative z-10"
-            >
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 scrollbar-hide">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="w-full min-h-full bg-white/80 backdrop-blur-xl flex flex-col md:flex-row"
+                >
                 {/* Left Side - Graphics */}
                 <div className="hidden md:flex flex-col w-5/12 relative overflow-hidden p-10 justify-between">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 z-0" />
@@ -284,6 +284,23 @@ const LoginPage = () => {
 
                     {/* Top Content */}
                     <div className="relative z-20">
+                        {/* Logo on Left Side */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="mb-12"
+                        >
+                            <Link to="/" className="inline-flex items-center gap-3 group">
+                                <div className="p-2 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 group-hover:bg-white/20 transition-all">
+                                    <img src={logo} alt="Examinantt" className="h-8 w-8 rounded-xl object-contain" />
+                                </div>
+                                <span className="text-3xl font-black text-white tracking-tight drop-shadow-md">
+                                    Examinantt
+                                </span>
+                            </Link>
+                        </motion.div>
+
                         <motion.div 
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -357,21 +374,8 @@ const LoginPage = () => {
                 </div>
 
                 {/* Right Side - Form */}
-                <div className="w-full md:w-7/12 p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white/50 h-screen overflow-y-auto">
-                    <div className="max-w-[420px] w-full mx-auto flex flex-col justify-center py-4">
-                        <div className="flex justify-between items-center mb-6">
-                            <Link to="/" className="inline-flex items-center gap-2 group">
-                                <div className="p-1.5 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:shadow-md transition-all">
-                                    <img src={logo} alt="Examinantt" className="h-7 w-7 rounded-lg object-contain" />
-                                </div>
-                                <span className="text-2xl font-black text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors">
-                                    Examinantt
-                                </span>
-                            </Link>
-                            <Link to="/signup" state={location.state} className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors px-4 py-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition-all">
-                                Sign Up
-                            </Link>
-                        </div>
+                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-center bg-white/50 min-h-full">
+                    <div className="max-w-[420px] w-full mx-auto flex flex-col justify-center py-6">
 
                         <div className="mb-5">
                             <h2 className="text-3xl font-extrabold text-slate-900 mb-1.5 tracking-tight">Welcome Back!</h2>
@@ -439,7 +443,7 @@ const LoginPage = () => {
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Email Address</label>
+                                <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                         <Mail size={18} strokeWidth={2.5} />
@@ -450,13 +454,13 @@ const LoginPage = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="you@example.com"
-                                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                        className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
                                     />
                                 </div>
                             </motion.div>
 
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Password</label>
+                                <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Password</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                         <Lock size={18} strokeWidth={2.5} />
@@ -467,7 +471,7 @@ const LoginPage = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className="w-full pl-10 pr-12 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                        className="w-full pl-[42px] pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
                                     />
                                     <button
                                         type="button"
@@ -491,7 +495,7 @@ const LoginPage = () => {
                                 initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                                 disabled={loading}
                                 type="submit"
-                                className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
+                                className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 <span className="relative z-10 flex items-center gap-2">
@@ -499,10 +503,14 @@ const LoginPage = () => {
                                     {!loading && <ChevronRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
                                 </span>
                             </motion.button>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-center text-sm text-slate-600 font-medium">
+                                Don't have an account? <Link to="/signup" state={location.state} className="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-all">Sign Up</Link>
+                            </motion.div>
                         </form>
                     </div>
                 </div>
-            </motion.div>
+                </motion.div>
+            </div>
         </div>
     );
 };

@@ -52,6 +52,10 @@ export interface Test {
     // Generated/selected questions
     questionIds: string[]; // Question IDs
 
+    // OMR Settings
+    isOMR?: boolean;
+    omrTemplate?: string;
+
     // Metadata
     status: 'draft' | 'published';
     createdBy: string;

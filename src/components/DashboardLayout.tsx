@@ -1,5 +1,5 @@
 import { type ReactNode, useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard,
@@ -175,7 +175,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 `}
             >
                 {/* Header / Logo */}
-                <div className="px-6 pt-6 pb-6 flex items-center gap-3">
+                <Link to="/" className="px-6 pt-6 pb-6 flex items-center gap-3 hover:opacity-80 transition-opacity block w-max">
                     <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl object-contain shadow-sm shrink-0" />
                     <div className="min-w-0">
                         <h2 className="text-[20px] font-black text-[#0B1E43] tracking-tight leading-none">
@@ -185,7 +185,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                             ACE YOUR EXAMS
                         </p>
                     </div>
-                </div>
+                </Link>
 
                 {/* Mobile Target Exam Selector in Sidebar */}
                 {role === 'student' && (

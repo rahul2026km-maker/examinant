@@ -37,15 +37,15 @@ const SocialProof = () => {
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
                 <button
                   onClick={() => navigate("/signup")}
-                  className="w-full sm:w-auto px-10 py-5 bg-orange-500 hover:bg-orange-400 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 transition-all active:scale-95 group"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-orange-500 hover:bg-orange-400 text-white rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-95 group"
                 >
                   Start Practice
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 <button 
                   onClick={() => navigate('/test-series')}
-                  className="w-full sm:w-auto px-10 py-5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-lg transition-all active:scale-95"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white rounded-xl font-bold text-base transition-all active:scale-95"
                 >
                   Try a Demo Test
                 </button>
