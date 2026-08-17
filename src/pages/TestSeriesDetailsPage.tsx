@@ -215,7 +215,7 @@ const TestSeriesDetailsPage = () => {
 
         setIsEnrolling(true);
         try {
-            if (series.pricing.type === 'paid') {
+            if (series?.pricing?.type === 'paid') {
                 const res = await loadRazorpay();
 
                 if (!res) {
@@ -224,7 +224,7 @@ const TestSeriesDetailsPage = () => {
                     return;
                 }
 
-                const finalPrice = Math.max(0, (series.pricing.amount || 0) - couponDiscount);
+                const finalPrice = Math.max(0, (series?.pricing?.amount || 0) - couponDiscount);
 
                 const options = {
                     key: 'rzp_live_TAGGnZwDvZubIP', // Enter the Key ID generated from the Dashboard
@@ -347,11 +347,11 @@ const TestSeriesDetailsPage = () => {
                         <div className="lg:col-span-7 text-left space-y-6">
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
                                 <Star size={12} className="fill-blue-400 text-blue-400" />
-                                {series.examCategory} 2026
+                                {series.examCategory}
                             </span>
                             
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                                {series.name.split(' ').map((word, i) => (
+                                {(series?.name || '').split(' ').map((word, i) => (
                                     <span key={i} className={word.toLowerCase() === 'gold' ? 'text-[#FF9F1C] drop-shadow-[0_2px_15px_rgba(255,159,28,0.35)]' : ''}>
                                         {word}{' '}
                                     </span>
@@ -365,6 +365,39 @@ const TestSeriesDetailsPage = () => {
                             <p className="text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl font-light">
                                 Exactly the {series.examCategory} real exam interface you'll get on exam day — same layout, same timer, same experience. Practice smartly. Perform confidently. Achieve your dream.
                             </p>
+
+                            {/* Prominent CTA to start test directly */}
+                            <div className="pt-2 pb-2">
+                                <button
+                                    onClick={() => {
+                                        if (tests.length > 0) {
+                                            const test = tests[0];
+                                            const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                            const targetPath = hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`;
+
+                                            if (!currentUser) {
+                                                navigate('/login', { state: { from: targetPath } });
+                                            } else {
+                                                navigate(targetPath);
+                                            }
+                                        } else {
+                                            alert('No tests are currently available in this series.');
+                                        }
+                                    }}
+                                    disabled={tests.length === 0}
+                                    className={`px-6 py-2.5 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-base group ${
+                                        tests.length === 0 
+                                        ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600' 
+                                        : 'bg-[#FF9F1C] hover:bg-[#e08810] text-white shadow-[0_0_30px_rgba(255,159,28,0.3)] hover:shadow-[0_0_40px_rgba(255,159,28,0.5)] active:scale-95'
+                                    }`}
+                                >
+                                    <PlayCircle size={20} className={tests.length > 0 ? "group-hover:scale-110 transition-transform" : ""} />
+                                    {tests.length === 0 
+                                        ? 'Tests Coming Soon' 
+                                        : 'Start Now'
+                                    }
+                                </button>
+                            </div>
 
                             {/* Badges Grid */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800">
@@ -498,9 +531,20 @@ const TestSeriesDetailsPage = () => {
                                                                 </span>
                                                             )}
                                                             {test.id === firstTestId && !isOwned && (
-                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse">
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                                                        const targetPath = hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`;
+                                                                        if (!currentUser) {
+                                                                            navigate('/login', { state: { from: targetPath } });
+                                                                        } else {
+                                                                            navigate(targetPath);
+                                                                        }
+                                                                    }}
+                                                                    className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse hover:bg-orange-200 transition-colors cursor-pointer"
+                                                                >
                                                                     Free Demo
-                                                                </span>
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </div>
@@ -509,7 +553,10 @@ const TestSeriesDetailsPage = () => {
                                                 <div className="flex-shrink-0 ml-4">
                                                     {isOwned ? (
                                                         <button 
-                                                            onClick={() => navigate(`/dashboard/attempt/${test.id}`)}
+                                                            onClick={() => {
+                                                                const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                                                navigate(hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`);
+                                                            }}
                                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
                                                                 hasAttempted
                                                                     ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
@@ -522,10 +569,12 @@ const TestSeriesDetailsPage = () => {
                                                     ) : test.id === firstTestId ? (
                                                         <button 
                                                             onClick={() => {
+                                                                const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                                                const targetPath = hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`;
                                                                 if (!currentUser) {
-                                                                    navigate('/login', { state: { from: `/dashboard/attempt/${test.id}` } });
+                                                                    navigate('/login', { state: { from: targetPath } });
                                                                 } else {
-                                                                    navigate(`/dashboard/attempt/${test.id}`);
+                                                                    navigate(targetPath);
                                                                 }
                                                             }}
                                                             className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-xl text-xs font-bold transition-all"
@@ -751,32 +800,32 @@ const TestSeriesDetailsPage = () => {
                                 <div className="text-center space-y-2">
                                     <p className="text-xs font-semibold text-slate-400">Total Price</p>
                                     <div className="flex items-center justify-center gap-3">
-                                        {series.pricing.type === 'paid' && (
+                                        {series?.pricing?.type === 'paid' && (
                                             <span className="text-2xl text-slate-400 line-through">
-                                                ₹{series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)}
+                                                ₹{series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)}
                                             </span>
                                         )}
                                         <span className="text-5xl font-black text-slate-900">
-                                            {series.pricing.type === 'free' ? 'Free' : `₹${Math.max(0, (series.pricing.amount || 0) - couponDiscount)}`}
+                                            {series?.pricing?.type === 'free' ? 'Free' : `₹${Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)}`}
                                         </span>
                                     </div>
-                                    {series.pricing.type === 'paid' && (
+                                    {series?.pricing?.type === 'paid' && (
                                         <span className="inline-block px-3 py-1 bg-green-50 border border-green-200 text-green-600 font-bold text-xs rounded-full">
                                             You Save ₹{
-                                                series.pricing.amount === 349 && couponDiscount === 0
+                                                series?.pricing?.amount === 349 && couponDiscount === 0
                                                     ? 1051
-                                                    : (series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) - Math.max(0, (series.pricing.amount || 0) - couponDiscount)
+                                                    : (series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)) - Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)
                                             } ({
-                                                series.pricing.amount === 349 && couponDiscount === 0
+                                                series?.pricing?.amount === 349 && couponDiscount === 0
                                                     ? 75
-                                                    : Math.round(((series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) - Math.max(0, (series.pricing.amount || 0) - couponDiscount)) / (series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) * 100)
+                                                    : Math.round(((series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)) - Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)) / (series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)) * 100)
                                             }%)
                                         </span>
                                     )}
                                 </div>
 
                                 {/* Discount code section */}
-                                {series.pricing.type === 'paid' && (
+                                {series?.pricing?.type === 'paid' && (
                                     <div className="pt-4 border-t border-slate-100 space-y-3">
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Get more discount...</span>
@@ -870,7 +919,7 @@ const TestSeriesDetailsPage = () => {
                                             ) : (
                                                 <>
                                                     <ShoppingCart size={20} />
-                                                    {series.pricing.type === 'free' ? 'Enroll Now' : 'Buy Now'}
+                                                    {series?.pricing?.type === 'free' ? 'Enroll Now' : 'Buy Now'}
                                                 </>
                                             )}
                                         </button>

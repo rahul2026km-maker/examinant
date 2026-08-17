@@ -65,12 +65,22 @@ export const getTestSeries = async (seriesId: string): Promise<TestSeries | null
     } as TestSeries;
 };
 
+let testSeriesCache: { data: TestSeries[], timestamp: number } | null = null;
+const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes cache
+
 // Get all test series
 export const getAllTestSeries = async (filters?: {
     examCategory?: string;
     status?: string;
     createdBy?: string;
 }): Promise<TestSeries[]> => {
+    // Check if we can use the cache (only if no specific filters like createdBy are applied, or we are just fetching 'published')
+    const isCacheableRequest = !filters || (Object.keys(filters).length === 1 && filters.status === 'published');
+    
+    if (isCacheableRequest && testSeriesCache && (Date.now() - testSeriesCache.timestamp < CACHE_DURATION_MS)) {
+        return testSeriesCache.data;
+    }
+
     // Note: Removed server-side sorting to prevent composite index errors when filtering
     let q = query(collection(db, "testSeries"));
 
@@ -93,11 +103,20 @@ export const getAllTestSeries = async (filters?: {
     })) as TestSeries[];
 
     // Sort client-side
-    return series.sort((a, b) => {
+    const sortedSeries = series.sort((a, b) => {
         const timeA = a.createdAt?.seconds || 0;
         const timeB = b.createdAt?.seconds || 0;
         return timeB - timeA;
     });
+
+    if (isCacheableRequest) {
+        testSeriesCache = {
+            data: sortedSeries,
+            timestamp: Date.now()
+        };
+    }
+
+    return sortedSeries;
 };
 
 // Add test to series

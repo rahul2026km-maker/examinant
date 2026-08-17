@@ -68,13 +68,13 @@ const HeroSlider = () => {
       <img src={BANNERS[0].desktop} alt="placeholder" className="hidden md:block w-full h-auto invisible pointer-events-none" fetchPriority="high" />
  
       <div className="absolute inset-0">
-        <AnimatePresence initial={false} mode="wait">
+        <AnimatePresence>
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, x: 100 }}
+            initial={{ opacity: 0, x: '5%' }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
+            exit={{ opacity: 0, x: '-5%' }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="absolute inset-0 w-full h-full"
           >
             {/* Mobile Image */}
@@ -95,27 +95,28 @@ const HeroSlider = () => {
         </AnimatePresence>
       </div>
 
-      {/* Navigation Controls */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-3 bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl hover:scale-110"
       >
-        <ChevronLeft size={28} />
+        <ChevronLeft size={20} strokeWidth={2.5} />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-3 bg-black/40 hover:bg-black/60 text-white rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 p-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-xl hover:scale-110"
       >
-        <ChevronRight size={28} />
+        <ChevronRight size={20} strokeWidth={2.5} />
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2.5 p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10">
         {BANNERS.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
-            className={`h-2.5 rounded-full transition-all duration-300 shadow-md ${idx === currentIndex ? 'bg-blue-600 w-8' : 'bg-white/70 hover:bg-white w-2.5'
+            className={`h-2.5 rounded-full transition-all duration-500 shadow-md ${idx === currentIndex 
+                ? 'bg-gradient-to-r from-blue-500 to-blue-400 w-8 shadow-blue-500/50' 
+                : 'bg-white/50 hover:bg-white/80 w-2.5'
               }`}
           />
         ))}

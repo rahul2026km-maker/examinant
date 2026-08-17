@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 // Components
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -62,6 +62,17 @@ const StudentOMRUploadPage = React.lazy(() => import('./pages/student/StudentOMR
 import WhatsAppWidget from './components/WhatsAppWidget';
 import './App.css';
 
+// Scroll to top component
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
 // Loading Component
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen bg-slate-50">
@@ -97,6 +108,7 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles?: ('student' | 'admin')
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <div className="app-container">
           <Suspense fallback={<PageLoader />}>

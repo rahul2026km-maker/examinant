@@ -73,35 +73,35 @@ const TestDevDept = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto px-4">
                         {/* Director */}
-                        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col items-center text-center group">
-                            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-6 border border-slate-100 relative">
-                                <img src={directorImg} alt="Aditya Kushwaha" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
+                            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-5 relative">
+                                <img src={directorImg} alt="Aditya Kushwaha" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                             </div>
                             <h4 className="text-xl font-extrabold text-slate-800 tracking-tight">Aditya Kushwaha</h4>
-                            <p className="text-xs text-orange-500 font-bold uppercase tracking-wider mt-1.5 bg-orange-50 border border-orange-100 px-3 py-1 rounded-full">Director</p>
+                            <p className="text-[11px] text-orange-600 font-black uppercase tracking-widest mt-1.5 bg-orange-50 border border-orange-100 px-4 py-1.5 rounded-full">Director</p>
                         </div>
 
                         {/* Test Developer */}
-                        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col items-center text-center group">
-                            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-6 border border-slate-100 relative">
-                                <img src={sudhanshuImg} alt="Sudhanshu Sir" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
+                            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-5 relative">
+                                <img src={sudhanshuImg} alt="Sudhanshu Sir" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                             </div>
                             <h4 className="text-xl font-extrabold text-slate-800 tracking-tight">Sudhanshu Sir</h4>
-                            <p className="text-xs text-[#0B4F97] font-bold uppercase tracking-wider mt-1.5 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">Test Developer</p>
+                            <p className="text-[11px] text-[#0B4F97] font-black uppercase tracking-widest mt-1.5 bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full">Test Developer</p>
                         </div>
 
                         {/* Placeholder Slot */}
-                        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col items-center text-center group">
-                            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-6 border border-dashed border-slate-200 flex items-center justify-center relative">
+                        <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
+                            <div className="w-full aspect-[4/5] rounded-2xl overflow-hidden bg-slate-50 mb-5 border border-dashed border-slate-200 flex items-center justify-center relative">
                                 <div className="text-center p-4">
-                                    <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400 font-bold text-lg">
+                                    <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400 font-bold text-lg">
                                         +
                                     </div>
                                     <span className="text-xs text-slate-400 font-bold">Coming Soon</span>
                                 </div>
                             </div>
                             <h4 className="text-xl font-extrabold text-slate-400 tracking-tight">Team Member</h4>
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1.5 bg-slate-50 border border-slate-100 px-3 py-1 rounded-full">Subject Expert</p>
+                            <p className="text-[11px] text-slate-500 font-black uppercase tracking-widest mt-1.5 bg-slate-50 border border-slate-200 px-4 py-1.5 rounded-full">Subject Expert</p>
                         </div>
                     </div>
                 </div>

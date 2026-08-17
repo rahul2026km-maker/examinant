@@ -12,6 +12,13 @@ const Navbar = () => {
     const location = useLocation();
     const authContext = useAuth();
     const currentUser = authContext?.currentUser;
+
+    const handleNav = (path: string) => {
+        navigate(path);
+        if (!path.includes('#')) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -45,7 +52,7 @@ const Navbar = () => {
     const handleLogout = async () => {
         try {
             await auth.signOut();
-            navigate('/');
+            handleNav('/');
         } catch (error) {
             console.error("Failed to log out", error);
         }
@@ -64,27 +71,28 @@ const Navbar = () => {
 
     return (
         <nav
-            className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled
-                ? 'bg-[#1E3A8A]/95 backdrop-blur-xl border-b border-white/5 py-4 shadow-xl'
-                : 'bg-[#173A7A] py-4 shadow-lg border-b border-white/5'
+            className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
+                ? 'bg-[#0f172a]/90 backdrop-blur-xl border-b border-white/10 py-3 shadow-2xl'
+                : 'bg-[#173A7A] py-4 shadow-lg border-b border-transparent'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center">
                     {/* Logo */}
                     <motion.div
-                        whileHover={{ scale: 1.02 }}
-                        className="flex items-center gap-2.5 cursor-pointer z-10"
-                        onClick={() => navigate('/')}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center gap-3 cursor-pointer z-10"
+                        onClick={() => handleNav('/')}
                     >
-                        <img src={logo} alt="Examinantt Logo" className="w-10 h-10 rounded-lg" />
-                        <span className="text-xl font-black text-white tracking-tight uppercase">
+                        <img src={logo} alt="Examinantt Logo" className="w-10 h-10 rounded-xl shadow-md" />
+                        <span className="text-2xl font-extrabold text-white tracking-tight uppercase drop-shadow-sm">
                             Examinantt
                         </span>
                     </motion.div>
 
                     {/* Desktop Links */}
-                    <div className="hidden lg:flex items-center gap-1">
+                    <div className="hidden lg:flex items-center gap-1.5">
                         {navItems.map((item) => (
                             <div key={item.label} className="relative group">
                                 <button
@@ -92,23 +100,23 @@ const Navbar = () => {
                                         if (item.hasDropdown) {
                                             setActiveDropdown(activeDropdown === item.label ? null : item.label);
                                         } else {
-                                            navigate(item.path);
+                                            handleNav(item.path);
                                             setActiveDropdown(null);
                                         }
                                     }}
-                                    className={`px-4 py-2 text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 ${isActive(item.path) || activeDropdown === item.label
+                                    className={`px-4 py-2 text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 ${isActive(item.path) || activeDropdown === item.label
                                         ? 'text-white'
-                                        : 'text-slate-400 hover:text-white'
+                                        : 'text-slate-300 hover:text-white'
                                         }`}
                                 >
                                     {item.label}
-                                    {item.hasDropdown && <ChevronDown size={14} className={`opacity-50 transition-transform duration-300 ${activeDropdown === item.label ? 'rotate-180' : ''}`} />}
+                                    {item.hasDropdown && <ChevronDown size={14} className={`opacity-70 transition-transform duration-300 ${activeDropdown === item.label ? 'rotate-180' : ''}`} />}
                                 </button>
 
                                 {/* Dropdown Menu */}
                                 {item.hasDropdown && activeDropdown === item.label && (
                                     <div 
-                                        className={`absolute top-full left-0 mt-2 bg-[#173A7A] border border-white/10 rounded-2xl shadow-2xl overflow-visible py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 ${
+                                        className={`absolute top-full left-0 mt-3 bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-visible py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 ${
                                             item.label === 'Tests' && testCategories.length > 8 ? 'w-[32rem]' : 'w-56'
                                         }`}
                                         onMouseLeave={() => setHoveredCategory(null)}
@@ -116,7 +124,7 @@ const Navbar = () => {
                                         {item.label === 'Tests' && (
                                             <div className={testCategories.length > 8 ? 'grid grid-cols-2 gap-x-1' : 'space-y-0.5'}>
                                                 <button 
-                                                    onClick={() => { navigate('/test-series'); setActiveDropdown(null); }} 
+                                                    onClick={() => { handleNav('/test-series'); setActiveDropdown(null); }} 
                                                     className="col-span-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5"
                                                     onMouseEnter={() => setHoveredCategory(null)}
                                                 >
@@ -132,7 +140,7 @@ const Navbar = () => {
                                                         >
                                                             <button 
                                                                 onClick={() => { 
-                                                                    navigate(`/test-series?category=${encodeURIComponent(cat)}`); 
+                                                                    handleNav(`/test-series?category=${encodeURIComponent(cat)}`); 
                                                                     setActiveDropdown(null); 
                                                                 }} 
                                                                 className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 capitalize flex justify-between items-center"
@@ -143,13 +151,13 @@ const Navbar = () => {
 
                                                             {/* Sub-dropdown for Desktop */}
                                                             {hasSubs && hoveredCategory === cat && (
-                                                                <div className="absolute left-full top-0 ml-1 w-48 bg-[#173A7A] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-left-2 duration-150">
+                                                                <div className="absolute left-full top-0 ml-1 w-48 bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-left-2 duration-150">
                                                                     {EXAM_SUBCATEGORIES[cat].map(sub => (
                                                                         <button
                                                                             key={sub}
                                                                             onClick={(e) => {
                                                                                 e.stopPropagation();
-                                                                                navigate(`/test-series?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`);
+                                                                                handleNav(`/test-series?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`);
                                                                                 setActiveDropdown(null);
                                                                             }}
                                                                             className="w-full text-left px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
@@ -166,8 +174,8 @@ const Navbar = () => {
                                         )}
                                         {item.label === 'Resources' && (
                                             <>
-                                                <button onClick={() => { navigate('/resources'); setActiveDropdown(null); }} className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5" onMouseEnter={() => setHoveredCategory(null)}>PYQ Papers</button>
-                                                <button onClick={() => { navigate('/resources'); setActiveDropdown(null); }} className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors" onMouseEnter={() => setHoveredCategory(null)}>Study Material</button>
+                                                <button onClick={() => { handleNav('/resources'); setActiveDropdown(null); }} className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5" onMouseEnter={() => setHoveredCategory(null)}>PYQ Papers</button>
+                                                <button onClick={() => { handleNav('/resources'); setActiveDropdown(null); }} className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors" onMouseEnter={() => setHoveredCategory(null)}>Study Material</button>
                                             </>
                                         )}
                                     </div>
@@ -177,18 +185,18 @@ const Navbar = () => {
                     </div>
 
                     {/* Auth Buttons */}
-                    <div className="hidden md:flex items-center gap-4 z-10">
+                    <div className="hidden md:flex items-center gap-3 z-10">
                         {currentUser ? (
                             <>
                                 <button
-                                    onClick={() => navigate('/dashboard')}
-                                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
+                                    onClick={() => handleNav('/dashboard')}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-blue-500/25 hover:bg-blue-500 hover:shadow-blue-500/40 transition-all active:scale-95"
                                 >
                                     Dashboard
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="px-6 py-2.5 text-[13px] font-black text-slate-300 hover:text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all"
+                                    className="px-6 py-2 text-sm font-bold text-slate-200 hover:text-white border border-white/20 rounded-full hover:bg-white/10 transition-all"
                                 >
                                     Logout
                                 </button>
@@ -196,14 +204,14 @@ const Navbar = () => {
                         ) : (
                             <>
                                 <button
-                                    onClick={() => navigate('/login')}
-                                    className="px-6 py-2.5 text-[13px] font-black text-white border border-white/10 rounded-xl hover:bg-white/5 transition-all"
+                                    onClick={() => handleNav('/login')}
+                                    className="px-6 py-2 text-sm font-bold text-white border border-white/20 rounded-full hover:bg-white/10 hover:border-white/40 transition-all"
                                 >
                                     Login
                                 </button>
                                 <button
-                                    onClick={() => navigate('/signup')}
-                                    className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[13px] font-black shadow-lg shadow-blue-500/25 hover:bg-blue-500 transition-all active:scale-95"
+                                    onClick={() => handleNav('/signup')}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-blue-500/25 hover:bg-blue-500 hover:shadow-blue-500/40 transition-all active:scale-95"
                                 >
                                     Sign Up Free
                                 </button>
@@ -242,7 +250,7 @@ const Navbar = () => {
                                                 if (item.hasDropdown) {
                                                     setMobileActiveDropdown(isDropdownOpen ? null : item.label);
                                                 } else {
-                                                    navigate(item.path);
+                                                    handleNav(item.path);
                                                     setMobileMenuOpen(false);
                                                 }
                                             }}
@@ -261,7 +269,7 @@ const Navbar = () => {
                                                 {item.label === 'Tests' && (
                                                     <>
                                                         <button 
-                                                            onClick={() => { navigate('/test-series'); setMobileMenuOpen(false); }} 
+                                                            onClick={() => { handleNav('/test-series'); setMobileMenuOpen(false); }} 
                                                             className="w-full text-left py-2 text-sm font-semibold text-slate-300 hover:text-white"
                                                         >
                                                             All Tests
@@ -274,7 +282,7 @@ const Navbar = () => {
                                                                     <div className="flex justify-between items-center py-2">
                                                                         <button 
                                                                             onClick={() => { 
-                                                                                navigate(`/test-series?category=${encodeURIComponent(cat)}`); 
+                                                                                handleNav(`/test-series?category=${encodeURIComponent(cat)}`); 
                                                                                 setMobileMenuOpen(false); 
                                                                             }} 
                                                                             className="text-left text-sm font-semibold text-slate-300 hover:text-white capitalize"
@@ -296,7 +304,7 @@ const Navbar = () => {
                                                                                 <button
                                                                                     key={sub}
                                                                                     onClick={() => {
-                                                                                        navigate(`/test-series?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`);
+                                                                                        handleNav(`/test-series?category=${encodeURIComponent(cat)}&subcategory=${encodeURIComponent(sub)}`);
                                                                                         setMobileMenuOpen(false);
                                                                                     }}
                                                                                     className="w-full text-left py-1.5 text-xs font-semibold text-slate-400 hover:text-white"
@@ -313,8 +321,8 @@ const Navbar = () => {
                                                 )}
                                                 {item.label === 'Resources' && (
                                                     <>
-                                                        <button onClick={() => { navigate('/resources'); setMobileMenuOpen(false); }} className="w-full text-left py-2 text-sm font-semibold text-slate-300 hover:text-white">PYQ Papers</button>
-                                                        <button onClick={() => { navigate('/resources'); setMobileMenuOpen(false); }} className="w-full text-left py-2 text-sm font-semibold text-slate-300 hover:text-white">Study Material</button>
+                                                        <button onClick={() => { handleNav('/resources'); setMobileMenuOpen(false); }} className="w-full text-left py-2 text-sm font-semibold text-slate-300 hover:text-white">PYQ Papers</button>
+                                                        <button onClick={() => { handleNav('/resources'); setMobileMenuOpen(false); }} className="w-full text-left py-2 text-sm font-semibold text-slate-300 hover:text-white">Study Material</button>
                                                     </>
                                                 )}
                                             </div>
@@ -327,7 +335,7 @@ const Navbar = () => {
                             {currentUser ? (
                                 <>
                                     <button
-                                        onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
+                                        onClick={() => { handleNav('/dashboard'); setMobileMenuOpen(false); }}
                                         className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
                                     >
                                         Dashboard
@@ -342,13 +350,13 @@ const Navbar = () => {
                             ) : (
                                 <>
                                     <button
-                                        onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
+                                        onClick={() => { handleNav('/login'); setMobileMenuOpen(false); }}
                                         className="w-full py-4 text-white font-black border border-white/10 rounded-2xl"
                                     >
                                         Login
                                     </button>
                                     <button
-                                        onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }}
+                                        onClick={() => { handleNav('/signup'); setMobileMenuOpen(false); }}
                                         className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
                                     >
                                         Sign Up Free

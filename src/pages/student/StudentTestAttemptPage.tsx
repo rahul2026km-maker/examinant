@@ -569,9 +569,14 @@ const StudentTestAttemptPage = () => {
 
                         <button
                             onClick={() => setShowInstructions(false)}
-                            className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20"
+                            disabled={testData.questions.length === 0}
+                            className={`w-full py-3 font-bold rounded-xl transition-colors shadow-lg ${
+                                testData.questions.length === 0 
+                                ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none'
+                                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/20'
+                            }`}
                         >
-                            I understand, Start Test
+                            {testData.questions.length === 0 ? 'No Questions Added to this Test' : 'I understand, Start Test'}
                         </button>
                     </div>
                 </motion.div>

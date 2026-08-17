@@ -8,9 +8,11 @@ import { doc, getDoc } from 'firebase/firestore';
 interface TestPreview {
     id: string;
     name: string;
+    duration?: number;
     isOMR?: boolean;
-    settings?: { duration: number };
+    settings?: { duration?: number };
     questionIds?: string[];
+    questionMappings?: any[];
     omrTemplate?: { totalQuestions: number };
 }
 
@@ -56,10 +58,10 @@ const StudentTestModeSelect = () => {
 
     if (!test) return null;
 
-    const totalQuestions = test.questionIds?.length || test.omrTemplate?.totalQuestions || 0;
-    const duration = test.settings?.duration || 180;
-    const hasOMR = !!test.isOMR;
-    const hasDigital = !!test.questionIds && test.questionIds.length > 0;
+    const totalQuestions = test.questionIds?.length || test.questionMappings?.length || test.omrTemplate?.totalQuestions || 0;
+    const duration = test.settings?.duration || test.duration || 180;
+    const hasOMR = !!test.isOMR || !!test.omrTemplate;
+    const hasDigital = (!!test.questionIds && test.questionIds.length > 0) || (!!test.questionMappings && test.questionMappings.length > 0);
 
     const handleStart = () => {
         if (!selected) return;
