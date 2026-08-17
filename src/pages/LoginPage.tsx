@@ -193,7 +193,11 @@ const LoginPage = () => {
             }
         } catch (err: any) {
             console.error("Google sign in failed:", err);
-            setError(err.message || 'Google sign in failed. Please try again.');
+            if (err.code === 'auth/popup-closed-by-user') {
+                setError('Google sign-in window close ho gaya tha. Kripya wapas "G Google" button par click karein aur account select karein.');
+            } else {
+                setError(err.message || 'Google sign in failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -237,8 +241,17 @@ const LoginPage = () => {
                 navigate(from);
             }
         } catch (err: any) {
-            console.error(err);
-            setError('Failed to log in. Please check your credentials.');
+            console.error('Login error details:', err);
+            const errorCode = err.code || '';
+            if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
+                setError('Email ya Password galat hai. Agar aapka account nahi bana hai toh pehle "Sign Up" karein, ya Google button se Login karein.');
+            } else if (errorCode === 'auth/too-many-requests') {
+                setError('Security reason: Bohot saare failed attempts ho gaye hain. Kuch minutes baad try karein ya "Forgot password?" se password reset karein.');
+            } else if (errorCode === 'auth/user-disabled') {
+                setError('Aapka account disabled hai. Support / Admin se contact karein.');
+            } else {
+                setError(err.message || 'Failed to log in. Please check your credentials.');
+            }
         }
 
         setLoading(false);

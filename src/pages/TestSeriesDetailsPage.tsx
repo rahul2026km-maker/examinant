@@ -328,80 +328,82 @@ const TestSeriesDetailsPage = () => {
         <div className="min-h-screen flex flex-col bg-slate-50 font-sans overflow-x-hidden">
             <Navbar />
 
-            {/* Banner / Hero Section */}
-            {series.thumbnailUrl ? (
-                <div className="w-full mt-[72px] bg-slate-900 border-b border-slate-200 overflow-hidden relative">
-                    <img 
-                        src={series.thumbnailUrl} 
-                        alt={series.name} 
-                        className="w-full h-auto object-fill block" 
-                    />
-                </div>
-            ) : (
-                /* Premium Dark Hero Section Fallback */
-                <div className="relative overflow-hidden bg-gradient-to-br from-[#070D1E] via-[#0E1B35] to-[#080D1A] pt-32 pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_120%,rgba(59,130,246,0.15),transparent_45%)] pointer-events-none"></div>
-                    <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+            {/* Premium Dark Hero Section */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#070D1E] via-[#0E1B35] to-[#080D1A] pt-32 pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_120%,rgba(59,130,246,0.15),transparent_45%)] pointer-events-none"></div>
+                <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+                    
+                    {/* Left Column - Info */}
+                    <div className="lg:col-span-7 text-left space-y-6">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
+                            <Star size={12} className="fill-blue-400 text-blue-400" />
+                            {series.examCategory} 2026
+                        </span>
                         
-                        {/* Left Column - Info */}
-                        <div className="lg:col-span-7 text-left space-y-6">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
-                                <Star size={12} className="fill-blue-400 text-blue-400" />
-                                {series.examCategory} 2026
-                            </span>
-                            
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                                {series.name.split(' ').map((word, i) => (
-                                    <span key={i} className={word.toLowerCase() === 'gold' ? 'text-[#FF9F1C] drop-shadow-[0_2px_15px_rgba(255,159,28,0.35)]' : ''}>
-                                        {word}{' '}
-                                    </span>
-                                ))}
-                            </h1>
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                            {series.name.split(' ').map((word, i) => (
+                                <span key={i} className={word.toLowerCase() === 'gold' ? 'text-[#FF9F1C] drop-shadow-[0_2px_15px_rgba(255,159,28,0.35)]' : ''}>
+                                    {word}{' '}
+                                </span>
+                            ))}
+                        </h1>
 
-                            <p className="text-lg md:text-xl font-semibold text-blue-400/90 tracking-wide">
-                                More Tests. Better Practice. Smarter You.
-                            </p>
+                        <p className="text-lg md:text-xl font-semibold text-blue-400/90 tracking-wide">
+                            More Tests. Better Practice. Smarter You.
+                        </p>
 
-                            <p className="text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl font-light">
-                                Exactly the {series.examCategory} real exam interface you'll get on exam day — same layout, same timer, same experience. Practice smartly. Perform confidently. Achieve your dream.
-                            </p>
+                        <p className="text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl font-light">
+                            Exactly the {series.examCategory} real exam interface you'll get on exam day — same layout, same timer, same experience. Practice smartly. Perform confidently. Achieve your dream.
+                        </p>
 
-                            {/* Badges Grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800">
-                                <div className="flex flex-col items-start gap-2">
-                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                        <Smartphone size={20} />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real Exam Interface</span>
+                        {/* Badges Grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800">
+                            <div className="flex flex-col items-start gap-2">
+                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                    <Smartphone size={20} />
                                 </div>
-                                <div className="flex flex-col items-start gap-2">
-                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                        <BookOpen size={20} />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Bilingual (Hindi+Eng)</span>
+                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real Exam Interface</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-2">
+                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                    <BookOpen size={20} />
                                 </div>
-                                <div className="flex flex-col items-start gap-2">
-                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                        <ShieldCheck size={20} />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Trusted by Aspirants</span>
+                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Bilingual (Hindi+Eng)</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-2">
+                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                    <ShieldCheck size={20} />
                                 </div>
-                                <div className="flex flex-col items-start gap-2">
-                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                        <Target size={20} />
-                                    </div>
-                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Affordable Premium</span>
+                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Trusted by Aspirants</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-2">
+                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                    <Target size={20} />
                                 </div>
+                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Affordable Premium</span>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Right Column - Illustration */}
-                        <div className="lg:col-span-5 hidden lg:block">
-                            <StudentIllustration />
-                        </div>
+                    {/* Right Column - Uploaded Banner Image or Illustration */}
+                    <div className="lg:col-span-5 flex justify-center items-center">
+                        {series.thumbnailUrl ? (
+                            <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-700/60 bg-slate-900 group">
+                                <img 
+                                    src={series.thumbnailUrl} 
+                                    alt={series.name} 
+                                    className="w-full h-64 sm:h-80 md:h-96 object-cover rounded-2xl transform group-hover:scale-105 transition-transform duration-500" 
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none"></div>
+                            </div>
+                        ) : (
+                            <div className="w-full hidden lg:block">
+                                <StudentIllustration />
+                            </div>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
 
             {/* Main Content & Sticky Sidebar Layout */}
             <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
