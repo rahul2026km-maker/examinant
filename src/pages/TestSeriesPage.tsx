@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PageLayout from '../components/landing/PageLayout';
 import TestSeriesCard from '../components/landing/TestSeriesCard';
-import { getAllTestSeries } from '../services/testSeriesService';
+import { getAllTestSeries, sortTestSeriesWithDemoFirst } from '../services/testSeriesService';
 import { Loader2 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { TestSeries } from '../types/test.types';
@@ -28,7 +28,7 @@ const TestSeriesPage = () => {
         fetchSeries();
     }, []);
 
-    const filteredSeries = series.filter(item => {
+    const filteredSeries = sortTestSeriesWithDemoFirst(series.filter(item => {
         // Legacy fallback matching:
         if (categoryParam?.toLowerCase() === 'engineering entrance') {
             if (item.examCategory?.toLowerCase() === 'jee') {
@@ -44,7 +44,7 @@ const TestSeriesPage = () => {
         const matchesCategory = !categoryParam || item.examCategory?.toLowerCase() === categoryParam.toLowerCase();
         const matchesSubcategory = !subcategoryParam || item.examSubCategory?.toLowerCase() === subcategoryParam.toLowerCase();
         return matchesCategory && matchesSubcategory;
-    });
+    }));
 
     return (
         <PageLayout>

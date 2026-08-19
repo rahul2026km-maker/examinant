@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { getAllTestSeries } from '../services/testSeriesService';
+import { getAllTestSeries, sortTestSeriesWithDemoFirst } from '../services/testSeriesService';
 import type { TestSeries } from '../types/test.types';
 import Navbar from '../components/landing/Navbar';
 import HeroSlider from '../components/landing/HeroSlider';
@@ -188,7 +188,7 @@ const LandingPage = () => {
     const fetchTestSeries = async () => {
       try {
         const data = await getAllTestSeries({ status: 'published' });
-        setTestSeries(data);
+        setTestSeries(sortTestSeriesWithDemoFirst(data));
       } catch (error) {
         console.error("Error fetching test series:", error);
       } finally {
@@ -360,9 +360,15 @@ const LandingPage = () => {
 
                   {/* Top badges */}
                   <div className={`flex justify-between items-center px-6 ${series.thumbnailUrl ? 'pt-4' : 'pt-6'} relative z-10`}>
-                    <span className="text-xs font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-white px-3 py-1 rounded-full shadow-sm">
-                      New
-                    </span>
+                    {series.name?.toLowerCase().includes('demo') || (series as any).isDemo || series.pricing?.type === 'free' ? (
+                      <span className="text-xs font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                        <span>🔥</span> FREE DEMO
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-white px-3 py-1 rounded-full shadow-sm">
+                        New
+                      </span>
+                    )}
 
                     <span className="text-xs text-[#1D64D0] font-bold uppercase tracking-wider">
                       {series.examCategory || 'Test Series'}{series.examSubCategory ? ` (${series.examSubCategory})` : ''}

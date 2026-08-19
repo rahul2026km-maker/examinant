@@ -65,6 +65,26 @@ export const getTestSeries = async (seriesId: string): Promise<TestSeries | null
     } as TestSeries;
 };
 
+// Helper to sort demo test series to the top
+export const sortTestSeriesWithDemoFirst = (seriesList: TestSeries[]): TestSeries[] => {
+    return [...seriesList].sort((a, b) => {
+        const getDemoScore = (item: TestSeries) => {
+            const nameMatch = item.name?.toLowerCase().includes('demo') || (item as any).isDemo;
+            if (nameMatch) return 2;
+            if (item.pricing?.type === 'free' || item.pricing?.amount === 0) return 1;
+            return 0;
+        };
+        const scoreA = getDemoScore(a);
+        const scoreB = getDemoScore(b);
+        if (scoreA !== scoreB) {
+            return scoreB - scoreA;
+        }
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA;
+    });
+};
+
 // Get all test series
 export const getAllTestSeries = async (filters?: {
     examCategory?: string;
@@ -92,12 +112,8 @@ export const getAllTestSeries = async (filters?: {
         ...doc.data()
     })) as TestSeries[];
 
-    // Sort client-side
-    return series.sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA;
-    });
+    // Sort client-side: Demo series at top, then newest first
+    return sortTestSeriesWithDemoFirst(series);
 };
 
 // Add test to series

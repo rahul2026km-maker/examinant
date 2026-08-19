@@ -116,7 +116,12 @@ const TestSeriesCard = ({
                             {examCategory || 'Academic'}{examSubCategory ? ` (${examSubCategory})` : ''} Mastery
                         </span>
                     </div>
-                    {isNew && (
+                    {title.toLowerCase().includes('demo') || price === 0 || price === '0' || String(price).toLowerCase() === 'free' ? (
+                        <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100 shadow-sm">
+                            <Sparkles size={12} className="animate-pulse text-indigo-600" />
+                            <span className="text-[10px] font-black uppercase tracking-wider">Free Demo</span>
+                        </div>
+                    ) : isNew && (
                         <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 shadow-sm">
                             <Sparkles size={12} className="animate-pulse" />
                             <span className="text-[10px] font-black uppercase tracking-wider">Early Access</span>

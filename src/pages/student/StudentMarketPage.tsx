@@ -5,7 +5,7 @@ import { db } from '../../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import type { TestSeries } from '../../types/test.types';
-import { getAllTestSeries } from '../../services/testSeriesService';
+import { getAllTestSeries, sortTestSeriesWithDemoFirst } from '../../services/testSeriesService';
 import TestSeriesCard from '../../components/landing/TestSeriesCard';
 import { loadRazorpay } from '../../utils/razorpay';
 import { studentService } from '../../services/studentService';
@@ -126,7 +126,7 @@ const StudentMarketPage = () => {
         }
     };
 
-    const filteredTests = tests.filter(test => {
+    const filteredTests = sortTestSeriesWithDemoFirst(tests.filter(test => {
         const seriesName = test.name || (test as any).title || '';
         const category = test.examCategory || '';
         const subCategory = test.examSubCategory || '';
@@ -148,7 +148,7 @@ const StudentMarketPage = () => {
         const matchesCategory = selectedCategory === 'All' || category === selectedCategory;
         const matchesSubCategory = selectedSubCategory === 'All' || subCategory === selectedSubCategory;
         return matchesSearch && matchesCategory && matchesSubCategory;
-    });
+    }));
 
     return (
         <div className="max-w-7xl mx-auto space-y-12">
