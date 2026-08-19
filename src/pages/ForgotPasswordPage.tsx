@@ -1,16 +1,19 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronRight, ChevronLeft, AlertCircle, Loader2, Mail, CheckCircle2, Sparkles, Globe, Star, CheckCircle, User, Lock, Eye, EyeOff } from 'lucide-react';
 import logo from '../assets/logo.png';
 import recoveryHero from '../assets/recovery_hero.png';
 
 const ForgotPasswordPage = () => {
-    const [step, setStep] = useState<'email' | 'otp'>('email');
+    const navigate = useNavigate();
+    const [step, setStep] = useState<'email' | 'otp' | 'password'>('email');
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
@@ -45,8 +48,53 @@ const ForgotPasswordPage = () => {
         }
     };
 
+    const handleVerifyOTP = async () => {
+        try {
+            setMessage('');
+            setError('');
+            setLoading(true);
+            
+            const response = await fetch('http://localhost:3001/api/verify-password-reset-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to verify OTP');
+            }
+            
+            setMessage(data.message);
+            setStep('password');
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || 'Failed to verify OTP.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (otp.length === 6 && step === 'otp') {
+            handleVerifyOTP();
+        }
+    }, [otp, step]);
+
     const handleVerifyAndReset = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (newPassword !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
+
         try {
             setMessage('');
             setError('');
@@ -65,29 +113,34 @@ const ForgotPasswordPage = () => {
             }
             
             setMessage(data.message);
-            setStep('email'); // Reset back to email step on success
             setOtp('');
             setNewPassword('');
+            setConfirmPassword('');
+            
+            // Redirect to login page after a short delay to show the success message
+            setTimeout(() => {
+                navigate('/login');
+            }, 1500);
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Failed to verify OTP.');
+            setError(err.message || 'Failed to verify OTP and reset password.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center relative overflow-hidden">
+        <div className="h-screen w-full bg-slate-900 relative overflow-hidden font-sans">
             {/* Background Effects */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/30 blur-[120px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none" />
             
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full min-h-screen bg-white/80 backdrop-blur-xl flex flex-col md:flex-row overflow-hidden relative z-10"
-            >
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 scrollbar-hide">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="w-full min-h-full bg-white/80 backdrop-blur-xl flex flex-col md:flex-row"
+                >
                 {/* Left Side - Graphics */}
                 <div className="hidden md:flex flex-col w-5/12 relative overflow-hidden p-10 justify-between">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 z-0" />
@@ -102,11 +155,28 @@ const ForgotPasswordPage = () => {
                     />
                     
                     <div className="relative z-20">
+                        {/* Logo on Left Side */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="mb-12"
+                        >
+                            <Link to="/" className="inline-flex items-center gap-3 group">
+                                <div className="p-2 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 group-hover:bg-white/20 transition-all">
+                                    <img src={logo} alt="Examinantt" className="h-8 w-8 rounded-xl object-contain" />
+                                </div>
+                                <span className="text-3xl font-black text-white tracking-tight drop-shadow-md">
+                                    Examinantt
+                                </span>
+                            </Link>
+                        </motion.div>
+
                         <motion.div 
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white/90 text-sm font-bold tracking-wide mb-8 border border-white/10"
+                            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-sm font-semibold text-white mb-8 shadow-xl"
                         >
                             <span className="relative flex h-3 w-3">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -175,22 +245,9 @@ const ForgotPasswordPage = () => {
                 </div>
 
                 {/* Right Side - Form */}
-                <div className="w-full md:w-7/12 p-6 md:p-8 lg:p-12 flex flex-col items-center justify-center bg-white h-screen overflow-y-auto">
-                    <div className="max-w-[460px] w-full mx-auto flex flex-col justify-center">
-                        <div className="flex justify-between items-center mb-10">
-                            <Link to="/" className="inline-flex items-center gap-2 group">
-                                <div className="p-1.5 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:shadow-md transition-all">
-                                    <img src={logo} alt="Examinantt" className="h-7 w-7 rounded-lg object-contain" />
-                                </div>
-                                <span className="text-2xl font-black text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors">
-                                    Examinantt
-                                </span>
-                            </Link>
-                            <Link to="/login" className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors px-4 py-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition-all">
-                                Log In
-                            </Link>
-                        </div>
-                        
+                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col items-center justify-center bg-white min-h-full">
+                    <div className="max-w-[460px] w-full mx-auto flex flex-col justify-center py-6">
+
                         <div className="mb-5">
                             <h2 className="text-3xl font-extrabold text-slate-900 mb-1.5 tracking-tight">Forgot Password?</h2>
                             <p className="text-slate-500 font-medium text-sm">Enter your email and we'll send you a link to reset your password.</p>
@@ -220,10 +277,10 @@ const ForgotPasswordPage = () => {
                             </motion.div>
                         )}
 
-                        {step === 'email' ? (
+                        {step === 'email' && (
                             <form onSubmit={handleRequestOTP} className="space-y-4">
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Email Address</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Mail size={18} strokeWidth={2.5} />
@@ -234,7 +291,7 @@ const ForgotPasswordPage = () => {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="your@email.com"
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
                                         />
                                     </div>
                                 </motion.div>
@@ -243,7 +300,7 @@ const ForgotPasswordPage = () => {
                                     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                                     disabled={loading}
                                     type="submit"
-                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
+                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     <span className="relative z-10 flex items-center gap-2">
@@ -252,10 +309,12 @@ const ForgotPasswordPage = () => {
                                     </span>
                                 </motion.button>
                             </form>
-                        ) : (
-                            <form onSubmit={handleVerifyAndReset} className="space-y-4">
+                        )}
+                        
+                        {step === 'otp' && (
+                            <form onSubmit={(e) => { e.preventDefault(); handleVerifyOTP(); }} className="space-y-4">
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Email Address</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                             <Mail size={18} strokeWidth={2.5} />
@@ -264,13 +323,13 @@ const ForgotPasswordPage = () => {
                                             type="email"
                                             disabled
                                             value={email}
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium cursor-not-allowed opacity-70"
+                                            className="w-full pl-10 pr-4 py-2 bg-slate-100 border border-slate-200 rounded-xl py-3 text-slate-500 text-sm font-medium cursor-not-allowed opacity-70"
                                         />
                                     </div>
                                 </motion.div>
 
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">6-Digit OTP</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">6-Digit OTP</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Sparkles size={18} strokeWidth={2.5} />
@@ -282,13 +341,31 @@ const ForgotPasswordPage = () => {
                                             value={otp}
                                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                                             placeholder="123456"
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-widest"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-widest"
                                         />
                                     </div>
+                                    <p className="text-xs text-slate-500 mt-2 ml-1">Enter 6-digit OTP to verify.</p>
                                 </motion.div>
 
-                                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">New Password</label>
+                                <motion.button
+                                    initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+                                    disabled={loading || otp.length !== 6}
+                                    type="submit"
+                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm disabled:opacity-50 disabled:transform-none"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <span className="relative z-10 flex items-center gap-2">
+                                        {loading ? <Loader2 className="animate-spin" size={18} /> : 'Verify OTP'}
+                                        {!loading && <ChevronRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
+                                    </span>
+                                </motion.button>
+                            </form>
+                        )}
+
+                        {step === 'password' && (
+                            <form onSubmit={handleVerifyAndReset} className="space-y-4">
+                                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">New Password</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Lock size={18} strokeWidth={2.5} />
@@ -299,7 +376,7 @@ const ForgotPasswordPage = () => {
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full pl-10 pr-12 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
                                         />
                                         <button
                                             type="button"
@@ -310,12 +387,36 @@ const ForgotPasswordPage = () => {
                                         </button>
                                     </div>
                                 </motion.div>
+                                
+                                <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Confirm Password</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                            <Lock size={18} strokeWidth={2.5} />
+                                        </div>
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            required
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            placeholder="••••••••"
+                                            className="w-full pl-[42px] pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
+                                </motion.div>
 
                                 <motion.button
                                     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                                     disabled={loading}
                                     type="submit"
-                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-2.5 rounded-xl shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
+                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
                                 >
                                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     <span className="relative z-10 flex items-center gap-2">
@@ -325,9 +426,13 @@ const ForgotPasswordPage = () => {
                                 </motion.button>
                             </form>
                         )}
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-center text-sm text-slate-600 font-medium">
+                            Remember your password? <Link to="/login" className="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-all">Log In</Link>
+                        </motion.div>
                     </div>
                 </div>
-            </motion.div>
+                </motion.div>
+            </div>
         </div>
     );
 };

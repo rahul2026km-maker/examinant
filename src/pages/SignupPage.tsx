@@ -21,14 +21,71 @@ const SignupPage = () => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [otpCode, setOtpCode] = useState('');
+    const [emailVerified, setEmailVerified] = useState(false);
+    const [otpLoading, setOtpLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
     const districts = STATES.find(s => s.name === state)?.districts || [];
 
+    const handleSendOtp = async () => {
+        if (!email || !email.includes('@')) {
+            return setError('Please enter a valid email address first.');
+        }
+        setOtpLoading(true);
+        setError('');
+        try {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const res = await fetch(`${baseUrl}/api/request-signup-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+            setOtpSent(true);
+            setError('');
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        if (!otpCode || otpCode.length !== 6) {
+            return setError('Please enter a valid 6-digit OTP.');
+        }
+        setOtpLoading(true);
+        setError('');
+        try {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const res = await fetch(`${baseUrl}/api/verify-signup-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp: otpCode })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to verify OTP');
+            setEmailVerified(true);
+            setOtpSent(false);
+            setError('');
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
     const handleRegisterAndVerify = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (!emailVerified) {
+            return setError('Please verify your email address before creating an account.');
+        }
 
         if (fullName.trim().length < 3) {
             return setError('Please enter a valid full name (min 3 characters)');
@@ -91,8 +148,7 @@ const SignupPage = () => {
                 phoneVerified: false
             });
 
-            const from = (location.state as any)?.from || '/dashboard';
-            navigate(from);
+            navigate('/login');
         } catch (err: any) {
             console.error("Signup failed:", err);
             setError(err.message || 'Signup failed. Please try again.');
@@ -130,8 +186,7 @@ const SignupPage = () => {
                 });
             }
 
-            const from = (location.state as any)?.from || '/dashboard';
-            navigate(from);
+            navigate('/login');
         } catch (err: any) {
             console.error("Google signup failed:", err);
             setError(err.message || 'Google signup failed. Please try again.');
@@ -141,17 +196,17 @@ const SignupPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-100 flex relative overflow-hidden font-sans">
+        <div className="h-screen w-full bg-slate-100 relative overflow-hidden font-sans">
             {/* Background Orbs */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/30 blur-[120px] pointer-events-none" />
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none" />
             
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full min-h-screen bg-white/80 backdrop-blur-xl flex flex-col md:flex-row overflow-hidden relative z-10"
-            >
+            <div className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 scrollbar-hide">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="w-full min-h-full bg-white/80 backdrop-blur-xl flex flex-col md:flex-row"
+                >
                 {/* Left Side - Graphics */}
                 <div className="hidden md:flex flex-col w-5/12 relative overflow-hidden p-10 justify-between">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 z-0" />
@@ -167,6 +222,23 @@ const SignupPage = () => {
 
                     {/* Top Content */}
                     <div className="relative z-20">
+                        {/* Logo on Left Side */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="mb-12"
+                        >
+                            <Link to="/" className="inline-flex items-center gap-3 group">
+                                <div className="p-2 bg-white/10 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 group-hover:bg-white/20 transition-all">
+                                    <img src={logo} alt="Examinantt" className="h-8 w-8 rounded-xl object-contain" />
+                                </div>
+                                <span className="text-3xl font-black text-white tracking-tight drop-shadow-md">
+                                    Examinantt
+                                </span>
+                            </Link>
+                        </motion.div>
+
                         <motion.div 
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
@@ -235,21 +307,9 @@ const SignupPage = () => {
                 </div>
 
                 {/* Right Side - Form */}
-                <div className="w-full md:w-7/12 p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white/50 h-screen overflow-y-auto">
-                    <div className="max-w-[500px] w-full mx-auto flex flex-col justify-center py-4">
-                        <div className="flex justify-between items-center mb-5">
-                            <Link to="/" className="inline-flex items-center gap-2 group">
-                                <div className="p-1.5 bg-white rounded-xl shadow-sm border border-slate-100 group-hover:shadow-md transition-all">
-                                    <img src={logo} alt="Examinantt" className="h-7 w-7 rounded-lg object-contain" />
-                                </div>
-                                <span className="text-2xl font-black text-slate-800 tracking-tight group-hover:text-blue-600 transition-colors">
-                                    Examinantt
-                                </span>
-                            </Link>
-                            <Link to="/login" state={location.state} className="text-sm font-bold text-slate-500 hover:text-blue-600 transition-colors px-4 py-2 bg-white rounded-full border border-slate-200 hover:bg-slate-50 transition-all">
-                                Sign In
-                            </Link>
-                        </div>
+                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-center bg-white/50 min-h-full">
+                    <div className="max-w-[500px] w-full mx-auto flex flex-col justify-center py-6">
+
 
                         <div className="mb-5">
                             <h2 className="text-3xl font-extrabold text-slate-900 mb-1 tracking-tight">Create account</h2>
@@ -318,7 +378,7 @@ const SignupPage = () => {
                         <form onSubmit={handleRegisterAndVerify} className="space-y-3.5">
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Full Name</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Full Name</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <User size={18} strokeWidth={2.5} />
@@ -330,13 +390,13 @@ const SignupPage = () => {
                                             value={fullName}
                                             onChange={(e) => setFullName(e.target.value)}
                                             placeholder="John Doe"
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Mobile Number</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Mobile Number</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Phone size={18} strokeWidth={2.5} />
@@ -349,14 +409,14 @@ const SignupPage = () => {
                                             value={mobile}
                                             onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
                                             placeholder="10-digit number"
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-bold placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-wide"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-bold placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-wide"
                                         />
                                     </div>
                                 </div>
                             </motion.div>
 
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
-                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Email Address</label>
+                                <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
                                 <div className="relative group">
                                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                         <Mail size={18} strokeWidth={2.5} />
@@ -365,16 +425,56 @@ const SignupPage = () => {
                                         type="email"
                                         required
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        disabled={emailVerified}
+                                        onChange={(e) => {
+                                            setEmail(e.target.value);
+                                            setEmailVerified(false);
+                                            setOtpSent(false);
+                                        }}
                                         placeholder="you@example.com"
-                                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                        className="w-full pl-[42px] pr-[100px] py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 disabled:opacity-70 disabled:bg-slate-100"
                                     />
+                                    <div className="absolute inset-y-0 right-1 flex items-center">
+                                        {emailVerified ? (
+                                            <span className="flex items-center gap-1 px-3 text-sm font-bold text-green-600">
+                                                <CheckCircle size={16} /> Verified
+                                            </span>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={handleSendOtp}
+                                                disabled={otpLoading || !email || otpSent}
+                                                className="px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-xs font-bold transition-colors disabled:opacity-50"
+                                            >
+                                                {otpLoading ? <Loader2 size={14} className="animate-spin mx-auto" /> : (otpSent ? 'Sent' : 'Send OTP')}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
+                                {otpSent && !emailVerified && (
+                                    <div className="mt-2 flex gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter 6-digit OTP"
+                                            value={otpCode}
+                                            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                            className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={handleVerifyOtp}
+                                            disabled={otpLoading || otpCode.length !== 6}
+                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors disabled:opacity-50"
+                                        >
+                                            {otpLoading ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Verify'}
+                                        </button>
+                                    </div>
+                                )}
                             </motion.div>
 
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">State</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">State</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <MapPin size={18} strokeWidth={2.5} />
@@ -386,7 +486,7 @@ const SignupPage = () => {
                                                 setState(e.target.value);
                                                 setDistrict('');
                                             }}
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium appearance-none cursor-pointer hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium appearance-none cursor-pointer hover:border-slate-300 hover:bg-slate-100"
                                         >
                                             <option value="" disabled className="text-slate-400">Select State</option>
                                             {STATES.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
@@ -394,7 +494,7 @@ const SignupPage = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">District</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">District</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <MapPin size={18} strokeWidth={2.5} />
@@ -404,7 +504,7 @@ const SignupPage = () => {
                                             value={district}
                                             disabled={!state}
                                             onChange={(e) => setDistrict(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium appearance-none disabled:opacity-50 disabled:bg-slate-50 disabled:cursor-not-allowed cursor-pointer hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium appearance-none disabled:opacity-50 disabled:bg-slate-50 disabled:cursor-not-allowed cursor-pointer hover:border-slate-300 hover:bg-slate-100"
                                         >
                                             <option value="" disabled className="text-slate-400">Select District</option>
                                             {districts.map(d => <option key={d} value={d}>{d}</option>)}
@@ -415,7 +515,7 @@ const SignupPage = () => {
 
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="grid grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Password</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Password</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Lock size={18} strokeWidth={2.5} />
@@ -440,7 +540,7 @@ const SignupPage = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider ml-1">Confirm</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Confirm</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Lock size={18} strokeWidth={2.5} />
@@ -479,12 +579,17 @@ const SignupPage = () => {
                             </motion.button>
                         </form>
                         
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-5 text-center text-xs text-slate-500 font-medium">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="mt-6 text-center text-sm text-slate-600 font-medium">
+                            Already have an account? <Link to="/login" state={location.state} className="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-all">Sign In</Link>
+                        </motion.div>
+
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="mt-4 text-center text-xs text-slate-500 font-medium">
                             By creating an account, you agree to our <Link to="/terms" className="text-blue-600 hover:underline">Terms of Service</Link> and <Link to="/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</Link>.
                         </motion.div>
                     </div>
                 </div>
-            </motion.div>
+                </motion.div>
+            </div>
         </div>
     );
 };

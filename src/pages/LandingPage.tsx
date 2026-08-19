@@ -341,19 +341,19 @@ const LandingPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -8 }}
+                  whileHover={{ y: -5 }}
                   key={series.id}
-                  className="group bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-2xl hover:border-blue-100 transition-all duration-300 overflow-hidden flex flex-col h-full relative"
+                  className="group bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 overflow-hidden flex flex-col h-full relative"
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-blue-50/0 to-blue-50/0 group-hover:to-blue-50/50 transition-colors duration-300 pointer-events-none z-0"></div>
 
                   {/* Thumbnail Image */}
                   {series.thumbnailUrl && (
-                    <div className="w-full h-40 overflow-hidden relative z-10 border-b border-gray-100">
+                    <div className="w-full h-[150px] overflow-hidden relative z-10 border-b border-gray-100 bg-slate-900">
                       <img
                         src={series.thumbnailUrl}
                         alt={series.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-fill group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                   )}
@@ -365,60 +365,67 @@ const LandingPage = () => {
                         <span>🔥</span> FREE DEMO
                       </span>
                     ) : (
-                      <span className="text-xs font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-white px-3 py-1 rounded-full shadow-sm">
-                        New
+                      <span className="text-[10px] font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-white px-2.5 py-0.5 rounded-full shadow-sm tracking-wide">
+                        NEW
                       </span>
                     )}
 
-                    <span className="text-xs text-[#1D64D0] font-bold uppercase tracking-wider">
+                    <span className="text-[10px] text-[#1D64D0] font-bold uppercase tracking-wider">
                       {series.examCategory || 'Test Series'}{series.examSubCategory ? ` (${series.examSubCategory})` : ''}
                     </span>
                   </div>
 
                   {/* Title */}
-                  <div className="px-6 mt-4 relative z-10">
-                    <h4 className="text-xl font-bold text-gray-900 group-hover:text-[#1D64D0] transition-colors duration-300">
+                  <div className="px-6 mt-3.5 relative z-10">
+                    <h4 className="text-[19px] font-bold text-gray-900 group-hover:text-[#1D64D0] transition-colors duration-300 leading-snug">
                       {series.name}
                     </h4>
                   </div>
 
                   {/* Description */}
-                  <div className="px-6 mt-3 relative z-10 flex-grow">
-                    <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">
+                  <div className="px-6 mt-2.5 relative z-10 flex-grow">
+                    <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed">
                       {series.description || "Practice with high-quality mock tests and detailed solutions."}
                     </p>
                   </div>
 
                   {/* Features */}
-                  <div className="px-6 mt-6 space-y-3 text-sm text-gray-600 relative z-10">
-                    <p className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span>
+                  <div className="px-6 mt-5 mb-5 space-y-2.5 text-[13px] text-gray-600 relative z-10">
+                    <p className="flex items-center gap-2.5">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-50 text-[#1D64D0] text-[10px]">✓</span>
                       <span className="font-medium">Detailed Solutions</span>
                     </p>
-                    <p className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span>
+                    <p className="flex items-center gap-2.5">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-50 text-[#1D64D0] text-[10px]">✓</span>
                       <span className="font-medium">All India Ranking</span>
                     </p>
-                    <p className="flex items-center gap-3">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-[#1D64D0] text-xs">✓</span>
+                    <p className="flex items-center gap-2.5">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-50 text-[#1D64D0] text-[10px]">✓</span>
                       <span className="font-medium">Performance Analytics</span>
                     </p>
                   </div>
 
                   {/* Price and CTA section */}
-                  <div className="p-6 mt-8 bg-gray-50/80 group-hover:bg-blue-50/50 transition-colors duration-300 mt-auto border-t border-gray-100 relative z-10">
-                    <div className="flex items-center justify-between mb-4">
+                  <div className="px-6 py-4 mt-auto bg-gray-50/80 group-hover:bg-blue-50/50 transition-colors duration-300 border-t border-gray-100 flex items-center justify-between relative z-10">
+                    <div className="flex flex-col">
                       {series.pricing?.type === "paid" ? (
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-extrabold text-gray-900">
-                            ₹{series.pricing?.amount}
-                          </span>
-                          <span className="text-sm font-medium text-gray-400 line-through">
-                            ₹{(series.pricing?.amount || 0) * 1.5}
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[22px] font-black text-gray-900 leading-none">
+                              ₹{series.pricing?.amount}
+                            </span>
+                            <span className="text-[12px] font-bold text-gray-400 line-through">
+                              ₹{Math.round((series.pricing?.amount || 0) * 1.5)}
+                            </span>
+                          </div>
+                          <div className="mt-1.5">
+                            <span className="text-[10px] font-extrabold bg-green-100 text-green-700 px-2 py-0.5 rounded uppercase tracking-wider">
+                              33% OFF
+                            </span>
+                          </div>
+                        </>
                       ) : (
-                        <span className="text-2xl font-extrabold text-emerald-500">
+                        <span className="text-xl font-extrabold text-emerald-500">
                           Free
                         </span>
                       )}
@@ -426,12 +433,12 @@ const LandingPage = () => {
 
                     <button
                       onClick={() => handleBuy(series.id)}
-                      className="w-full relative overflow-hidden bg-[#1D64D0] text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-md group-hover:shadow-blue-500/30 group-hover:bg-blue-700"
+                      className="relative overflow-hidden bg-[#1D64D0] text-white font-bold py-2.5 px-8 min-w-[150px] text-[13px] rounded-lg transition-all duration-300 shadow-sm hover:bg-slate-900 active:scale-95"
                     >
-                      <span className="relative z-10 flex items-center justify-center gap-2">
-                        Explore Test Series
-                        <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      <span className="relative z-10 flex items-center justify-center gap-1.5">
+                        Explore Series
+                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
                       </span>
                     </button>
@@ -443,16 +450,19 @@ const LandingPage = () => {
             </div>
 
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm"
-            >
-              <div className="text-5xl mb-4">📭</div>
-              <p className="text-gray-500 font-medium">
-                No test series available at the moment.
-              </p>
-            </motion.div>
+            <div className="text-center py-16">
+              <div className="inline-block p-8 bg-white rounded-[32px] shadow-sm border border-slate-100 transition-all hover:shadow-md">
+                <div className="w-20 h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
+                  <svg className="text-[#1D64D0] w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Coming Soon</h3>
+                <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm leading-relaxed">
+                  Our expert faculty is currently crafting premium test series. Stay tuned for updates!
+                </p>
+              </div>
+            </div>
           )}
         </div>
       </section>

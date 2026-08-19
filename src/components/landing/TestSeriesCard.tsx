@@ -93,172 +93,133 @@ const TestSeriesCard = ({
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             className="group relative bg-white rounded-[32px] border border-slate-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(37,99,235,0.15)] flex flex-col h-full"
         >
-            {/* Top Glow Accent */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 rounded-t-[32px]"></div>
-
-            {/* Thumbnail Image */}
-            {thumbnailUrl && (
-                <div className="w-full h-40 overflow-hidden relative border-b border-slate-100 shrink-0 rounded-t-[32px]">
-                    <img 
-                        src={thumbnailUrl} 
-                        alt={title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                </div>
-            )}
-
-            {/* Header Area */}
-            <div className={`px-8 ${thumbnailUrl ? 'pt-6' : 'pt-8'} pb-4 flex justify-between items-start`}>
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></div>
-                        <span className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">
-                            {examCategory || 'Academic'}{examSubCategory ? ` (${examSubCategory})` : ''} Mastery
-                        </span>
+            <div className="p-7 pb-2 flex-1 flex flex-col z-10">
+                {/* Header Area */}
+                <div className="flex justify-between items-start mb-5">
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                            <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                {examCategory ? `${examCategory} Mastery` : 'Academic Mastery'}
+                            </span>
+                        </div>
+                        {title.toLowerCase().includes('demo') || price === 0 || price === '0' || String(price).toLowerCase() === 'free' ? (
+                            <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100 shadow-sm">
+                                <Sparkles size={12} className="animate-pulse text-indigo-600" />
+                                <span className="text-[10px] font-black uppercase tracking-wider">Free Demo</span>
+                            </div>
+                        ) : isNew ? (
+                            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 shadow-sm">
+                                <Sparkles size={12} className="animate-pulse" />
+                                <span className="text-[10px] font-black uppercase tracking-wider">Early Access</span>
+                            </div>
+                        ) : null}
                     </div>
-                    {title.toLowerCase().includes('demo') || price === 0 || price === '0' || String(price).toLowerCase() === 'free' ? (
-                        <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100 shadow-sm">
-                            <Sparkles size={12} className="animate-pulse text-indigo-600" />
-                            <span className="text-[10px] font-black uppercase tracking-wider">Free Demo</span>
-                        </div>
-                    ) : isNew && (
-                        <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 shadow-sm">
-                            <Sparkles size={12} className="animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-wider">Early Access</span>
-                        </div>
-                    )}
+                    <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                        <BookOpen size={20} />
+                    </div>
                 </div>
-                <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                    <BookOpen size={20} />
-                </div>
-            </div>
 
-            <div className="px-8 pb-8 flex-1 flex flex-col">
                 {/* Title & Description */}
                 <div className="mb-6">
-                    <h3 className="text-2xl font-black text-slate-900 leading-tight tracking-tight mb-3 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-[22px] font-black text-slate-900 leading-tight mb-3">
                         {title}
                     </h3>
-                    <p className="text-sm font-medium text-slate-500 line-clamp-2 leading-relaxed">
+                    <p className="text-[14px] text-slate-500 leading-relaxed font-medium">
                         {description || "Elevate your preparation with our premium test series designed by top educators."}
                     </p>
                 </div>
 
                 {/* Info Pills */}
-                <div className="flex flex-wrap gap-2 mb-8 relative">
-                    <div 
-                        onMouseEnter={handleMouseEnter}
-                        onMouseLeave={handleMouseLeave}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setShowPopover(!showPopover);
-                        }}
-                        className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2 cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-all relative"
-                    >
-                        <ScrollText size={14} className="text-blue-600" />
-                        <span className="text-xs font-bold text-slate-700">{testCount !== undefined ? `${testCount} Full Tests` : '12 Full Tests'}</span>
-
-                        {/* Popover */}
-                        {showPopover && (
-                            <div 
-                                className="absolute bottom-full left-0 mb-3 w-80 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 z-50 p-4 max-h-64 overflow-y-auto text-left cursor-default"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <h4 className="text-xs font-black text-[#0B4F97] uppercase tracking-wider mb-3 pb-2 border-b border-slate-100">
-                                    Tests in this Series
-                                </h4>
-                                {loadingTests ? (
-                                    <div className="flex items-center justify-center py-6">
-                                        <Loader2 className="animate-spin text-blue-600" size={20} />
-                                    </div>
-                                ) : tests.length === 0 ? (
-                                    <p className="text-xs text-slate-400 font-semibold py-3 text-center">No tests added to this series yet.</p>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {tests.map((test, index) => (
-                                            <div 
-                                                key={test.id} 
-                                                className="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors"
-                                            >
-                                                <span className="flex-shrink-0 w-6 h-6 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-[10px] font-black">
-                                                    {index + 1}
-                                                </span>
-                                                <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-slate-800 truncate leading-tight">
-                                                        {test.name || test.title}
-                                                    </p>
-                                                    <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
-                                                        {test.settings?.duration || test.duration || 180} mins
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                <div className="flex flex-wrap gap-3 mb-8">
+                    <div className="flex items-center gap-2 border border-slate-100 rounded-[14px] px-3.5 py-2 bg-white">
+                        <ScrollText size={16} className="text-blue-500" />
+                        <span className="text-[13px] font-bold text-slate-700">{testCount || 0} Full Tests</span>
                     </div>
-                    <div className="px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-2">
-                        <Target size={14} className="text-indigo-600" />
-                        <span className="text-xs font-bold text-slate-700">Topic Wise</span>
+                    <div className="flex items-center gap-2 border border-slate-100 rounded-[14px] px-3.5 py-2 bg-white">
+                        <Target size={16} className="text-blue-500" />
+                        <span className="text-[13px] font-bold text-slate-700">Topic Wise</span>
                     </div>
                 </div>
 
                 {/* Feature List */}
-                <ul className="space-y-3 mb-8">
-                    {features.slice(0, 3).map((feature, i) => (
+                <ul className="space-y-3.5 mb-2 mt-auto">
+                    {features.length > 0 ? features.slice(0, 3).map((feature, i) => (
                         <li key={i} className="flex items-center gap-3 text-slate-600">
-                            <div className="shrink-0 w-5 h-5 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
-                                <CheckCircle size={12} />
+                            <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center">
+                                <CheckCircle size={14} strokeWidth={2.5} />
                             </div>
-                            <span className="text-xs font-bold leading-none">{feature}</span>
+                            <span className="text-[13px] font-bold text-slate-700">{feature}</span>
                         </li>
-                    ))}
+                    )) : (
+                        <>
+                            <li className="flex items-center gap-3 text-slate-600">
+                                <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center"><CheckCircle size={14} strokeWidth={2.5} /></div>
+                                <span className="text-[13px] font-bold text-slate-700">0 Full Length Tests</span>
+                            </li>
+                            <li className="flex items-center gap-3 text-slate-600">
+                                <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center"><CheckCircle size={14} strokeWidth={2.5} /></div>
+                                <span className="text-[13px] font-bold text-slate-700">Detailed Performance Analysis</span>
+                            </li>
+                            <li className="flex items-center gap-3 text-slate-600">
+                                <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center"><CheckCircle size={14} strokeWidth={2.5} /></div>
+                                <span className="text-[13px] font-bold text-slate-700">Personalized Score Tracking</span>
+                            </li>
+                        </>
+                    )}
                 </ul>
+            </div>
 
-                {/* Pricing & CTA */}
-                <div className="mt-auto pt-6 border-t border-slate-50">
-                    <div className="flex items-end justify-between mb-6">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-1.5 opacity-50">
-                                <Award size={12} className="text-amber-500" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Certified Content</span>
-                            </div>
-                            <div className="flex items-baseline gap-2 flex-wrap">
-                                <span className="text-3xl font-black text-slate-900 tracking-tighter">
-                                    {price === 'Free' || price === '0' || !price ? 'FREE' : `₹${price}`}
-                                </span>
-                                {price && price !== 'Free' && price !== '0' && (
-                                    <span className="text-slate-400 line-through text-sm font-bold tracking-tight">₹{originalPrice}</span>
-                                )}
-                                {discountPercentage > 0 && (
-                                    <span className="inline-block px-2.5 py-0.5 bg-green-50 border border-green-200 text-green-700 font-extrabold text-[11px] rounded-full shadow-xs">
-                                        You Save ₹{savingsAmount} ({discountPercentage}%)
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                        <div className="text-blue-600/10 group-hover:text-blue-600/20 transition-colors">
-                            <Zap size={40} />
-                        </div>
-                    </div>
+            {/* Pricing & CTA */}
+            <div className="px-7 py-6 relative bg-white z-10 mt-4">
+                <div className="absolute -right-4 -bottom-4 text-blue-50 opacity-60 pointer-events-none">
+                    <Zap size={100} strokeWidth={1} fill="currentColor" />
+                </div>
+                
+                <div className="flex items-center gap-2 mb-2 relative z-10">
+                    <Award size={14} className="text-amber-400" strokeWidth={2.5} />
+                    <span className="text-[11px] font-black text-slate-300 tracking-widest uppercase">Certified Content</span>
+                </div>
 
-                    {actions ? (
-                        <div className="flex gap-2">
-                            {actions}
-                        </div>
-                    ) : (
-                        <button
-                            onClick={onExplore}
-                            className="w-full relative group/btn overflow-hidden h-14 bg-slate-900 text-white rounded-2xl font-bold text-sm uppercase tracking-widest transition-all duration-300 hover:bg-blue-600 hover:shadow-2xl hover:shadow-blue-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
-                        >
-                            Explore Series
-                            <ArrowRight size={18} className="group-hover/btn:translate-x-1.5 transition-transform" />
-                        </button>
+                <div className="flex items-center gap-2 flex-wrap mb-5 relative z-10">
+                    <span className="text-[34px] font-black text-slate-900 tracking-tight leading-none">
+                        {price === 'Free' || price === '0' || !price ? 'Free' : `₹${price}`}
+                    </span>
+                    {price && price !== 'Free' && price !== '0' && (
+                        <>
+                            <span className="text-slate-400 line-through text-[15px] font-bold mt-1">₹{originalPrice}</span>
+                            {savingsAmount > 0 && (
+                                <div className="ml-2 inline-flex items-center bg-green-50/50 border border-green-200 px-2.5 py-1 rounded-full mt-1">
+                                    <span className="text-[11px] font-black text-amber-700">You Save ₹{savingsAmount} ({discountPercentage}%)</span>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
+
+                {actions ? (
+                    <div className="flex gap-2 relative z-10">
+                        {actions}
+                    </div>
+                ) : (
+                    <div className="flex gap-3 relative z-10">
+                        <button
+                            onClick={onExplore}
+                            className="flex-1 py-3 px-3 bg-slate-900 text-white hover:bg-black shadow-sm hover:shadow-md hover:-translate-y-0.5 rounded-[14px] font-bold text-[13px] transition-all duration-200 flex items-center justify-center"
+                        >
+                            Explore
+                        </button>
+                        <button
+                            onClick={onExplore}
+                            className="flex-1 py-3 px-3 bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 rounded-[14px] font-bold text-[13px] transition-all duration-200 flex items-center justify-center gap-1.5"
+                        >
+                            {price === 'Free' || price === '0' || !price ? 'Start Now' : 'Buy Now'}
+                            <ArrowRight size={14} />
+                        </button>
+                    </div>
+                )}
             </div>
-        </motion.div>
+        </div>
     );
 };
 

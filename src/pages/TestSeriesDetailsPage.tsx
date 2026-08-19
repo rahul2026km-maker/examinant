@@ -215,7 +215,7 @@ const TestSeriesDetailsPage = () => {
 
         setIsEnrolling(true);
         try {
-            if (series.pricing.type === 'paid') {
+            if (series?.pricing?.type === 'paid') {
                 const res = await loadRazorpay();
 
                 if (!res) {
@@ -224,7 +224,7 @@ const TestSeriesDetailsPage = () => {
                     return;
                 }
 
-                const finalPrice = Math.max(0, (series.pricing.amount || 0) - couponDiscount);
+                const finalPrice = Math.max(0, (series?.pricing?.amount || 0) - couponDiscount);
 
                 const options = {
                     key: 'rzp_live_TAGGnZwDvZubIP', // Enter the Key ID generated from the Dashboard
@@ -266,7 +266,7 @@ const TestSeriesDetailsPage = () => {
                         color: '#3399cc'
                     }
                 };
-                
+
 
                 const paymentObject = new (window as any).Razorpay(options);
                 paymentObject.open();
@@ -332,35 +332,76 @@ const TestSeriesDetailsPage = () => {
             <div className="relative overflow-hidden bg-gradient-to-br from-[#070D1E] via-[#0E1B35] to-[#080D1A] pt-32 pb-20 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_120%,rgba(59,130,246,0.15),transparent_45%)] pointer-events-none"></div>
                 <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-                    
+
                     {/* Left Column - Info */}
                     <div className="lg:col-span-7 text-left space-y-6">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
                             <Star size={12} className="fill-blue-400 text-blue-400" />
                             {series.examCategory} 2026
                         </span>
-                        
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                            {series.name.split(' ').map((word, i) => (
-                                <span key={i} className={word.toLowerCase() === 'gold' ? 'text-[#FF9F1C] drop-shadow-[0_2px_15px_rgba(255,159,28,0.35)]' : ''}>
-                                    {word}{' '}
-                                </span>
-                            ))}
-                        </h1>
 
-                        <p className="text-lg md:text-xl font-semibold text-blue-400/90 tracking-wide">
-                            More Tests. Better Practice. Smarter You.
-                        </p>
+                        {/* Left Column - Info */}
+                        <div className="lg:col-span-7 text-left space-y-6">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider">
+                                <Star size={12} className="fill-blue-400 text-blue-400" />
+                                {series.examCategory}
+                            </span>
 
-                        <p className="text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl font-light">
-                            Exactly the {series.examCategory} real exam interface you'll get on exam day — same layout, same timer, same experience. Practice smartly. Perform confidently. Achieve your dream.
-                        </p>
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                                {(series?.name || '').split(' ').map((word, i) => (
+                                    <span key={i} className={word.toLowerCase() === 'gold' ? 'text-[#FF9F1C] drop-shadow-[0_2px_15px_rgba(255,159,28,0.35)]' : ''}>
+                                        {word}{' '}
+                                    </span>
+                                ))}
+                            </h1>
 
-                        {/* Badges Grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800">
-                            <div className="flex flex-col items-start gap-2">
-                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                    <Smartphone size={20} />
+                            <p className="text-lg md:text-xl font-semibold text-blue-400/90 tracking-wide">
+                                More Tests. Better Practice. Smarter You.
+                            </p>
+
+                            <p className="text-base md:text-lg text-slate-300 leading-relaxed max-w-2xl font-light">
+                                Exactly the {series.examCategory} real exam interface you'll get on exam day — same layout, same timer, same experience. Practice smartly. Perform confidently. Achieve your dream.
+                            </p>
+
+                            {/* Prominent CTA to start test directly */}
+                            <div className="pt-2 pb-2">
+                                <button
+                                    onClick={() => {
+                                        if (tests.length > 0) {
+                                            const test = tests[0];
+                                            const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                            const targetPath = hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`;
+
+                                            if (!currentUser) {
+                                                navigate('/login', { state: { from: targetPath } });
+                                            } else {
+                                                navigate(targetPath);
+                                            }
+                                        } else {
+                                            alert('No tests are currently available in this series.');
+                                        }
+                                    }}
+                                    disabled={tests.length === 0}
+                                    className={`px-6 py-2.5 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-base group ${tests.length === 0
+                                            ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600'
+                                            : 'bg-[#FF9F1C] hover:bg-[#e08810] text-white shadow-[0_0_30px_rgba(255,159,28,0.3)] hover:shadow-[0_0_40px_rgba(255,159,28,0.5)] active:scale-95'
+                                        }`}
+                                >
+                                    <PlayCircle size={20} className={tests.length > 0 ? "group-hover:scale-110 transition-transform" : ""} />
+                                    {tests.length === 0
+                                        ? 'Tests Coming Soon'
+                                        : 'Start Now'
+                                    }
+                                </button>
+                            </div>
+
+                            {/* Badges Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800">
+                                <div className="flex flex-col items-start gap-2">
+                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                                        <Smartphone size={20} />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real Exam Interface</span>
                                 </div>
                                 <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real Exam Interface</span>
                             </div>
@@ -389,10 +430,10 @@ const TestSeriesDetailsPage = () => {
                     <div className="lg:col-span-5 flex justify-center items-center">
                         {series.thumbnailUrl ? (
                             <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-slate-700/60 bg-slate-900/90 p-1.5 group">
-                                <img 
-                                    src={series.thumbnailUrl} 
-                                    alt={series.name} 
-                                    className="w-full h-auto max-h-[480px] object-contain rounded-xl transform group-hover:scale-[1.02] transition-transform duration-500" 
+                                <img
+                                    src={series.thumbnailUrl}
+                                    alt={series.name}
+                                    className="w-full h-auto max-h-[480px] object-contain rounded-xl transform group-hover:scale-[1.02] transition-transform duration-500"
                                 />
                             </div>
                         ) : (
@@ -407,10 +448,10 @@ const TestSeriesDetailsPage = () => {
             {/* Main Content & Sticky Sidebar Layout */}
             <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                    
+
                     {/* Left & Middle Column (2 cols) */}
                     <div className="lg:col-span-2 space-y-10">
-                        
+
                         {/* Tests Included in this Series Section */}
                         <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
@@ -420,7 +461,7 @@ const TestSeriesDetailsPage = () => {
                                 </div>
                                 <div className="relative w-full md:w-64">
                                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                                    <input 
+                                    <input
                                         type="text"
                                         placeholder="Search tests..."
                                         value={searchQuery}
@@ -442,11 +483,10 @@ const TestSeriesDetailsPage = () => {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id as any)}
-                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all border ${
-                                            activeTab === tab.id
+                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all border ${activeTab === tab.id
                                                 ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
                                                 : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
-                                        }`}
+                                            }`}
                                     >
                                         {tab.label}
                                     </button>
@@ -471,7 +511,7 @@ const TestSeriesDetailsPage = () => {
                                         const testBestScore = hasAttempted ? Math.max(...testAttempts.map(a => a.score || 0)) : 0;
 
                                         return (
-                                            <div 
+                                            <div
                                                 key={test.id}
                                                 className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 hover:border-blue-100 transition-all group"
                                             >
@@ -499,9 +539,20 @@ const TestSeriesDetailsPage = () => {
                                                                 </span>
                                                             )}
                                                             {test.id === firstTestId && !isOwned && (
-                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                                                        const targetPath = hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`;
+                                                                        if (!currentUser) {
+                                                                            navigate('/login', { state: { from: targetPath } });
+                                                                        } else {
+                                                                            navigate(targetPath);
+                                                                        }
+                                                                    }}
+                                                                    className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse hover:bg-orange-200 transition-colors cursor-pointer"
+                                                                >
                                                                     Free Demo
-                                                                </span>
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </div>
@@ -509,24 +560,28 @@ const TestSeriesDetailsPage = () => {
 
                                                 <div className="flex-shrink-0 ml-4">
                                                     {isOwned ? (
-                                                        <button 
-                                                            onClick={() => navigate(`/dashboard/attempt/${test.id}`)}
-                                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                                                                hasAttempted
+                                                        <button
+                                                            onClick={() => {
+                                                                const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                                                navigate(hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`);
+                                                            }}
+                                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${hasAttempted
                                                                     ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
                                                                     : 'bg-blue-600 hover:bg-blue-700 text-white'
-                                                            }`}
+                                                                }`}
                                                         >
                                                             <PlayCircle size={12} />
                                                             <span>{hasAttempted ? 'Reattempt' : 'Start Test'}</span>
                                                         </button>
                                                     ) : test.id === firstTestId ? (
-                                                        <button 
+                                                        <button
                                                             onClick={() => {
+                                                                const hasOMR = !!test.isOMR || !!test.omrTemplate;
+                                                                const targetPath = hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`;
                                                                 if (!currentUser) {
-                                                                    navigate('/login', { state: { from: `/dashboard/attempt/${test.id}` } });
+                                                                    navigate('/login', { state: { from: targetPath } });
                                                                 } else {
-                                                                    navigate(`/dashboard/attempt/${test.id}`);
+                                                                    navigate(targetPath);
                                                                 }
                                                             }}
                                                             className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-xl text-xs font-bold transition-all"
@@ -546,7 +601,7 @@ const TestSeriesDetailsPage = () => {
                                 )}
                             </div>
                         </div>
-                        
+
                         {/* About This Test Series */}
                         <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
                             <div className="flex items-center gap-3">
@@ -599,7 +654,7 @@ const TestSeriesDetailsPage = () => {
                                 <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
                                 <h2 className="text-2xl font-bold text-slate-900">What's Included</h2>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="flex items-start gap-4 p-5 bg-blue-50/20 border border-blue-50/50 rounded-2xl transition-all hover:bg-blue-50/40">
                                     <div className="p-3 bg-blue-100 text-blue-600 rounded-xl shrink-0">
@@ -612,7 +667,7 @@ const TestSeriesDetailsPage = () => {
                                         <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Real exam pattern with exact difficulty level</p>
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-start gap-4 p-5 bg-green-50/20 border border-green-50/50 rounded-2xl transition-all hover:bg-green-50/40">
                                     <div className="p-3 bg-green-100 text-green-600 rounded-xl shrink-0">
                                         <BookOpen size={24} />
@@ -720,7 +775,7 @@ const TestSeriesDetailsPage = () => {
                     {/* Right Column - Sticky Sidebar / Checkout */}
                     <div className="lg:col-span-1">
                         <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden sticky top-28 space-y-6">
-                            
+
                             {/* Offer header */}
                             <div className="bg-gradient-to-r from-blue-900 to-[#0F1E36] p-6 text-white text-center">
                                 <p className="text-xs uppercase font-bold tracking-wider text-blue-300 mb-3">Limited Time Offer!</p>
@@ -752,38 +807,38 @@ const TestSeriesDetailsPage = () => {
                                 <div className="text-center space-y-2">
                                     <p className="text-xs font-semibold text-slate-400">Total Price</p>
                                     <div className="flex items-center justify-center gap-3">
-                                        {series.pricing.type === 'paid' && (
+                                        {series?.pricing?.type === 'paid' && (
                                             <span className="text-2xl text-slate-400 line-through">
-                                                ₹{series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)}
+                                                ₹{series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)}
                                             </span>
                                         )}
                                         <span className="text-5xl font-black text-slate-900">
-                                            {series.pricing.type === 'free' ? 'Free' : `₹${Math.max(0, (series.pricing.amount || 0) - couponDiscount)}`}
+                                            {series?.pricing?.type === 'free' ? 'Free' : `₹${Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)}`}
                                         </span>
                                     </div>
-                                    {series.pricing.type === 'paid' && (
+                                    {series?.pricing?.type === 'paid' && (
                                         <span className="inline-block px-3 py-1 bg-green-50 border border-green-200 text-green-600 font-bold text-xs rounded-full">
                                             You Save ₹{
-                                                series.pricing.amount === 349 && couponDiscount === 0
+                                                series?.pricing?.amount === 349 && couponDiscount === 0
                                                     ? 1051
-                                                    : (series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) - Math.max(0, (series.pricing.amount || 0) - couponDiscount)
+                                                    : (series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)) - Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)
                                             } ({
-                                                series.pricing.amount === 349 && couponDiscount === 0
+                                                series?.pricing?.amount === 349 && couponDiscount === 0
                                                     ? 75
-                                                    : Math.round(((series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) - Math.max(0, (series.pricing.amount || 0) - couponDiscount)) / (series.pricing.amount === 349 ? 1400 : Math.round((series.pricing.amount || 0) * 4)) * 100)
+                                                    : Math.round(((series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)) - Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)) / (series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)) * 100)
                                             }%)
                                         </span>
                                     )}
                                 </div>
 
                                 {/* Discount code section */}
-                                {series.pricing.type === 'paid' && (
+                                {series?.pricing?.type === 'paid' && (
                                     <div className="pt-4 border-t border-slate-100 space-y-3">
                                         <div className="flex items-center justify-between">
                                             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Get more discount...</span>
                                         </div>
                                         <div className="flex gap-2">
-                                            <input 
+                                            <input
                                                 type="text"
                                                 placeholder="Enter discount code"
                                                 value={couponCode}
@@ -871,7 +926,7 @@ const TestSeriesDetailsPage = () => {
                                             ) : (
                                                 <>
                                                     <ShoppingCart size={20} />
-                                                    {series.pricing.type === 'free' ? 'Enroll Now' : 'Buy Now'}
+                                                    {series?.pricing?.type === 'free' ? 'Enroll Now' : 'Buy Now'}
                                                 </>
                                             )}
                                         </button>
@@ -925,16 +980,16 @@ function StudentIllustration() {
                     <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
                 </radialGradient>
             </defs>
-            
+
             {/* Glow */}
             <circle cx="250" cy="200" r="180" fill="url(#bgGlow)" />
-            
+
             {/* Floating Target Board */}
             <circle cx="410" cy="110" r="45" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeOpacity="0.4" />
             <circle cx="410" cy="110" r="30" fill="none" stroke="#60a5fa" strokeWidth="2" strokeOpacity="0.6" strokeDasharray="3 3" />
             <circle cx="410" cy="110" r="15" fill="none" stroke="#93c5fd" strokeWidth="2" />
             <circle cx="410" cy="110" r="6" fill="#FF9F1C" />
-            
+
             {/* Floating Trophy / Badge */}
             <g transform="translate(60, 240)">
                 <rect x="0" y="0" width="60" height="60" rx="16" fill="#1e293b" stroke="#3b82f6" strokeWidth="1" />
@@ -947,17 +1002,17 @@ function StudentIllustration() {
             <path d="M 120 310 L 340 310 L 360 345 L 100 345 Z" fill="#334155" />
             <path d="M 130 200 L 330 200 L 340 305 L 120 305 Z" fill="#0f172a" stroke="#475569" strokeWidth="4" />
             <rect x="140" y="210" width="180" height="85" rx="3" fill="#1e293b" />
-            
+
             {/* Analytics line graph on Laptop */}
             <path d="M 150 270 L 175 255 L 200 262 L 230 235 L 260 250 L 290 220 L 310 230" fill="none" stroke="#3b82f6" strokeWidth="3.5" strokeLinecap="round" />
             <path d="M 150 270 L 175 255 L 200 262 L 230 235 L 260 250 L 290 220 L 310 230 V 285 H 150 Z" fill="rgba(59,130,246,0.15)" />
-            
+
             {/* Floating Checkmark Badge */}
             <g transform="translate(290, 80)">
                 <circle cx="25" cy="25" r="25" fill="#10b981" />
                 <path d="M 17 25 L 22 30 L 33 19" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
             </g>
-            
+
             {/* Student illustration / Icon */}
             <circle cx="230" cy="120" r="32" fill="#e2e8f0" />
             <path d="M 170 195 C 170 155, 290 155, 290 195 Z" fill="#cbd5e1" />
