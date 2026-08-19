@@ -219,7 +219,7 @@ const TestSeriesCard = ({
                     </div>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 };
 

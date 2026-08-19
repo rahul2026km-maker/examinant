@@ -58,6 +58,16 @@ const StudentOMRAttemptPage = React.lazy(() => import('./pages/student/StudentOM
 const StudentOMRPrintPage = React.lazy(() => import('./pages/student/StudentOMRPrintPage'));
 const StudentOMRUploadPage = React.lazy(() => import('./pages/student/StudentOMRUploadPage'));
 
+// ── Courses & LMS System (New Additions) ────────────────────────────────────
+const CoursesDiscoveryPage = React.lazy(() => import('./pages/CoursesDiscoveryPage'));
+const CourseDetailsPage = React.lazy(() => import('./pages/CourseDetailsPage'));
+const CertificateVerificationPage = React.lazy(() => import('./pages/CertificateVerificationPage'));
+const StudentCoursesPage = React.lazy(() => import('./pages/student/StudentCoursesPage'));
+const StudentCoursePlayerPage = React.lazy(() => import('./pages/student/StudentCoursePlayerPage'));
+const AdminCoursesPage = React.lazy(() => import('./pages/admin/AdminCoursesPage'));
+const CourseCreationWizard = React.lazy(() => import('./pages/admin/CourseCreationWizard'));
+const CourseEnrollmentsPage = React.lazy(() => import('./pages/admin/CourseEnrollmentsPage'));
+
 
 import WhatsAppWidget from './components/WhatsAppWidget';
 import './App.css';
@@ -120,6 +130,9 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/test-series" element={<TestSeriesPage />} />
               <Route path="/test-series/:id" element={<TestSeriesDetailsPage />} />
+              <Route path="/courses" element={<CoursesDiscoveryPage />} />
+              <Route path="/courses/:slug" element={<CourseDetailsPage />} />
+              <Route path="/verify/:certificateId" element={<CertificateVerificationPage />} />
               <Route path="/pyqs" element={<PYQsDiscoveryPage />} />
               <Route path="/pyqs/:id" element={<PYQDetailsPage />} />
               <Route path="/resources" element={<FreeResourcesPage />} />
@@ -135,6 +148,7 @@ function App() {
                 {/* Dashboard Layout Routes */}
                 <Route element={<DashboardLayout role="student"><Outlet /></DashboardLayout>}>
                   <Route path="/dashboard" element={<StudentDashboard />} />
+                  <Route path="/dashboard/courses" element={<StudentCoursesPage />} />
                   <Route path="/dashboard/tests" element={<StudentTestsPage />} />
                   <Route path="/dashboard/market" element={<StudentMarketPage />} />
                   <Route path="/dashboard/pyqs" element={<StudentPYQsPage />} />
@@ -143,6 +157,8 @@ function App() {
                   <Route path="/dashboard/results" element={<StudentTestResultsPage />} />
                   <Route path="/dashboard/results/:attemptId" element={<StudentTestResultDetailPage />} />
                 </Route>
+                {/* Full Screen Learning LMS Player Route */}
+                <Route path="/dashboard/courses/:courseId/learn" element={<StudentCoursePlayerPage />} />
                 {/* Full Screen Test Route */}
                 <Route path="/dashboard/attempt/:testId" element={<StudentTestAttemptPage />} />
                 {/* OMR Feature Routes (New) */}
@@ -155,6 +171,10 @@ function App() {
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                 <Route element={<DashboardLayout role="admin"><Outlet /></DashboardLayout>}>
                   <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin-dashboard/courses" element={<AdminCoursesPage />} />
+                  <Route path="/admin-dashboard/courses/create" element={<CourseCreationWizard />} />
+                  <Route path="/admin-dashboard/courses/:courseId/edit" element={<CourseCreationWizard />} />
+                  <Route path="/admin-dashboard/courses/:courseId/enrollments" element={<CourseEnrollmentsPage />} />
                   <Route path="/admin-dashboard/test-series" element={<TestSeriesManagement />} />
                   <Route path="/admin-dashboard/create-test" element={<TestCreationWizard />} />
                   <Route path="/admin-dashboard/tests" element={<AdminTestsPage />} />

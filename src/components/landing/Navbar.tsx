@@ -61,7 +61,7 @@ const Navbar = () => {
     const navItems = [
         { label: 'Home', path: '/' },
         { label: 'Tests', path: '/test-series', hasDropdown: true },
-        { label: 'Courses', path: '/test-series' },
+        { label: 'Courses', path: '/courses' },
         { label: 'Our Products', path: '/#test-series' },
         { label: 'Rankers', path: '/test-series' },
         { label: 'Resources', path: '/resources', hasDropdown: true },
