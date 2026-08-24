@@ -20,6 +20,7 @@ export interface Lesson {
     videoProvider?: 'cloudinary' | 'youtube' | 'hls';
     videoAssetId?: string;
     videoUrl?: string;
+    thumbnailUrl?: string;
     
     // PDF resource
     pdfUrl?: string;

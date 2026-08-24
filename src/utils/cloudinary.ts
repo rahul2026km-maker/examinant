@@ -84,11 +84,15 @@ export const fileToBase64 = (file: File, maxWidth = 1200, quality = 0.85): Promi
  */
 export const uploadToCloudinary = async (
     file: File,
-    onProgress?: (progressPercent: number) => void
+    onProgress?: (progressPercent: number) => void,
+    resourceType: 'image' | 'video' | 'auto' = 'auto'
 ): Promise<string> => {
     const { cloudName, uploadPreset } = getCloudinaryConfig();
 
-    console.log('[Cloudinary Utility] Attempting upload with:', { cloudName, uploadPreset, fileName: file.name, fileSize: file.size });
+    console.log('[Cloudinary Utility] Attempting upload with:', { cloudName, uploadPreset, fileName: file.name, fileSize: file.size, fileType: file.type });
+
+    const isVideo = file.type.startsWith('video/');
+    const endpointType = resourceType === 'auto' ? (isVideo ? 'video' : 'image') : resourceType;
 
     if (cloudName && uploadPreset && cloudName !== 'your_cloud_name' && uploadPreset !== 'your_upload_preset') {
         try {
@@ -98,7 +102,7 @@ export const uploadToCloudinary = async (
                 formData.append('upload_preset', uploadPreset);
 
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`);
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/${endpointType}/upload`);
 
                 if (onProgress && xhr.upload) {
                     xhr.upload.onprogress = (event) => {
@@ -146,17 +150,21 @@ export const uploadToCloudinary = async (
             console.warn(
                 '[Cloudinary Upload Failed]:',
                 cloudinaryError?.message || cloudinaryError,
-                '-> Falling back to optimized local Base64 image.'
+                '-> Falling back to local URL / Base64.'
             );
         }
     } else {
         console.warn(
-            '[Cloudinary Credentials Missing/Default]: Please check VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in .env -> Using Base64 fallback.'
+            '[Cloudinary Credentials Missing/Default]: Please check VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in .env -> Using local object URL / Base64 fallback.'
         );
     }
 
-    // Fallback: Convert to Base64 Data URL so image upload never blocks the user
+    // Fallback: Convert to Base64 or Blob URL so upload never blocks user
     if (onProgress) onProgress(50);
+    if (isVideo) {
+        if (onProgress) onProgress(100);
+        return URL.createObjectURL(file);
+    }
     const base64Url = await fileToBase64(file);
     if (onProgress) onProgress(100);
     return base64Url;

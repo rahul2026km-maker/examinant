@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { 
     ChevronLeft, Plus, Trash2, Edit3, Upload, Loader2, Sparkles, 
-    Check, Play, FileText, HelpCircle, Layers, CheckCircle2, Video, Link as LinkIcon 
+    Check, Play, FileText, HelpCircle, Layers, CheckCircle2, Video, Link as LinkIcon, Image as ImageIcon 
 } from 'lucide-react';
 import { courseService } from '../../services/courseService';
 import { curriculumService } from '../../services/curriculumService';
@@ -55,13 +55,17 @@ const CourseCreationWizard = () => {
     const [newModuleName, setNewModuleName] = useState<string>('');
     const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
 
-    // Modal state for adding a lesson
+    // Modal state for adding/editing a lesson
     const [isAddingLesson, setIsAddingLesson] = useState<boolean>(false);
+    const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
+    const [isUploadingLessonThumbnail, setIsUploadingLessonThumbnail] = useState<boolean>(false);
+    const [isUploadingLessonVideo, setIsUploadingLessonVideo] = useState<boolean>(false);
     const [lessonFormData, setLessonFormData] = useState<Partial<Lesson>>({
         title: '',
         type: 'video',
         videoProvider: 'youtube',
         videoUrl: '',
+        thumbnailUrl: '',
         pdfUrl: '',
         textContent: '',
         attachedTestId: '',
@@ -171,32 +175,93 @@ const CourseCreationWizard = () => {
     };
 
     // Lesson Handlers
+    const handleOpenAddLesson = (mId: string) => {
+        setActiveModuleId(mId);
+        setEditingLessonId(null);
+        setLessonFormData({
+            title: '',
+            type: 'video',
+            videoProvider: 'youtube',
+            videoUrl: '',
+            thumbnailUrl: '',
+            pdfUrl: '',
+            textContent: '',
+            attachedTestId: '',
+            durationMinutes: 15,
+            isFreePreview: false,
+            isMandatory: true
+        });
+        setIsAddingLesson(true);
+    };
+
+    const handleOpenEditLesson = (mId: string, lesson: Lesson) => {
+        setActiveModuleId(mId);
+        setEditingLessonId(lesson.id);
+        setLessonFormData({ ...lesson });
+        setIsAddingLesson(true);
+    };
+
+    const handleLessonThumbnailUpload = async (file: File) => {
+        setIsUploadingLessonThumbnail(true);
+        try {
+            const url = await uploadToCloudinary(file, undefined, 'image');
+            setLessonFormData(prev => ({ ...prev, thumbnailUrl: url }));
+        } catch (error) {
+            alert("Thumbnail upload failed");
+        } finally {
+            setIsUploadingLessonThumbnail(false);
+        }
+    };
+
+    const handleLessonVideoUpload = async (file: File) => {
+        setIsUploadingLessonVideo(true);
+        try {
+            const url = await uploadToCloudinary(file, undefined, 'video');
+            setLessonFormData(prev => ({ ...prev, videoUrl: url }));
+        } catch (error) {
+            alert("Video upload failed");
+        } finally {
+            setIsUploadingLessonVideo(false);
+        }
+    };
+
     const handleAddLessonSubmit = async () => {
         if (!courseId || !activeModuleId || !lessonFormData.title) return;
         try {
-            await curriculumService.createLesson(courseId, activeModuleId, {
+            const payload = {
                 title: lessonFormData.title,
                 type: lessonFormData.type || 'video',
-                order: (moduleLessons[activeModuleId]?.length || 0) + 1,
                 durationMinutes: Number(lessonFormData.durationMinutes) || 10,
                 isFreePreview: Boolean(lessonFormData.isFreePreview),
                 isMandatory: Boolean(lessonFormData.isMandatory),
                 videoProvider: lessonFormData.videoProvider || 'youtube',
                 videoUrl: lessonFormData.videoUrl || '',
+                thumbnailUrl: lessonFormData.thumbnailUrl || '',
                 pdfUrl: lessonFormData.pdfUrl || '',
                 textContent: lessonFormData.textContent || '',
                 attachedTestId: lessonFormData.attachedTestId || '',
                 status: 'published'
-            } as any);
+            };
+
+            if (editingLessonId) {
+                await curriculumService.updateLesson(courseId, activeModuleId, editingLessonId, payload as any);
+            } else {
+                await curriculumService.createLesson(courseId, activeModuleId, {
+                    ...payload,
+                    order: (moduleLessons[activeModuleId]?.length || 0) + 1
+                } as any);
+            }
 
             const updatedLessons = await curriculumService.getModuleLessons(courseId, activeModuleId);
             setModuleLessons(prev => ({ ...prev, [activeModuleId]: updatedLessons }));
             setIsAddingLesson(false);
+            setEditingLessonId(null);
             setLessonFormData({
                 title: '',
                 type: 'video',
                 videoProvider: 'youtube',
                 videoUrl: '',
+                thumbnailUrl: '',
                 pdfUrl: '',
                 textContent: '',
                 attachedTestId: '',
@@ -205,7 +270,7 @@ const CourseCreationWizard = () => {
                 isMandatory: true
             });
         } catch (error) {
-            alert("Failed to add lesson");
+            alert("Failed to save lesson");
         }
     };
 
@@ -459,10 +524,7 @@ const CourseCreationWizard = () => {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button
-                                                onClick={() => {
-                                                    setActiveModuleId(m.id);
-                                                    setIsAddingLesson(true);
-                                                }}
+                                                onClick={() => handleOpenAddLesson(m.id)}
                                                 className="flex items-center gap-1 text-xs font-extrabold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors"
                                             >
                                                 <Plus size={14} /> Add Lesson
@@ -484,7 +546,13 @@ const CourseCreationWizard = () => {
                                             moduleLessons[m.id].map((lesson, lIdx) => (
                                                 <div key={lesson.id} className="flex justify-between items-center p-3 bg-slate-50/70 rounded-xl border border-slate-100">
                                                     <div className="flex items-center gap-3">
-                                                        {lesson.type === 'video' ? <Video size={16} className="text-blue-500" /> : <FileText size={16} className="text-purple-500" />}
+                                                        {lesson.thumbnailUrl ? (
+                                                            <img src={lesson.thumbnailUrl} alt={lesson.title} className="w-12 h-8 rounded-lg object-cover border border-slate-200" />
+                                                        ) : lesson.type === 'video' ? (
+                                                            <Video size={16} className="text-blue-500" />
+                                                        ) : (
+                                                            <FileText size={16} className="text-purple-500" />
+                                                        )}
                                                         <div>
                                                             <h4 className="font-bold text-slate-800 text-sm">{lIdx + 1}. {lesson.title}</h4>
                                                             <p className="text-[11px] text-slate-400 font-medium">
@@ -492,12 +560,22 @@ const CourseCreationWizard = () => {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <button
-                                                        onClick={() => handleDeleteLesson(m.id, lesson.id)}
-                                                        className="text-slate-400 hover:text-red-600 p-1"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
+                                                    <div className="flex items-center gap-1">
+                                                        <button
+                                                            onClick={() => handleOpenEditLesson(m.id, lesson)}
+                                                            className="text-slate-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-slate-100"
+                                                            title="Edit Lesson"
+                                                        >
+                                                            <Edit3 size={14} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDeleteLesson(m.id, lesson.id)}
+                                                            className="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-slate-100"
+                                                            title="Delete Lesson"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             ))
                                         )}
@@ -510,8 +588,10 @@ const CourseCreationWizard = () => {
                     {/* Lesson Modal */}
                     {isAddingLesson && (
                         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                            <div className="bg-white rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl border border-slate-100">
-                                <h3 className="text-xl font-black text-slate-900">Add New Lesson</h3>
+                            <div className="bg-white rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-xl font-black text-slate-900">
+                                    {editingLessonId ? 'Edit Lesson' : 'Add New Lesson'}
+                                </h3>
                                 <div className="space-y-4 text-xs font-bold text-slate-700">
                                     <div>
                                         <label className="block mb-1 text-slate-500 uppercase">Lesson Title *</label>
@@ -538,15 +618,68 @@ const CourseCreationWizard = () => {
                                     </div>
 
                                     {lessonFormData.type === 'video' && (
-                                        <div>
-                                            <label className="block mb-1 text-slate-500 uppercase">Video Embed URL (YouTube / Cloudinary / MP4)</label>
-                                            <input
-                                                type="text"
-                                                value={lessonFormData.videoUrl || ''}
-                                                onChange={(e) => setLessonFormData(p => ({ ...p, videoUrl: e.target.value }))}
-                                                placeholder="https://www.youtube.com/embed/xyz or Cloudinary URL"
-                                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 text-sm"
-                                            />
+                                        <div className="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                                            {/* Video Upload / Link */}
+                                            <div>
+                                                <label className="block mb-1 text-slate-500 uppercase">Video Source / URL</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={lessonFormData.videoUrl || ''}
+                                                        onChange={(e) => setLessonFormData(p => ({ ...p, videoUrl: e.target.value }))}
+                                                        placeholder="https://www.youtube.com/embed/xyz or Cloudinary/MP4 URL"
+                                                        className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-sm"
+                                                    />
+                                                    <label className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white font-extrabold text-xs rounded-xl cursor-pointer hover:bg-blue-700 transition-colors shrink-0">
+                                                        {isUploadingLessonVideo ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                                                        <span>Upload Video</span>
+                                                        <input
+                                                            type="file"
+                                                            accept="video/*"
+                                                            className="hidden"
+                                                            onChange={(e) => e.target.files?.[0] && handleLessonVideoUpload(e.target.files[0])}
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {/* Video Thumbnail Upload / Link */}
+                                            <div>
+                                                <label className="block mb-1 text-slate-500 uppercase">Video Thumbnail Image (Poster)</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={lessonFormData.thumbnailUrl || ''}
+                                                        onChange={(e) => setLessonFormData(p => ({ ...p, thumbnailUrl: e.target.value }))}
+                                                        placeholder="https://image-link.com/poster.jpg"
+                                                        className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-sm"
+                                                    />
+                                                    <label className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 text-white font-extrabold text-xs rounded-xl cursor-pointer hover:bg-black transition-colors shrink-0">
+                                                        {isUploadingLessonThumbnail ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
+                                                        <span>Upload Thumbnail</span>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            onChange={(e) => e.target.files?.[0] && handleLessonThumbnailUpload(e.target.files[0])}
+                                                        />
+                                                    </label>
+                                                </div>
+
+                                                {/* Thumbnail Live Preview */}
+                                                {lessonFormData.thumbnailUrl && (
+                                                    <div className="mt-2 relative rounded-xl overflow-hidden border border-slate-300 w-full aspect-video bg-black max-w-xs mx-auto">
+                                                        <img
+                                                            src={lessonFormData.thumbnailUrl}
+                                                            alt="Lesson Thumbnail Preview"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                        <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-sm">
+                                                            Thumbnail Preview
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
 
@@ -600,8 +733,10 @@ const CourseCreationWizard = () => {
                                 </div>
 
                                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                                    <button onClick={() => setIsAddingLesson(false)} className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl">Cancel</button>
-                                    <button onClick={handleAddLessonSubmit} className="px-5 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-md">Add Lesson</button>
+                                    <button onClick={() => { setIsAddingLesson(false); setEditingLessonId(null); }} className="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-xl">Cancel</button>
+                                    <button onClick={handleAddLessonSubmit} className="px-5 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl shadow-md">
+                                        {editingLessonId ? 'Save Changes' : 'Add Lesson'}
+                                    </button>
                                 </div>
                             </div>
                         </div>

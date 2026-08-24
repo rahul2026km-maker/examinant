@@ -11,6 +11,7 @@ import { entitlementService } from '../../services/entitlementService';
 import { progressService } from '../../services/progressService';
 import { certificateService } from '../../services/certificateService';
 import type { Course, CourseModule, Lesson, LessonProgress } from '../../types/course.types';
+import VideoPlayer from '../../components/common/VideoPlayer';
 
 const StudentCoursePlayerPage = () => {
     const { courseId } = useParams<{ courseId: string }>();
@@ -270,13 +271,13 @@ const StudentCoursePlayerPage = () => {
                             {/* Video / PDF Stage */}
                             <div className="w-full aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-slate-800 relative flex items-center justify-center">
                                 {currentLesson.type === 'video' && currentLesson.videoUrl ? (
-                                    <iframe
-                                        src={currentLesson.videoUrl}
+                                    <VideoPlayer
+                                        key={currentLesson.id}
+                                        videoUrl={currentLesson.videoUrl}
+                                        thumbnailUrl={currentLesson.thumbnailUrl}
                                         title={currentLesson.title}
-                                        className="w-full h-full border-0"
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                        allowFullScreen
-                                    ></iframe>
+                                        durationMinutes={currentLesson.durationMinutes}
+                                    />
                                 ) : currentLesson.type === 'pdf' && currentLesson.pdfUrl ? (
                                     <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-4">
                                         <FileText size={48} className="text-purple-400" />

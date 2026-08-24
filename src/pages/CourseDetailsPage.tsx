@@ -9,6 +9,7 @@ import { courseService } from '../services/courseService';
 import { curriculumService } from '../services/curriculumService';
 import { entitlementService } from '../services/entitlementService';
 import type { Course, CourseModule, Lesson } from '../types/course.types';
+import VideoPlayer from '../components/common/VideoPlayer';
 import { useAuth } from '../contexts/AuthContext';
 import { loadRazorpay } from '../utils/razorpay';
 import { studentService } from '../services/studentService';
@@ -28,7 +29,7 @@ const CourseDetailsPage = () => {
     const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
 
     // Free Preview Video Modal
-    const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
+    const [previewLesson, setPreviewLesson] = useState<Lesson | null>(null);
 
     useEffect(() => {
         if (slug) loadCourseDetails();
@@ -321,7 +322,7 @@ const CourseDetailsPage = () => {
                                                         <span className="text-xs text-slate-400 font-medium">{lesson.durationMinutes} Mins</span>
                                                         {lesson.isFreePreview ? (
                                                             <button
-                                                                onClick={() => lesson.videoUrl && setPreviewVideoUrl(lesson.videoUrl)}
+                                                                onClick={() => lesson.videoUrl && setPreviewLesson(lesson)}
                                                                 className="text-xs font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full hover:bg-emerald-100"
                                                             >
                                                                 Watch Preview
@@ -342,22 +343,21 @@ const CourseDetailsPage = () => {
             </div>
 
             {/* Video Preview Modal */}
-            {previewVideoUrl && (
+            {previewLesson && (
                 <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
                     <div className="bg-black rounded-3xl overflow-hidden max-w-3xl w-full relative aspect-video shadow-2xl">
                         <button
-                            onClick={() => setPreviewVideoUrl(null)}
-                            className="absolute top-4 right-4 text-white bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full text-xs font-bold z-10"
+                            onClick={() => setPreviewLesson(null)}
+                            className="absolute top-4 right-4 text-white bg-slate-800/80 hover:bg-slate-800 px-3 py-1 rounded-full text-xs font-bold z-20"
                         >
                             ✕ Close
                         </button>
-                        <iframe
-                            src={previewVideoUrl}
-                            title="Free Lesson Preview"
-                            className="w-full h-full border-0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        ></iframe>
+                        <VideoPlayer
+                            videoUrl={previewLesson.videoUrl || ''}
+                            thumbnailUrl={previewLesson.thumbnailUrl || course?.thumbnailUrl}
+                            title={previewLesson.title}
+                            durationMinutes={previewLesson.durationMinutes}
+                        />
                     </div>
                 </div>
             )}
