@@ -219,7 +219,7 @@ const AISimulationSection = () => {
             className="relative"
           >
             {/* The "Dark Mode" Tech Dashboard */}
-            <div className="bg-gradient-to-b from-slate-950 to-slate-900 rounded-3xl sm:rounded-[40px] p-4 sm:p-8 lg:p-12 shadow-[0_25px_60px_-15px_rgba(15,23,42,0.3)] relative overflow-hidden border border-slate-800/80">
+            <div className="bg-gradient-to-b from-slate-950 to-slate-900 rounded-3xl sm:rounded-[40px] p-4 sm:p-8 lg:p-12 relative overflow-hidden border border-slate-800/80">
               {/* Background glowing mesh */}
               <div className="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-blue-500/10 blur-[90px] pointer-events-none"></div>
               <div className="absolute -left-24 -bottom-24 w-80 h-80 rounded-full bg-indigo-500/10 blur-[90px] pointer-events-none"></div>
@@ -269,7 +269,7 @@ const AISimulationSection = () => {
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-6 bg-gradient-to-r from-white/[0.04] to-white/[0.01] rounded-2xl sm:rounded-3xl border border-white/10 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 shadow-[0_8px_30px_rgba(0,0,0,0.2)]">
+                <div className="p-4 sm:p-6 bg-gradient-to-r from-white/[0.04] to-white/[0.01] rounded-2xl sm:rounded-3xl border border-white/10 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600/20 rounded-xl sm:rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/10 shrink-0">
                       <PieChartIcon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -294,7 +294,7 @@ const AISimulationSection = () => {
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
-              className="absolute -top-4 right-1 sm:-top-6 sm:-right-4 bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-100 z-20 scale-90 sm:scale-100 origin-top-right"
+              className="absolute -top-4 right-1 sm:-top-6 sm:-right-4 bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100 z-20 scale-90 sm:scale-100 origin-top-right"
             >
               <div className="flex items-center gap-2.5 sm:gap-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 border border-green-100 shrink-0">
@@ -334,7 +334,7 @@ const AISimulationSection = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-[#000E2F] rounded-2xl sm:rounded-[40px] p-4 sm:p-8 md:p-12 text-white overflow-hidden shadow-2xl border border-blue-500/20 relative"
+            className="bg-[#000E2F] rounded-2xl sm:rounded-[40px] p-4 sm:p-8 md:p-12 text-white overflow-hidden border border-blue-500/20 relative"
           >
             {/* Background Orbits / Glowing spots */}
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.15),transparent_60%)] pointer-events-none"></div>
@@ -390,7 +390,7 @@ const AISimulationSection = () => {
                 <div className="flex flex-wrap gap-2.5 sm:gap-3 pt-2 sm:pt-3">
                   <button
                     onClick={() => navigate('/test-series')}
-                    className="px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-[#FF7A00]/20 flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
                   >
                     <span>Try Demo Now</span>
                     <ArrowRight size={14} />

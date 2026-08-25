@@ -223,7 +223,7 @@ const LandingPage = () => {
         </div>
 
         {/* EXAMS RUNNING Badge */}
-        <div className="absolute top-0 left-8 md:left-14 -translate-y-1/2 bg-[#0B4F97] text-white text-[10px] sm:text-xs font-extrabold px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-md uppercase tracking-wider z-20">
+        <div className="absolute top-0 left-8 md:left-14 -translate-y-1/2 bg-[#0B4F97] text-white text-[10px] sm:text-xs font-extrabold px-4 py-1.5 rounded-full flex items-center gap-1.5 uppercase tracking-wider z-20">
           <span>🔥</span> Exams Running
         </div>
 
@@ -233,7 +233,7 @@ const LandingPage = () => {
           {/* Left Arrow Button */}
           <button 
             onClick={scrollLeft} 
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
             title="Scroll Left"
           >
             <ChevronLeft size={20} className="stroke-[2.5]" />
@@ -242,7 +242,7 @@ const LandingPage = () => {
           {/* Right Arrow Button */}
           <button 
             onClick={scrollRight} 
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
             title="Scroll Right"
           >
             <ChevronRight size={20} className="stroke-[2.5]" />
@@ -257,7 +257,7 @@ const LandingPage = () => {
               return (
                 <div 
                   key={idx}
-                  className="relative flex items-center p-4 pt-6 bg-white border border-slate-100 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.04)] w-[210px] shrink-0 hover:scale-[1.02] hover:shadow-[0_10px_30px_-6px_rgba(0,0,0,0.08)] hover:border-slate-200 transition-all duration-300"
+                  className="relative flex items-center p-4 pt-6 bg-white border border-slate-100 rounded-2xl w-[210px] shrink-0 hover:scale-[1.02] hover:border-slate-200 transition-all duration-300"
                 >
                   {/* LIVE Badge */}
                   <span className="absolute top-2.5 left-3 bg-[#FF6B00] text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none">

@@ -22,14 +22,14 @@ interface TestSeriesProps {
     thumbnailUrl?: string;
 }
 
-const TestSeriesCard = ({ 
+const TestSeriesCard = ({
     id,
-    title, 
+    title,
     description,
-    isNew, 
-    features = [], 
-    originalPrice, 
-    price, 
+    isNew,
+    features = [],
+    originalPrice,
+    price,
     onExplore,
     actions,
     examCategory,
@@ -88,15 +88,15 @@ const TestSeriesCard = ({
     }
 
     return (
-        <motion.div 
-            whileHover={{ y: -10, scale: 1.01 }}
+        <motion.div
+            whileHover={{ y: -4, scale: 1.005 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="group relative bg-white rounded-[32px] border border-slate-100 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_-12px_rgba(37,99,235,0.15)] flex flex-col h-full"
+            className="group relative bg-white rounded-2xl border border-slate-200 hover:border-blue-500/40 flex flex-col h-full transition-all duration-300 overflow-hidden"
         >
-            <div className="p-7 pb-2 flex-1 flex flex-col z-10">
+            <div className="p-6 pb-2 flex-1 flex flex-col z-10">
                 {/* Header Area */}
-                <div className="flex justify-between items-start mb-5">
-                    <div className="space-y-3">
+                <div className="flex justify-between items-start mb-4">
+                    <div className="space-y-2">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-blue-600"></div>
                             <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
@@ -104,66 +104,66 @@ const TestSeriesCard = ({
                             </span>
                         </div>
                         {title.toLowerCase().includes('demo') || price === 0 || price === '0' || String(price).toLowerCase() === 'free' ? (
-                            <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full border border-indigo-100 shadow-sm">
+                            <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-100">
                                 <Sparkles size={12} className="animate-pulse text-indigo-600" />
                                 <span className="text-[10px] font-black uppercase tracking-wider">Free Demo</span>
                             </div>
                         ) : isNew ? (
-                            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 shadow-sm">
+                            <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 px-2.5 py-1 rounded-lg border border-blue-100">
                                 <Sparkles size={12} className="animate-pulse" />
                                 <span className="text-[10px] font-black uppercase tracking-wider">Early Access</span>
                             </div>
                         ) : null}
                     </div>
-                    <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-                        <BookOpen size={20} />
+                    <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 text-slate-600">
+                        <BookOpen size={18} />
                     </div>
                 </div>
 
                 {/* Title & Description */}
-                <div className="mb-6">
-                    <h3 className="text-[22px] font-black text-slate-900 leading-tight mb-3">
+                <div className="mb-5">
+                    <h3 className="text-xl font-bold text-slate-900 leading-snug mb-2">
                         {title}
                     </h3>
-                    <p className="text-[14px] text-slate-500 leading-relaxed font-medium">
+                    <p className="text-xs text-slate-500 leading-relaxed font-medium line-clamp-2">
                         {description || "Elevate your preparation with our premium test series designed by top educators."}
                     </p>
                 </div>
 
                 {/* Info Pills */}
-                <div className="flex flex-wrap gap-3 mb-8">
-                    <div className="flex items-center gap-2 border border-slate-100 rounded-[14px] px-3.5 py-2 bg-white">
-                        <ScrollText size={16} className="text-blue-500" />
-                        <span className="text-[13px] font-bold text-slate-700">{testCount || 0} Full Tests</span>
+                <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="flex items-center gap-2 border border-slate-200/80 rounded-xl px-3 py-1.5 bg-slate-50/60">
+                        <ScrollText size={14} className="text-blue-600" />
+                        <span className="text-xs font-bold text-slate-700">{testCount || 0} Full Tests</span>
                     </div>
-                    <div className="flex items-center gap-2 border border-slate-100 rounded-[14px] px-3.5 py-2 bg-white">
-                        <Target size={16} className="text-blue-500" />
-                        <span className="text-[13px] font-bold text-slate-700">Topic Wise</span>
+                    <div className="flex items-center gap-2 border border-slate-200/80 rounded-xl px-3 py-1.5 bg-slate-50/60">
+                        <Target size={14} className="text-blue-600" />
+                        <span className="text-xs font-bold text-slate-700">Topic Wise</span>
                     </div>
                 </div>
 
                 {/* Feature List */}
-                <ul className="space-y-3.5 mb-2 mt-auto">
+                <ul className="space-y-3 mb-2 mt-auto">
                     {features.length > 0 ? features.slice(0, 3).map((feature, i) => (
-                        <li key={i} className="flex items-center gap-3 text-slate-600">
-                            <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center">
-                                <CheckCircle size={14} strokeWidth={2.5} />
+                        <li key={i} className="flex items-center gap-2.5 text-slate-600">
+                            <div className="shrink-0 w-5 h-5 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100">
+                                <CheckCircle size={13} strokeWidth={2.5} />
                             </div>
-                            <span className="text-[13px] font-bold text-slate-700">{feature}</span>
+                            <span className="text-xs font-bold text-slate-700">{feature}</span>
                         </li>
                     )) : (
                         <>
-                            <li className="flex items-center gap-3 text-slate-600">
-                                <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center"><CheckCircle size={14} strokeWidth={2.5} /></div>
-                                <span className="text-[13px] font-bold text-slate-700">0 Full Length Tests</span>
+                            <li className="flex items-center gap-2.5 text-slate-600">
+                                <div className="shrink-0 w-5 h-5 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100"><CheckCircle size={13} strokeWidth={2.5} /></div>
+                                <span className="text-xs font-bold text-slate-700">0 Full Length Tests</span>
                             </li>
-                            <li className="flex items-center gap-3 text-slate-600">
-                                <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center"><CheckCircle size={14} strokeWidth={2.5} /></div>
-                                <span className="text-[13px] font-bold text-slate-700">Detailed Performance Analysis</span>
+                            <li className="flex items-center gap-2.5 text-slate-600">
+                                <div className="shrink-0 w-5 h-5 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100"><CheckCircle size={13} strokeWidth={2.5} /></div>
+                                <span className="text-xs font-bold text-slate-700">Detailed Performance Analysis</span>
                             </li>
-                            <li className="flex items-center gap-3 text-slate-600">
-                                <div className="shrink-0 w-[22px] h-[22px] bg-blue-50/80 text-blue-500 rounded-full flex items-center justify-center"><CheckCircle size={14} strokeWidth={2.5} /></div>
-                                <span className="text-[13px] font-bold text-slate-700">Personalized Score Tracking</span>
+                            <li className="flex items-center gap-2.5 text-slate-600">
+                                <div className="shrink-0 w-5 h-5 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center border border-blue-100"><CheckCircle size={13} strokeWidth={2.5} /></div>
+                                <span className="text-xs font-bold text-slate-700">Personalized Score Tracking</span>
                             </li>
                         </>
                     )}
@@ -171,26 +171,26 @@ const TestSeriesCard = ({
             </div>
 
             {/* Pricing & CTA */}
-            <div className="px-7 py-6 relative bg-white z-10 mt-4">
-                <div className="absolute -right-4 -bottom-4 text-blue-50 opacity-60 pointer-events-none">
-                    <Zap size={100} strokeWidth={1} fill="currentColor" />
-                </div>
-                
-                <div className="flex items-center gap-2 mb-2 relative z-10">
-                    <Award size={14} className="text-amber-400" strokeWidth={2.5} />
-                    <span className="text-[11px] font-black text-slate-300 tracking-widest uppercase">Certified Content</span>
+            <div className="px-6 py-5 relative bg-slate-50/40 border-t border-slate-100 z-10 mt-2">
+                <div className="absolute -right-4 -bottom-4 text-blue-50 opacity-40 pointer-events-none">
+                    <Zap size={90} strokeWidth={1} fill="currentColor" />
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap mb-5 relative z-10">
-                    <span className="text-[34px] font-black text-slate-900 tracking-tight leading-none">
+                <div className="flex items-center gap-1.5 mb-1.5 relative z-10">
+                    <Award size={13} className="text-amber-500" strokeWidth={2.5} />
+                    <span className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Certified Content</span>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap mb-4 relative z-10">
+                    <span className="text-2xl font-black text-slate-900 tracking-tight leading-none">
                         {price === 'Free' || price === '0' || !price ? 'Free' : `₹${price}`}
                     </span>
                     {price && price !== 'Free' && price !== '0' && (
                         <>
-                            <span className="text-slate-400 line-through text-[15px] font-bold mt-1">₹{originalPrice}</span>
+                            <span className="text-slate-400 line-through text-xs font-bold mt-0.5">₹{originalPrice}</span>
                             {savingsAmount > 0 && (
-                                <div className="ml-2 inline-flex items-center bg-green-50/50 border border-green-200 px-2.5 py-1 rounded-full mt-1">
-                                    <span className="text-[11px] font-black text-amber-700">You Save ₹{savingsAmount} ({discountPercentage}%)</span>
+                                <div className="ml-1 inline-flex items-center bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                    <span className="text-[10px] font-bold text-emerald-700">You Save ₹{savingsAmount} ({discountPercentage}%)</span>
                                 </div>
                             )}
                         </>
@@ -202,19 +202,19 @@ const TestSeriesCard = ({
                         {actions}
                     </div>
                 ) : (
-                    <div className="flex gap-3 relative z-10">
+                    <div className="flex gap-2.5 relative z-10">
                         <button
                             onClick={onExplore}
-                            className="flex-1 py-3 px-3 bg-slate-900 text-white hover:bg-black shadow-sm hover:shadow-md hover:-translate-y-0.5 rounded-[14px] font-bold text-[13px] transition-all duration-200 flex items-center justify-center"
+                            className="flex-1 py-2.5 px-3 bg-white text-slate-800 border border-slate-300 hover:bg-slate-100 rounded-xl font-bold text-xs transition-colors flex items-center justify-center cursor-pointer"
                         >
                             Explore
                         </button>
                         <button
                             onClick={onExplore}
-                            className="flex-1 py-3 px-3 bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 rounded-[14px] font-bold text-[13px] transition-all duration-200 flex items-center justify-center gap-1.5"
+                            className="flex-1 py-2.5 px-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                         >
                             {price === 'Free' || price === '0' || !price ? 'Start Now' : 'Buy Now'}
-                            <ArrowRight size={14} />
+                            <ArrowRight size={13} />
                         </button>
                     </div>
                 )}

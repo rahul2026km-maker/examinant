@@ -395,33 +395,32 @@ const TestSeriesDetailsPage = () => {
                                 </button>
                             </div>
 
-                            {/* Badges Grid */}
+                            {/* Badges Grid - Horizontal Row */}
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-800">
-                                <div className="flex flex-col items-start gap-2">
-                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                        <Smartphone size={20} />
+                                <div className="flex items-center gap-2.5">
+                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shrink-0">
+                                        <Smartphone size={18} />
                                     </div>
                                     <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real Exam Interface</span>
                                 </div>
-                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real Exam Interface</span>
-                            </div>
-                            <div className="flex flex-col items-start gap-2">
-                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                    <BookOpen size={20} />
+                                <div className="flex items-center gap-2.5">
+                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shrink-0">
+                                        <BookOpen size={18} />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Bilingual (Hindi+Eng)</span>
                                 </div>
-                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Bilingual (Hindi+Eng)</span>
-                            </div>
-                            <div className="flex flex-col items-start gap-2">
-                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                    <ShieldCheck size={20} />
+                                <div className="flex items-center gap-2.5">
+                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shrink-0">
+                                        <ShieldCheck size={18} />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Trusted by Aspirants</span>
                                 </div>
-                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Trusted by Aspirants</span>
-                            </div>
-                            <div className="flex flex-col items-start gap-2">
-                                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
-                                    <Target size={20} />
+                                <div className="flex items-center gap-2.5">
+                                    <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shrink-0">
+                                        <Target size={18} />
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Affordable Premium</span>
                                 </div>
-                                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">Affordable Premium</span>
                             </div>
                         </div>
                     </div>

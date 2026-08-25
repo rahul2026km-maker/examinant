@@ -190,7 +190,7 @@ const Navbar = () => {
                             <>
                                 <button
                                     onClick={() => handleNav('/dashboard')}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-blue-500/25 hover:bg-blue-500 hover:shadow-blue-500/40 transition-all active:scale-95"
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all active:scale-95"
                                 >
                                     Dashboard
                                 </button>
@@ -211,7 +211,7 @@ const Navbar = () => {
                                 </button>
                                 <button
                                     onClick={() => handleNav('/signup')}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold shadow-lg shadow-blue-500/25 hover:bg-blue-500 hover:shadow-blue-500/40 transition-all active:scale-95"
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all active:scale-95"
                                 >
                                     Sign Up Free
                                 </button>
@@ -336,7 +336,7 @@ const Navbar = () => {
                                 <>
                                     <button
                                         onClick={() => { handleNav('/dashboard'); setMobileMenuOpen(false); }}
-                                        className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
+                                        className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl"
                                     >
                                         Dashboard
                                     </button>
@@ -357,7 +357,7 @@ const Navbar = () => {
                                     </button>
                                     <button
                                         onClick={() => { handleNav('/signup'); setMobileMenuOpen(false); }}
-                                        className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-600/20"
+                                        className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl"
                                     >
                                         Sign Up Free
                                     </button>

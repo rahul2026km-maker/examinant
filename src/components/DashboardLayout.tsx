@@ -233,7 +233,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                                                 className={`
                                                     flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[13px]
                                                     ${isActive
-                                                        ? 'bg-[#0B1E43] text-white font-semibold shadow-md shadow-blue-900/10'
+                                                        ? 'bg-[#0B1E43] text-white font-semibold'
                                                         : 'text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-900'
                                                     }
                                                 `}
