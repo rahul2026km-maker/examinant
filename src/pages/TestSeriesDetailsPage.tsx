@@ -648,78 +648,78 @@ const TestSeriesDetailsPage = () => {
                         </div>
 
                         {/* What's Included Section */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
+                        <div className="bg-white rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm space-y-5">
                             <div className="flex items-center gap-3">
                                 <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
-                                <h2 className="text-2xl font-bold text-slate-900">What's Included</h2>
+                                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">What's Included</h2>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="flex items-start gap-4 p-5 bg-blue-50/20 border border-blue-50/50 rounded-2xl transition-all hover:bg-blue-50/40">
-                                    <div className="p-3 bg-blue-100 text-blue-600 rounded-xl shrink-0">
-                                        <Award size={24} />
+                            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-blue-50/20 border border-blue-50/50 rounded-2xl transition-all hover:bg-blue-50/40">
+                                    <div className="p-2 sm:p-3 bg-blue-100 text-blue-600 rounded-xl shrink-0">
+                                        <Award className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-lg">
+                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
                                             {fullTestsCount} Full Length Mocks
                                         </h4>
-                                        <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Real exam pattern with exact difficulty level</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Real exam pattern with exact difficulty level</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4 p-5 bg-green-50/20 border border-green-50/50 rounded-2xl transition-all hover:bg-green-50/40">
-                                    <div className="p-3 bg-green-100 text-green-600 rounded-xl shrink-0">
-                                        <BookOpen size={24} />
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-green-50/20 border border-green-50/50 rounded-2xl transition-all hover:bg-green-50/40">
+                                    <div className="p-2 sm:p-3 bg-green-100 text-green-600 rounded-xl shrink-0">
+                                        <BookOpen className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-lg">
+                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
                                             {subjectTestsCount} Subject Wise Tests
                                         </h4>
-                                        <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Subject-specific practice to master individual topics</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Subject-specific practice to master individual topics</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4 p-5 bg-purple-50/20 border border-purple-50/50 rounded-2xl transition-all hover:bg-purple-50/40">
-                                    <div className="p-3 bg-purple-100 text-purple-600 rounded-xl shrink-0">
-                                        <Layers size={24} />
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-purple-50/20 border border-purple-50/50 rounded-2xl transition-all hover:bg-purple-50/40">
+                                    <div className="p-2 sm:p-3 bg-purple-100 text-purple-600 rounded-xl shrink-0">
+                                        <Layers className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-lg">
+                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
                                             {unitTestsCount} Unit Wise Tests
                                         </h4>
-                                        <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Evaluation tests for units to cover syllabus systematically</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Evaluation tests for units to cover syllabus systematically</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4 p-5 bg-orange-50/20 border border-orange-50/50 rounded-2xl transition-all hover:bg-orange-50/40">
-                                    <div className="p-3 bg-orange-100 text-orange-600 rounded-xl shrink-0">
-                                        <FileText size={24} />
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-orange-50/20 border border-orange-50/50 rounded-2xl transition-all hover:bg-orange-50/40">
+                                    <div className="p-2 sm:p-3 bg-orange-100 text-orange-600 rounded-xl shrink-0">
+                                        <FileText className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-lg">
+                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
                                             {chapterTestsCount} Chapter Wise Tests
                                         </h4>
-                                        <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Topic & chapter tests for deep practice and concepts review</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Topic & chapter tests for deep practice and concepts review</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4 p-5 bg-pink-50/20 border border-pink-50/50 rounded-2xl transition-all hover:bg-pink-50/40">
-                                    <div className="p-3 bg-pink-100 text-pink-600 rounded-xl shrink-0">
-                                        <CheckCircle size={24} />
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-pink-50/20 border border-pink-50/50 rounded-2xl transition-all hover:bg-pink-50/40">
+                                    <div className="p-2 sm:p-3 bg-pink-100 text-pink-600 rounded-xl shrink-0">
+                                        <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-lg">Detailed Solutions</h4>
-                                        <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Step-by-step explanations for every single question</p>
+                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">Detailed Solutions</h4>
+                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Step-by-step explanations for every single question</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4 p-5 bg-indigo-50/20 border border-indigo-50/50 rounded-2xl transition-all hover:bg-indigo-50/40">
-                                    <div className="p-3 bg-indigo-100 text-indigo-600 rounded-xl shrink-0">
-                                        <Clock size={24} />
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-indigo-50/20 border border-indigo-50/50 rounded-2xl transition-all hover:bg-indigo-50/40">
+                                    <div className="p-2 sm:p-3 bg-indigo-100 text-indigo-600 rounded-xl shrink-0">
+                                        <Clock className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-lg">Performance Analytics</h4>
-                                        <p className="text-sm text-slate-500 mt-0.5 leading-relaxed">Track accuracy, time, strengths & weaknesses</p>
+                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">Performance Analytics</h4>
+                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Track accuracy, time, strengths & weaknesses</p>
                                     </div>
                                 </div>
                             </div>
