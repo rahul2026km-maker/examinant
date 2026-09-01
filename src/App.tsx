@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react';
 // Components
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import DashboardLayout from './components/DashboardLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 // test
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -117,11 +118,12 @@ const ProtectedRoute = ({ allowedRoles }: { allowedRoles?: ('student' | 'admin')
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <AuthProvider>
-        <div className="app-container">
-          <Suspense fallback={<PageLoader />}>
+    <ErrorBoundary>
+      <Router>
+        <ScrollToTop />
+        <AuthProvider>
+          <div className="app-container">
+            <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
@@ -204,6 +206,7 @@ function App() {
         </div>
       </AuthProvider>
     </Router>
+    </ErrorBoundary>
   );
 }
 

@@ -37,14 +37,22 @@ const examsCollection = collection(db, 'exams');
 
 export const examService = {
     subscribe: (onUpdate: (exams: ExamRecord[]) => void) => {
-        const examsQuery = query(examsCollection, orderBy('name', 'asc'));
-        return onSnapshot(examsQuery, (snapshot) => {
-            const loadedExams = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as ExamRecord[];
-            onUpdate(loadedExams);
-        });
+        try {
+            const examsQuery = query(examsCollection, orderBy('name', 'asc'));
+            return onSnapshot(examsQuery, (snapshot) => {
+                const loadedExams = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as ExamRecord[];
+                onUpdate(loadedExams);
+            }, (error) => {
+                console.error("Error in examService subscribe snapshot:", error);
+                onUpdate([]);
+            });
+        } catch (err) {
+            console.error("Failed to subscribe to exams:", err);
+            return () => {};
+        }
     },
 
     getAll: async (): Promise<ExamRecord[]> => {

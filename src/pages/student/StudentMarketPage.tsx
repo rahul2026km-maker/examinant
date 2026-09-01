@@ -31,12 +31,13 @@ const StudentMarketPage = () => {
         const fetchTests = async () => {
             try {
                 let data = await getAllTestSeries({ status: 'published' });
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     data = await getAllTestSeries();
                 }
-                setTests(data);
+                setTests(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error("Error fetching test series:", error);
+                setTests([]);
             } finally {
                 setIsLoading(false);
             }
@@ -47,17 +48,25 @@ const StudentMarketPage = () => {
     // Fetch User Purchases
     useEffect(() => {
         if (currentUser) {
-            const purchasesRef = collection(db, 'users', currentUser.uid, 'purchases');
-            const unsubscribePurchases = onSnapshot(purchasesRef, (snapshot) => {
-                const ids = new Set(snapshot.docs.map(doc => doc.data().seriesId || doc.data().testId));
-                setPurchasedTestIds(ids);
-            });
-            return () => unsubscribePurchases();
+            try {
+                const purchasesRef = collection(db, 'users', currentUser.uid, 'purchases');
+                const unsubscribePurchases = onSnapshot(purchasesRef, (snapshot) => {
+                    if (snapshot && snapshot.docs) {
+                        const ids = new Set(snapshot.docs.map(doc => doc.data()?.seriesId || doc.data()?.testId).filter(Boolean));
+                        setPurchasedTestIds(ids);
+                    }
+                }, (err) => {
+                    console.error("Error loading user purchases snapshot:", err);
+                });
+                return () => unsubscribePurchases();
+            } catch (err) {
+                console.error("Purchases listener setup failed:", err);
+            }
         }
     }, [currentUser]);
 
     const handleBuy = async (series: TestSeries) => {
-        if (!currentUser) return;
+        if (!currentUser || !series?.id) return;
         if (purchasedTestIds.has(series.id)) return;
 
         setEnrollingId(series.id);
@@ -75,7 +84,7 @@ const StudentMarketPage = () => {
                     amount: (series.pricing.amount || 0) * 100,
                     currency: 'INR',
                     name: 'Examinant',
-                    description: `Purchase: ${series.name}`,
+                    description: `Purchase: ${series.name || 'Test Series'}`,
                     image: 'https://examinantt.web.app/logo192.png',
                     handler: async function (response: any) {
                         try {
@@ -126,12 +135,14 @@ const StudentMarketPage = () => {
         }
     };
 
-    const filteredTests = sortTestSeriesWithDemoFirst(tests.filter(test => {
+    const filteredTests = sortTestSeriesWithDemoFirst((tests || []).filter(test => {
+        if (!test) return false;
         const seriesName = test.name || (test as any).title || '';
         const category = test.examCategory || '';
         const subCategory = test.examSubCategory || '';
-        const matchesSearch = seriesName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            category.toLowerCase().includes(searchTerm.toLowerCase());
+        const searchLower = (searchTerm || '').toLowerCase();
+        const matchesSearch = (seriesName || '').toLowerCase().includes(searchLower) ||
+            (category || '').toLowerCase().includes(searchLower);
 
         // Legacy fallback matching:
         if (selectedCategory === 'Engineering entrance') {
@@ -174,12 +185,13 @@ const StudentMarketPage = () => {
                             className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-600 text-slate-700 font-bold text-sm shadow-sm transition-all appearance-none cursor-pointer"
                         >
                             <option value="All">All Categories</option>
-                            {exams
+                            {(exams || [])
                                 .filter(exam => {
-                                    const subcategories = Object.values(EXAM_SUBCATEGORIES)
+                                    if (!exam) return false;
+                                    const subcategories = Object.values(EXAM_SUBCATEGORIES || {})
                                         .flat()
-                                        .map(sub => sub.toLowerCase());
-                                    return !subcategories.includes(exam.toLowerCase());
+                                        .map(sub => (sub || '').toLowerCase());
+                                    return !subcategories.includes((exam || '').toLowerCase());
                                 })
                                 .map(exam => (
                                     <option key={exam} value={exam}>{exam}</option>

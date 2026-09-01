@@ -103,7 +103,7 @@ const TestSeriesCard = ({
                                 {examCategory ? `${examCategory} Mastery` : 'Academic Mastery'}
                             </span>
                         </div>
-                        {title.toLowerCase().includes('demo') || price === 0 || price === '0' || String(price).toLowerCase() === 'free' ? (
+                        {(title || '').toLowerCase().includes('demo') || price === 0 || price === '0' || String(price || '').toLowerCase() === 'free' ? (
                             <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-100">
                                 <Sparkles size={12} className="animate-pulse text-indigo-600" />
                                 <span className="text-[10px] font-black uppercase tracking-wider">Free Demo</span>
