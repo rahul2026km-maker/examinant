@@ -10,6 +10,7 @@ import type { Course, CourseModule, Lesson } from '../../types/course.types';
 import { useExamList } from '../../hooks/useExamList';
 import { uploadToCloudinary } from '../../utils/cloudinary';
 import { getAllTestSeries } from '../../services/testSeriesService';
+import { VideoPlayer } from '../../components/common/VideoPlayer';
 
 const CourseCreationWizard = () => {
     const navigate = useNavigate();
@@ -60,6 +61,11 @@ const CourseCreationWizard = () => {
     const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
     const [isUploadingLessonThumbnail, setIsUploadingLessonThumbnail] = useState<boolean>(false);
     const [isUploadingLessonVideo, setIsUploadingLessonVideo] = useState<boolean>(false);
+    const [videoSourceMode, setVideoSourceMode] = useState<'upload' | 'url'>('upload');
+    const [videoUploadProgress, setVideoUploadProgress] = useState<number>(0);
+    const [uploadedVideoFileName, setUploadedVideoFileName] = useState<string>('');
+    const [uploadedVideoFileSize, setUploadedVideoFileSize] = useState<string>('');
+
     const [lessonFormData, setLessonFormData] = useState<Partial<Lesson>>({
         title: '',
         type: 'video',
@@ -104,6 +110,8 @@ const CourseCreationWizard = () => {
         }
     };
 
+    const [isUploadingIntroVideo, setIsUploadingIntroVideo] = useState<boolean>(false);
+
     const handleImageUpload = async (file: File) => {
         setIsUploadingImage(true);
         try {
@@ -113,6 +121,18 @@ const CourseCreationWizard = () => {
             alert("Image upload failed");
         } finally {
             setIsUploadingImage(false);
+        }
+    };
+
+    const handleIntroVideoUpload = async (file: File) => {
+        setIsUploadingIntroVideo(true);
+        try {
+            const url = await uploadToCloudinary(file, undefined, 'video');
+            setFormData(prev => ({ ...prev, introVideoUrl: url }));
+        } catch (error) {
+            alert("Course promo/intro video upload failed");
+        } finally {
+            setIsUploadingIntroVideo(false);
         }
     };
 
@@ -178,6 +198,10 @@ const CourseCreationWizard = () => {
     const handleOpenAddLesson = (mId: string) => {
         setActiveModuleId(mId);
         setEditingLessonId(null);
+        setVideoSourceMode('upload');
+        setVideoUploadProgress(0);
+        setUploadedVideoFileName('');
+        setUploadedVideoFileSize('');
         setLessonFormData({
             title: '',
             type: 'video',
@@ -197,6 +221,10 @@ const CourseCreationWizard = () => {
     const handleOpenEditLesson = (mId: string, lesson: Lesson) => {
         setActiveModuleId(mId);
         setEditingLessonId(lesson.id);
+        setVideoSourceMode(lesson.videoUrl?.startsWith('http') && !lesson.videoUrl.includes('cloudinary') && !lesson.videoUrl.startsWith('blob:') ? 'url' : 'upload');
+        setVideoUploadProgress(0);
+        setUploadedVideoFileName('');
+        setUploadedVideoFileSize('');
         setLessonFormData({ ...lesson });
         setIsAddingLesson(true);
     };
@@ -215,8 +243,14 @@ const CourseCreationWizard = () => {
 
     const handleLessonVideoUpload = async (file: File) => {
         setIsUploadingLessonVideo(true);
+        setVideoUploadProgress(0);
+        setUploadedVideoFileName(file.name);
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        setUploadedVideoFileSize(`${sizeMB} MB`);
         try {
-            const url = await uploadToCloudinary(file, undefined, 'video');
+            const url = await uploadToCloudinary(file, (percent) => {
+                setVideoUploadProgress(percent);
+            }, 'video');
             setLessonFormData(prev => ({ ...prev, videoUrl: url }));
         } catch (error) {
             alert("Video upload failed");
@@ -467,6 +501,34 @@ const CourseCreationWizard = () => {
                                 <img src={formData.thumbnailUrl} alt="Preview" className="w-32 h-20 rounded-xl object-cover border border-slate-200 mt-2" />
                             )}
                         </div>
+
+                        {/* Course Promo / Intro Video */}
+                        <div className="space-y-2 md:col-span-2 p-5 bg-blue-50/40 rounded-2xl border border-blue-100">
+                            <label className="text-xs font-black uppercase tracking-wider text-blue-900 flex items-center gap-1.5">
+                                <Video size={16} className="text-blue-600" />
+                                <span>Course Overview / Demo Video (Optional)</span>
+                            </label>
+                            <p className="text-xs text-slate-500 font-medium">Add a promo video shown on the Course Details page to increase student conversions.</p>
+                            <div className="flex items-center gap-4 pt-1">
+                                <input
+                                    type="text"
+                                    placeholder="https://www.youtube.com/watch?v=... or Select Video File"
+                                    value={formData.introVideoUrl || ''}
+                                    onChange={(e) => setFormData(p => ({ ...p, introVideoUrl: e.target.value }))}
+                                    className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl font-medium text-slate-800 text-sm"
+                                />
+                                <label className="flex items-center gap-2 px-5 py-3 bg-blue-600 text-white font-extrabold text-xs rounded-xl cursor-pointer hover:bg-blue-700 transition-colors shrink-0 shadow-sm">
+                                    {isUploadingIntroVideo ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+                                    <span>Select Video File</span>
+                                    <input type="file" accept="video/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleIntroVideoUpload(e.target.files[0])} />
+                                </label>
+                            </div>
+                            {formData.introVideoUrl && (
+                                <div className="mt-3 rounded-2xl overflow-hidden max-w-md border border-slate-200">
+                                    <VideoPlayer videoUrl={formData.introVideoUrl} title={formData.title || 'Course Intro Video'} />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex justify-end pt-4 border-t border-slate-100">
@@ -619,28 +681,150 @@ const CourseCreationWizard = () => {
 
                                     {lessonFormData.type === 'video' && (
                                         <div className="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
-                                            {/* Video Upload / Link */}
+                                            {/* Video Source Selection Tabs */}
                                             <div>
-                                                <label className="block mb-1 text-slate-500 uppercase">Video Source / URL</label>
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        value={lessonFormData.videoUrl || ''}
-                                                        onChange={(e) => setLessonFormData(p => ({ ...p, videoUrl: e.target.value }))}
-                                                        placeholder="https://www.youtube.com/embed/xyz or Cloudinary/MP4 URL"
-                                                        className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-sm"
-                                                    />
-                                                    <label className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white font-extrabold text-xs rounded-xl cursor-pointer hover:bg-blue-700 transition-colors shrink-0">
-                                                        {isUploadingLessonVideo ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-                                                        <span>Upload Video</span>
-                                                        <input
-                                                            type="file"
-                                                            accept="video/*"
-                                                            className="hidden"
-                                                            onChange={(e) => e.target.files?.[0] && handleLessonVideoUpload(e.target.files[0])}
-                                                        />
-                                                    </label>
+                                                <label className="block mb-2 text-slate-500 uppercase text-[10px] font-black tracking-wider">Choose Video Source Mode</label>
+                                                <div className="grid grid-cols-2 gap-2 p-1 bg-slate-200/60 rounded-xl mb-3">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setVideoSourceMode('upload')}
+                                                        className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                                                            videoSourceMode === 'upload'
+                                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                                : 'text-slate-600 hover:text-slate-900'
+                                                        }`}
+                                                    >
+                                                        <Upload size={14} />
+                                                        <span>Select Video File</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setVideoSourceMode('url')}
+                                                        className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                                                            videoSourceMode === 'url'
+                                                                ? 'bg-white text-blue-600 shadow-sm'
+                                                                : 'text-slate-600 hover:text-slate-900'
+                                                        }`}
+                                                    >
+                                                        <LinkIcon size={14} />
+                                                        <span>Video URL / Embed</span>
+                                                    </button>
                                                 </div>
+
+                                                {/* File Upload Mode */}
+                                                {videoSourceMode === 'upload' ? (
+                                                    <div className="space-y-3">
+                                                        {lessonFormData.videoUrl ? (
+                                                            <div className="space-y-3 bg-white p-3.5 rounded-xl border border-slate-200">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                                                                        <div className="truncate">
+                                                                            <p className="text-xs font-extrabold text-slate-800 truncate">
+                                                                                {uploadedVideoFileName || 'Selected Video File'}
+                                                                            </p>
+                                                                            {uploadedVideoFileSize && (
+                                                                                <p className="text-[10px] text-slate-500 font-medium">
+                                                                                    File Size: {uploadedVideoFileSize}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2 shrink-0">
+                                                                        <label className="text-xs font-extrabold text-blue-600 hover:underline cursor-pointer">
+                                                                            Change File
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="video/*"
+                                                                                className="hidden"
+                                                                                onChange={(e) => e.target.files?.[0] && handleLessonVideoUpload(e.target.files[0])}
+                                                                            />
+                                                                        </label>
+                                                                        <span className="text-slate-300">|</span>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setLessonFormData(p => ({ ...p, videoUrl: '' }));
+                                                                                setUploadedVideoFileName('');
+                                                                                setUploadedVideoFileSize('');
+                                                                            }}
+                                                                            className="text-xs font-extrabold text-red-500 hover:underline"
+                                                                        >
+                                                                            Remove
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Video Player Preview inside Modal */}
+                                                                <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200">
+                                                                    <p className="bg-slate-900 text-white text-[10px] font-black uppercase px-3 py-1 tracking-wider">Video File Preview</p>
+                                                                    <VideoPlayer
+                                                                        videoUrl={lessonFormData.videoUrl}
+                                                                        thumbnailUrl={lessonFormData.thumbnailUrl}
+                                                                        title={lessonFormData.title || 'Lesson Video Preview'}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="relative border-2 border-dashed border-blue-300 hover:border-blue-500 rounded-2xl p-6 bg-blue-50/50 hover:bg-blue-50 transition-all text-center group cursor-pointer">
+                                                                <input
+                                                                    type="file"
+                                                                    accept="video/*"
+                                                                    disabled={isUploadingLessonVideo}
+                                                                    onChange={(e) => e.target.files?.[0] && handleLessonVideoUpload(e.target.files[0])}
+                                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                                                />
+                                                                <div className="flex flex-col items-center gap-2">
+                                                                    {isUploadingLessonVideo ? (
+                                                                        <>
+                                                                            <Loader2 size={32} className="text-blue-600 animate-spin mb-1" />
+                                                                            <span className="text-xs font-extrabold text-blue-700">Uploading Video ({videoUploadProgress}%)...</span>
+                                                                            <div className="w-48 h-2 bg-blue-100 rounded-full overflow-hidden mt-1">
+                                                                                <div className="h-full bg-blue-600 transition-all duration-300" style={{ width: `${videoUploadProgress}%` }}></div>
+                                                                            </div>
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                                                                                <Video size={24} />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-sm font-black text-slate-800">Click to Select Video File</p>
+                                                                                <p className="text-[11px] text-slate-500 font-medium">Supports MP4, WEBM, MOV, AVI (auto-compressed)</p>
+                                                                            </div>
+                                                                            <span className="mt-1 px-4 py-1.5 bg-blue-600 text-white font-extrabold text-xs rounded-xl shadow-md group-hover:bg-blue-700 transition-colors">
+                                                                                Browse Files from Computer
+                                                                            </span>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    /* URL Input Mode */
+                                                    <div className="space-y-3">
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                value={lessonFormData.videoUrl || ''}
+                                                                onChange={(e) => setLessonFormData(p => ({ ...p, videoUrl: e.target.value }))}
+                                                                placeholder="Paste YouTube link, Vimeo, or direct MP4 URL..."
+                                                                className="flex-1 px-3 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-sm focus:ring-2 focus:ring-blue-500/20"
+                                                            />
+                                                        </div>
+                                                        {lessonFormData.videoUrl && (
+                                                            <div className="mt-2 rounded-2xl overflow-hidden border border-slate-200">
+                                                                <p className="bg-slate-900 text-white text-[10px] font-black uppercase px-3 py-1 tracking-wider">Video URL Preview</p>
+                                                                <VideoPlayer
+                                                                    videoUrl={lessonFormData.videoUrl}
+                                                                    thumbnailUrl={lessonFormData.thumbnailUrl}
+                                                                    title={lessonFormData.title || 'Video URL Preview'}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             {/* Video Thumbnail Upload / Link */}
