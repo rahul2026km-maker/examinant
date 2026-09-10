@@ -149,7 +149,7 @@ const CourseDetailsPage = () => {
         return (
             <PageLayout>
                 <div className="min-h-screen flex items-center justify-center text-slate-500 font-bold">
-                    Course not found.
+                    Batch not found.
                 </div>
             </PageLayout>
         );
@@ -252,7 +252,7 @@ const CourseDetailsPage = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <span>{course.accessType === 'free' ? 'Enroll Now (Free)' : 'Buy Course Now'}</span>
+                                        <span>{course.accessType === 'free' ? 'Enroll Now (Free)' : 'Buy Batch Now'}</span>
                                         <ArrowRight size={18} />
                                     </>
                                 )}
@@ -273,7 +273,7 @@ const CourseDetailsPage = () => {
                                 </div>
                                 <div className="flex items-center gap-2.5">
                                     <CheckCircle2 size={16} className="text-emerald-500" />
-                                    <span>Official Course Completion Certificate</span>
+                                    <span>Official Batch Completion Certificate</span>
                                 </div>
                             </div>
                         </div>
@@ -284,7 +284,7 @@ const CourseDetailsPage = () => {
             {/* Curriculum Accordion */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
                 <div className="space-y-4">
-                    <h2 className="text-3xl font-black text-slate-900">Course Syllabus & Curriculum</h2>
+                    <h2 className="text-3xl font-black text-slate-900">Batch Syllabus & Curriculum</h2>
                     <p className="text-slate-600 font-medium">Explore the step-by-step module breakdown below.</p>
                 </div>
 

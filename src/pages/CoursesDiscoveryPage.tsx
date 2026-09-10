@@ -48,10 +48,10 @@ const CoursesDiscoveryPage = () => {
                     <div className="text-center max-w-3xl mx-auto space-y-4 pt-6">
                         <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full border border-blue-100 shadow-sm">
                             <Sparkles size={14} className="animate-pulse" />
-                            <span>Structured Video Courses & LMS</span>
+                            <span>Structured Video Batches & LMS</span>
                         </span>
                         <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-                            Master Exams with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500">Expert Video Courses</span>
+                            Master Exams with <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500">Expert Video Batches</span>
                         </h1>
                         <p className="text-slate-600 text-base sm:text-lg font-medium leading-relaxed">
                             Comprehensive video lectures, downloadable study notes, and integrated practice tests designed by top educators.
@@ -62,7 +62,7 @@ const CoursesDiscoveryPage = () => {
                             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                             <input
                                 type="text"
-                                placeholder="Search courses by exam, subject, or keyword..."
+                                placeholder="Search batches by exam, subject, or keyword..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-13 pr-32 py-4 bg-white border border-slate-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 font-bold text-slate-800 text-sm shadow-sm transition-all"
@@ -80,7 +80,7 @@ const CoursesDiscoveryPage = () => {
                     <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-100 shadow-sm">
                         <div className="flex items-center gap-2 text-slate-700 font-bold text-xs uppercase tracking-wider">
                             <Filter size={16} className="text-blue-600" />
-                            <span>Filter Courses:</span>
+                            <span>Filter Batches:</span>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
                             <select
@@ -112,7 +112,7 @@ const CoursesDiscoveryPage = () => {
                         </div>
                     ) : courses.length === 0 ? (
                         <div className="text-center py-20 text-slate-500 font-medium bg-white rounded-3xl border border-slate-100">
-                            No published courses found matching your criteria. Check back soon!
+                            No published batches found matching your criteria. Check back soon!
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -184,7 +184,7 @@ const CoursesDiscoveryPage = () => {
                                                     )}
                                                 </div>
                                                 <span className="inline-flex items-center gap-1 text-xs font-extrabold text-blue-600 group-hover:translate-x-1 transition-transform">
-                                                    <span>Explore Course</span>
+                                                    <span>Explore Batch</span>
                                                     <ChevronRight size={16} />
                                                 </span>
                                             </div>

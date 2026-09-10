@@ -324,10 +324,10 @@ const CourseCreationWizard = () => {
         setIsSaving(true);
         try {
             await courseService.updateCourse(courseId, { status: targetStatus });
-            alert(`Course status updated to ${targetStatus}!`);
+            alert(`Batch status updated to ${targetStatus}!`);
             navigate('/admin-dashboard/courses');
         } catch (error) {
-            alert("Failed to publish course.");
+            alert("Failed to publish batch.");
         } finally {
             setIsSaving(false);
         }
@@ -342,7 +342,7 @@ const CourseCreationWizard = () => {
                     className="flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold text-sm transition-colors"
                 >
                     <ChevronLeft size={20} />
-                    <span>Back to Courses</span>
+                    <span>Back to Batches</span>
                 </button>
                 <div className="flex items-center gap-3">
                     <span className="text-xs font-black uppercase text-slate-400">Step {step} of 3</span>
@@ -380,13 +380,13 @@ const CourseCreationWizard = () => {
             {step === 1 && (
                 <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900">Course Information</h2>
+                        <h2 className="text-2xl font-black text-slate-900">Batch Information</h2>
                         <p className="text-slate-500 text-sm font-medium mt-1">Set the title, target category, instructor, thumbnail and pricing model.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2 md:col-span-2">
-                            <label className="text-xs font-black uppercase tracking-wider text-slate-600">Course Title *</label>
+                            <label className="text-xs font-black uppercase tracking-wider text-slate-600">Batch Title *</label>
                             <input
                                 type="text"
                                 placeholder="e.g. Complete SSC CHSL Quantitative Aptitude Masterclass"
@@ -452,7 +452,7 @@ const CourseCreationWizard = () => {
                                 onChange={(e) => setFormData(p => ({ ...p, accessType: e.target.value as any }))}
                                 className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm"
                             >
-                                <option value="paid">One-Time Paid Course</option>
+                                <option value="paid">One-Time Paid Batch</option>
                                 <option value="free">Free for All Students</option>
                                 <option value="subscription">Included in Examinant Pro Sub</option>
                             </select>
@@ -937,8 +937,8 @@ const CourseCreationWizard = () => {
             {step === 3 && (
                 <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900">Review & Publish Course</h2>
-                        <p className="text-slate-500 text-sm font-medium mt-1">Review full course details and set publication status.</p>
+                        <h2 className="text-2xl font-black text-slate-900">Review & Publish Batch</h2>
+                        <p className="text-slate-500 text-sm font-medium mt-1">Review full batch details and set publication status.</p>
                     </div>
 
                     <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-4">
@@ -972,7 +972,7 @@ const CourseCreationWizard = () => {
                             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-emerald-500/25"
                         >
                             <CheckCircle2 size={18} />
-                            <span>Publish Course Now</span>
+                            <span>Publish Batch Now</span>
                         </button>
                     </div>
                 </div>

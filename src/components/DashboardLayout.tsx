@@ -101,7 +101,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         {
             title: 'Learning',
             links: [
-                { icon: <BookOpen size={18} />, label: 'Video Courses', path: '/dashboard/courses' },
+                { icon: <BookOpen size={18} />, label: 'Video Batches', path: '/dashboard/courses' },
                 { icon: <FileText size={18} />, label: 'My Tests', path: '/dashboard/tests' },
                 { icon: <ListChecks size={18} />, label: 'Test Series', path: '/dashboard/market' },
                 { icon: <BookMarked size={18} />, label: 'PYQs', path: '/dashboard/pyqs' },
@@ -128,7 +128,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         {
             title: 'Content',
             links: [
-                { icon: <BookOpen size={18} />, label: 'Courses LMS', path: '/admin-dashboard/courses' },
+                { icon: <BookOpen size={18} />, label: 'Batches LMS', path: '/admin-dashboard/courses' },
                 { icon: <ListChecks size={18} />, label: 'Test Series', path: '/admin-dashboard/test-series' },
                 { icon: <BookMarked size={18} />, label: 'Question Bank', path: '/admin-dashboard/question-bank' },
                 { icon: <FolderTree size={18} />, label: 'Chapters', path: '/admin-dashboard/chapters' },

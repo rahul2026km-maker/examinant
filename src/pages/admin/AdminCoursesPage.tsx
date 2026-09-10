@@ -34,12 +34,12 @@ const AdminCoursesPage = () => {
     };
 
     const handleArchive = async (courseId: string) => {
-        if (!window.confirm("Are you sure you want to archive this course? Enrolled students will retain historical access.")) return;
+        if (!window.confirm("Are you sure you want to archive this batch? Enrolled students will retain historical access.")) return;
         try {
             await courseService.archiveCourse(courseId);
             await loadCourses();
         } catch (error) {
-            alert("Failed to archive course.");
+            alert("Failed to archive batch.");
         }
     };
 
@@ -49,7 +49,7 @@ const AdminCoursesPage = () => {
             await courseService.updateCourse(course.id, { status: nextStatus });
             await loadCourses();
         } catch (error) {
-            alert("Failed to update course status.");
+            alert("Failed to update batch status.");
         }
     };
 
@@ -70,15 +70,15 @@ const AdminCoursesPage = () => {
                         <Sparkles size={18} className="fill-blue-600" />
                         <span className="text-xs font-black uppercase tracking-widest">LMS & Curriculum</span>
                     </div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Course Management</h1>
-                    <p className="text-slate-500 font-medium text-sm mt-1">Create, organize modules, upload video lessons, and manage course access.</p>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Batch Management</h1>
+                    <p className="text-slate-500 font-medium text-sm mt-1">Create, organize modules, upload video lessons, and manage batch access.</p>
                 </div>
                 <button
                     onClick={() => navigate('/admin-dashboard/courses/create')}
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-6 py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all duration-200"
                 >
                     <Plus size={18} />
-                    <span>Create New Course</span>
+                    <span>Create New Batch</span>
                 </button>
             </div>
 
@@ -88,7 +88,7 @@ const AdminCoursesPage = () => {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                         type="text"
-                        placeholder="Search courses by title, category, description..."
+                        placeholder="Search batches by title, category, description..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 text-slate-800 text-sm font-medium transition-all"
@@ -124,12 +124,12 @@ const AdminCoursesPage = () => {
             ) : filteredCourses.length === 0 ? (
                 <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 space-y-4">
                     <BookOpen size={48} className="mx-auto text-slate-300" />
-                    <p className="text-slate-500 font-bold">No courses found matching your criteria.</p>
+                    <p className="text-slate-500 font-bold">No batches found matching your criteria.</p>
                     <button
                         onClick={() => navigate('/admin-dashboard/courses/create')}
                         className="text-blue-600 hover:text-blue-700 font-extrabold text-sm underline"
                     >
-                        Create your first course now
+                        Create your first batch now
                     </button>
                 </div>
             ) : (
@@ -138,7 +138,7 @@ const AdminCoursesPage = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-400 uppercase text-[11px] font-black tracking-wider">
-                                    <th className="py-4 px-6">Course Information</th>
+                                    <th className="py-4 px-6">Batch Information</th>
                                     <th className="py-4 px-6">Category & Level</th>
                                     <th className="py-4 px-6">Access & Pricing</th>
                                     <th className="py-4 px-6">Curriculum</th>
@@ -214,7 +214,7 @@ const AdminCoursesPage = () => {
                                                 <button
                                                     onClick={() => navigate(`/admin-dashboard/courses/${course.id}/edit`)}
                                                     className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Edit Course & Curriculum"
+                                                    title="Edit Batch & Curriculum"
                                                 >
                                                     <Edit2 size={16} />
                                                 </button>
@@ -228,7 +228,7 @@ const AdminCoursesPage = () => {
                                                 <button
                                                     onClick={() => handleArchive(course.id)}
                                                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                    title="Archive Course"
+                                                    title="Archive Batch"
                                                 >
                                                     <Archive size={16} />
                                                 </button>

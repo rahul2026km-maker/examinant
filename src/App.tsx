@@ -134,6 +134,8 @@ function App() {
               <Route path="/test-series/:id" element={<TestSeriesDetailsPage />} />
               <Route path="/courses" element={<CoursesDiscoveryPage />} />
               <Route path="/courses/:slug" element={<CourseDetailsPage />} />
+              <Route path="/batches" element={<CoursesDiscoveryPage />} />
+              <Route path="/batches/:slug" element={<CourseDetailsPage />} />
               <Route path="/verify/:certificateId" element={<CertificateVerificationPage />} />
               <Route path="/pyqs" element={<PYQsDiscoveryPage />} />
               <Route path="/pyqs/:id" element={<PYQDetailsPage />} />
@@ -151,6 +153,7 @@ function App() {
                 <Route element={<DashboardLayout role="student"><Outlet /></DashboardLayout>}>
                   <Route path="/dashboard" element={<StudentDashboard />} />
                   <Route path="/dashboard/courses" element={<StudentCoursesPage />} />
+                  <Route path="/dashboard/batches" element={<StudentCoursesPage />} />
                   <Route path="/dashboard/tests" element={<StudentTestsPage />} />
                   <Route path="/dashboard/market" element={<StudentMarketPage />} />
                   <Route path="/dashboard/pyqs" element={<StudentPYQsPage />} />
@@ -161,6 +164,7 @@ function App() {
                 </Route>
                 {/* Full Screen Learning LMS Player Route */}
                 <Route path="/dashboard/courses/:courseId/learn" element={<StudentCoursePlayerPage />} />
+                <Route path="/dashboard/batches/:courseId/learn" element={<StudentCoursePlayerPage />} />
                 {/* Full Screen Test Route */}
                 <Route path="/dashboard/attempt/:testId" element={<StudentTestAttemptPage />} />
                 {/* OMR Feature Routes (New) */}
@@ -174,9 +178,13 @@ function App() {
                 <Route element={<DashboardLayout role="admin"><Outlet /></DashboardLayout>}>
                   <Route path="/admin-dashboard" element={<AdminDashboard />} />
                   <Route path="/admin-dashboard/courses" element={<AdminCoursesPage />} />
+                  <Route path="/admin-dashboard/batches" element={<AdminCoursesPage />} />
                   <Route path="/admin-dashboard/courses/create" element={<CourseCreationWizard />} />
                   <Route path="/admin-dashboard/courses/:courseId/edit" element={<CourseCreationWizard />} />
                   <Route path="/admin-dashboard/courses/:courseId/enrollments" element={<CourseEnrollmentsPage />} />
+                  <Route path="/admin-dashboard/batches/create" element={<CourseCreationWizard />} />
+                  <Route path="/admin-dashboard/batches/:courseId/edit" element={<CourseCreationWizard />} />
+                  <Route path="/admin-dashboard/batches/:courseId/enrollments" element={<CourseEnrollmentsPage />} />
                   <Route path="/admin-dashboard/test-series" element={<TestSeriesManagement />} />
                   <Route path="/admin-dashboard/create-test" element={<TestCreationWizard />} />
                   <Route path="/admin-dashboard/tests" element={<AdminTestsPage />} />

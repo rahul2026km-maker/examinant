@@ -42,7 +42,7 @@ const StudentCoursePlayerPage = () => {
             // Fetch course details
             const c = await courseService.getCourseById(courseId);
             if (!c) {
-                alert("Course not found.");
+                alert("Batch not found.");
                 navigate('/dashboard/courses');
                 return;
             }
@@ -51,7 +51,7 @@ const StudentCoursePlayerPage = () => {
             // Check entitlement
             const access = await entitlementService.hasCourseAccess(currentUser.uid, c, profileData);
             if (!access.hasAccess) {
-                alert("You do not have active access to this course.");
+                alert("You do not have active access to this batch.");
                 navigate(`/courses/${c.slug || c.id}`);
                 return;
             }
@@ -221,7 +221,7 @@ const StudentCoursePlayerPage = () => {
                 {/* Left Sidebar Curriculum */}
                 <div className={`w-80 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 transition-all duration-300 absolute lg:relative inset-y-0 left-0 z-30 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
                     <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                        <span className="text-xs font-black uppercase tracking-wider text-slate-400">Course Syllabus</span>
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-400">Batch Syllabus</span>
                         <span className="text-xs text-blue-400 font-bold">{progressPercent}% Complete</span>
                     </div>
 

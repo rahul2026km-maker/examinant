@@ -83,7 +83,7 @@ const CourseEnrollmentsPage = () => {
                     <ChevronLeft size={20} />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Course'} — Enrollments</h1>
+                    <h1 className="text-2xl font-black text-slate-900">{course?.title || 'Batch'} — Enrollments</h1>
                     <p className="text-slate-500 text-xs font-medium">Manage student access and view real-time learning progress.</p>
                 </div>
             </div>
