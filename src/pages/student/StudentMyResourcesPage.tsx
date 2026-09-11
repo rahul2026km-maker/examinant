@@ -280,7 +280,7 @@ const StudentMyResourcesPage: React.FC = () => {
     const exploreScrollRef = useRef<HTMLDivElement>(null);
     const otherExamsScrollRef = useRef<HTMLDivElement>(null);
 
-    const scrollCarousel = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+    const scrollCarousel = (ref: React.RefObject<HTMLDivElement | null>, direction: 'left' | 'right') => {
         if (ref.current) {
             const scrollAmount = direction === 'left' ? -340 : 340;
             ref.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
@@ -1515,21 +1515,4 @@ const StudentMyResourcesPage: React.FC = () => {
 };
 
 export default StudentMyResourcesPage;
-                                </div >
-                            </div >
 
-    <button
-        onClick={() => setIsHowItWorksOpen(false)}
-        className="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-orange-500/30 transition-all"
-    >
-        Got It!
-    </button>
-                        </motion.div >
-                    </div >
-                )}
-            </AnimatePresence >
-        </div >
-    );
-};
-
-export default StudentMyResourcesPage;

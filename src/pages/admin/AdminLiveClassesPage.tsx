@@ -83,7 +83,7 @@ const AdminLiveClassesPage = () => {
             streamUrl: item.streamUrl,
             streamProvider: item.streamProvider,
             thumbnailUrl: item.thumbnailUrl || '',
-            status: item.status,
+            status: (item.status === 'cancelled' ? 'upcoming' : item.status) as 'completed' | 'live' | 'upcoming',
             recordingUrl: item.recordingUrl || ''
         });
         setIsModalOpen(true);
