@@ -31,6 +31,7 @@ const StudentAnalyticsPage = React.lazy(() => import('./pages/student/StudentAna
 const StudentTestAttemptPage = React.lazy(() => import('./pages/student/StudentTestAttemptPage'));
 const StudentPYQsPage = React.lazy(() => import('./pages/student/StudentPYQsPage'));
 const StudentResourcesPage = React.lazy(() => import('./pages/student/StudentResourcesPage'));
+const StudentMyResourcesPage = React.lazy(() => import('./pages/student/StudentMyResourcesPage'));
 const PYQsDiscoveryPage = React.lazy(() => import('./pages/PYQsDiscoveryPage'));
 const PYQDetailsPage = React.lazy(() => import('./pages/PYQDetailsPage'));
 const StudentTestResultsPage = React.lazy(() => import('./pages/student/StudentTestResultsPage'));
@@ -68,6 +69,7 @@ const StudentCoursePlayerPage = React.lazy(() => import('./pages/student/Student
 const AdminCoursesPage = React.lazy(() => import('./pages/admin/AdminCoursesPage'));
 const CourseCreationWizard = React.lazy(() => import('./pages/admin/CourseCreationWizard'));
 const CourseEnrollmentsPage = React.lazy(() => import('./pages/admin/CourseEnrollmentsPage'));
+const AdminLiveClassesPage = React.lazy(() => import('./pages/admin/AdminLiveClassesPage'));
 
 
 import WhatsAppWidget from './components/WhatsAppWidget';
@@ -158,6 +160,7 @@ function App() {
                   <Route path="/dashboard/market" element={<StudentMarketPage />} />
                   <Route path="/dashboard/pyqs" element={<StudentPYQsPage />} />
                   <Route path="/dashboard/resources" element={<StudentResourcesPage />} />
+                  <Route path="/dashboard/my-resources" element={<StudentMyResourcesPage />} />
                   <Route path="/dashboard/analytics" element={<StudentAnalyticsPage />} />
                   <Route path="/dashboard/results" element={<StudentTestResultsPage />} />
                   <Route path="/dashboard/results/:attemptId" element={<StudentTestResultDetailPage />} />
@@ -177,6 +180,7 @@ function App() {
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
                 <Route element={<DashboardLayout role="admin"><Outlet /></DashboardLayout>}>
                   <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin-dashboard/live-classes" element={<AdminLiveClassesPage />} />
                   <Route path="/admin-dashboard/courses" element={<AdminCoursesPage />} />
                   <Route path="/admin-dashboard/batches" element={<AdminCoursesPage />} />
                   <Route path="/admin-dashboard/courses/create" element={<CourseCreationWizard />} />

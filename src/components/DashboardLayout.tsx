@@ -21,7 +21,10 @@ import {
     Bookmark,
     Gift,
     Crown,
-    ChevronDown
+    Video,
+    Radio,
+    ChevronDown,
+    FolderArchive
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -101,11 +104,18 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         {
             title: 'Learning',
             links: [
-                { icon: <BookOpen size={18} />, label: 'Video Batches', path: '/dashboard/courses' },
-                { icon: <FileText size={18} />, label: 'My Tests', path: '/dashboard/tests' },
+                { icon: <Video size={18} />, label: 'Video Classroom', path: '/dashboard/courses' },
                 { icon: <ListChecks size={18} />, label: 'Test Series', path: '/dashboard/market' },
-                { icon: <BookMarked size={18} />, label: 'PYQs', path: '/dashboard/pyqs' },
-                { icon: <BookOpen size={18} />, label: 'Books & eBooks', path: '/dashboard/resources' },
+                { icon: <FolderArchive size={18} />, label: 'My Resources', path: '/dashboard/my-resources' },
+                { 
+                    icon: <BookOpen size={18} />, 
+                    label: 'Books & PYQs', 
+                    path: '/dashboard/resources',
+                    subLinks: [
+                        { label: 'Books & eBooks', path: '/dashboard/resources' },
+                        { label: 'PYQ Papers', path: '/dashboard/pyqs' }
+                    ]
+                },
             ]
         },
         {
@@ -128,6 +138,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         {
             title: 'Content',
             links: [
+                { icon: <Radio size={18} />, label: 'Live Classes', path: '/admin-dashboard/live-classes' },
                 { icon: <BookOpen size={18} />, label: 'Batches LMS', path: '/admin-dashboard/courses' },
                 { icon: <ListChecks size={18} />, label: 'Test Series', path: '/admin-dashboard/test-series' },
                 { icon: <BookMarked size={18} />, label: 'Question Bank', path: '/admin-dashboard/question-bank' },
@@ -220,42 +231,49 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                             </div>
                             <div className="space-y-1">
                                 {section.links.map((link) => {
-                                    const isActive = location.pathname === link.path;
                                     const hasSubLinks = (link as any).subLinks && (link as any).subLinks.length > 0;
+                                    const isParentActive = location.pathname === link.path || (hasSubLinks && (link as any).subLinks.some((sub: any) => sub.path === location.pathname));
                                     const searchParams = new URLSearchParams(location.search);
                                     const currentTab = searchParams.get('tab') || 'overall';
+
+                                    const defaultTarget = hasSubLinks 
+                                        ? ((link as any).subLinks[0].path || `${link.path}?tab=overall`)
+                                        : link.path;
 
                                     return (
                                         <div key={link.label} className="space-y-0.5">
                                             <NavLink
-                                                to={hasSubLinks ? `${link.path}?tab=overall` : link.path}
+                                                to={defaultTarget}
                                                 onClick={() => setIsSidebarOpen(false)}
                                                 className={`
                                                     flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[13px]
-                                                    ${isActive
+                                                    ${isParentActive
                                                         ? 'bg-[#0B1E43] text-white font-semibold'
                                                         : 'text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-900'
                                                     }
                                                 `}
                                             >
-                                                <span className={`${isActive ? 'text-white' : 'text-slate-400'}`}>
+                                                <span className={`${isParentActive ? 'text-white' : 'text-slate-400'}`}>
                                                     {link.icon}
                                                 </span>
                                                 <span className="flex-1">{link.label}</span>
                                                 {hasSubLinks && (
-                                                    <ChevronDown size={14} className={`transform transition-transform ${isActive ? 'rotate-180' : ''}`} />
+                                                    <ChevronDown size={14} className={`transform transition-transform ${isParentActive ? 'rotate-180' : ''}`} />
                                                 )}
                                             </NavLink>
                                             
                                             {/* Collapsible Sublinks */}
-                                            {hasSubLinks && isActive && (
+                                            {hasSubLinks && isParentActive && (
                                                 <div className="pl-6 pr-1 py-1 space-y-0.5">
                                                     {(link as any).subLinks.map((sub: any) => {
-                                                        const isSubActive = currentTab === sub.tab;
+                                                        const isSubActive = sub.path 
+                                                            ? location.pathname === sub.path 
+                                                            : currentTab === sub.tab;
+                                                        const targetTo = sub.path || `${link.path}?tab=${sub.tab}`;
                                                         return (
                                                             <NavLink
                                                                 key={sub.label}
-                                                                to={`${link.path}?tab=${sub.tab}`}
+                                                                to={targetTo}
                                                                 className={`
                                                                     flex items-center gap-2 py-2 px-3 rounded-lg text-[11px] font-bold transition-all
                                                                     ${isSubActive
