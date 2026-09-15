@@ -116,6 +116,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         { label: 'PYQ Papers', path: '/dashboard/pyqs' }
                     ]
                 },
+                { icon: <Users size={18} />, label: 'Student Community', path: '/dashboard/community' },
             ]
         },
         {

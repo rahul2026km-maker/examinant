@@ -32,6 +32,7 @@ const StudentTestAttemptPage = React.lazy(() => import('./pages/student/StudentT
 const StudentPYQsPage = React.lazy(() => import('./pages/student/StudentPYQsPage'));
 const StudentResourcesPage = React.lazy(() => import('./pages/student/StudentResourcesPage'));
 const StudentMyResourcesPage = React.lazy(() => import('./pages/student/StudentMyResourcesPage'));
+const StudentCommunityPage = React.lazy(() => import('./pages/student/StudentCommunityPage'));
 const PYQsDiscoveryPage = React.lazy(() => import('./pages/PYQsDiscoveryPage'));
 const PYQDetailsPage = React.lazy(() => import('./pages/PYQDetailsPage'));
 const StudentTestResultsPage = React.lazy(() => import('./pages/student/StudentTestResultsPage'));
@@ -161,6 +162,7 @@ function App() {
                   <Route path="/dashboard/pyqs" element={<StudentPYQsPage />} />
                   <Route path="/dashboard/resources" element={<StudentResourcesPage />} />
                   <Route path="/dashboard/my-resources" element={<StudentMyResourcesPage />} />
+                  <Route path="/dashboard/community" element={<StudentCommunityPage />} />
                   <Route path="/dashboard/analytics" element={<StudentAnalyticsPage />} />
                   <Route path="/dashboard/results" element={<StudentTestResultsPage />} />
                   <Route path="/dashboard/results/:attemptId" element={<StudentTestResultDetailPage />} />
