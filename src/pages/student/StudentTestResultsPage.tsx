@@ -101,27 +101,27 @@ const StudentTestResultsPage = () => {
     };
 
     const getScoreColor = (score: number, total: number) => {
-        const percentage = (score / total) * 100;
-        if (percentage >= 80) return 'text-green-600 bg-green-50';
-        if (percentage >= 60) return 'text-blue-600 bg-blue-50';
-        if (percentage >= 40) return 'text-orange-600 bg-orange-50';
-        return 'text-red-600 bg-red-50';
+        const percentage = total > 0 ? (score / total) * 100 : 0;
+        if (percentage >= 80) return 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20';
+        if (percentage >= 60) return 'text-[#38BDF8] bg-blue-500/10 border border-blue-500/20';
+        if (percentage >= 40) return 'text-amber-400 bg-amber-500/10 border border-amber-500/20';
+        return 'text-rose-400 bg-rose-500/10 border border-rose-500/20';
     };
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#38BDF8]"></div>
             </div>
         );
     }
 
     return (
-        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-slate-800">Test Results & History</h1>
-                <p className="text-slate-500 mt-2">Track your performance and progress over time</p>
+            <div className="pb-6 border-b border-[#17274B]">
+                <h1 className="text-3xl font-black text-white tracking-tight">Test Results & History</h1>
+                <p className="text-slate-400 font-medium text-sm mt-1">Track your performance and progress over time</p>
             </div>
 
             {/* Statistics Cards */}
@@ -129,14 +129,16 @@ const StudentTestResultsPage = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg"
+                    className="bg-[#0B152B] border border-[#17274B] rounded-3xl p-6 text-white shadow-lg shadow-black/20 hover:border-[#38BDF8]/40 transition-colors"
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-blue-100 text-sm font-medium">Total Tests</p>
-                            <h3 className="text-4xl font-bold mt-2">{stats.totalAttempts}</h3>
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Tests</p>
+                            <h3 className="text-3xl font-black mt-2 text-white">{stats.totalAttempts}</h3>
                         </div>
-                        <BookOpen size={40} className="opacity-80" />
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-[#38BDF8] flex items-center justify-center">
+                            <BookOpen size={24} />
+                        </div>
                     </div>
                 </motion.div>
 
@@ -144,14 +146,16 @@ const StudentTestResultsPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 }}
-                    className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg"
+                    className="bg-[#0B152B] border border-[#17274B] rounded-3xl p-6 text-white shadow-lg shadow-black/20 hover:border-emerald-500/40 transition-colors"
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-green-100 text-sm font-medium">Average Score</p>
-                            <h3 className="text-4xl font-bold mt-2">{stats.averageScore}</h3>
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Average Score</p>
+                            <h3 className="text-3xl font-black mt-2 text-emerald-400">{stats.averageScore}</h3>
                         </div>
-                        <TrendingUp size={40} className="opacity-80" />
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                            <TrendingUp size={24} />
+                        </div>
                     </div>
                 </motion.div>
 
@@ -159,14 +163,16 @@ const StudentTestResultsPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg"
+                    className="bg-[#0B152B] border border-[#17274B] rounded-3xl p-6 text-white shadow-lg shadow-black/20 hover:border-purple-500/40 transition-colors"
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-purple-100 text-sm font-medium">Best Score</p>
-                            <h3 className="text-4xl font-bold mt-2">{stats.bestScore}</h3>
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Best Score</p>
+                            <h3 className="text-3xl font-black mt-2 text-purple-400">{stats.bestScore}</h3>
                         </div>
-                        <Award size={40} className="opacity-80" />
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center">
+                            <Award size={24} />
+                        </div>
                     </div>
                 </motion.div>
 
@@ -174,41 +180,43 @@ const StudentTestResultsPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg"
+                    className="bg-[#0B152B] border border-[#17274B] rounded-3xl p-6 text-white shadow-lg shadow-black/20 hover:border-amber-500/40 transition-colors"
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-orange-100 text-sm font-medium">Time Spent</p>
-                            <h3 className="text-2xl font-bold mt-2">{formatDuration(stats.totalTimeSpent)}</h3>
+                            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Time Spent</p>
+                            <h3 className="text-2xl font-black mt-2 text-amber-400">{formatDuration(stats.totalTimeSpent)}</h3>
                         </div>
-                        <Clock size={40} className="opacity-80" />
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+                            <Clock size={24} />
+                        </div>
                     </div>
                 </motion.div>
             </div>
 
             {/* Results Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-200">
-                    <h2 className="text-xl font-bold text-slate-800">Test History</h2>
+            <div className="bg-[#0B152B] rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 overflow-hidden">
+                <div className="p-6 border-b border-[#17274B]">
+                    <h2 className="text-xl font-black text-white tracking-tight">Test History</h2>
                 </div>
 
                 {attempts.length === 0 ? (
-                    <div className="p-12 text-center">
-                        <BarChart3 className="mx-auto text-slate-300 mb-4" size={64} />
-                        <h3 className="text-lg font-bold text-slate-600 mb-2">No tests attempted yet</h3>
-                        <p className="text-slate-500 mb-6">Start your first test to see results here</p>
+                    <div className="p-16 text-center">
+                        <BarChart3 className="mx-auto text-slate-500 mb-4" size={56} />
+                        <h3 className="text-lg font-black text-white mb-2 tracking-tight">No tests attempted yet</h3>
+                        <p className="text-slate-400 text-sm mb-6">Start your first test to see results here</p>
                         <button
                             onClick={() => navigate('/dashboard/market')}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-500/20"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
                         >
-                            <Target size={20} />
+                            <Target size={18} />
                             Browse Tests
                         </button>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider">
+                            <thead className="bg-[#070D1E] text-slate-400 text-[10px] font-black uppercase tracking-wider border-b border-[#17274B]">
                                 <tr>
                                     <th className="px-6 py-4 text-left">Test Name</th>
                                     <th className="px-6 py-4 text-left">Date & Time</th>
@@ -219,44 +227,44 @@ const StudentTestResultsPage = () => {
                                     <th className="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-[#17274B]">
                                 {attempts.map((attempt) => {
                                     const maxScore = attempt.maxScore;
                                     const accuracy = attempt.totalQuestions > 0 ? ((attempt.correctAnswers / attempt.totalQuestions) * 100).toFixed(1) : '0.0';
 
                                     return (
-                                        <tr key={attempt.id} className="hover:bg-slate-50 transition-colors">
+                                        <tr key={attempt.id} className="hover:bg-[#10224A]/40 transition-colors">
                                             <td className="px-6 py-4">
-                                                <div className="font-semibold text-slate-800">{attempt.testTitle}</div>
+                                                <div className="font-bold text-white text-sm">{attempt.testTitle}</div>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-slate-600">
+                                            <td className="px-6 py-4 text-xs font-medium text-slate-400">
                                                 {formatDate(attempt.attemptDate)}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-center">
-                                                    <span className={`px-3 py-1 rounded-full font-bold text-sm ${getScoreColor(attempt.score, maxScore)}`}>
+                                                    <span className={`px-3 py-1 rounded-full font-bold text-xs ${getScoreColor(attempt.score, maxScore)}`}>
                                                         {attempt.score} / {maxScore}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <span className="font-semibold text-green-600">
+                                                <span className="font-bold text-xs text-emerald-400">
                                                     {attempt.correctAnswers}/{attempt.totalQuestions}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-center">
-                                                <span className="font-semibold text-blue-600">{accuracy}%</span>
+                                                <span className="font-bold text-xs text-[#38BDF8]">{accuracy}%</span>
                                             </td>
-                                            <td className="px-6 py-4 text-center text-sm text-slate-600">
+                                            <td className="px-6 py-4 text-center text-xs font-medium text-slate-400">
                                                 {attempt.duration ? formatDuration(attempt.duration) : 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 text-right">
                                                 <button
-                                                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#10224A] hover:bg-blue-600 text-slate-200 hover:text-white border border-[#1E3A75] hover:border-transparent text-xs font-bold transition-all cursor-pointer"
                                                     onClick={() => navigate(`/dashboard/results/${attempt.id}`)}
                                                 >
                                                     View Details
-                                                    <ArrowRight size={16} />
+                                                    <ArrowRight size={14} />
                                                 </button>
                                             </td>
                                         </tr>
@@ -273,29 +281,35 @@ const StudentTestResultsPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <button
                         onClick={() => navigate('/dashboard/analytics')}
-                        className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-2xl hover:shadow-lg transition-shadow group"
+                        className="p-6 bg-[#0B152B] border border-[#17274B] hover:border-purple-500/40 rounded-3xl transition-all group text-left cursor-pointer"
                     >
-                        <BarChart3 className="text-indigo-600 mb-3 group-hover:scale-110 transition-transform" size={32} />
-                        <h3 className="font-bold text-slate-800 mb-1">View Analytics</h3>
-                        <p className="text-sm text-slate-600">Detailed performance insights</p>
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <BarChart3 size={24} />
+                        </div>
+                        <h3 className="font-black text-white mb-1">View Analytics</h3>
+                        <p className="text-xs font-medium text-slate-400">Detailed performance insights & subject breakdown</p>
                     </button>
 
                     <button
                         onClick={() => navigate('/dashboard/tests')}
-                        className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-2xl hover:shadow-lg transition-shadow group"
+                        className="p-6 bg-[#0B152B] border border-[#17274B] hover:border-[#38BDF8]/40 rounded-3xl transition-all group text-left cursor-pointer"
                     >
-                        <Zap className="text-blue-600 mb-3 group-hover:scale-110 transition-transform" size={32} />
-                        <h3 className="font-bold text-slate-800 mb-1">Practice More</h3>
-                        <p className="text-sm text-slate-600">Continue improving your skills</p>
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-[#38BDF8] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <Zap size={24} />
+                        </div>
+                        <h3 className="font-black text-white mb-1">Practice More</h3>
+                        <p className="text-xs font-medium text-slate-400">Continue improving your score and speed</p>
                     </button>
 
                     <button
                         onClick={() => navigate('/dashboard')}
-                        className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl hover:shadow-lg transition-shadow group"
+                        className="p-6 bg-[#0B152B] border border-[#17274B] hover:border-emerald-500/40 rounded-3xl transition-all group text-left cursor-pointer"
                     >
-                        <Target className="text-green-600 mb-3 group-hover:scale-110 transition-transform" size={32} />
-                        <h3 className="font-bold text-slate-800 mb-1">Dashboard</h3>
-                        <p className="text-sm text-slate-600">View your study progress</p>
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <Target size={24} />
+                        </div>
+                        <h3 className="font-black text-white mb-1">Dashboard</h3>
+                        <p className="text-xs font-medium text-slate-400">View overall study streak and goals</p>
                     </button>
                 </div>
             )}

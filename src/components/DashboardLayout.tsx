@@ -166,7 +166,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
     const sections = role === 'admin' ? adminSections : studentSections;
 
     return (
-        <div className="min-h-screen flex bg-[#F4F7FE] text-slate-800 font-sans">
+        <div className={`min-h-screen flex ${role === 'student' ? 'bg-[#070D1E] text-slate-100' : 'bg-[#F4F7FE] text-slate-800'} font-sans`}>
             {/* Mobile Sidebar Overlay */}
             <AnimatePresence>
                 {isSidebarOpen && (
@@ -174,7 +174,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-slate-900/40 z-40 md:hidden backdrop-blur-sm"
+                        className="fixed inset-0 bg-slate-900/60 z-40 md:hidden backdrop-blur-sm"
                         onClick={() => setIsSidebarOpen(false)}
                     />
                 )}
@@ -185,14 +185,15 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 className={`
                     fixed md:sticky top-0 h-screen w-64 z-50 transition-transform duration-300 ease-in-out
                     ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                    flex flex-col shadow-xl md:shadow-none print:hidden bg-white border-r border-slate-100/80
+                    flex flex-col shadow-xl md:shadow-none print:hidden
+                    ${role === 'student' ? 'bg-[#0B152B] border-r border-[#17274B] text-slate-200' : 'bg-white border-r border-slate-100/80'}
                 `}
             >
                 {/* Header / Logo */}
                 <Link to="/" className="px-6 pt-6 pb-6 flex items-center gap-3 hover:opacity-80 transition-opacity block w-max">
                     <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl object-contain shadow-sm shrink-0" />
                     <div className="min-w-0">
-                        <h2 className="text-[20px] font-black text-[#0B1E43] tracking-tight leading-none">
+                        <h2 className={`text-[20px] font-black tracking-tight leading-none ${role === 'student' ? 'text-white' : 'text-[#0B1E43]'}`}>
                             Examinantt
                         </h2>
                         <p className="text-[9px] font-black text-[#FF7A00] uppercase tracking-widest mt-1">
@@ -204,16 +205,16 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 {/* Mobile Target Exam Selector in Sidebar */}
                 {role === 'student' && (
                     <div className="px-4 pb-3 md:hidden">
-                        <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1">
+                        <div className="p-3 bg-[#070D1E] border border-[#17274B] rounded-xl space-y-1">
                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Target Exam</span>
-                            <div className="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+                            <div className="flex items-center justify-between bg-[#0B152B] px-3 py-1.5 rounded-lg border border-[#17274B] shadow-sm">
                                 <select 
                                     value={selectedExam}
                                     onChange={handleExamChange}
-                                    className="w-full text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 focus:ring-0"
+                                    className="w-full text-xs font-black text-white bg-transparent outline-none cursor-pointer border-none py-0.5 focus:ring-0"
                                 >
                                     {examsList.map((examName) => (
-                                        <option key={examName} value={examName}>{examName}</option>
+                                        <option key={examName} value={examName} className="bg-[#0B152B] text-white">{examName}</option>
                                     ))}
                                 </select>
                                 <ChevronDown size={14} className="text-slate-400 pointer-events-none shrink-0 ml-1" />
@@ -228,7 +229,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         <div key={idx} className="space-y-1">
                             <div className="flex items-center justify-between px-2 mb-1">
                                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{section.title}</h3>
-                                <div className="w-12 h-px bg-slate-100"></div>
+                                <div className={`w-12 h-px ${role === 'student' ? 'bg-[#17274B]' : 'bg-slate-100'}`}></div>
                             </div>
                             <div className="space-y-1">
                                 {section.links.map((link) => {
@@ -249,8 +250,12 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                                                 className={`
                                                     flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-[13px]
                                                     ${isParentActive
-                                                        ? 'bg-[#0B1E43] text-white font-semibold'
-                                                        : 'text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-900'
+                                                        ? role === 'student'
+                                                            ? 'bg-gradient-to-r from-blue-900/80 to-blue-800/50 text-white font-bold border border-blue-500/30 shadow-lg shadow-blue-500/10'
+                                                            : 'bg-[#0B1E43] text-white font-semibold'
+                                                        : role === 'student'
+                                                            ? 'text-slate-400 font-medium hover:bg-white/5 hover:text-white'
+                                                            : 'text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-900'
                                                     }
                                                 `}
                                             >
@@ -278,8 +283,12 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                                                                 className={`
                                                                     flex items-center gap-2 py-2 px-3 rounded-lg text-[11px] font-bold transition-all
                                                                     ${isSubActive
-                                                                        ? 'text-[#FF7A00] bg-orange-50/50'
-                                                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                                                        ? role === 'student'
+                                                                            ? 'text-[#FF7A00] bg-orange-500/15 border border-orange-500/20'
+                                                                            : 'text-[#FF7A00] bg-orange-50/50'
+                                                                        : role === 'student'
+                                                                            ? 'text-slate-400 hover:text-white hover:bg-white/5'
+                                                                            : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                                                     }
                                                                 `}
                                                             >
@@ -301,16 +310,16 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 {/* Sidebar Gold Card Upgrade section for student */}
                 {role === 'student' && (
                     <div className="px-4 mb-4">
-                        <div className="p-4 bg-gradient-to-b from-[#FFFDF9] to-[#FFF6E9] border border-[#FFE8CC] rounded-2xl shadow-sm text-center relative overflow-hidden">
-                            <div className="absolute -right-4 -top-4 w-12 h-12 bg-[#FF7A00]/5 rounded-full blur-md"></div>
-                            <div className="inline-flex p-2.5 bg-[#FFF0DB] rounded-full text-[#FF7A00] mb-3">
+                        <div className="p-4 bg-gradient-to-b from-[#10224A] to-[#0D1B3A] border border-[#23458A] rounded-2xl shadow-lg text-center relative overflow-hidden">
+                            <div className="absolute -right-4 -top-4 w-12 h-12 bg-[#FF7A00]/10 rounded-full blur-md"></div>
+                            <div className="inline-flex p-2.5 bg-orange-500/20 rounded-full text-[#FF7A00] mb-3 border border-orange-500/30">
                                 <Crown size={20} className="fill-[#FF7A00]/20" />
                             </div>
-                            <h4 className="text-xs font-black text-slate-800 tracking-tight">Examinantt Gold</h4>
-                            <p className="text-[10px] text-slate-500 font-medium mt-1 leading-snug">
+                            <h4 className="text-xs font-black text-white tracking-tight">Examinantt Gold</h4>
+                            <p className="text-[10px] text-blue-200 font-medium mt-1 leading-snug">
                                 Unlock All Tests & Premium Features
                             </p>
-                            <button className="w-full mt-3 py-2 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-[11px] uppercase tracking-wider rounded-xl shadow-sm transition-all duration-300">
+                            <button className="w-full mt-3 py-2 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-[11px] uppercase tracking-wider rounded-xl shadow-md transition-all duration-300">
                                 Upgrade Now
                             </button>
                         </div>
@@ -318,10 +327,14 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                 )}
 
                 {/* Sidebar Footer Logout */}
-                <div className="p-4 border-t border-slate-100">
+                <div className={`p-4 ${role === 'student' ? 'border-t border-[#17274B]' : 'border-t border-slate-100'}`}>
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center justify-start gap-3 px-4 py-2.5 rounded-xl text-slate-500 font-semibold text-[13px] hover:bg-red-50 hover:text-red-600 transition-colors"
+                        className={`w-full flex items-center justify-start gap-3 px-4 py-2.5 rounded-xl font-semibold text-[13px] transition-colors ${
+                            role === 'student'
+                                ? 'text-slate-400 hover:bg-red-500/10 hover:text-red-400'
+                                : 'text-slate-500 hover:bg-red-50 hover:text-red-600'
+                        }`}
                     >
                         <LogOut size={16} className="rotate-180" />
                         <span>Logout</span>
@@ -332,35 +345,45 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0">
                 {/* Header (Top Nav with Quote, Badge, Profile) */}
-                <header className="sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between bg-[#F4F7FE] print:hidden">
+                <header className={`sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-4 flex items-center justify-between print:hidden transition-colors ${
+                    role === 'student' 
+                        ? 'bg-[#0B152B]/90 backdrop-blur-xl border-b border-[#17274B] text-slate-100' 
+                        : 'bg-[#F4F7FE] text-slate-800'
+                }`}>
                     <div className="flex items-center gap-2 sm:gap-4">
                         <button
                             onClick={() => setIsSidebarOpen(true)}
-                            className="md:hidden p-2 rounded-xl bg-white shadow-sm border border-slate-100 text-slate-600 hover:bg-slate-50"
+                            className={`md:hidden p-2 rounded-xl shadow-sm transition-colors ${
+                                role === 'student' 
+                                    ? 'bg-[#070D1E] border border-[#17274B] text-slate-200 hover:bg-white/5' 
+                                    : 'bg-white border border-slate-100 text-slate-600 hover:bg-slate-50'
+                            }`}
                         >
                             <Menu size={20} />
                         </button>
 
                         {/* Top Quote */}
-                        <div className="hidden xl:flex items-center gap-1.5 text-slate-700 italic font-semibold max-w-xl">
+                        <div className="hidden xl:flex items-center gap-1.5 italic font-semibold max-w-xl">
                             <span className="text-xl font-bold text-slate-400">“</span>
-                            <span className="text-[13px] leading-none text-slate-600">Success is the sum of small efforts, repeated every day.</span>
-                            <span className="text-[13px] font-bold text-slate-500 not-italic ml-1">— Examinantt</span>
+                            <span className={`text-[13px] leading-none ${role === 'student' ? 'text-slate-300' : 'text-slate-600'}`}>
+                                Success is the sum of small efforts, repeated every day.
+                            </span>
+                            <span className="text-[13px] font-bold text-orange-400 not-italic ml-1">— Examinantt</span>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-1.5 sm:gap-4.5 ml-auto">
                         {/* Target Exam Selector Dropdown */}
                         {role === 'student' && (
-                            <div className="flex items-center gap-1 sm:gap-2 bg-white px-2 sm:px-3.5 py-1.5 border border-slate-200/80 rounded-xl shadow-sm hover:border-slate-300 transition-all cursor-pointer">
+                            <div className="flex items-center gap-1 sm:gap-2 bg-[#070D1E] px-2 sm:px-3.5 py-1.5 border border-[#17274B] rounded-xl shadow-sm hover:border-blue-500/40 transition-all cursor-pointer">
                                 <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none whitespace-nowrap hidden sm:inline">Target Exam</span>
                                 <select 
                                     value={selectedExam}
                                     onChange={handleExamChange}
-                                    className="text-[10px] sm:text-xs font-black text-[#0B1E43] bg-transparent outline-none cursor-pointer border-none py-0.5 pr-0.5 focus:ring-0 max-w-[105px] sm:max-w-none truncate"
+                                    className="text-[10px] sm:text-xs font-black text-white bg-transparent outline-none cursor-pointer border-none py-0.5 pr-0.5 focus:ring-0 max-w-[105px] sm:max-w-none truncate"
                                 >
                                     {examsList.map((examName) => (
-                                        <option key={examName} value={examName}>{examName}</option>
+                                        <option key={examName} value={examName} className="bg-[#0B152B] text-white">{examName}</option>
                                     ))}
                                 </select>
                                 <ChevronDown size={12} className="text-slate-400 pointer-events-none shrink-0" />
@@ -369,13 +392,13 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
 
                         {/* Gold Badge */}
                         {role === 'student' && (
-                            <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-white border border-slate-100 rounded-full shadow-sm">
-                                <div className="p-1 bg-[#FFF0DB] rounded-full text-[#FF7A00]">
+                            <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#070D1E] border border-[#17274B] rounded-full shadow-sm">
+                                <div className="p-1 bg-orange-500/20 rounded-full text-[#FF7A00]">
                                     <Crown size={12} className="fill-[#FF7A00]/20" />
                                 </div>
                                 <div className="text-left pr-1">
                                     <div className="flex items-center gap-1">
-                                        <p className="text-[10px] font-black text-slate-800 leading-none">Examinantt</p>
+                                        <p className="text-[10px] font-black text-white leading-none">Examinantt</p>
                                         <ChevronDown size={10} className="text-slate-400" />
                                     </div>
                                     <p className="text-[8px] font-medium text-slate-400">Trusted by 1M+ Aspirants</p>
@@ -384,27 +407,31 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
                         )}
 
                         {/* Notification Button */}
-                        <button className="relative p-2.5 rounded-xl bg-white border border-slate-100 text-slate-500 hover:bg-slate-50 shadow-sm transition-all">
+                        <button className={`relative p-2.5 rounded-xl shadow-sm transition-all ${
+                            role === 'student'
+                                ? 'bg-[#070D1E] border border-[#17274B] text-slate-300 hover:text-white hover:border-blue-500/40'
+                                : 'bg-white border border-slate-100 text-slate-500 hover:bg-slate-50'
+                        }`}>
                             <Bell size={18} />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-[#FF7A00] rounded-full ring-2 ring-white"></span>
+                            <span className="absolute top-2 right-2 w-2 h-2 bg-[#FF7A00] rounded-full ring-2 ring-[#070D1E]"></span>
                         </button>
                         
-                        <div className="h-6 w-px bg-slate-200"></div>
+                        <div className={`h-6 w-px ${role === 'student' ? 'bg-[#17274B]' : 'bg-slate-200'}`}></div>
 
                         {/* Profile Selector */}
-                        <div className="flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-white/50 transition-all cursor-pointer">
-                            <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-white uppercase">
+                        <div className="flex items-center gap-2.5 px-1 py-1 rounded-xl hover:bg-white/5 transition-all cursor-pointer">
+                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-md ring-2 ring-blue-400/30 uppercase">
                                 {firstLetter}
                             </div>
                             <div className="text-left hidden md:block">
                                 <div className="flex items-center gap-1">
-                                    <p className="text-xs font-bold text-[#0B1E43] leading-none">
+                                    <p className={`text-xs font-bold leading-none ${role === 'student' ? 'text-white' : 'text-[#0B1E43]'}`}>
                                         {fullName}
                                     </p>
                                     <ChevronDown size={12} className="text-slate-400" />
                                 </div>
                                 <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
-                                    {role === 'admin' ? 'Admin' : 'Student'}
+                                    {role === 'admin' ? 'Admin' : 'STUDENT'}
                                 </p>
                             </div>
                         </div>

@@ -110,32 +110,34 @@ const StudentPYQsPage = () => {
 
     return (
         <motion.div
-            className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-8"
+            className="max-w-7xl mx-auto space-y-8"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
         >
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-[#17274B]">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Previous Year Questions</h1>
-                    <p className="text-slate-500 mt-1">Practice with authentic questions from past exams.</p>
+                    <h1 className="text-3xl font-black text-white tracking-tight">Previous Year Questions</h1>
+                    <p className="text-slate-400 font-medium text-sm mt-1">Practice with authentic questions from past exams.</p>
                 </div>
-                <div className="relative w-full md:w-64">
-                    <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <div className="relative w-full md:w-80">
+                    <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#38BDF8] transition-colors" />
                     <input
                         type="text"
-                        placeholder="Search PYQs..."
+                        placeholder="Search PYQs by exam, year..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full pl-11 pr-4 py-3 bg-[#0B152B] border border-[#17274B] rounded-2xl text-white placeholder-slate-500 font-bold text-xs focus:outline-none focus:border-[#38BDF8] shadow-sm transition-all"
                     />
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center py-20"><Loader2 className="animate-spin text-blue-600" size={40} /></div>
+                <div className="flex justify-center py-24"><Loader2 className="animate-spin text-[#38BDF8]" size={40} /></div>
             ) : filteredPyqs.length === 0 ? (
-                <div className="text-center py-20 text-slate-500">No PYQs found matching your criteria.</div>
+                <div className="text-center py-24 bg-[#0B152B] rounded-[32px] border border-[#17274B] text-slate-400 font-medium text-sm">
+                    No PYQs found matching your criteria.
+                </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredPyqs.map((pyq) => {
@@ -146,20 +148,35 @@ const StudentPYQsPage = () => {
                             <motion.div
                                 key={pyq.id}
                                 variants={itemVariants}
-                                className="bg-white rounded-2xl border border-slate-200 p-5 hover:shadow-lg transition-shadow flex flex-col"
+                                className="bg-[#0B152B] rounded-[28px] border border-[#17274B] p-6 hover:border-[#38BDF8]/40 hover:shadow-xl hover:shadow-blue-500/5 transition-all flex flex-col justify-between"
                             >
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className={`p-3 rounded-xl ${isUnlocked ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'}`}>
-                                        {isTest ? <PenTool size={24} /> : <FileText size={24} />}
+                                <div>
+                                    <div className="flex justify-between items-start mb-5">
+                                        <div className={`p-3.5 rounded-2xl border ${
+                                            isUnlocked 
+                                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                                                : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                                        }`}>
+                                            {isTest ? <PenTool size={22} /> : <FileText size={22} />}
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-wider px-3 py-1 bg-[#10224A] text-[#38BDF8] border border-[#1E3A75] rounded-full">
+                                            {pyq.category}
+                                        </span>
                                     </div>
-                                    <span className="text-xs font-bold px-2 py-1 bg-slate-100 text-slate-600 rounded">{pyq.category}</span>
+                                    <h3 className="font-black text-white text-lg tracking-tight mb-2">{pyq.title}</h3>
+                                    <p className="text-xs font-semibold text-slate-400 mb-6 flex items-center gap-2">
+                                        <span>{pyq.year}</span>
+                                        <span>•</span>
+                                        <span className="text-[#38BDF8]">{isTest ? 'Interactive Test' : 'PDF Document'}</span>
+                                    </p>
                                 </div>
-                                <h3 className="font-bold text-slate-800 mb-1">{pyq.title}</h3>
-                                <p className="text-sm text-slate-500 mb-4">{pyq.year} • {isTest ? 'Interactive Test' : 'PDF Document'}</p>
 
-                                <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
-                                    <div className="font-bold text-slate-800">
-                                        {pyq.price === 0 ? 'Free' : `₹${pyq.price}`}
+                                <div className="pt-4 border-t border-[#17274B] flex items-center justify-between">
+                                    <div>
+                                        <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Access</span>
+                                        <span className="font-black text-white text-lg">
+                                            {pyq.price === 0 ? 'Free' : `₹${pyq.price}`}
+                                        </span>
                                     </div>
                                     {isUnlocked ? (
                                         isTest ? (
@@ -173,27 +190,27 @@ const StudentPYQsPage = () => {
                                                         navigate(path);
                                                     }
                                                 }}
-                                                className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                                                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all cursor-pointer"
                                             >
-                                                <PlayCircle size={16} /> Attempt
+                                                <PlayCircle size={15} /> Attempt
                                             </button>
                                         ) : (
                                             <a
                                                 href={pyq.fileUrl || "#"}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="px-4 py-2 bg-slate-900 text-white text-sm font-semibold rounded-lg hover:bg-slate-800 flex items-center gap-2"
+                                                className="px-5 py-2.5 bg-[#10224A] hover:bg-blue-600 text-white text-xs font-black uppercase tracking-wider rounded-xl border border-[#1E3A75] hover:border-transparent flex items-center gap-2 transition-all cursor-pointer"
                                             >
-                                                <Download size={16} /> Download
+                                                <Download size={15} /> Download
                                             </a>
                                         )
                                     ) : (
                                         <button
                                             onClick={() => handleBuy(pyq)}
                                             disabled={buyingId === pyq.id}
-                                            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-70"
+                                            className="px-5 py-2.5 bg-gradient-to-r from-[#FF7A00] to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white text-xs font-black uppercase tracking-wider rounded-xl flex items-center gap-2 shadow-lg shadow-orange-500/20 transition-all cursor-pointer disabled:opacity-60"
                                         >
-                                            {buyingId === pyq.id ? <Loader2 className="animate-spin" size={16} /> : <Lock size={16} />}
+                                            {buyingId === pyq.id ? <Loader2 className="animate-spin" size={15} /> : <Lock size={15} />}
                                             Unlock
                                         </button>
                                     )}

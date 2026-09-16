@@ -117,18 +117,18 @@ const StudentCoursesPage = () => {
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-12">
             {/* Top Page Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0B152B] p-6 sm:p-8 rounded-3xl border border-[#17274B] shadow-xl">
                 <div>
-                    <div className="flex items-center gap-2 text-blue-600 mb-1">
-                        <Sparkles size={18} className="fill-blue-600" />
+                    <div className="flex items-center gap-2 text-[#38BDF8] mb-1">
+                        <Sparkles size={18} className="fill-[#38BDF8]" />
                         <span className="text-xs font-black uppercase tracking-widest">Digital Learning Hub</span>
                     </div>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight">Video Classroom</h1>
-                    <p className="text-slate-500 font-medium text-sm mt-1">Join live interactive classes and stream recorded batch lectures anytime.</p>
+                    <h1 className="text-3xl font-black text-white tracking-tight">Video Classroom</h1>
+                    <p className="text-slate-400 font-medium text-sm mt-1">Join live interactive classes and stream recorded batch lectures anytime.</p>
                 </div>
                 <button
                     onClick={() => navigate('/courses')}
-                    className="flex items-center gap-2 bg-slate-900 hover:bg-black text-white font-bold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-md"
+                    className="flex items-center gap-2 bg-[#10224A] hover:bg-[#152D61] text-white border border-[#23458A] font-bold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-md"
                 >
                     <BookOpen size={18} />
                     <span>Browse All Batches</span>
@@ -136,13 +136,13 @@ const StudentCoursesPage = () => {
             </div>
 
             {/* Navigation Tabs (Live Classroom vs Recorded Classroom) */}
-            <div className="flex items-center gap-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm max-w-md">
+            <div className="flex items-center gap-3 bg-[#0B152B] p-2 rounded-2xl border border-[#17274B] shadow-sm max-w-md">
                 <button
                     onClick={() => setActiveTab('live')}
                     className={`flex-1 flex items-center justify-center gap-2.5 py-3 px-5 rounded-xl font-extrabold text-sm transition-all duration-200 ${
                         activeTab === 'live'
                             ? 'bg-rose-600 text-white shadow-md shadow-rose-500/20'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            : 'text-slate-400 hover:text-white hover:bg-[#070D1E]'
                     }`}
                 >
                     <span className="relative flex h-2.5 w-2.5">
@@ -156,8 +156,8 @@ const StudentCoursesPage = () => {
                     onClick={() => setActiveTab('recorded')}
                     className={`flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-xl font-extrabold text-sm transition-all duration-200 ${
                         activeTab === 'recorded'
-                            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md shadow-blue-500/20'
+                            : 'text-slate-400 hover:text-white hover:bg-[#070D1E]'
                     }`}
                 >
                     <PlayCircle size={18} />
@@ -231,29 +231,29 @@ const StudentCoursesPage = () => {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <div>
-                                <h3 className="text-xl font-extrabold text-slate-900">Upcoming Live Sessions ({upcomingClasses.length})</h3>
-                                <p className="text-xs text-slate-500 font-medium">Schedule your learning calendar for upcoming expert lectures.</p>
+                                <h3 className="text-xl font-extrabold text-white">Upcoming Live Sessions ({upcomingClasses.length})</h3>
+                                <p className="text-xs text-slate-400 font-medium">Schedule your learning calendar for upcoming expert lectures.</p>
                             </div>
                         </div>
 
                         {upcomingClasses.length === 0 ? (
-                            <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 text-slate-500 font-bold text-sm">
+                            <div className="text-center py-16 bg-[#0B152B] rounded-3xl border border-[#17274B] text-slate-400 font-bold text-sm">
                                 No upcoming live sessions scheduled at the moment. Please check back later!
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {upcomingClasses.map(session => (
-                                    <div key={session.id} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                                        <div className="relative h-44 bg-slate-900 overflow-hidden">
+                                    <div key={session.id} className="bg-[#0B152B] rounded-3xl border border-[#17274B] shadow-xl overflow-hidden flex flex-col justify-between hover:shadow-2xl hover:border-blue-500/40 hover:-translate-y-1 transition-all duration-300">
+                                        <div className="relative h-44 bg-[#070D1E] overflow-hidden">
                                             {session.thumbnailUrl ? (
                                                 <img src={session.thumbnailUrl} alt={session.title} className="w-full h-full object-cover opacity-80" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-indigo-950 text-white font-black text-lg">
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-900 to-blue-950 text-white font-black text-lg">
                                                     {session.examCategory} Live
                                                 </div>
                                             )}
                                             <div className="absolute top-3 left-3">
-                                                <span className="bg-slate-900/90 backdrop-blur-md text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 border border-white/10">
+                                                <span className="bg-[#070D1E]/90 backdrop-blur-md text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 border border-white/10">
                                                     <Calendar size={12} /> {new Date(session.scheduledStartTime).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             </div>
@@ -264,30 +264,30 @@ const StudentCoursesPage = () => {
 
                                         <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                                             <div className="space-y-2">
-                                                <div className="flex items-center gap-2 text-xs font-bold text-blue-600">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-[#38BDF8]">
                                                     <span>{session.subject}</span>
                                                     <span>•</span>
                                                     <span className="text-slate-400">{session.examCategory}</span>
                                                 </div>
-                                                <h4 className="text-base font-extrabold text-slate-900 leading-snug line-clamp-2">
+                                                <h4 className="text-base font-extrabold text-white leading-snug line-clamp-2">
                                                     {session.title}
                                                 </h4>
-                                                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 pt-1">
+                                                <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 pt-1">
                                                     <User size={14} className="text-slate-400" />
                                                     <span>{session.educatorName}</span>
                                                 </div>
                                             </div>
 
-                                            <div className="pt-3 border-t border-slate-100">
+                                            <div className="pt-3 border-t border-[#17274B]">
                                                 <button
                                                     onClick={() => handleToggleReminder(session.id, session.title)}
                                                     className={`w-full py-3 font-extrabold text-xs rounded-xl border flex items-center justify-center gap-1.5 transition-all ${
                                                         reminders[session.id]
-                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                                                            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                                            : 'bg-[#10224A] hover:bg-[#152D61] text-slate-300 border-[#23458A]'
                                                     }`}
                                                 >
-                                                    <Bell size={14} className={reminders[session.id] ? 'fill-emerald-600' : ''} />
+                                                    <Bell size={14} className={reminders[session.id] ? 'fill-emerald-400' : ''} />
                                                     <span>{reminders[session.id] ? 'Reminder Set' : 'Set Reminder'}</span>
                                                 </button>
                                             </div>
@@ -300,16 +300,16 @@ const StudentCoursesPage = () => {
 
                     {/* Past Live Recordings */}
                     {completedClasses.length > 0 && (
-                        <div className="space-y-4 pt-4 border-t border-slate-200">
+                        <div className="space-y-4 pt-4 border-t border-[#17274B]">
                             <div>
-                                <h3 className="text-xl font-extrabold text-slate-900">Past Live Class Replays ({completedClasses.length})</h3>
-                                <p className="text-xs text-slate-500 font-medium">Missed a live session? Watch complete replays anytime.</p>
+                                <h3 className="text-xl font-extrabold text-white">Past Live Class Replays ({completedClasses.length})</h3>
+                                <p className="text-xs text-slate-400 font-medium">Missed a live session? Watch complete replays anytime.</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {completedClasses.map(session => (
-                                    <div key={session.id} className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-xl transition-all">
-                                        <div className="relative h-40 bg-slate-900 overflow-hidden">
+                                    <div key={session.id} className="bg-[#0B152B] rounded-3xl border border-[#17274B] shadow-xl overflow-hidden flex flex-col justify-between hover:shadow-2xl hover:border-blue-500/40 transition-all">
+                                        <div className="relative h-40 bg-[#070D1E] overflow-hidden">
                                             {session.thumbnailUrl ? (
                                                 <img src={session.thumbnailUrl} alt={session.title} className="w-full h-full object-cover opacity-75" />
                                             ) : (
@@ -318,18 +318,25 @@ const StudentCoursesPage = () => {
                                                 </div>
                                             )}
                                             <div className="absolute top-3 left-3">
-                                                <span className="bg-slate-800 text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md">
-                                                    Replay Available
+                                                <span className="bg-[#070D1E]/90 backdrop-blur-md text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 border border-white/10">
+                                                    Recorded
                                                 </span>
+                                            </div>
+                                            <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                                {session.durationMinutes} Mins
                                             </div>
                                         </div>
 
-                                        <div className="p-5 space-y-3">
-                                            <h4 className="text-sm font-extrabold text-slate-900 line-clamp-2">{session.title}</h4>
-                                            <p className="text-xs text-slate-400 font-medium">{session.educatorName} • {session.subject}</p>
+                                        <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                                            <div className="space-y-1">
+                                                <span className="text-[11px] font-bold text-[#38BDF8]">{session.subject}</span>
+                                                <h4 className="text-sm font-extrabold text-white leading-snug line-clamp-2">{session.title}</h4>
+                                                <p className="text-xs text-slate-400 font-medium">{session.educatorName}</p>
+                                            </div>
+
                                             <button
                                                 onClick={() => setActiveStreamingClass(session)}
-                                                className="w-full py-2.5 bg-slate-900 hover:bg-black text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all"
+                                                className="w-full py-2.5 bg-[#10224A] hover:bg-blue-600 border border-[#23458A] text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md"
                                             >
                                                 <PlayCircle size={16} />
                                                 <span>Watch Replay</span>
@@ -347,17 +354,17 @@ const StudentCoursesPage = () => {
             {activeTab === 'recorded' && (
                 <div className="space-y-6">
                     {isLoadingBatches ? (
-                        <div className="flex justify-center py-20 bg-white rounded-3xl border border-slate-100">
-                            <Loader2 className="animate-spin text-blue-600" size={40} />
+                        <div className="flex justify-center py-20 bg-[#0B152B] rounded-3xl border border-[#17274B]">
+                            <Loader2 className="animate-spin text-[#FF7A00]" size={40} />
                         </div>
                     ) : enrollments.length === 0 ? (
-                        <div className="text-center py-20 bg-white rounded-3xl border border-slate-100 space-y-4">
-                            <Video size={48} className="mx-auto text-slate-300" />
-                            <h3 className="text-xl font-extrabold text-slate-800">You haven't enrolled in any recorded batches yet.</h3>
-                            <p className="text-slate-500 text-sm max-w-md mx-auto">Explore expert recorded video batches and start building your exam preparation today.</p>
+                        <div className="text-center py-20 bg-[#0B152B] rounded-3xl border border-[#17274B] space-y-4">
+                            <Video size={48} className="mx-auto text-slate-500" />
+                            <h3 className="text-xl font-extrabold text-white">You haven't enrolled in any recorded batches yet.</h3>
+                            <p className="text-slate-400 text-sm max-w-md mx-auto">Explore expert recorded video batches and start building your exam preparation today.</p>
                             <button
                                 onClick={() => navigate('/courses')}
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 transition-all"
+                                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:opacity-95 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 transition-all"
                             >
                                 Explore Batches Catalog
                             </button>
@@ -367,37 +374,37 @@ const StudentCoursesPage = () => {
                             {enrollments.map(item => (
                                 <div
                                     key={item.id}
-                                    className="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                                    className="bg-[#0B152B] rounded-3xl border border-[#17274B] shadow-xl hover:border-blue-500/40 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
                                 >
                                     <div className="p-6 space-y-4">
                                         {item.thumbnailUrl && (
-                                            <div className="w-full h-40 rounded-2xl overflow-hidden bg-slate-900 relative">
+                                            <div className="w-full h-40 rounded-2xl overflow-hidden bg-[#070D1E] relative">
                                                 <img src={item.thumbnailUrl} alt={item.courseTitle} className="w-full h-full object-cover" />
                                             </div>
                                         )}
                                         <div className="space-y-1">
-                                            <span className="text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full">
+                                            <span className="text-[10px] font-black uppercase tracking-wider bg-blue-500/10 border border-blue-500/20 text-[#38BDF8] px-2.5 py-1 rounded-full">
                                                 {item.status === 'completed' ? 'Completed' : 'In Progress'}
                                             </span>
-                                            <h3 className="text-lg font-extrabold text-slate-900 leading-snug line-clamp-2 pt-1">{item.courseTitle}</h3>
+                                            <h3 className="text-lg font-extrabold text-white leading-snug line-clamp-2 pt-1">{item.courseTitle}</h3>
                                         </div>
 
                                         {/* Progress Bar */}
                                         <div className="space-y-1.5 pt-2">
                                             <div className="flex justify-between items-center text-xs font-bold">
-                                                <span className="text-slate-500">Overall Progress</span>
-                                                <span className="text-blue-600 font-extrabold">{item.progressPercent || 0}%</span>
+                                                <span className="text-slate-400">Overall Progress</span>
+                                                <span className="text-[#38BDF8] font-extrabold">{item.progressPercent || 0}%</span>
                                             </div>
-                                            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                            <div className="w-full bg-[#070D1E] border border-[#17274B] h-2.5 rounded-full overflow-hidden">
                                                 <div
-                                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 h-full rounded-full transition-all duration-500"
+                                                    className="bg-gradient-to-r from-blue-600 to-[#38BDF8] h-full rounded-full transition-all duration-500"
                                                     style={{ width: `${item.progressPercent || 0}%` }}
                                                 ></div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="p-6 pt-0 border-t border-slate-100/80 bg-slate-50/50">
+                                    <div className="p-6 pt-0 border-t border-[#17274B] bg-[#070D1E]/40">
                                         <button
                                             onClick={() => navigate(`/dashboard/courses/${item.courseId}/learn`)}
                                             className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-sm rounded-2xl shadow-md flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all mt-4"

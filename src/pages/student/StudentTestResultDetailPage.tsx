@@ -274,40 +274,40 @@ const StudentTestResultDetailPage = () => {
             </div>
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#17274B] print:hidden">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => navigate('/dashboard/results')}
-                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+                        className="p-2.5 bg-[#0B152B] hover:bg-[#10224A] border border-[#17274B] rounded-xl text-slate-400 hover:text-white transition-colors cursor-pointer"
                     >
-                        <ArrowLeft size={24} />
+                        <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-800">{attempt.testTitle} - Result Analysis</h1>
-                        <p className="text-slate-500 text-sm">
+                        <h1 className="text-2xl font-black text-white tracking-tight">{attempt.testTitle} - Result Analysis</h1>
+                        <p className="text-slate-400 text-sm mt-0.5">
                             Attempted on {attempt.attemptDate?.toDate().toLocaleDateString()}
                         </p>
                     </div>
                 </div>
                 <button 
                     onClick={() => window.print()}
-                    className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-blue-500/20 cursor-pointer"
                 >
-                    <Download size={18} />
+                    <Download size={16} />
                     Download Report
                 </button>
             </div>
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                <div className="bg-[#0B152B] p-6 rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 flex items-center gap-4">
+                    <div className="p-3.5 bg-blue-500/10 text-[#38BDF8] border border-blue-500/20 rounded-2xl">
                         <Award size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-slate-500 font-medium">Score</p>
-                        <h3 className="text-2xl font-bold text-slate-800">
-                            {attempt.score} <span className="text-sm text-slate-400 font-normal">/ {
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Score</p>
+                        <h3 className="text-2xl font-black text-white mt-0.5">
+                            {attempt.score} <span className="text-xs text-slate-400 font-normal">/ {
                                 (attempt as any).totalMarks !== undefined 
                                     ? (attempt as any).totalMarks 
                                     : (attempt.isOMR && testData?.omrTemplate?.sections
@@ -318,37 +318,37 @@ const StudentTestResultDetailPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-green-50 text-green-600 rounded-xl">
+                <div className="bg-[#0B152B] p-6 rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 flex items-center gap-4">
+                    <div className="p-3.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-2xl">
                         <CheckCircle size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-slate-500 font-medium">Correct</p>
-                        <h3 className="text-2xl font-bold text-slate-800">
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Correct</p>
+                        <h3 className="text-2xl font-black text-emerald-400 mt-0.5">
                             {attempt.correctAnswers ?? (attempt as any).correctCount ?? 0}
                         </h3>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-red-50 text-red-600 rounded-xl">
+                <div className="bg-[#0B152B] p-6 rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 flex items-center gap-4">
+                    <div className="p-3.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-2xl">
                         <XCircle size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-slate-500 font-medium">Incorrect</p>
-                        <h3 className="text-2xl font-bold text-slate-800">
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Incorrect</p>
+                        <h3 className="text-2xl font-black text-rose-400 mt-0.5">
                             {(attempt as any).wrongCount ?? (attempt.attemptedQuestions - attempt.correctAnswers)}
                         </h3>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                    <div className="p-3 bg-purple-50 text-purple-600 rounded-xl">
+                <div className="bg-[#0B152B] p-6 rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 flex items-center gap-4">
+                    <div className="p-3.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-2xl">
                         <Clock size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-slate-500 font-medium">Time Taken</p>
-                        <h3 className="text-2xl font-bold text-slate-800">{formatDuration(attempt.timeTakenSeconds || attempt.duration || 0)}</h3>
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Time Taken</p>
+                        <h3 className="text-2xl font-black text-purple-300 mt-0.5">{formatDuration(attempt.timeTakenSeconds || attempt.duration || 0)}</h3>
                     </div>
                 </div>
             </div>
@@ -357,9 +357,9 @@ const StudentTestResultDetailPage = () => {
             {attempt.isOMR && testData?.omrTemplate && (
                 <div className="space-y-8">
                     {testData.omrTemplate.sections.map((section, sIdx) => (
-                        <div key={sIdx} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                            <div className="p-6 border-b border-slate-200 bg-slate-50/50">
-                                <h2 className="text-lg font-bold text-slate-800">{section.name} Analysis</h2>
+                        <div key={sIdx} className="bg-[#0B152B] rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 overflow-hidden">
+                            <div className="p-6 border-b border-[#17274B] bg-[#070D1E]/60">
+                                <h2 className="text-lg font-black text-white tracking-tight">{section.name} Analysis</h2>
                             </div>
                             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
                                 {Array.from({ length: section.questionCount || (section.questionEndIndex - section.questionStartIndex + 1) }, (_, i) => {
@@ -371,8 +371,8 @@ const StudentTestResultDetailPage = () => {
                                     const isUnattempted = !studentAnswer;
 
                                     return (
-                                        <div key={qNumber} className="flex flex-col items-center p-3 rounded-xl border border-slate-100 bg-slate-50/30">
-                                            <span className="text-xs font-bold text-slate-400 mb-2">Q. {qNumber}</span>
+                                        <div key={qNumber} className="flex flex-col items-center p-4 rounded-2xl border border-[#17274B] bg-[#070D1E]">
+                                            <span className="text-xs font-bold text-slate-400 mb-2.5">Q. {qNumber}</span>
                                             <div className="flex gap-1.5">
                                                 {['A', 'B', 'C', 'D'].map(opt => {
                                                     const isSelected = studentAnswer === opt;
@@ -381,13 +381,11 @@ const StudentTestResultDetailPage = () => {
                                                     let circleClass = "w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-bold transition-all ";
                                                     
                                                     if (isActuallyCorrect) {
-                                                        // This was the correct answer
-                                                        circleClass += "bg-green-500 border-green-500 text-white shadow-sm shadow-green-500/20";
+                                                        circleClass += "bg-emerald-500 border-emerald-500 text-white shadow-sm shadow-emerald-500/20";
                                                     } else if (isSelected) {
-                                                        // Student picked this and it was WRONG
-                                                        circleClass += "bg-red-500 border-red-500 text-white shadow-sm shadow-red-500/20";
+                                                        circleClass += "bg-rose-500 border-rose-500 text-white shadow-sm shadow-rose-500/20";
                                                     } else {
-                                                        circleClass += "border-slate-200 text-slate-400";
+                                                        circleClass += "border-[#1E3A75] text-slate-400 bg-[#10224A]";
                                                     }
 
                                                     return (
@@ -398,13 +396,13 @@ const StudentTestResultDetailPage = () => {
                                                 })}
                                             </div>
                                             {!isCorrect && !isUnattempted && (
-                                                <span className="text-[10px] text-red-500 font-bold mt-2">Wrong</span>
+                                                <span className="text-[10px] text-rose-400 font-bold mt-2">Wrong</span>
                                             )}
                                             {isCorrect && (
-                                                <span className="text-[10px] text-green-600 font-bold mt-2">Correct</span>
+                                                <span className="text-[10px] text-emerald-400 font-bold mt-2">Correct</span>
                                             )}
                                             {isUnattempted && (
-                                                <span className="text-[10px] text-slate-400 font-bold mt-2">Skipped</span>
+                                                <span className="text-[10px] text-slate-500 font-bold mt-2">Skipped</span>
                                             )}
                                         </div>
                                     );
@@ -417,21 +415,21 @@ const StudentTestResultDetailPage = () => {
 
             {/* Digital Analysis Section (Standard List) */}
             {!attempt.isOMR && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                        <BookOpen size={20} className="text-blue-500" />
+                <div className="bg-[#0B152B] rounded-3xl border border-[#17274B] shadow-lg shadow-black/20 overflow-hidden">
+                <div className="p-6 border-b border-[#17274B] flex flex-col md:flex-row justify-between items-center gap-4">
+                    <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                        <BookOpen size={20} className="text-[#38BDF8]" />
                         Question Analysis
                     </h2>
 
-                    <div className="flex bg-slate-100 p-1 rounded-lg">
+                    <div className="flex bg-[#070D1E] p-1.5 rounded-xl border border-[#17274B]">
                         {(['all', 'correct', 'incorrect', 'unattempted'] as const).map(filter => (
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
-                                className={`px-4 py-1.5 rounded-md text-sm font-semibold capitalize transition-all ${activeFilter === filter
-                                    ? 'bg-white text-slate-800 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700'
+                                className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider capitalize transition-all cursor-pointer ${activeFilter === filter
+                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                                    : 'text-slate-400 hover:text-white'
                                     }`}
                             >
                                 {filter}
@@ -440,7 +438,7 @@ const StudentTestResultDetailPage = () => {
                     </div>
                 </div>
 
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-[#17274B]">
                     {filteredQuestions.map((q, qi) => {
                         const status = q.status;
                         const userAnswer = attempt.answers[q.index];
@@ -464,12 +462,13 @@ const StudentTestResultDetailPage = () => {
                         }
 
                         return (
-                            <div key={q.id || `q-${qi}`} className="p-6 hover:bg-slate-50 transition-colors">
+                            <div key={q.id || `q-${qi}`} className="p-6 hover:bg-[#10224A]/20 transition-colors">
                                 <div className="flex items-start gap-4">
                                     <div className="flex-shrink-0">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${status === 'correct' ? 'bg-green-100 text-green-700' :
-                                            status === 'incorrect' ? 'bg-red-100 text-red-700' :
-                                                'bg-slate-100 text-slate-500'
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${
+                                            status === 'correct' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                                            status === 'incorrect' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                                                'bg-[#10224A] text-slate-400 border border-[#1E3A75]'
                                             }`}>
                                             {q.index + 1}
                                         </div>
@@ -477,55 +476,55 @@ const StudentTestResultDetailPage = () => {
 
                                     <div className="flex-1 space-y-3">
                                         <div className="flex flex-wrap gap-2 items-center text-xs mb-1">
-                                            <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
+                                            <span className="bg-[#10224A] px-2.5 py-0.5 rounded-md text-[#38BDF8] border border-[#1E3A75] font-bold">
                                                 {q.subject}
                                             </span>
                                             {q.examCategory && q.examCategory !== 'General' && (
-                                                <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-100">
+                                                <span className="bg-blue-500/10 text-blue-300 px-2.5 py-0.5 rounded-md font-bold border border-blue-500/20">
                                                     {q.examCategory}
                                                 </span>
                                             )}
                                             {q.unit && (
-                                                <span className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold border border-purple-100">
+                                                <span className="bg-purple-500/10 text-purple-300 px-2.5 py-0.5 rounded-md font-bold border border-purple-500/20">
                                                     Unit: {q.unit}
                                                 </span>
                                             )}
                                             {q.chapter && (
-                                                <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
+                                                <span className="bg-[#10224A] px-2.5 py-0.5 rounded-md text-slate-300 font-medium border border-[#1E3A75]">
                                                     Chapter: {q.chapter}
                                                 </span>
                                             )}
-                                            <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 font-medium">
+                                            <span className="bg-[#10224A] px-2.5 py-0.5 rounded-md text-slate-400 font-medium border border-[#1E3A75]">
                                                 {q.type}
                                             </span>
                                             {attempt.questionTimes && (attempt.questionTimes[q.index] !== undefined || attempt.questionTimes[String(q.index)] !== undefined) && (
-                                                <span className="bg-slate-50 text-slate-600 px-2 py-0.5 rounded font-semibold flex items-center gap-1 border border-slate-200/50">
-                                                    <Clock size={12} className="text-slate-500" />
+                                                <span className="bg-[#070D1E] text-slate-400 px-2.5 py-0.5 rounded-md font-semibold flex items-center gap-1 border border-[#17274B]">
+                                                    <Clock size={12} className="text-slate-400" />
                                                     Time Spent: {formatQuestionDuration(attempt.questionTimes[q.index] ?? attempt.questionTimes[String(q.index)] ?? 0)}
                                                 </span>
                                             )}
                                             {status === 'correct' && (
-                                                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                                                <span className="bg-emerald-500/10 text-emerald-400 px-2.5 py-0.5 rounded-md font-bold flex items-center gap-1 border border-emerald-500/20">
                                                     <CheckCircle size={12} /> Correct (+{qMarksCorrect})
                                                 </span>
                                             )}
                                             {status === 'incorrect' && (
-                                                <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                                                <span className="bg-rose-500/10 text-rose-400 px-2.5 py-0.5 rounded-md font-bold flex items-center gap-1 border border-rose-500/20">
                                                     <XCircle size={12} /> Incorrect ({qMarksWrong})
                                                 </span>
                                             )}
                                             {status === 'unattempted' && (
-                                                <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                                                <span className="bg-[#10224A] text-slate-400 px-2.5 py-0.5 rounded-md font-bold flex items-center gap-1 border border-[#1E3A75]">
                                                     <MinusCircle size={12} /> Unattempted (0)
                                                 </span>
                                             )}
                                         </div>
 
-                                        <p className="text-slate-800 font-medium text-lg leading-relaxed">
+                                        <p className="text-white font-medium text-lg leading-relaxed">
                                             {q.text}
                                         </p>
                                         {q.textHindi && (
-                                            <p className="text-slate-500 font-medium text-base leading-relaxed mt-1.5 border-l-2 border-slate-300 pl-3 italic">
+                                            <p className="text-slate-400 font-medium text-base leading-relaxed mt-1.5 border-l-2 border-[#1E3A75] pl-3 italic">
                                                 {q.textHindi}
                                             </p>
                                         )}
@@ -537,23 +536,24 @@ const StudentTestResultDetailPage = () => {
                                                     const isCorrect = String(q.correctAnswer) === String(optIdx);
                                                     const hasHindiOption = q.optionsHindi && q.optionsHindi[optIdx] && q.optionsHindi[optIdx].trim() !== '';
 
-                                                    let className = "p-3 rounded-lg border-2 text-sm flex items-center gap-3 ";
-                                                    if (isCorrect) className += "border-green-500 bg-green-50 text-green-900";
-                                                    else if (isSelected && !isCorrect) className += "border-red-500 bg-red-50 text-red-900";
-                                                    else className += "border-slate-100 text-slate-600 opacity-70";
+                                                    let className = "p-3.5 rounded-xl border text-sm flex items-center gap-3 transition-all ";
+                                                    if (isCorrect) className += "border-emerald-500/40 bg-emerald-500/10 text-emerald-300";
+                                                    else if (isSelected && !isCorrect) className += "border-rose-500/40 bg-rose-500/10 text-rose-300";
+                                                    else className += "border-[#17274B] bg-[#070D1E] text-slate-400";
 
                                                     return (
                                                         <div key={optIdx} className={className}>
-                                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${isCorrect ? 'border-green-600 bg-green-600 text-white' :
-                                                                isSelected ? 'border-red-600 bg-red-600 text-white' :
-                                                                    'border-slate-300'
+                                                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                                                                isCorrect ? 'border-emerald-500 bg-emerald-500 text-white' :
+                                                                isSelected ? 'border-rose-500 bg-rose-500 text-white' :
+                                                                    'border-slate-600'
                                                                 }`}>
                                                                 {(isCorrect || isSelected) && <div className="w-2 h-2 bg-white rounded-full" />}
                                                             </div>
                                                             <span className="font-medium flex-1">
                                                                 {opt}
                                                                 {hasHindiOption && (
-                                                                    <span className="block text-xs text-slate-500 mt-1 font-normal italic">
+                                                                    <span className="block text-xs text-slate-400 mt-1 font-normal italic">
                                                                         {q.optionsHindi![optIdx]}
                                                                     </span>
                                                                 )}
@@ -564,37 +564,38 @@ const StudentTestResultDetailPage = () => {
                                             </div>
                                         ) : (
                                             <div className="flex gap-4">
-                                                <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <span className="text-xs text-slate-500 block">Your Answer</span>
-                                                    <span className={`font-mono font-bold ${status === 'correct' ? 'text-green-600' :
-                                                        status === 'incorrect' ? 'text-red-600' : 'text-slate-400'
+                                                <div className="p-3 bg-[#070D1E] rounded-xl border border-[#17274B]">
+                                                    <span className="text-xs text-slate-400 block font-bold">Your Answer</span>
+                                                    <span className={`font-mono font-bold ${
+                                                        status === 'correct' ? 'text-emerald-400' :
+                                                        status === 'incorrect' ? 'text-rose-400' : 'text-slate-400'
                                                         }`}>
                                                         {userAnswer ?? 'N/A'}
                                                     </span>
                                                 </div>
-                                                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                                                    <span className="text-xs text-green-600 block">Correct Answer</span>
-                                                    <span className="font-mono font-bold text-green-700">{q.correctAnswer}</span>
+                                                <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                                                    <span className="text-xs text-emerald-400 block font-bold">Correct Answer</span>
+                                                    <span className="font-mono font-bold text-emerald-400">{q.correctAnswer}</span>
                                                 </div>
                                             </div>
                                         )}
 
                                         {(q.explanation || q.explanationHindi) && (
-                                            <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm space-y-3">
+                                            <div className="mt-4 p-5 bg-[#070D1E] rounded-2xl border border-[#17274B] text-slate-300 text-sm space-y-3">
                                                 {q.explanation && (
                                                     <div>
-                                                        <p className="font-bold mb-1 flex items-center gap-2">
+                                                        <p className="font-black text-[#38BDF8] mb-1 flex items-center gap-2">
                                                             <BookOpen size={16} /> Explanation:
                                                         </p>
-                                                        <p className="whitespace-pre-wrap">{q.explanation}</p>
+                                                        <p className="whitespace-pre-wrap leading-relaxed text-slate-300">{q.explanation}</p>
                                                     </div>
                                                 )}
                                                 {q.explanationHindi && (
-                                                    <div className={q.explanation ? "pt-3 border-t border-blue-200/50" : ""}>
-                                                        <p className="font-bold mb-1 flex items-center gap-2 text-indigo-700">
+                                                    <div className={q.explanation ? "pt-3 border-t border-[#17274B]" : ""}>
+                                                        <p className="font-black text-indigo-400 mb-1 flex items-center gap-2">
                                                             <BookOpen size={16} /> व्याख्या (Explanation in Hindi):
                                                         </p>
-                                                        <p className="whitespace-pre-wrap text-slate-700">{q.explanationHindi}</p>
+                                                        <p className="whitespace-pre-wrap leading-relaxed text-slate-300">{q.explanationHindi}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -607,13 +608,13 @@ const StudentTestResultDetailPage = () => {
                 </div>
 
                 {filteredQuestions.length === 0 && (
-                    <div className="p-12 text-center text-slate-500">
+                    <div className="p-12 text-center text-slate-400 font-medium">
                         No questions found matching this filter.
                     </div>
                 )}
             </div>
             )}
-            <div className="mt-8 text-center text-slate-400 text-xs hidden print:block pt-8 border-t border-slate-100">
+            <div className="mt-8 text-center text-slate-500 text-xs hidden print:block pt-8 border-t border-slate-200">
                 This is a computer-generated document. No signature required.
                 <br />
                 Generated by Examinant Education Platform.

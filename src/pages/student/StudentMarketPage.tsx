@@ -73,24 +73,24 @@ const getCategoryIcon = (category?: string) => {
     const cat = (category || '').toLowerCase();
     if (cat.includes('neet')) {
         return {
-            bg: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
+            bg: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
             icon: <Award className="w-8 h-8" />
         };
     }
     if (cat.includes('jee')) {
         return {
-            bg: 'bg-amber-50 text-amber-600 border border-amber-100',
+            bg: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
             icon: <Zap className="w-8 h-8" />
         };
     }
     if (cat.includes('ssc')) {
         return {
-            bg: 'bg-blue-50 text-blue-600 border border-blue-100',
+            bg: 'bg-blue-500/10 text-[#38BDF8] border border-blue-500/20',
             icon: <Trophy className="w-8 h-8" />
         };
     }
     return {
-        bg: 'bg-indigo-50 text-indigo-600 border border-indigo-100',
+        bg: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
         icon: <BookOpen className="w-8 h-8" />
     };
 };
@@ -106,7 +106,7 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
         <AnimatePresence>
             {isOpen && (
                 <div 
-                    className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4"
+                    className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4"
                     onClick={onClose}
                 >
                     <motion.div
@@ -114,9 +114,9 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: 20 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="bg-white w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden border border-white/20 relative"
+                        className="bg-[#0B152B] w-full max-w-lg rounded-[32px] shadow-2xl overflow-hidden border border-[#17274B] relative"
                     >
-                        <div className="bg-slate-900 px-8 py-10 text-white relative overflow-hidden">
+                        <div className="bg-[#070D1E] px-8 py-10 text-white relative overflow-hidden border-b border-[#17274B]">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                             
                             <button 
@@ -126,17 +126,17 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
                                     e.stopPropagation();
                                     onClose();
                                 }}
-                                className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-20"
+                                className="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors z-20 text-slate-300 hover:text-white"
                             >
                                 <X size={20} />
                             </button>
 
                             <div className="relative z-10 flex flex-col items-center text-center">
-                                <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-lg shadow-blue-600/30">
+                                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center text-3xl mb-5 shadow-lg shadow-blue-600/30">
                                     <Zap size={28} className="fill-white text-white" />
                                 </div>
-                                <h2 className="text-2xl font-bold mb-2 tracking-tight">Attempt Mode</h2>
-                                <p className="text-blue-100/80 text-sm font-medium">{testName}</p>
+                                <h2 className="text-2xl font-bold mb-2 tracking-tight text-white">Attempt Mode</h2>
+                                <p className="text-slate-400 text-sm font-medium">{testName}</p>
                             </div>
                         </div>
 
@@ -144,16 +144,16 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
                             <button
                                 type="button"
                                 onClick={() => onConfirm('digital')}
-                                className="w-full group p-5 bg-slate-50 border border-slate-100 rounded-[24px] flex items-center gap-5 hover:bg-white hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/10 transition-all text-left"
+                                className="w-full group p-5 bg-[#070D1E] border border-[#17274B] rounded-[24px] flex items-center gap-5 hover:bg-[#10224A] hover:border-[#38BDF8]/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all text-left cursor-pointer"
                             >
-                                <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                                <div className="w-14 h-14 bg-blue-500/10 text-[#38BDF8] border border-blue-500/20 rounded-2xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
                                     <BookOpen size={28} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-slate-900 text-lg tracking-tight">Interactive Digital</h3>
-                                    <p className="text-slate-500 text-xs font-medium leading-relaxed mt-0.5">Real-time interface with automated grading.</p>
+                                    <h3 className="font-bold text-white text-lg tracking-tight">Interactive Digital</h3>
+                                    <p className="text-slate-400 text-xs font-medium leading-relaxed mt-0.5">Real-time interface with automated grading.</p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-all">
+                                <div className="w-8 h-8 rounded-full bg-[#10224A] border border-[#1E3A75] flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:border-blue-600 group-hover:text-white transition-all">
                                     <ChevronRight size={18} />
                                 </div>
                             </button>
@@ -161,21 +161,21 @@ const AttemptModeModal = ({ isOpen, onClose, onConfirm, testName }: {
                             <button
                                 type="button"
                                 onClick={() => onConfirm('omr')}
-                                className="w-full group p-5 bg-slate-50 border border-slate-100 rounded-[24px] flex items-center gap-5 hover:bg-white hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left"
+                                className="w-full group p-5 bg-[#070D1E] border border-[#17274B] rounded-[24px] flex items-center gap-5 hover:bg-[#10224A] hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left cursor-pointer"
                             >
-                                <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                <div className="w-14 h-14 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
                                     <FileText size={28} />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="font-bold text-slate-900 text-lg tracking-tight">OMR Simulation</h3>
-                                    <p className="text-slate-500 text-xs font-medium leading-relaxed mt-0.5">Bubble sheet practice with PDF support.</p>
+                                    <h3 className="font-bold text-white text-lg tracking-tight">OMR Simulation</h3>
+                                    <p className="text-slate-400 text-xs font-medium leading-relaxed mt-0.5">Bubble sheet practice with PDF support.</p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:border-indigo-600 group-hover:text-white transition-all">
+                                <div className="w-8 h-8 rounded-full bg-[#10224A] border border-[#1E3A75] flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:border-indigo-600 group-hover:text-white transition-all">
                                     <ChevronRight size={18} />
                                 </div>
                             </button>
 
-                            <p className="text-center text-[10px] text-slate-400 mt-6 uppercase tracking-[0.2em] font-bold">
+                            <p className="text-center text-[10px] text-slate-500 mt-6 uppercase tracking-[0.2em] font-bold">
                                 Multi-mode support enabled for this session
                             </p>
                         </div>
@@ -232,12 +232,12 @@ const SeriesCard = ({
     return (
         <motion.div
             layout
-            className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300"
+            className="bg-[#0B152B] rounded-[32px] border border-[#17274B] overflow-hidden shadow-lg shadow-black/20 hover:border-[#38BDF8]/40 transition-all duration-300"
         >
             {!isExpanded ? (
                 <div
                     onClick={() => setIsExpanded(true)}
-                    className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 cursor-pointer group"
+                    className="p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6 cursor-pointer group hover:bg-[#10224A]/30 transition-colors"
                 >
                     <div className="flex items-center gap-6">
                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${styleInfo.bg}`}>
@@ -245,8 +245,8 @@ const SeriesCard = ({
                         </div>
                         <div>
                             <div className="flex flex-wrap items-center gap-3">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">{title}</h3>
-                                <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100">
+                                <h3 className="text-xl font-black text-white tracking-tight group-hover:text-[#38BDF8] transition-colors">{title}</h3>
+                                <span className="bg-blue-500/10 text-[#38BDF8] text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-blue-500/20">
                                     {purchase.category || 'Expert'}{purchase.subCategory ? ` (${purchase.subCategory})` : ''}
                                 </span>
                             </div>
@@ -259,43 +259,43 @@ const SeriesCard = ({
                     <div className="flex flex-wrap items-center gap-8 lg:gap-12">
                         <div className="text-center min-w-[70px]">
                             <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Tests</span>
-                            <span className="font-black text-slate-800 text-lg">{totalTestsCount}+</span>
+                            <span className="font-black text-white text-lg">{totalTestsCount}+</span>
                         </div>
                         <div className="text-center min-w-[70px]">
                             <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Attempted</span>
-                            <span className="font-black text-slate-800 text-lg">{attemptedCount}</span>
+                            <span className="font-black text-white text-lg">{attemptedCount}</span>
                         </div>
                         <div className="text-center min-w-[70px]">
                             <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Best Score</span>
-                            <span className="font-black text-emerald-600 text-lg">{bestScore > 0 ? `${bestScore.toFixed(1)}%` : '-'}</span>
+                            <span className="font-black text-emerald-400 text-lg">{bestScore > 0 ? `${bestScore.toFixed(1)}%` : '-'}</span>
                         </div>
                         <div className="min-w-[120px]">
                             <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 mb-1.5 uppercase">
                                 <span>Progress</span>
-                                <span>{progress}%</span>
+                                <span className="text-slate-300">{progress}%</span>
                             </div>
-                            <div className="w-24 lg:w-32 bg-slate-100 h-2 rounded-full overflow-hidden">
-                                <div className="bg-blue-600 h-full rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                            <div className="w-24 lg:w-32 bg-[#070D1E] h-2 rounded-full overflow-hidden border border-[#17274B]">
+                                <div className="bg-gradient-to-r from-blue-500 to-[#38BDF8] h-full rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                             </div>
                         </div>
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-slate-100 transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-[#10224A] border border-[#1E3A75] flex items-center justify-center text-slate-300 group-hover:text-white group-hover:bg-blue-600 transition-all">
                             <ChevronDown size={20} />
                         </div>
                     </div>
                 </div>
             ) : (
                 <div className="flex flex-col">
-                    <div className="bg-gradient-to-r from-[#0B2545] via-[#134074] to-[#0B2545] p-8 text-white relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                    <div className="bg-gradient-to-r from-[#070D1E] via-[#0B1E3F] to-[#070D1E] p-8 text-white relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-8 border-b border-[#17274B]">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3 pointer-events-none"></div>
                         
                         <div className="flex items-center gap-6 relative z-10">
                             <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
-                                <Trophy size={32} className="text-blue-300" />
+                                <Trophy size={32} className="text-[#38BDF8]" />
                             </div>
                             <div>
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <h3 className="text-2xl font-black tracking-tight">{title}</h3>
-                                    <span className="bg-blue-500/30 text-blue-100 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-blue-400/30">
+                                    <h3 className="text-2xl font-black tracking-tight text-white">{title}</h3>
+                                    <span className="bg-blue-500/20 text-[#38BDF8] text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-blue-400/30">
                                         {purchase.category || 'Expert'}
                                     </span>
                                 </div>
@@ -323,8 +323,8 @@ const SeriesCard = ({
                                     <span>Progress</span>
                                     <span>{progress}%</span>
                                 </div>
-                                <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
-                                    <div className="bg-blue-400 h-full rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                                <div className="w-full bg-[#070D1E] h-2 rounded-full overflow-hidden border border-[#17274B]">
+                                    <div className="bg-gradient-to-r from-blue-500 to-[#38BDF8] h-full rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                                 </div>
                             </div>
                             
@@ -335,7 +335,7 @@ const SeriesCard = ({
                                 </span>
                                 <button
                                     onClick={() => setIsExpanded(false)}
-                                    className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all"
+                                    className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all cursor-pointer"
                                 >
                                     <ChevronDown size={20} className="rotate-180" />
                                 </button>
@@ -344,33 +344,33 @@ const SeriesCard = ({
                     </div>
 
                     {/* Filter Tabs */}
-                    <div className="px-8 pt-6 pb-2 border-b border-slate-100 flex gap-6 bg-white">
+                    <div className="px-8 pt-6 pb-2 border-b border-[#17274B] flex gap-6 bg-[#0B152B]">
                         <button
                             onClick={() => { setActiveFilter('all'); setShowAllTests(false); }}
-                            className={`pb-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${
+                            className={`pb-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
                                 activeFilter === 'all' 
-                                    ? 'border-blue-600 text-blue-600' 
-                                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                                    ? 'border-[#38BDF8] text-[#38BDF8]' 
+                                    : 'border-transparent text-slate-400 hover:text-white'
                             }`}
                         >
                             All Tests ({totalTestsCount})
                         </button>
                         <button
                             onClick={() => { setActiveFilter('attempted'); setShowAllTests(false); }}
-                            className={`pb-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${
+                            className={`pb-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
                                 activeFilter === 'attempted' 
-                                    ? 'border-blue-600 text-blue-600' 
-                                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                                    ? 'border-[#38BDF8] text-[#38BDF8]' 
+                                    : 'border-transparent text-slate-400 hover:text-white'
                             }`}
                         >
                             Attempted ({attemptedCount})
                         </button>
                         <button
                             onClick={() => { setActiveFilter('not_attempted'); setShowAllTests(false); }}
-                            className={`pb-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all ${
+                            className={`pb-3 font-bold text-xs uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
                                 activeFilter === 'not_attempted' 
-                                    ? 'border-blue-600 text-blue-600' 
-                                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                                    ? 'border-[#38BDF8] text-[#38BDF8]' 
+                                    : 'border-transparent text-slate-400 hover:text-white'
                             }`}
                         >
                             Not Attempted ({totalTestsCount - attemptedCount})
@@ -378,9 +378,9 @@ const SeriesCard = ({
                     </div>
 
                     {/* Test items */}
-                    <div className="bg-slate-50/50 p-8 space-y-4">
+                    <div className="bg-[#070D1E]/70 p-8 space-y-4">
                         {displayedTests.length === 0 ? (
-                            <div className="py-12 text-center text-slate-400 font-bold text-sm bg-white rounded-3xl border border-slate-100">
+                            <div className="py-12 text-center text-slate-400 font-bold text-sm bg-[#0B152B] rounded-3xl border border-[#17274B]">
                                 No tests found matching the criteria.
                             </div>
                         ) : (
@@ -391,13 +391,13 @@ const SeriesCard = ({
                                     const testBestScore = hasAttempted ? Math.max(...testAttempts.map(a => a.score || 0)) : 0;
 
                                     return (
-                                        <div key={test.id} className="bg-white p-6 rounded-[24px] border border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group/item">
+                                        <div key={test.id} className="bg-[#0B152B] p-6 rounded-[24px] border border-[#17274B] flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:border-[#38BDF8]/40 hover:shadow-lg transition-all duration-300 group/item">
                                             <div className="flex items-center gap-5">
-                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${hasAttempted ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'}`}>
+                                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${hasAttempted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-[#10224A] text-slate-400 border border-[#1E3A75]'}`}>
                                                     {hasAttempted ? <Award size={24} /> : <Target size={24} />}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-black text-slate-900 tracking-tight">{test.name}</h4>
+                                                    <h4 className="font-black text-white tracking-tight group-hover/item:text-[#38BDF8] transition-colors">{test.name}</h4>
                                                     <div className="flex flex-wrap items-center gap-4 mt-2">
                                                         <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                                                             <Clock size={12} />
@@ -408,7 +408,7 @@ const SeriesCard = ({
                                                             {test.questionIds?.length || 0} Qs
                                                         </div>
                                                         {test.testType && (
-                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${TYPE_COLORS[test.testType] || 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest ${TYPE_COLORS[test.testType] || 'bg-slate-800 text-slate-300 border border-slate-700'}`}>
                                                                 {TYPE_LABELS[test.testType] || test.testType}
                                                             </span>
                                                         )}
@@ -419,14 +419,14 @@ const SeriesCard = ({
                                             <div className="flex items-center gap-8 lg:gap-12 flex-wrap lg:justify-end">
                                                 <div className="text-center min-w-[70px]">
                                                     <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Score</span>
-                                                    <span className={`font-black text-sm ${hasAttempted ? 'text-green-600' : 'text-slate-400'}`}>
+                                                    <span className={`font-black text-sm ${hasAttempted ? 'text-emerald-400' : 'text-slate-400'}`}>
                                                         {hasAttempted ? `${testBestScore.toFixed(1)}%` : 'Not Attempted'}
                                                     </span>
                                                 </div>
 
                                                 <div className="text-center min-w-[120px]">
                                                     <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">Rank</span>
-                                                    <span className="font-bold text-sm text-slate-700">
+                                                    <span className="font-bold text-sm text-slate-300">
                                                         {hasAttempted ? `${Math.floor((100 - testBestScore) * 350 + 120)} / 45231` : '-'}
                                                     </span>
                                                 </div>
@@ -435,7 +435,7 @@ const SeriesCard = ({
                                                     {hasAttempted && (
                                                         <button
                                                             onClick={() => navigate('/dashboard/results')}
-                                                            className="px-4 py-3 bg-slate-50 text-slate-900 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-slate-900 hover:text-white transition-all border border-slate-200"
+                                                            className="px-4 py-3 bg-[#10224A] text-slate-200 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-blue-600 hover:text-white transition-all border border-[#1E3A75] cursor-pointer"
                                                         >
                                                             Analysis
                                                         </button>
@@ -445,10 +445,10 @@ const SeriesCard = ({
                                                             setSelectedTest(test);
                                                             setIsModeModalOpen(true);
                                                         }}
-                                                        className={`px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+                                                        className={`px-5 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer ${
                                                             hasAttempted
-                                                                ? 'bg-slate-900 text-white hover:bg-blue-600'
-                                                                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/20'
+                                                                ? 'bg-[#10224A] text-white hover:bg-blue-600 border border-[#1E3A75]'
+                                                                : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/20'
                                                         }`}
                                                     >
                                                         <PlayCircle size={14} />
@@ -466,7 +466,7 @@ const SeriesCard = ({
                             <div className="flex justify-center pt-4">
                                 <button
                                     onClick={() => setShowAllTests(!showAllTests)}
-                                    className="px-6 py-3 bg-white text-slate-700 font-black text-xs uppercase tracking-widest rounded-full hover:bg-slate-900 hover:text-white transition-all border border-slate-200 flex items-center gap-2 shadow-sm"
+                                    className="px-6 py-3 bg-[#0B152B] text-slate-300 font-black text-xs uppercase tracking-widest rounded-full hover:bg-[#10224A] hover:text-white transition-all border border-[#17274B] flex items-center gap-2 shadow-sm cursor-pointer"
                                 >
                                     {showAllTests ? 'Show Less Tests' : `View All Tests (${filteredTests.length})`}
                                     <ChevronDown size={14} className={`transition-transform duration-300 ${showAllTests ? 'rotate-180' : ''}`} />
@@ -793,32 +793,32 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
     return (
         <div className="max-w-7xl mx-auto space-y-10">
             {/* Top Page Header & Segmented Tab Navigation */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-slate-200/80">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#17274B]">
                 <div>
-                    <div className="flex items-center gap-2 text-blue-600 mb-2">
-                        <Sparkles size={18} className="fill-blue-600" />
+                    <div className="flex items-center gap-2 text-[#38BDF8] mb-2">
+                        <Sparkles size={18} className="fill-[#38BDF8]" />
                         <span className="text-xs font-black uppercase tracking-[0.2em]">Examinant Test Arena</span>
                     </div>
-                    <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Test Series</h1>
-                    <p className="text-slate-500 font-medium text-sm mt-1">
+                    <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tight">Test Series</h1>
+                    <p className="text-slate-400 font-medium text-sm mt-1">
                         Practice real exam simulations, track your scores, or explore new test series.
                     </p>
                 </div>
 
                 {/* Segmented Heading Tabs: My Test Series & All Test Series */}
-                <div className="bg-slate-100 p-1.5 rounded-2xl flex items-center gap-1.5 border border-slate-200 shadow-inner self-start md:self-auto">
+                <div className="bg-[#0B152B] p-1.5 rounded-2xl flex items-center gap-1.5 border border-[#17274B] shadow-inner self-start md:self-auto">
                     <button
                         onClick={() => handleTabChange('my-tests')}
-                        className={`px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2.5 ${
+                        className={`px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2.5 cursor-pointer ${
                             activeTab === 'my-tests'
-                                ? 'bg-white text-blue-600 shadow-md shadow-slate-200 scale-[1.02]'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]'
+                                : 'text-slate-400 hover:text-white hover:bg-[#10224A]'
                         }`}
                     >
                         <Layers size={16} />
                         <span>My Test Series</span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                            activeTab === 'my-tests' ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'
+                            activeTab === 'my-tests' ? 'bg-white/20 text-white' : 'bg-[#10224A] text-slate-400'
                         }`}>
                             {totalPurchasedCount}
                         </span>
@@ -826,16 +826,16 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
 
                     <button
                         onClick={() => handleTabChange('all-tests')}
-                        className={`px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2.5 ${
+                        className={`px-5 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2.5 cursor-pointer ${
                             activeTab === 'all-tests'
-                                ? 'bg-white text-blue-600 shadow-md shadow-slate-200 scale-[1.02]'
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 scale-[1.02]'
+                                : 'text-slate-400 hover:text-white hover:bg-[#10224A]'
                         }`}
                     >
                         <LayoutGrid size={16} />
                         <span>All Test Series</span>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                            activeTab === 'all-tests' ? 'bg-blue-100 text-blue-700' : 'bg-slate-200 text-slate-600'
+                            activeTab === 'all-tests' ? 'bg-white/20 text-white' : 'bg-[#10224A] text-slate-400'
                         }`}>
                             {tests.length}
                         </span>
@@ -849,59 +849,59 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
                     {/* Stats Cards Row */}
                     {!isLoadingMyTests && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                            <div className="bg-[#EEF4FF] rounded-3xl p-6 border border-blue-50/50 flex flex-col justify-between h-36">
-                                <div className="w-10 h-10 bg-white text-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                            <div className="bg-[#0B152B] rounded-3xl p-6 border border-[#17274B] flex flex-col justify-between h-36 shadow-lg shadow-black/20 hover:border-[#38BDF8]/40 transition-colors">
+                                <div className="w-10 h-10 bg-blue-500/10 text-[#38BDF8] border border-blue-500/20 rounded-xl flex items-center justify-center shadow-sm">
                                     <BookOpen size={20} />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] text-blue-600/80 font-black uppercase tracking-wider mb-1">My Test Series</span>
-                                    <span className="font-black text-slate-900 text-3xl">{totalPurchasedCount}</span>
+                                    <span className="block text-[10px] text-[#38BDF8] font-black uppercase tracking-wider mb-1">My Test Series</span>
+                                    <span className="font-black text-white text-3xl">{totalPurchasedCount}</span>
                                     <span className="text-[10px] text-slate-400 font-bold block mt-0.5">Purchased</span>
                                 </div>
                             </div>
 
-                            <div className="bg-[#ECFDF5] rounded-3xl p-6 border border-emerald-50/50 flex flex-col justify-between h-36">
-                                <div className="w-10 h-10 bg-white text-emerald-600 rounded-xl flex items-center justify-center shadow-sm">
+                            <div className="bg-[#0B152B] rounded-3xl p-6 border border-[#17274B] flex flex-col justify-between h-36 shadow-lg shadow-black/20 hover:border-emerald-500/40 transition-colors">
+                                <div className="w-10 h-10 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl flex items-center justify-center shadow-sm">
                                     <FileText size={20} />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] text-emerald-600/80 font-black uppercase tracking-wider mb-1">Tests Available</span>
-                                    <span className="font-black text-slate-900 text-3xl">{totalMyTestsCount}</span>
+                                    <span className="block text-[10px] text-emerald-400 font-black uppercase tracking-wider mb-1">Tests Available</span>
+                                    <span className="font-black text-white text-3xl">{totalMyTestsCount}</span>
                                     <span className="text-[10px] text-slate-400 font-bold block mt-0.5">In My Series</span>
                                 </div>
                             </div>
 
-                            <div className="bg-[#F5F3FF] rounded-3xl p-6 border border-purple-50/50 flex flex-col justify-between h-36">
-                                <div className="w-10 h-10 bg-white text-purple-600 rounded-xl flex items-center justify-center shadow-sm">
+                            <div className="bg-[#0B152B] rounded-3xl p-6 border border-[#17274B] flex flex-col justify-between h-36 shadow-lg shadow-black/20 hover:border-purple-500/40 transition-colors">
+                                <div className="w-10 h-10 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-xl flex items-center justify-center shadow-sm">
                                     <TrendingUp size={20} />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] text-purple-600/80 font-black uppercase tracking-wider mb-1">Tests Attempted</span>
-                                    <span className="font-black text-slate-900 text-3xl">{testsAttemptedCount}</span>
+                                    <span className="block text-[10px] text-purple-400 font-black uppercase tracking-wider mb-1">Tests Attempted</span>
+                                    <span className="font-black text-white text-3xl">{testsAttemptedCount}</span>
                                     <span className="text-[10px] text-slate-400 font-bold block mt-0.5">Keep it up!</span>
                                 </div>
                             </div>
 
-                            <div className="bg-[#FFFBEB] rounded-3xl p-6 border border-amber-50/50 flex flex-col justify-between h-36">
-                                <div className="w-10 h-10 bg-white text-amber-600 rounded-xl flex items-center justify-center shadow-sm">
+                            <div className="bg-[#0B152B] rounded-3xl p-6 border border-[#17274B] flex flex-col justify-between h-36 shadow-lg shadow-black/20 hover:border-amber-500/40 transition-colors">
+                                <div className="w-10 h-10 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl flex items-center justify-center shadow-sm">
                                     <Award size={20} />
                                 </div>
                                 <div>
-                                    <span className="block text-[10px] text-amber-600/80 font-black uppercase tracking-wider mb-1">Average Score</span>
-                                    <span className="font-black text-slate-900 text-3xl">{averageScore}%</span>
+                                    <span className="block text-[10px] text-amber-400 font-black uppercase tracking-wider mb-1">Average Score</span>
+                                    <span className="font-black text-white text-3xl">{averageScore}%</span>
                                     <span className="text-[10px] text-slate-400 font-bold block mt-0.5">Across all tests</span>
                                 </div>
                             </div>
 
-                            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-3xl p-6 border border-orange-100/50 flex flex-col justify-between h-36 relative overflow-hidden">
+                            <div className="bg-gradient-to-br from-[#1E293B] via-[#0F172A] to-[#1E1B4B] rounded-3xl p-6 border border-orange-500/30 flex flex-col justify-between h-36 relative overflow-hidden shadow-lg shadow-black/20">
                                 <div className="absolute right-2 bottom-2 opacity-15 pointer-events-none">
-                                    <Flame size={72} className="text-orange-500 fill-orange-500" />
+                                    <Flame size={72} className="text-[#FF7A00] fill-[#FF7A00]" />
                                 </div>
                                 <div>
-                                    <span className="block text-xs font-black text-orange-600 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-                                        Keep Pushing! <Flame size={12} className="fill-orange-600" />
+                                    <span className="block text-xs font-black text-[#FF7A00] uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                                        Keep Pushing! <Flame size={12} className="fill-[#FF7A00]" />
                                     </span>
-                                    <p className="text-[11px] text-slate-600 font-bold leading-relaxed max-w-[160px]">
+                                    <p className="text-[11px] text-slate-300 font-bold leading-relaxed max-w-[160px]">
                                         Consistency is the key to exam success.
                                     </p>
                                 </div>
@@ -913,20 +913,20 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
                     <div className="space-y-6">
                         {isLoadingMyTests ? (
                             <div className="flex justify-center py-24">
-                                <Loader2 className="animate-spin text-blue-600" size={40} />
+                                <Loader2 className="animate-spin text-[#38BDF8]" size={40} />
                             </div>
                         ) : filteredPurchasedTests.length === 0 ? (
-                            <div className="text-center py-28 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-                                <div className="w-20 h-20 bg-white rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm text-slate-300">
+                            <div className="text-center py-28 bg-[#0B152B] rounded-[40px] border border-[#17274B]">
+                                <div className="w-20 h-20 bg-[#10224A] border border-[#1E3A75] rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm text-slate-400">
                                     <BookOpen size={36} />
                                 </div>
-                                <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">No Purchased Test Series Yet</h3>
-                                <p className="text-slate-500 mb-8 max-w-md mx-auto font-medium text-sm">
+                                <h3 className="text-2xl font-black text-white mb-2 tracking-tight">No Purchased Test Series Yet</h3>
+                                <p className="text-slate-400 mb-8 max-w-md mx-auto font-medium text-sm">
                                     You haven't enrolled in any test series yet. Explore the All Test Series tab to start practicing.
                                 </p>
                                 <button
                                     onClick={() => handleTabChange('all-tests')}
-                                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-widest text-sm shadow-xl shadow-blue-600/30 mx-auto transition-all active:scale-95"
+                                    className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-8 py-3.5 rounded-full font-bold uppercase tracking-widest text-sm shadow-xl shadow-blue-600/30 mx-auto transition-all active:scale-95 cursor-pointer"
                                 >
                                     <LayoutGrid size={16} />
                                     Explore All Test Series
@@ -954,19 +954,19 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
             {activeTab === 'all-tests' && (
                 <div className="space-y-8">
                     {/* Filters & Search Row */}
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-slate-50/70 p-4 rounded-3xl border border-slate-100">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-[#0B152B] p-4 rounded-3xl border border-[#17274B]">
                         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                             <div className="relative group min-w-[200px]">
-                                <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                                <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-[#38BDF8] transition-colors" />
                                 <select
                                     value={selectedCategory}
                                     onChange={(e) => {
                                         setSelectedCategory(e.target.value);
                                         setSelectedSubCategory('All');
                                     }}
-                                    className="w-full pl-10 pr-6 py-3.5 bg-white border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-slate-700 font-bold text-xs shadow-sm transition-all appearance-none cursor-pointer"
+                                    className="w-full pl-10 pr-8 py-3.5 bg-[#070D1E] border border-[#17274B] rounded-2xl focus:outline-none focus:border-[#38BDF8] text-slate-200 font-bold text-xs shadow-sm transition-all appearance-none cursor-pointer"
                                 >
-                                    <option value="All">All Categories</option>
+                                    <option value="All" className="bg-[#0B152B] text-white">All Categories</option>
                                     {(exams || [])
                                         .filter(exam => {
                                             if (!exam) return false;
@@ -976,21 +976,21 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
                                             return !subcategories.includes((exam || '').toLowerCase());
                                         })
                                         .map(exam => (
-                                            <option key={exam} value={exam}>{exam}</option>
+                                            <option key={exam} value={exam} className="bg-[#0B152B] text-white">{exam}</option>
                                         ))}
                                 </select>
                             </div>
                             {EXAM_SUBCATEGORIES[selectedCategory] && (
                                 <div className="relative group min-w-[200px]">
-                                    <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                                    <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-[#38BDF8] transition-colors" />
                                     <select
                                         value={selectedSubCategory}
                                         onChange={(e) => setSelectedSubCategory(e.target.value)}
-                                        className="w-full pl-10 pr-6 py-3.5 bg-white border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 text-slate-700 font-bold text-xs shadow-sm transition-all appearance-none cursor-pointer"
+                                        className="w-full pl-10 pr-8 py-3.5 bg-[#070D1E] border border-[#17274B] rounded-2xl focus:outline-none focus:border-[#38BDF8] text-slate-200 font-bold text-xs shadow-sm transition-all appearance-none cursor-pointer"
                                     >
-                                        <option value="All">All Subcategories</option>
+                                        <option value="All" className="bg-[#0B152B] text-white">All Subcategories</option>
                                         {EXAM_SUBCATEGORIES[selectedCategory].map(sub => (
-                                            <option key={sub} value={sub}>{sub}</option>
+                                            <option key={sub} value={sub} className="bg-[#0B152B] text-white">{sub}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -998,13 +998,13 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
                         </div>
 
                         <div className="relative flex-1 w-full lg:max-w-md group">
-                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#38BDF8] transition-colors" />
                             <input
                                 type="text"
                                 placeholder="Search by exam or subject..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all font-bold text-xs shadow-sm"
+                                className="w-full pl-11 pr-4 py-3.5 bg-[#070D1E] border border-[#17274B] rounded-2xl focus:outline-none focus:border-[#38BDF8] text-white placeholder-slate-500 transition-all font-bold text-xs shadow-sm"
                             />
                         </div>
                     </div>
@@ -1012,15 +1012,15 @@ const StudentMarketPage = ({ defaultTab }: { defaultTab?: 'my-tests' | 'all-test
                     {/* Catalog Grid */}
                     {isLoadingCatalog ? (
                         <div className="flex justify-center py-32">
-                            <Loader2 className="animate-spin text-blue-600" size={48} />
+                            <Loader2 className="animate-spin text-[#38BDF8]" size={48} />
                         </div>
                     ) : filteredCatalogTests.length === 0 ? (
-                        <div className="text-center py-28 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-                            <div className="w-20 h-20 bg-white rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm text-slate-300">
+                        <div className="text-center py-28 bg-[#0B152B] rounded-[40px] border border-[#17274B]">
+                            <div className="w-20 h-20 bg-[#10224A] border border-[#1E3A75] rounded-[28px] flex items-center justify-center mx-auto mb-6 shadow-sm text-slate-400">
                                 <Search size={36} />
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">No Test Series Found</h3>
-                            <p className="text-slate-500 font-medium text-sm">Try adjusting your filters or search keywords.</p>
+                            <h3 className="text-2xl font-black text-white mb-2 tracking-tight">No Test Series Found</h3>
+                            <p className="text-slate-400 font-medium text-sm">Try adjusting your filters or search keywords.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -1050,11 +1050,11 @@ function filteredTestCatalogItem(
             <>
                 <button
                     onClick={() => navigate(`/test-series/${series.id}`)}
-                    className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-slate-200"
+                    className="flex-1 h-12 bg-[#10224A] hover:bg-[#17274B] text-slate-200 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-[#1E3A75] cursor-pointer"
                 >
                     Explore
                 </button>
-                <div className="flex-1 h-14 rounded-2xl bg-slate-900 text-white font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1 cursor-default">
+                <div className="flex-1 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-1 cursor-default">
                     <CheckCircle2 size={14} className="text-emerald-400" />
                     Enrolled
                 </div>
@@ -1063,16 +1063,16 @@ function filteredTestCatalogItem(
             <>
                 <button
                     onClick={() => navigate(`/test-series/${series.id}`)}
-                    className="flex-1 h-14 bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-slate-200"
+                    className="flex-1 h-12 bg-[#10224A] hover:bg-[#17274B] text-slate-200 font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 border border-[#1E3A75] cursor-pointer"
                 >
                     Explore
                 </button>
                 <button
                     onClick={() => handleBuy(series)}
                     disabled={isBuying}
-                    className="flex-1 group/btn relative h-14 bg-blue-600 text-white font-black text-[10px] uppercase tracking-wider rounded-2xl overflow-hidden transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait shadow-xl shadow-blue-500/20"
+                    className="flex-1 group/btn relative h-12 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-wider rounded-xl overflow-hidden transition-all active:scale-95 disabled:opacity-50 disabled:cursor-wait shadow-xl shadow-blue-500/20 cursor-pointer"
                 >
-                    <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                    <div className="absolute inset-0 bg-[#070D1E] translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
                     <span className="relative z-10 flex items-center justify-center gap-1">
                         {isBuying ? (
                             <Loader2 className="animate-spin" size={14} />
@@ -1102,6 +1102,7 @@ function filteredTestCatalogItem(
                     examSubCategory={series.examSubCategory}
                     testCount={(series as any).testIds?.length || 0}
                     actions={actionButton}
+                    isDark={true}
                 />
             </div>
         );
