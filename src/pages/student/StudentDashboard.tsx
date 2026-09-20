@@ -21,10 +21,14 @@ import {
     CheckCircle2,
     Compass,
     Users,
-    ChevronRight
+    ChevronRight,
+    GraduationCap
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { entitlementService } from '../../services/entitlementService';
+import { courseService } from '../../services/courseService';
+import type { Course, CourseEnrollment } from '../../types/course.types';
 import {
     AreaChart,
     Area,
@@ -68,28 +72,38 @@ const StudentDashboard = () => {
         recentAttempts: []
     });
     const [activeTests, setActiveTests] = useState<ActiveTest[]>([]);
+    const [enrolledBatches, setEnrolledBatches] = useState<CourseEnrollment[]>([]);
+    const [featuredBatches, setFeaturedBatches] = useState<Course[]>([]);
+    const [isLoadingBatches, setIsLoadingBatches] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadDashboardData = async () => {
             if (currentUser) {
                 try {
-                    const [statsData, , activeData] = await Promise.all([
+                    const [statsData, , activeData, userEnrollments, catalogCourses] = await Promise.all([
                         getStudentStats(currentUser.uid),
                         getRecommendedSeries(),
-                        getActiveTests(currentUser.uid)
+                        getActiveTests(currentUser.uid),
+                        entitlementService.getStudentEnrollments(currentUser.uid).catch(() => []),
+                        courseService.getPublishedCourses({
+                            examCategory: targetExam && targetExam !== 'All' ? targetExam : undefined
+                        }).catch(() => [])
                     ]);
                     setStats(statsData);
                     setActiveTests(activeData);
+                    setEnrolledBatches(userEnrollments || []);
+                    setFeaturedBatches(catalogCourses || []);
                 } catch (error) {
                     console.error("Failed to load dashboard data", error);
                 } finally {
                     setIsLoading(false);
+                    setIsLoadingBatches(false);
                 }
             }
         };
         loadDashboardData();
-    }, [currentUser]);
+    }, [currentUser, targetExam]);
 
     const getFormattedDate = () => {
         const date = new Date();
@@ -566,6 +580,167 @@ const StudentDashboard = () => {
             </div>
 
             {/* ========================================================================= */}
+            {/* DYNAMIC BATCHES & VIDEO LEARNING SECTION (DARK BLUE THEMED)               */}
+            {/* ========================================================================= */}
+            <motion.div
+                variants={itemVariants}
+                className="bg-[#0B152B] p-5 sm:p-7 border border-[#17274B] rounded-3xl shadow-xl space-y-5"
+            >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-[#38BDF8] border border-blue-500/20 flex items-center justify-center shrink-0">
+                            <GraduationCap size={22} />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-base font-black text-white tracking-tight">
+                                    {enrolledBatches.length > 0 ? "My Enrolled Batches" : "Recommended Video Batches"}
+                                </h3>
+                                {enrolledBatches.length > 0 ? (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/20 text-[#38BDF8] border border-blue-500/30">
+                                        {enrolledBatches.length} Active
+                                    </span>
+                                ) : (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-[#FF7A00] border border-amber-500/30">
+                                        {targetExam}
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-xs font-semibold text-slate-400 mt-0.5">
+                                {enrolledBatches.length > 0
+                                    ? "Resume video lectures and track your batch curriculum"
+                                    : `High-yield live and recorded batches designed for ${targetExam} aspirants`}
+                            </p>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={() => navigate('/dashboard/batches')}
+                        className="self-start sm:self-auto flex items-center gap-1.5 px-4 py-2 bg-[#070D1E] hover:bg-[#10224A] text-[#38BDF8] hover:text-white border border-[#17274B] hover:border-blue-500/40 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-sm"
+                    >
+                        <span>{enrolledBatches.length > 0 ? "View All Batches" : "Explore Batches Catalog"}</span>
+                        <ArrowRight size={14} />
+                    </button>
+                </div>
+
+                {isLoadingBatches ? (
+                    <div className="flex justify-center py-12">
+                        <Loader2 className="animate-spin text-blue-500" size={32} />
+                    </div>
+                ) : enrolledBatches.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {enrolledBatches.slice(0, 3).map((item) => {
+                            const progress = item.progressPercent || 0;
+                            const isCompleted = item.status === 'completed' || progress >= 100;
+                            return (
+                                <div
+                                    key={item.id}
+                                    className="bg-[#070D1E] p-4 sm:p-5 rounded-2xl border border-[#17274B] hover:border-[#38BDF8]/40 transition-all flex flex-col justify-between group"
+                                >
+                                    <div className="space-y-3">
+                                        <div className="relative h-32 rounded-xl overflow-hidden bg-[#0B152B]">
+                                            {item.thumbnailUrl ? (
+                                                <img src={item.thumbnailUrl} alt={item.courseTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" />
+                                            ) : (
+                                                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0F224A] to-[#070D1E] text-[#38BDF8]">
+                                                    <GraduationCap size={32} />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2.5 left-2.5">
+                                                <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
+                                                    isCompleted
+                                                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                                        : 'bg-blue-500/20 text-[#38BDF8] border-blue-500/30'
+                                                }`}>
+                                                    {isCompleted ? '✓ Completed' : '● In Progress'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <h4 className="font-black text-sm text-white line-clamp-1 group-hover:text-[#38BDF8] transition-colors">
+                                            {item.courseTitle}
+                                        </h4>
+
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[10px] font-bold text-slate-400">
+                                                <span>Batch Progress</span>
+                                                <span className="text-[#38BDF8]">{progress}%</span>
+                                            </div>
+                                            <div className="w-full bg-[#0B152B] border border-[#17274B] h-1.5 rounded-full overflow-hidden">
+                                                <div
+                                                    className="bg-gradient-to-r from-blue-600 via-[#38BDF8] to-cyan-400 h-full rounded-full transition-all"
+                                                    style={{ width: `${Math.min(progress, 100)}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => navigate(`/dashboard/courses/${item.courseId}/learn`)}
+                                        className="mt-4 w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
+                                    >
+                                        <PlayCircle size={15} />
+                                        <span>{isCompleted ? 'Review Batch' : 'Resume Lecture'}</span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {featuredBatches.slice(0, 3).map((batch) => {
+                            const isFree = batch.accessType === 'free' || !batch.pricing?.amount || batch.pricing.amount <= 0;
+                            return (
+                                <div
+                                    key={batch.id}
+                                    className="bg-[#070D1E] p-4 sm:p-5 rounded-2xl border border-[#17274B] hover:border-blue-500/40 transition-all flex flex-col justify-between group"
+                                >
+                                    <div className="space-y-3">
+                                        <div className="relative h-32 rounded-xl overflow-hidden bg-[#0B152B]">
+                                            {batch.thumbnailUrl ? (
+                                                <img src={batch.thumbnailUrl} alt={batch.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" />
+                                            ) : (
+                                                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0F224A] to-[#070D1E] text-[#38BDF8]">
+                                                    <GraduationCap size={32} />
+                                                </div>
+                                            )}
+                                            <div className="absolute top-2.5 left-2.5">
+                                                <span className="bg-[#070D1E]/85 backdrop-blur-md text-[#38BDF8] text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-blue-500/20">
+                                                    {batch.examCategory}
+                                                </span>
+                                            </div>
+                                            <div className="absolute top-2.5 right-2.5">
+                                                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isFree ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white'}`}>
+                                                    {isFree ? 'FREE' : `₹${batch.pricing?.amount}`}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <h4 className="font-black text-sm text-white line-clamp-1 group-hover:text-[#38BDF8] transition-colors">
+                                                {batch.title}
+                                            </h4>
+                                            <p className="text-[11px] text-slate-400 font-medium line-clamp-1 mt-0.5">
+                                                {batch.instructor?.name ? `By ${batch.instructor.name}` : 'Examinant Faculty'} • {batch.totalLessons || 0} Lectures
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => navigate('/dashboard/batches?tab=explore')}
+                                        className="mt-4 w-full py-2.5 bg-[#10224A] hover:bg-blue-600 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider rounded-xl border border-[#1E3A75] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                                    >
+                                        <Sparkles size={14} className="text-[#38BDF8]" />
+                                        <span>Explore Batch</span>
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </motion.div>
+
+            {/* ========================================================================= */}
             {/* PREPARATION, RECENT ACTIVITY & QUICK ACCESS ROW                          */}
             {/* ========================================================================= */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -699,12 +874,12 @@ const StudentDashboard = () => {
                         <h3 className="text-sm font-black text-white mb-4">Quick Access</h3>
                         <div className="grid grid-cols-3 gap-3">
                             {[
+                                { label: 'Batches', path: '/dashboard/batches', icon: <GraduationCap size={16} />, color: 'text-[#38BDF8] bg-blue-500/15' },
                                 { label: 'Test Series', path: '/dashboard/market', icon: <Layers size={16} />, color: 'text-orange-400 bg-orange-500/15' },
                                 { label: 'PYQs', path: '/dashboard/pyqs', icon: <BookMarked size={16} />, color: 'text-emerald-400 bg-emerald-500/15' },
                                 { label: 'Books', path: '/dashboard/resources', icon: <BookOpen size={16} />, color: 'text-blue-400 bg-blue-500/15' },
                                 { label: 'Results', path: '/dashboard/results', icon: <Award size={16} />, color: 'text-purple-400 bg-purple-500/15' },
-                                { label: 'Leaderboard', path: '/dashboard/analytics', icon: <Trophy size={16} />, color: 'text-amber-400 bg-amber-500/15' },
-                                { label: 'Bookmarks', path: '/dashboard/bookmarks', icon: <Bookmark size={16} />, color: 'text-pink-400 bg-pink-500/15' }
+                                { label: 'Leaderboard', path: '/dashboard/analytics', icon: <Trophy size={16} />, color: 'text-amber-400 bg-amber-500/15' }
                             ].map((btn, index) => (
                                 <button
                                     key={index}

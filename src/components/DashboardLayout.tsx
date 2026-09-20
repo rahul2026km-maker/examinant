@@ -24,7 +24,8 @@ import {
     Video,
     Radio,
     ChevronDown,
-    FolderArchive
+    FolderArchive,
+    GraduationCap
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../firebase';
@@ -105,6 +106,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
             title: 'Learning',
             links: [
                 { icon: <Video size={18} />, label: 'Video Classroom', path: '/dashboard/courses' },
+                { icon: <GraduationCap size={18} />, label: 'Batches', path: '/dashboard/batches' },
                 { icon: <ListChecks size={18} />, label: 'Test Series', path: '/dashboard/market' },
                 { icon: <FolderArchive size={18} />, label: 'My Resources', path: '/dashboard/my-resources' },
                 { 

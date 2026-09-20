@@ -162,9 +162,9 @@ export default function ContinueLearningSection() {
             ...prev,
             id: first.id,
             title: first.courseTitle || prev.title,
-            subtitle: first.batchName ? `Batch: ${first.batchName}` : prev.subtitle,
+            subtitle: (first as any).batchName ? `Batch: ${(first as any).batchName}` : prev.subtitle,
             progressPercent: first.progressPercent || prev.progressPercent,
-            subject: (first.examCategory || 'GENERAL').toUpperCase(),
+            subject: ((first as any).examCategory || 'GENERAL').toUpperCase(),
             thumbnail: first.thumbnailUrl || prev.thumbnail
           }));
         }
@@ -664,8 +664,8 @@ Examinant All India Learning Portal: https://examinantt.com
                   <span>Key Formulas in this Lecture:</span>
                 </h5>
                 <ul className="list-disc list-inside space-y-1 text-slate-400">
-                  <li>Series Equivalent: $R_s = R_1 + R_2 + ... + R_n$</li>
-                  <li>Parallel Equivalent: $\frac{1}{R_p} = \frac{1}{R_1} + \frac{1}{R_2}$</li>
+                  <li>Series Equivalent: {'$R_s = R_1 + R_2 + ... + R_n$'}</li>
+                  <li>Parallel Equivalent: {'$\\frac{1}{R_p} = \\frac{1}{R_1} + \\frac{1}{R_2}$'}</li>
                   <li>Voltage Divider & Current Divider Shortcut Rules</li>
                 </ul>
               </div>

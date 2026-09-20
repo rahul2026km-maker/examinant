@@ -127,8 +127,8 @@ const StudentCoursesPage = () => {
                     <p className="text-slate-400 font-medium text-sm mt-1">Join live interactive classes and stream recorded batch lectures anytime.</p>
                 </div>
                 <button
-                    onClick={() => navigate('/courses')}
-                    className="flex items-center gap-2 bg-[#10224A] hover:bg-[#152D61] text-white border border-[#23458A] font-bold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-md"
+                    onClick={() => navigate('/dashboard/batches')}
+                    className="flex items-center gap-2 bg-[#10224A] hover:bg-[#152D61] text-white border border-[#23458A] font-bold text-sm px-6 py-3.5 rounded-2xl transition-all shadow-md cursor-pointer"
                 >
                     <BookOpen size={18} />
                     <span>Browse All Batches</span>
@@ -363,8 +363,8 @@ const StudentCoursesPage = () => {
                             <h3 className="text-xl font-extrabold text-white">You haven't enrolled in any recorded batches yet.</h3>
                             <p className="text-slate-400 text-sm max-w-md mx-auto">Explore expert recorded video batches and start building your exam preparation today.</p>
                             <button
-                                onClick={() => navigate('/courses')}
-                                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:opacity-95 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 transition-all"
+                                onClick={() => navigate('/dashboard/batches?tab=explore')}
+                                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:opacity-95 text-white font-extrabold text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
                             >
                                 Explore Batches Catalog
                             </button>

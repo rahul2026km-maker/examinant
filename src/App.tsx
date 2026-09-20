@@ -66,6 +66,7 @@ const CoursesDiscoveryPage = React.lazy(() => import('./pages/CoursesDiscoveryPa
 const CourseDetailsPage = React.lazy(() => import('./pages/CourseDetailsPage'));
 const CertificateVerificationPage = React.lazy(() => import('./pages/CertificateVerificationPage'));
 const StudentCoursesPage = React.lazy(() => import('./pages/student/StudentCoursesPage'));
+const StudentBatchesPage = React.lazy(() => import('./pages/student/StudentBatchesPage'));
 const StudentCoursePlayerPage = React.lazy(() => import('./pages/student/StudentCoursePlayerPage'));
 const AdminCoursesPage = React.lazy(() => import('./pages/admin/AdminCoursesPage'));
 const CourseCreationWizard = React.lazy(() => import('./pages/admin/CourseCreationWizard'));
@@ -156,7 +157,7 @@ function App() {
                 <Route element={<DashboardLayout role="student"><Outlet /></DashboardLayout>}>
                   <Route path="/dashboard" element={<StudentDashboard />} />
                   <Route path="/dashboard/courses" element={<StudentCoursesPage />} />
-                  <Route path="/dashboard/batches" element={<StudentCoursesPage />} />
+                  <Route path="/dashboard/batches" element={<StudentBatchesPage />} />
                   <Route path="/dashboard/tests" element={<StudentTestsPage />} />
                   <Route path="/dashboard/market" element={<StudentMarketPage />} />
                   <Route path="/dashboard/pyqs" element={<StudentPYQsPage />} />
