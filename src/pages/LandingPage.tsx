@@ -6,8 +6,11 @@ import type { TestSeries } from '../types/test.types';
 import Navbar from '../components/landing/Navbar';
 import HeroSlider from '../components/landing/HeroSlider';
 import AISimulationSection from '../components/landing/AISimulationSection';
+import LiveClassroomSection from '../components/landing/LiveClassroomSection';
+import ContinueLearningSection from '../components/landing/ContinueLearningSection';
 import PYQSection from '../components/landing/PYQSection';
 import TestDevDept from '../components/landing/TestDevDept';
+import CommunitySupportSection from '../components/landing/CommunitySupportSection';
 import SocialProof from '../components/landing/SocialProof';
 import Footer from '../components/landing/Footer';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -290,10 +293,16 @@ const LandingPage = () => {
         </div>
       </div>
 
-      {/* 4. AI Analysis and Real Exam Simulation Demo */}
+      {/* 3. AI Analysis and Real Exam Simulation Demo */}
       <AISimulationSection />
 
-      {/* Test Series Section */}
+      {/* 4. Live Classroom Section */}
+      <LiveClassroomSection />
+
+      {/* 5. Continue Learning Section */}
+      <ContinueLearningSection />
+
+      {/* 6. Test Series Section */}
       <section id="test-series" className="pt-8 pb-16 sm:pt-12 sm:pb-20 bg-[#F8FAFC] scroll-mt-24 relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
@@ -470,10 +479,13 @@ const LandingPage = () => {
       {/* Trending Test series / PYQs (Resources) */}
       <PYQSection />
 
-      {/* 5. Test development Dept */}
+      {/* Test development Dept */}
       <TestDevDept />
 
-      {/* 6. Social Proof & Final CTA */}
+      {/* Community & Support */}
+      <CommunitySupportSection />
+
+      {/* Social Proof & Final CTA */}
       <SocialProof />
 
       {/* 7. Footer */}

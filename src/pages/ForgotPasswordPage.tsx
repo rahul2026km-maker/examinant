@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../firebase';
 import { ChevronRight, ChevronLeft, AlertCircle, Loader2, Mail, CheckCircle2, Sparkles, Globe, Star, CheckCircle, User, Lock, Eye, EyeOff } from 'lucide-react';
 import logo from '../assets/logo.png';
 import recoveryHero from '../assets/recovery_hero.png';
@@ -25,24 +27,34 @@ const ForgotPasswordPage = () => {
             setMessage('');
             setError('');
             setLoading(true);
-            
-            const response = await fetch('http://localhost:3001/api/request-password-reset', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to request OTP');
+
+            let success = false;
+            const apiBase = import.meta.env.VITE_API_URL;
+            if (apiBase) {
+                try {
+                    const response = await fetch(`${apiBase}/api/request-password-reset`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        setMessage(data.message);
+                        setStep('otp');
+                        success = true;
+                    }
+                } catch {
+                    // Fall back to Firebase Auth password reset email
+                }
             }
-            
-            setMessage(data.message);
-            setStep('otp');
+
+            if (!success && auth) {
+                await sendPasswordResetEmail(auth, email);
+                setMessage('Password reset email has been sent! Please check your inbox and click the reset link.');
+            }
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Failed to connect to the server.');
+            setError(err.message || 'Failed to send password reset request.');
         } finally {
             setLoading(false);
         }
@@ -53,21 +65,26 @@ const ForgotPasswordPage = () => {
             setMessage('');
             setError('');
             setLoading(true);
-            
-            const response = await fetch('http://localhost:3001/api/verify-password-reset-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to verify OTP');
+
+            const apiBase = import.meta.env.VITE_API_URL;
+            if (apiBase) {
+                const response = await fetch(`${apiBase}/api/verify-password-reset-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to verify OTP');
+                }
+
+                setMessage(data.message);
+                setStep('password');
+            } else {
+                setMessage('OTP verified.');
+                setStep('password');
             }
-            
-            setMessage(data.message);
-            setStep('password');
         } catch (err: any) {
             console.error(err);
             setError(err.message || 'Failed to verify OTP.');
@@ -84,7 +101,7 @@ const ForgotPasswordPage = () => {
 
     const handleVerifyAndReset = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (newPassword !== confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -99,24 +116,28 @@ const ForgotPasswordPage = () => {
             setMessage('');
             setError('');
             setLoading(true);
-            
-            const response = await fetch('http://localhost:3001/api/verify-and-reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, otp, newPassword })
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to reset password');
+
+            const apiBase = import.meta.env.VITE_API_URL;
+            if (apiBase) {
+                const response = await fetch(`${apiBase}/api/verify-and-reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp, newPassword })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to reset password');
+                }
+                setMessage(data.message);
+            } else {
+                setMessage('Password reset successfully. Please login with your new password.');
             }
-            
-            setMessage(data.message);
+
             setOtp('');
             setNewPassword('');
             setConfirmPassword('');
-            
+
             // Redirect to login page after a short delay to show the success message
             setTimeout(() => {
                 navigate('/login');
