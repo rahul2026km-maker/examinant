@@ -21,70 +21,66 @@ const ForgotPasswordPage = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleRequestOTP = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleRequestOTP = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        const cleanEmail = email.trim().toLowerCase();
+        if (!cleanEmail || !cleanEmail.includes('@')) {
+            setError('Please enter a valid email address.');
+            return;
+        }
+
         try {
             setMessage('');
             setError('');
             setLoading(true);
 
-            let success = false;
-            const apiBase = import.meta.env.VITE_API_URL;
-            if (apiBase) {
-                try {
-                    const response = await fetch(`${apiBase}/api/request-password-reset`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email })
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                        setMessage(data.message);
-                        setStep('otp');
-                        success = true;
-                    }
-                } catch {
-                    // Fall back to Firebase Auth password reset email
-                }
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${apiBase}/api/request-password-reset`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: cleanEmail })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to send password reset OTP.');
             }
 
-            if (!success && auth) {
-                await sendPasswordResetEmail(auth, email);
-                setMessage('Password reset email has been sent! Please check your inbox and click the reset link.');
-            }
+            setMessage(data.message || `A 6-digit OTP has been sent to ${cleanEmail}. Check your inbox or spam folder.`);
+            setStep('otp');
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Failed to send password reset request.');
+            setError(err.message || 'Failed to send password reset OTP. Please ensure the backend server is running.');
         } finally {
             setLoading(false);
         }
     };
 
     const handleVerifyOTP = async () => {
+        if (!otp || otp.length !== 6) {
+            setError('Please enter the 6-digit OTP sent to your email.');
+            return;
+        }
+
         try {
             setMessage('');
             setError('');
             setLoading(true);
 
-            const apiBase = import.meta.env.VITE_API_URL;
-            if (apiBase) {
-                const response = await fetch(`${apiBase}/api/verify-password-reset-otp`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp })
-                });
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${apiBase}/api/verify-password-reset-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email.trim().toLowerCase(), otp: otp.trim() })
+            });
 
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to verify OTP');
-                }
-
-                setMessage(data.message);
-                setStep('password');
-            } else {
-                setMessage('OTP verified.');
-                setStep('password');
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Invalid or expired OTP. Please check your email.');
             }
+
+            setMessage(data.message || 'OTP verified! Now enter your new password.');
+            setStep('password');
         } catch (err: any) {
             console.error(err);
             setError(err.message || 'Failed to verify OTP.');
@@ -117,34 +113,34 @@ const ForgotPasswordPage = () => {
             setError('');
             setLoading(true);
 
-            const apiBase = import.meta.env.VITE_API_URL;
-            if (apiBase) {
-                const response = await fetch(`${apiBase}/api/verify-and-reset-password`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp, newPassword })
-                });
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${apiBase}/api/verify-and-reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email.trim().toLowerCase(),
+                    otp: otp.trim(),
+                    newPassword
+                })
+            });
 
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to reset password');
-                }
-                setMessage(data.message);
-            } else {
-                setMessage('Password reset successfully. Please login with your new password.');
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to reset password.');
             }
 
+            setMessage(data.message || 'Password reset successfully! Redirecting to login...');
             setOtp('');
             setNewPassword('');
             setConfirmPassword('');
 
-            // Redirect to login page after a short delay to show the success message
+            // Redirect to login page after a short delay
             setTimeout(() => {
                 navigate('/login');
-            }, 1500);
+            }, 1800);
         } catch (err: any) {
             console.error(err);
-            setError(err.message || 'Failed to verify OTP and reset password.');
+            setError(err.message || 'Failed to reset password.');
         } finally {
             setLoading(false);
         }
@@ -365,7 +361,31 @@ const ForgotPasswordPage = () => {
                                             className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-widest"
                                         />
                                     </div>
-                                    <p className="text-xs text-slate-500 mt-2 ml-1">Enter 6-digit OTP to verify.</p>
+                                    <div className="flex items-center justify-between text-xs text-slate-500 mt-2 px-1">
+                                        <p>Enter 6-digit OTP sent to your email.</p>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setStep('email');
+                                                    setOtp('');
+                                                    setError('');
+                                                    setMessage('');
+                                                }}
+                                                className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                                            >
+                                                Change Email
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRequestOTP()}
+                                                disabled={loading}
+                                                className="text-blue-600 hover:text-blue-700 font-semibold hover:underline disabled:opacity-50"
+                                            >
+                                                Resend
+                                            </button>
+                                        </div>
+                                    </div>
                                 </motion.div>
 
                                 <motion.button

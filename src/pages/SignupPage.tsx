@@ -24,7 +24,6 @@ const SignupPage = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
     const [otpCode, setOtpCode] = useState('');
-    const [generatedOtp, setGeneratedOtp] = useState('');
     const [emailVerified, setEmailVerified] = useState(false);
     const [otpLoading, setOtpLoading] = useState(false);
     const navigate = useNavigate();
@@ -53,55 +52,25 @@ const SignupPage = () => {
                 }
             }
 
-            // 2. Generate a secure 6-digit OTP code
-            const generated = Math.floor(100000 + Math.random() * 900000).toString();
-            setGeneratedOtp(generated);
+            // 2. Request OTP from backend API which emails it to the user
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${baseUrl}/api/request-signup-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: cleanEmail })
+            });
 
-            // 3. Attempt backend API if configured (with safe timeout to prevent blocking)
-            const baseUrl = import.meta.env.VITE_API_URL;
-            if (baseUrl) {
-                try {
-                    const controller = new AbortController();
-                    const timer = setTimeout(() => controller.abort(), 2000);
-                    await fetch(`${baseUrl}/api/request-signup-otp`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: cleanEmail }),
-                        signal: controller.signal
-                    });
-                    clearTimeout(timer);
-                } catch {
-                    // Safe fallback if local or external API is offline
-                }
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to send verification OTP.');
             }
-
-            // 4. Save to Firestore signup_otps collection for persistence
-            if (db) {
-                try {
-                    await setDoc(doc(db, 'signup_otps', cleanEmail), {
-                        otp: generated,
-                        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-                        createdAt: new Date()
-                    });
-                } catch (dbErr) {
-                    console.warn("Firestore OTP write notice:", dbErr);
-                }
-            }
-
-            // 5. Store in localStorage as resilient backup
-            try {
-                localStorage.setItem(`otp_${cleanEmail}`, JSON.stringify({
-                    otp: generated,
-                    expiresAt: Date.now() + 10 * 60 * 1000
-                }));
-            } catch {}
 
             setOtpSent(true);
-            setOtpCode(generated);
-            setSuccessMessage(`OTP sent! Your verification code is: ${generated}`);
+            setOtpCode('');
+            setSuccessMessage(`A 6-digit verification code has been sent to ${cleanEmail}. Please check your inbox (and spam folder).`);
         } catch (err: any) {
             console.error("OTP send error:", err);
-            setError(err.message || 'Failed to send OTP.');
+            setError(err.message || 'Failed to send OTP. Please check your internet connection.');
         } finally {
             setOtpLoading(false);
         }
@@ -109,66 +78,23 @@ const SignupPage = () => {
 
     const handleVerifyOtp = async () => {
         if (!otpCode || otpCode.length !== 6) {
-            return setError('Please enter a valid 6-digit OTP.');
+            return setError('Please enter the 6-digit OTP sent to your email.');
         }
         setOtpLoading(true);
         setError('');
         const cleanEmail = email.trim().toLowerCase();
 
         try {
-            let isValid = false;
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const res = await fetch(`${baseUrl}/api/verify-signup-otp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: cleanEmail, otp: otpCode.trim() })
+            });
 
-            // 1. Direct in-memory check
-            if (generatedOtp && otpCode === generatedOtp) {
-                isValid = true;
-            }
-
-            // 2. localStorage check
-            if (!isValid) {
-                try {
-                    const saved = localStorage.getItem(`otp_${cleanEmail}`);
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
-                        if (parsed.otp === otpCode && Date.now() < parsed.expiresAt) {
-                            isValid = true;
-                        }
-                    }
-                } catch {}
-            }
-
-            // 3. Firestore check
-            if (!isValid && db) {
-                try {
-                    const docSnap = await getDoc(doc(db, 'signup_otps', cleanEmail));
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const expiresAt = data.expiresAt?.toDate ? data.expiresAt.toDate() : new Date(data.expiresAt);
-                        if (data.otp === otpCode && new Date() < expiresAt) {
-                            isValid = true;
-                        }
-                    }
-                } catch (e) {
-                    console.warn("Firestore verify check notice:", e);
-                }
-            }
-
-            // 4. Backend check if configured
-            const baseUrl = import.meta.env.VITE_API_URL;
-            if (!isValid && baseUrl) {
-                try {
-                    const res = await fetch(`${baseUrl}/api/verify-signup-otp`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: cleanEmail, otp: otpCode })
-                    });
-                    if (res.ok) {
-                        isValid = true;
-                    }
-                } catch {}
-            }
-
-            if (!isValid) {
-                throw new Error('Incorrect or expired OTP. Please enter the valid 6-digit code.');
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Incorrect or expired OTP. Please check your email and try again.');
             }
 
             setEmailVerified(true);
@@ -544,7 +470,6 @@ const SignupPage = () => {
                                             setEmail(e.target.value);
                                             setEmailVerified(false);
                                             setOtpSent(false);
-                                            setGeneratedOtp('');
                                             setSuccessMessage('');
                                             setError('');
                                         }}
@@ -589,23 +514,9 @@ const SignupPage = () => {
                                             </button>
                                         </div>
 
-                                        {generatedOtp && (
-                                            <div className="flex items-center justify-between text-xs text-slate-600 pt-0.5 px-0.5">
-                                                <span className="flex items-center gap-1.5">
-                                                    <span>Verification Code:</span>
-                                                    <span className="font-mono font-bold text-blue-700 bg-white border border-blue-200 px-1.5 py-0.5 rounded shadow-2xs">
-                                                        {generatedOtp}
-                                                    </span>
-                                                </span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setOtpCode(generatedOtp)}
-                                                    className="text-blue-600 hover:text-blue-800 font-bold hover:underline"
-                                                >
-                                                    Auto-fill
-                                                </button>
-                                            </div>
-                                        )}
+                                        <p className="text-[11px] text-slate-500 pt-0.5 px-1 flex items-center gap-1">
+                                            <span>📩 Enter the 6-digit code sent to your email. Check spam folder if not received.</span>
+                                        </p>
                                     </div>
                                 )}
                             </motion.div>

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node copy_assets.cjs && vite",
+    "server": "node server/index.js",
     "build": "node copy_assets.cjs && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
