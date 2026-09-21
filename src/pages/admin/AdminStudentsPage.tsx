@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MoreVertical, Loader2, UserX, UserCheck, Mail, X, Download, Trash2, Calendar, BarChart3 } from 'lucide-react';
+import { Search, MoreVertical, Loader2, UserX, UserCheck, Mail, X, Download, Trash2, Calendar, BarChart3, RefreshCw, Sparkles } from 'lucide-react';
 import { studentService, type Student } from '../../services/studentService';
 import { db } from '../../firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -87,7 +87,7 @@ const AdminStudentsPage = () => {
             s.district || "N/A",
             s.status,
             s.testsTaken || 0,
-            new Date(s.joinedDate).toLocaleDateString()
+            formatJoinedDate(s.joinedDate)
         ]);
 
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
@@ -135,8 +135,46 @@ const AdminStudentsPage = () => {
             alert("Failed to delete student");
         }
     };
+    // Helper to check if a student registered recently (within 48 hours)
+    const isRecentStudent = (date: any) => {
+        if (!date) return false;
+        const d = date instanceof Date ? date : new Date(date);
+        if (isNaN(d.getTime()) || d.getTime() === 0) return false;
+        const diffHours = (Date.now() - d.getTime()) / (1000 * 60 * 60);
+        return diffHours >= 0 && diffHours < 48;
+    };
+
+    const formatJoinedDate = (date: any) => {
+        if (!date) return 'N/A';
+        const d = date instanceof Date ? date : new Date(date);
+        if (isNaN(d.getTime()) || d.getTime() === 0) return 'N/A';
+
+        const isToday = new Date().toDateString() === d.toDateString();
+        if (isToday) {
+            return `Today, ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        }
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric' });
+    };
+
     useEffect(() => {
-        fetchStudents();
+        setIsLoading(true);
+        // Real-time listener: instantly shows newly registered students without needing to refresh
+        const unsubscribe = studentService.subscribeToStudents(
+            (liveStudents) => {
+                setStudents(liveStudents);
+                setIsLoading(false);
+            },
+            (error) => {
+                console.warn("Real-time listener notice, falling back to direct fetch:", error);
+                fetchStudents();
+            }
+        );
+
+        return () => {
+            if (typeof unsubscribe === 'function') {
+                unsubscribe();
+            }
+        };
     }, []);
 
     useEffect(() => {
@@ -146,8 +184,7 @@ const AdminStudentsPage = () => {
     const fetchStudents = async () => {
         setIsLoading(true);
         try {
-            // Fetching a larger batch initially since client-side search is easier for v1
-            const { students: fetchedStudents } = await studentService.getAllStudents(null, 50);
+            const { students: fetchedStudents } = await studentService.getAllStudents(null, 200);
             setStudents(fetchedStudents);
         } catch (error: any) {
             console.error("Failed to load students", error);
@@ -175,6 +212,13 @@ const AdminStudentsPage = () => {
         if (statusFilter !== 'All') {
             temp = temp.filter(s => s.status === statusFilter);
         }
+
+        // Always guarantee newest registered students are at the very top
+        temp.sort((a, b) => {
+            const timeA = a.joinedDate instanceof Date ? a.joinedDate.getTime() : new Date(a.joinedDate || 0).getTime();
+            const timeB = b.joinedDate instanceof Date ? b.joinedDate.getTime() : new Date(b.joinedDate || 0).getTime();
+            return timeB - timeA;
+        });
 
         setFilteredStudents(temp);
     };
@@ -212,6 +256,15 @@ const AdminStudentsPage = () => {
                     <p className="text-slate-500 mt-1">View and manage registered students ({filteredStudents.length}).</p>
                 </div>
                 <div className="flex gap-2">
+                    <button
+                        onClick={fetchStudents}
+                        disabled={isLoading}
+                        className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+                        title="Refresh student list"
+                    >
+                        <RefreshCw size={16} className={isLoading ? "animate-spin text-blue-600" : "text-slate-600"} />
+                        <span className="hidden sm:inline text-sm">Refresh</span>
+                    </button>
                     <button
                         onClick={exportToCSV}
                         className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 font-medium rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
@@ -299,7 +352,14 @@ const AdminStudentsPage = () => {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium text-slate-800">{student.fullName || student.displayName || 'Unnamed Student'}</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium text-slate-800">{student.fullName || student.displayName || 'Unnamed Student'}</span>
+                                                        {isRecentStudent(student.joinedDate) && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700 border border-blue-200 shadow-sm animate-pulse" title="Recently Registered">
+                                                                <Sparkles size={10} /> NEW
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <div className="text-xs text-slate-500 flex items-center gap-1">
                                                         <Mail size={10} /> {student.email}
                                                     </div>
@@ -327,8 +387,15 @@ const AdminStudentsPage = () => {
                                         <td className="px-6 py-4 text-blue-600 font-bold">
                                             {student.testsTaken || 0}
                                         </td>
-                                        <td className="px-6 py-4 text-slate-500 text-sm opacity-60">
-                                            {new Date(student.joinedDate).toLocaleDateString()}
+                                        <td className="px-6 py-4 text-sm" title={student.joinedDate instanceof Date ? student.joinedDate.toLocaleString() : String(student.joinedDate)}>
+                                            <div className="flex flex-col">
+                                                <span className={`font-semibold ${isRecentStudent(student.joinedDate) ? 'text-blue-600' : 'text-slate-600'}`}>
+                                                    {formatJoinedDate(student.joinedDate)}
+                                                </span>
+                                                {isRecentStudent(student.joinedDate) && (
+                                                    <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider">Recently Joined</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex items-center justify-end gap-2 text-slate-400">
@@ -416,7 +483,7 @@ const AdminStudentsPage = () => {
                                     </div>
                                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
                                         <Calendar className="mx-auto text-orange-600 mb-2" size={24} />
-                                        <div className="text-sm font-bold">{new Date(selectedStudent.joinedDate).toLocaleDateString()}</div>
+                                        <div className="text-sm font-bold">{formatJoinedDate(selectedStudent.joinedDate)}</div>
                                         <div className="text-[10px] uppercase font-bold text-slate-400">Joined</div>
                                     </div>
                                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">

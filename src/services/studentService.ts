@@ -11,7 +11,8 @@ import {
     startAfter,
     limit,
     getDoc,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
 } from 'firebase/firestore';
 
 export interface Student {
@@ -23,6 +24,7 @@ export interface Student {
     role: 'student' | 'admin';
     status: 'active' | 'inactive' | 'blocked';
     joinedDate: any;
+    createdAt?: any;
     // Stats (to be fetched or aggregated)
     testsTaken?: number;
     avgScore?: number;
@@ -32,15 +34,62 @@ export interface Student {
     district?: string;
 }
 
+/**
+ * Robust date parser supporting Firestore Timestamps, objects with seconds,
+ * standard JS Dates, ISO strings, and fallbacks.
+ */
+export const parseStudentJoinedDate = (data: any): Date => {
+    const raw = data.joinedDate || data.createdAt || data.joinedAt || data.created_at || data.updatedAt;
+    if (!raw) return new Date(0);
+
+    if (typeof raw.toDate === 'function') {
+        return raw.toDate();
+    }
+    if (raw.seconds) {
+        return new Date(raw.seconds * 1000);
+    }
+    if (raw instanceof Date) {
+        return raw;
+    }
+    const d = new Date(raw);
+    return isNaN(d.getTime()) ? new Date(0) : d;
+};
+
+const mapStudentDoc = async (docSnap: any): Promise<Student> => {
+    const data = docSnap.data();
+    let testsTaken = data.testsTaken || 0;
+    try {
+        const attemptsRef = collection(db, 'users', docSnap.id, 'attempts');
+        const attemptsSnapshot = await getDocs(attemptsRef);
+        testsTaken = attemptsSnapshot.size;
+    } catch {
+        // Fallback gracefully if subcollection reading fails or lacks permissions
+    }
+
+    return {
+        id: docSnap.id,
+        ...data,
+        displayName: data.displayName || data.fullName || 'Student',
+        fullName: data.fullName || data.displayName || 'Student',
+        email: data.email || 'N/A',
+        role: data.role || 'student',
+        status: data.status || 'active',
+        testsTaken,
+        joinedDate: parseStudentJoinedDate(data),
+        createdAt: data.createdAt ? parseStudentJoinedDate({ joinedDate: data.createdAt }) : undefined
+    } as Student;
+};
+
 export const studentService = {
     /**
      * Fetch all students with basic pagination and searching
      */
-    getAllStudents: async (lastDoc?: any, pageSize: number = 20, _searchTerm: string = '') => {
+    getAllStudents: async (lastDoc?: any, pageSize: number = 200, _searchTerm: string = '') => {
         try {
+            // Fetch users from collection. We do not use where('role', '==', 'student')
+            // because students registered without an explicit role field would be excluded by Firestore.
             let q = query(
                 collection(db, 'users'),
-                where('role', '==', 'student'),
                 limit(pageSize)
             );
 
@@ -48,28 +97,21 @@ export const studentService = {
                 q = query(q, startAfter(lastDoc));
             }
 
-            // Note: complex search usually requires Algolia/ElasticSearch with Firestore.
-            // For simple client-side filtering on small datasets, we might fetch more or exact match.
-            // Here we'll just fetch latest. Client side filtering for small user bases is often acceptable initially.
-
             const snapshot = await getDocs(q);
-            const students: Student[] = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as Student));
+            // Exclude only admin accounts - treat all other users as students
+            const studentDocs = snapshot.docs.filter(docSnap => docSnap.data().role !== 'admin');
 
             // Populate real stats by fetching subcollection sizes
-            const studentsWithStats = await Promise.all(students.map(async (student) => {
-                const attemptsRef = collection(db, 'users', student.id, 'attempts');
-                const attemptsSnapshot = await getDocs(attemptsRef);
+            const studentsWithStats = await Promise.all(
+                studentDocs.map(docSnap => mapStudentDoc(docSnap))
+            );
 
-                return {
-                    ...student,
-                    status: student.status || 'active',
-                    testsTaken: attemptsSnapshot.size, // Real count
-                    joinedDate: student.joinedDate ? (student.joinedDate.toDate ? student.joinedDate.toDate() : new Date(student.joinedDate)) : new Date()
-                };
-            }));
+            // Always sort descending by joinedDate (newest registered students at top)
+            studentsWithStats.sort((a, b) => {
+                const timeA = a.joinedDate instanceof Date ? a.joinedDate.getTime() : new Date(a.joinedDate || 0).getTime();
+                const timeB = b.joinedDate instanceof Date ? b.joinedDate.getTime() : new Date(b.joinedDate || 0).getTime();
+                return timeB - timeA;
+            });
 
             return {
                 students: studentsWithStats,
@@ -80,6 +122,35 @@ export const studentService = {
             console.error("Error fetching students:", error);
             throw error;
         }
+    },
+
+    /**
+     * Subscribe to real-time student updates so new registrations appear instantly
+     */
+    subscribeToStudents: (onUpdate: (students: Student[]) => void, onError?: (err: any) => void) => {
+        const q = query(collection(db, 'users'), limit(200));
+        return onSnapshot(q, async (snapshot) => {
+            try {
+                const studentDocs = snapshot.docs.filter(docSnap => docSnap.data().role !== 'admin');
+                const studentsWithStats = await Promise.all(
+                    studentDocs.map(docSnap => mapStudentDoc(docSnap))
+                );
+
+                studentsWithStats.sort((a, b) => {
+                    const timeA = a.joinedDate instanceof Date ? a.joinedDate.getTime() : new Date(a.joinedDate || 0).getTime();
+                    const timeB = b.joinedDate instanceof Date ? b.joinedDate.getTime() : new Date(b.joinedDate || 0).getTime();
+                    return timeB - timeA;
+                });
+
+                onUpdate(studentsWithStats);
+            } catch (err) {
+                console.error("Error processing real-time students update:", err);
+                if (onError) onError(err);
+            }
+        }, (err) => {
+            console.error("Firestore onSnapshot error:", err);
+            if (onError) onError(err);
+        });
     },
 
     /**

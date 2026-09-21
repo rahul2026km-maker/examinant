@@ -167,11 +167,13 @@ const SignupPage = () => {
             // Save profile under Email UID
             await setDoc(doc(db, 'users', emailCredential.user.uid), {
                 fullName,
+                displayName: fullName,
                 email,
                 mobile,
                 state: state,
                 district: district,
                 role: 'student',
+                status: 'active',
                 createdAt: new Date(),
                 joinedDate: new Date(),
                 phoneVerified: false
@@ -204,11 +206,13 @@ const SignupPage = () => {
             if (!userDoc.exists()) {
                 await setDoc(userRef, {
                     fullName: result.user.displayName || '',
+                    displayName: result.user.displayName || '',
                     email: result.user.email,
                     mobile: result.user.phoneNumber || '',
                     state: '',
                     district: '',
                     role: 'student',
+                    status: 'active',
                     createdAt: new Date(),
                     joinedDate: new Date(),
                     phoneVerified: false
