@@ -26,6 +26,10 @@ const SignupPage = () => {
     const [otpCode, setOtpCode] = useState('');
     const [emailVerified, setEmailVerified] = useState(false);
     const [otpLoading, setOtpLoading] = useState(false);
+    const [isGoogleMobileModalOpen, setIsGoogleMobileModalOpen] = useState(false);
+    const [pendingGoogleUser, setPendingGoogleUser] = useState<any>(null);
+    const [googleMobile, setGoogleMobile] = useState('');
+    const [isSubmittingGoogleMobile, setIsSubmittingGoogleMobile] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -120,8 +124,8 @@ const SignupPage = () => {
             return setError('Please enter a valid full name (min 3 characters)');
         }
 
-        if (!/^\d{10}$/.test(mobile)) {
-            return setError('Please enter a valid 10-digit mobile number');
+        if (!mobile || !/^\d{10}$/.test(mobile.trim())) {
+            return setError('Mobile number is required. Please enter a valid 10-digit mobile number.');
         }
 
         if (password.length < 6) {
@@ -204,27 +208,92 @@ const SignupPage = () => {
             const userDoc = await getDoc(userRef);
             
             if (!userDoc.exists()) {
-                await setDoc(userRef, {
-                    fullName: result.user.displayName || '',
-                    displayName: result.user.displayName || '',
-                    email: result.user.email,
-                    mobile: result.user.phoneNumber || '',
-                    state: '',
-                    district: '',
-                    role: 'student',
-                    status: 'active',
-                    createdAt: new Date(),
-                    joinedDate: new Date(),
-                    phoneVerified: false
-                });
-            }
+                const cleanFormMobile = mobile.replace(/\D/g, '').slice(0, 10);
+                // If 10-digit mobile number is already filled in the form, use it
+                if (/^\d{10}$/.test(cleanFormMobile)) {
+                    const mobileQuery = query(collection(db, 'users'), where('mobile', '==', cleanFormMobile));
+                    const mobileSnapshot = await getDocs(mobileQuery);
+                    if (!mobileSnapshot.empty) {
+                        setError('This mobile number is already registered with another account.');
+                        setLoading(false);
+                        return;
+                    }
 
-            navigate('/login');
+                    await setDoc(userRef, {
+                        fullName: result.user.displayName || '',
+                        displayName: result.user.displayName || '',
+                        email: result.user.email,
+                        mobile: cleanFormMobile,
+                        state: state || '',
+                        district: district || '',
+                        role: 'student',
+                        status: 'active',
+                        createdAt: new Date(),
+                        joinedDate: new Date(),
+                        phoneVerified: false
+                    });
+                    navigate('/login');
+                } else {
+                    // Mobile number is strictly required: open modal to capture it
+                    setPendingGoogleUser(result.user);
+                    setGoogleMobile('');
+                    setIsGoogleMobileModalOpen(true);
+                }
+            } else {
+                navigate('/login');
+            }
         } catch (err: any) {
             console.error("Google signup failed:", err);
-            setError(err.message || 'Google signup failed. Please try again.');
+            if (err.code !== 'auth/popup-closed-by-user') {
+                setError(err.message || 'Google signup failed. Please try again.');
+            }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCompleteGoogleSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        const cleanMobile = googleMobile.replace(/\D/g, '').slice(0, 10);
+        if (!cleanMobile || !/^\d{10}$/.test(cleanMobile)) {
+            return setError('Please enter a valid 10-digit mobile number.');
+        }
+
+        if (!pendingGoogleUser || !db) return;
+        setIsSubmittingGoogleMobile(true);
+        try {
+            const mobileQuery = query(collection(db, 'users'), where('mobile', '==', cleanMobile));
+            const mobileSnapshot = await getDocs(mobileQuery);
+            if (!mobileSnapshot.empty) {
+                setError('This mobile number is already registered with another account.');
+                setIsSubmittingGoogleMobile(false);
+                return;
+            }
+
+            const userRef = doc(db, 'users', pendingGoogleUser.uid);
+            await setDoc(userRef, {
+                fullName: pendingGoogleUser.displayName || '',
+                displayName: pendingGoogleUser.displayName || '',
+                email: pendingGoogleUser.email,
+                mobile: cleanMobile,
+                state: state || '',
+                district: district || '',
+                role: 'student',
+                status: 'active',
+                createdAt: new Date(),
+                joinedDate: new Date(),
+                phoneVerified: false
+            });
+
+            setIsGoogleMobileModalOpen(false);
+            setPendingGoogleUser(null);
+            navigate('/login');
+        } catch (err: any) {
+            console.error("Failed to complete Google signup with mobile:", err);
+            setError(err.message || 'Failed to complete registration.');
+        } finally {
+            setIsSubmittingGoogleMobile(false);
         }
     };
 
@@ -440,7 +509,9 @@ const SignupPage = () => {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Mobile Number</label>
+                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">
+                                        Mobile Number <span className="text-red-500 font-bold">*</span>
+                                    </label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                                             <Phone size={18} strokeWidth={2.5} />
@@ -448,11 +519,12 @@ const SignupPage = () => {
                                         <input
                                             type="tel"
                                             required
+                                            maxLength={10}
                                             pattern="[0-9]{10}"
                                             title="Please enter a valid 10-digit mobile number"
                                             value={mobile}
                                             onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                                            placeholder="10-digit number"
+                                            placeholder="10-digit number (required)"
                                             className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-bold placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-wide"
                                         />
                                     </div>
@@ -643,6 +715,79 @@ const SignupPage = () => {
                 </div>
                 </motion.div>
             </div>
+
+            {/* Modal to require Mobile Number if user signed up with Google */}
+            {isGoogleMobileModalOpen && (
+                <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <motion.div
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4"
+                    >
+                        <div className="text-center space-y-2">
+                            <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto">
+                                <Phone size={24} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800">Mobile Number Required</h3>
+                            <p className="text-xs text-slate-500">
+                                Registration complete karne ke liye apna 10-digit mobile number enter karein.
+                            </p>
+                        </div>
+
+                        {error && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-600 text-xs font-semibold">
+                                <AlertCircle size={16} className="shrink-0" />
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleCompleteGoogleSignup} className="space-y-4 pt-2">
+                            <div>
+                                <label className="block text-xs font-bold text-slate-700 mb-1">
+                                    Mobile Number <span className="text-red-500">*</span>
+                                </label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <span className="text-xs font-bold text-slate-500">+91</span>
+                                    </div>
+                                    <input
+                                        type="tel"
+                                        required
+                                        autoFocus
+                                        maxLength={10}
+                                        pattern="[0-9]{10}"
+                                        value={googleMobile}
+                                        onChange={(e) => setGoogleMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                        placeholder="Enter 10-digit mobile number"
+                                        className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-bold tracking-wider text-slate-800"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsGoogleMobileModalOpen(false);
+                                        setPendingGoogleUser(null);
+                                        setError('');
+                                    }}
+                                    className="flex-1 py-2.5 border border-slate-200 text-slate-600 font-bold rounded-xl text-xs hover:bg-slate-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmittingGoogleMobile || googleMobile.length !== 10}
+                                    className="flex-1 py-2.5 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                                >
+                                    {isSubmittingGoogleMobile ? 'Saving...' : 'Submit & Register'}
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };

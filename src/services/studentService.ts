@@ -268,7 +268,7 @@ export const studentService = {
     /**
      * Manually add a student (minimal record)
      */
-    addStudent: async (data: { displayName: string, email: string }) => {
+    addStudent: async (data: { displayName: string, email: string, mobile?: string }) => {
         try {
             // Check if email already exists
             const q = query(collection(db, 'users'), where('email', '==', data.email));
@@ -280,6 +280,8 @@ export const studentService = {
 
             const userRef = await addDoc(collection(db, 'users'), {
                 ...data,
+                fullName: data.displayName,
+                mobile: data.mobile || '',
                 role: 'student',
                 status: 'active',
                 joinedDate: serverTimestamp(),

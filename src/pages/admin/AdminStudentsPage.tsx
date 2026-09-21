@@ -20,14 +20,22 @@ const AdminStudentsPage = () => {
     const [isLoadingPurchases, setIsLoadingPurchases] = useState(false);
     const [modalTab, setModalTab] = useState<'attempts' | 'purchases'>('attempts');
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const [inviteFormData, setInviteFormData] = useState({ displayName: '', email: '' });
+    const [inviteFormData, setInviteFormData] = useState({ displayName: '', email: '', mobile: '' });
     const [isSubmittingInvite, setIsSubmittingInvite] = useState(false);
 
     const handleInviteSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const cleanMobile = inviteFormData.mobile.replace(/\D/g, '').slice(0, 10);
+        if (!cleanMobile || !/^\d{10}$/.test(cleanMobile)) {
+            alert("Please enter a valid 10-digit mobile number.");
+            return;
+        }
         setIsSubmittingInvite(true);
         try {
-            const newStudent = await studentService.addStudent(inviteFormData);
+            const newStudent = await studentService.addStudent({
+                ...inviteFormData,
+                mobile: cleanMobile
+            });
             // Optimistic update
             setStudents(prev => [{
                 ...newStudent,
@@ -37,7 +45,7 @@ const AdminStudentsPage = () => {
                 joinedDate: new Date()
             } as Student, ...prev]);
             setIsInviteModalOpen(false);
-            setInviteFormData({ displayName: '', email: '' });
+            setInviteFormData({ displayName: '', email: '', mobile: '' });
             alert("Student added successfully!");
         } catch (error: any) {
             if (error.message === "EMAIL_EXISTS") {
@@ -650,6 +658,21 @@ const AdminStudentsPage = () => {
                                         onChange={(e) => setInviteFormData({ ...inviteFormData, email: e.target.value })}
                                         className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
                                         placeholder="student@example.com"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-2">
+                                        Mobile Number <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        required
+                                        maxLength={10}
+                                        pattern="[0-9]{10}"
+                                        value={inviteFormData.mobile}
+                                        onChange={(e) => setInviteFormData({ ...inviteFormData, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) })}
+                                        className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500 font-medium"
+                                        placeholder="10-digit mobile number"
                                     />
                                 </div>
                                 <div className="pt-4 flex gap-3">
