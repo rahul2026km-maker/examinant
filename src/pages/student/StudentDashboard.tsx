@@ -29,6 +29,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { entitlementService } from '../../services/entitlementService';
 import { courseService } from '../../services/courseService';
 import type { Course, CourseEnrollment } from '../../types/course.types';
+import StudentLiveClassesSection from '../../components/student/StudentLiveClassesSection';
+import ContinueLearningSection from '../../components/student/ContinueLearningSection';
 import {
     AreaChart,
     Area,
@@ -321,6 +323,29 @@ const StudentDashboard = () => {
             </div>
 
             {/* ========================================================================= */}
+            {/* LIVE CLASSES & INTERACTIVE SESSIONS SECTION                               */}
+            {/* ========================================================================= */}
+            <motion.div variants={itemVariants}>
+                <StudentLiveClassesSection
+                    targetExam={targetExam}
+                    userName={profileData?.fullName || profileData?.displayName || currentUser?.displayName || 'Student'}
+                />
+            </motion.div>
+
+            {/* ========================================================================= */}
+            {/* CONTINUE LEARNING SECTION (VIDEO BATCHES & MOCK TESTS)                    */}
+            {/* ========================================================================= */}
+            <motion.div variants={itemVariants}>
+                <ContinueLearningSection
+                    enrolledBatches={enrolledBatches}
+                    featuredBatches={featuredBatches}
+                    activeTests={activeTests}
+                    isLoadingBatches={isLoadingBatches}
+                    targetExam={targetExam}
+                />
+            </motion.div>
+
+            {/* ========================================================================= */}
             {/* FEATURED IMAGES SECTION: LEARNING PATHS & STUDY HUBS                     */}
             {/* ========================================================================= */}
             <div className="space-y-3">
@@ -580,231 +605,9 @@ const StudentDashboard = () => {
             </div>
 
             {/* ========================================================================= */}
-            {/* DYNAMIC BATCHES & VIDEO LEARNING SECTION (DARK BLUE THEMED)               */}
-            {/* ========================================================================= */}
-            <motion.div
-                variants={itemVariants}
-                className="bg-[#0B152B] p-5 sm:p-7 border border-[#17274B] rounded-3xl shadow-xl space-y-5"
-            >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-[#38BDF8] border border-blue-500/20 flex items-center justify-center shrink-0">
-                            <GraduationCap size={22} />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-base font-black text-white tracking-tight">
-                                    {enrolledBatches.length > 0 ? "My Enrolled Batches" : "Recommended Video Batches"}
-                                </h3>
-                                {enrolledBatches.length > 0 ? (
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/20 text-[#38BDF8] border border-blue-500/30">
-                                        {enrolledBatches.length} Active
-                                    </span>
-                                ) : (
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-[#FF7A00] border border-amber-500/30">
-                                        {targetExam}
-                                    </span>
-                                )}
-                            </div>
-                            <p className="text-xs font-semibold text-slate-400 mt-0.5">
-                                {enrolledBatches.length > 0
-                                    ? "Resume video lectures and track your batch curriculum"
-                                    : `High-yield live and recorded batches designed for ${targetExam} aspirants`}
-                            </p>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={() => navigate('/dashboard/batches')}
-                        className="self-start sm:self-auto flex items-center gap-1.5 px-4 py-2 bg-[#070D1E] hover:bg-[#10224A] text-[#38BDF8] hover:text-white border border-[#17274B] hover:border-blue-500/40 rounded-xl font-bold text-xs transition-all cursor-pointer shadow-sm"
-                    >
-                        <span>{enrolledBatches.length > 0 ? "View All Batches" : "Explore Batches Catalog"}</span>
-                        <ArrowRight size={14} />
-                    </button>
-                </div>
-
-                {isLoadingBatches ? (
-                    <div className="flex justify-center py-12">
-                        <Loader2 className="animate-spin text-blue-500" size={32} />
-                    </div>
-                ) : enrolledBatches.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {enrolledBatches.slice(0, 3).map((item) => {
-                            const progress = item.progressPercent || 0;
-                            const isCompleted = item.status === 'completed' || progress >= 100;
-                            return (
-                                <div
-                                    key={item.id}
-                                    className="bg-[#070D1E] p-4 sm:p-5 rounded-2xl border border-[#17274B] hover:border-[#38BDF8]/40 transition-all flex flex-col justify-between group"
-                                >
-                                    <div className="space-y-3">
-                                        <div className="relative h-32 rounded-xl overflow-hidden bg-[#0B152B]">
-                                            {item.thumbnailUrl ? (
-                                                <img src={item.thumbnailUrl} alt={item.courseTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" />
-                                            ) : (
-                                                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0F224A] to-[#070D1E] text-[#38BDF8]">
-                                                    <GraduationCap size={32} />
-                                                </div>
-                                            )}
-                                            <div className="absolute top-2.5 left-2.5">
-                                                <span className={`text-[9px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
-                                                    isCompleted
-                                                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                                                        : 'bg-blue-500/20 text-[#38BDF8] border-blue-500/30'
-                                                }`}>
-                                                    {isCompleted ? '✓ Completed' : '● In Progress'}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <h4 className="font-black text-sm text-white line-clamp-1 group-hover:text-[#38BDF8] transition-colors">
-                                            {item.courseTitle}
-                                        </h4>
-
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between text-[10px] font-bold text-slate-400">
-                                                <span>Batch Progress</span>
-                                                <span className="text-[#38BDF8]">{progress}%</span>
-                                            </div>
-                                            <div className="w-full bg-[#0B152B] border border-[#17274B] h-1.5 rounded-full overflow-hidden">
-                                                <div
-                                                    className="bg-gradient-to-r from-blue-600 via-[#38BDF8] to-cyan-400 h-full rounded-full transition-all"
-                                                    style={{ width: `${Math.min(progress, 100)}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => navigate(`/dashboard/courses/${item.courseId}/learn`)}
-                                        className="mt-4 w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
-                                    >
-                                        <PlayCircle size={15} />
-                                        <span>{isCompleted ? 'Review Batch' : 'Resume Lecture'}</span>
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {featuredBatches.slice(0, 3).map((batch) => {
-                            const isFree = batch.accessType === 'free' || !batch.pricing?.amount || batch.pricing.amount <= 0;
-                            return (
-                                <div
-                                    key={batch.id}
-                                    className="bg-[#070D1E] p-4 sm:p-5 rounded-2xl border border-[#17274B] hover:border-blue-500/40 transition-all flex flex-col justify-between group"
-                                >
-                                    <div className="space-y-3">
-                                        <div className="relative h-32 rounded-xl overflow-hidden bg-[#0B152B]">
-                                            {batch.thumbnailUrl ? (
-                                                <img src={batch.thumbnailUrl} alt={batch.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90" />
-                                            ) : (
-                                                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0F224A] to-[#070D1E] text-[#38BDF8]">
-                                                    <GraduationCap size={32} />
-                                                </div>
-                                            )}
-                                            <div className="absolute top-2.5 left-2.5">
-                                                <span className="bg-[#070D1E]/85 backdrop-blur-md text-[#38BDF8] text-[9px] font-black uppercase px-2 py-0.5 rounded-full border border-blue-500/20">
-                                                    {batch.examCategory}
-                                                </span>
-                                            </div>
-                                            <div className="absolute top-2.5 right-2.5">
-                                                <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isFree ? 'bg-emerald-500 text-white' : 'bg-blue-600 text-white'}`}>
-                                                    {isFree ? 'FREE' : `₹${batch.pricing?.amount}`}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <h4 className="font-black text-sm text-white line-clamp-1 group-hover:text-[#38BDF8] transition-colors">
-                                                {batch.title}
-                                            </h4>
-                                            <p className="text-[11px] text-slate-400 font-medium line-clamp-1 mt-0.5">
-                                                {batch.instructor?.name ? `By ${batch.instructor.name}` : 'Examinant Faculty'} • {batch.totalLessons || 0} Lectures
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => navigate('/dashboard/batches?tab=explore')}
-                                        className="mt-4 w-full py-2.5 bg-[#10224A] hover:bg-blue-600 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider rounded-xl border border-[#1E3A75] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                                    >
-                                        <Sparkles size={14} className="text-[#38BDF8]" />
-                                        <span>Explore Batch</span>
-                                    </button>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </motion.div>
-
-            {/* ========================================================================= */}
-            {/* PREPARATION, RECENT ACTIVITY & QUICK ACCESS ROW                          */}
+            {/* RECENT ACTIVITY, QUICK ACCESS & GOLD PROMO ROW                            */}
             {/* ========================================================================= */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {/* Continue Your Preparation */}
-                <motion.div
-                    variants={itemVariants}
-                    className="bg-[#0B152B] p-5 sm:p-6 border border-[#17274B] rounded-3xl shadow-xl flex flex-col justify-between"
-                >
-                    <div className="flex justify-between items-center mb-4">
-                        <div>
-                            <h3 className="text-sm font-black text-white">Continue Your Preparation</h3>
-                            <p className="text-[10px] font-semibold text-slate-400 mt-0.5">Resume where you left off</p>
-                        </div>
-                        <button onClick={() => navigate('/dashboard/tests')} className="text-[10px] font-bold text-blue-400 hover:underline">
-                            View All
-                        </button>
-                    </div>
-
-                    <div className="space-y-3.5">
-                        {activeTests.length > 0 ? (
-                            activeTests.map((act) => (
-                                <div key={act.id} className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#070D1E] hover:bg-[#0E1E42] transition-all border border-[#17274B] hover:border-blue-500/30">
-                                    <div className="p-2.5 bg-rose-500/15 text-rose-400 rounded-xl shrink-0">
-                                        <ClipboardList size={18} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <h4 className="text-xs font-black text-white truncate leading-tight">{act.title}</h4>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase mt-0.5 tracking-wider">{act.category} Series</p>
-                                        <div className="flex items-center gap-2 mt-1.5">
-                                            <div className="flex-1 h-1 bg-[#17274B] rounded-full overflow-hidden">
-                                                <div className="h-full bg-[#FF7A00] rounded-full" style={{ width: '0%' }} />
-                                            </div>
-                                            <span className="text-[8px] font-bold text-slate-400">0%</span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => navigate('/dashboard/tests')}
-                                        className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-bold uppercase rounded-lg shadow-sm shrink-0 flex items-center gap-1 transition-all"
-                                    >
-                                        <PlayCircle size={10} className="fill-white/10" />
-                                        <span>Start</span>
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="flex flex-col items-center justify-center p-4 text-center border border-dashed border-[#17274B] bg-[#070D1E] rounded-2xl my-2 min-h-[200px] w-full">
-                                <div className="p-2.5 bg-orange-500/15 text-[#FF7A00] rounded-xl mb-2.5">
-                                    <Layers size={20} />
-                                </div>
-                                <h4 className="text-[11px] font-black text-white mb-0.5">No Active Test Series</h4>
-                                <p className="text-[9px] font-semibold text-slate-400 max-w-[180px] mb-3 leading-normal">
-                                    Enroll in standard mock test series to begin your exam preparation.
-                                </p>
-                                <button
-                                    onClick={() => navigate('/dashboard/market')}
-                                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[8px] font-bold uppercase rounded-lg shadow-sm transition-all"
-                                >
-                                    Browse Market
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </motion.div>
-
                 {/* Recent Test Activity */}
                 <motion.div
                     variants={itemVariants}
@@ -864,57 +667,64 @@ const StudentDashboard = () => {
                     </div>
                 </motion.div>
 
-                {/* Quick Access & Gold Promo */}
+                {/* Quick Access Icons */}
                 <motion.div
                     variants={itemVariants}
-                    className="space-y-4"
+                    className="bg-[#0B152B] p-5 sm:p-6 border border-[#17274B] rounded-3xl shadow-xl flex flex-col justify-between"
                 >
-                    {/* Quick Access Icons */}
-                    <div className="bg-[#0B152B] p-5 border border-[#17274B] rounded-3xl shadow-xl">
-                        <h3 className="text-sm font-black text-white mb-4">Quick Access</h3>
-                        <div className="grid grid-cols-3 gap-3">
-                            {[
-                                { label: 'Batches', path: '/dashboard/batches', icon: <GraduationCap size={16} />, color: 'text-[#38BDF8] bg-blue-500/15' },
-                                { label: 'Test Series', path: '/dashboard/market', icon: <Layers size={16} />, color: 'text-orange-400 bg-orange-500/15' },
-                                { label: 'PYQs', path: '/dashboard/pyqs', icon: <BookMarked size={16} />, color: 'text-emerald-400 bg-emerald-500/15' },
-                                { label: 'Books', path: '/dashboard/resources', icon: <BookOpen size={16} />, color: 'text-blue-400 bg-blue-500/15' },
-                                { label: 'Results', path: '/dashboard/results', icon: <Award size={16} />, color: 'text-purple-400 bg-purple-500/15' },
-                                { label: 'Leaderboard', path: '/dashboard/analytics', icon: <Trophy size={16} />, color: 'text-amber-400 bg-amber-500/15' }
-                            ].map((btn, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => navigate(btn.path)}
-                                    className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#070D1E] border border-[#17274B] hover:border-blue-500/30 hover:bg-[#0E1E42] transition-all text-center gap-1.5 cursor-pointer group"
-                                >
-                                    <div className={`p-2 rounded-xl ${btn.color} group-hover:scale-110 transition-transform`}>
-                                        {btn.icon}
-                                    </div>
-                                    <span className="text-[9px] font-bold text-slate-300 tracking-tight group-hover:text-white">{btn.label}</span>
-                                </button>
-                            ))}
-                        </div>
+                    <div className="mb-3">
+                        <h3 className="text-sm font-black text-white">Quick Access Shortcuts</h3>
+                        <p className="text-[10px] font-semibold text-slate-400 mt-0.5">Instant jump to learning modules</p>
                     </div>
-
-                    {/* Bottom Promo Card */}
-                    <div className="p-5 bg-gradient-to-r from-[#0F224A] to-[#1E3A75] text-white border border-[#23458A] rounded-3xl shadow-xl relative overflow-hidden flex items-center justify-between">
-                        <div className="absolute right-0 bottom-0 top-0 opacity-15 pointer-events-none flex items-center">
-                            <Crown size={96} className="text-white transform translate-x-8 translate-y-2" />
-                        </div>
-                        <div className="relative z-10 max-w-[65%]">
-                            <h4 className="text-xs font-black tracking-tight text-white">Examinantt Gold Test Series</h4>
-                            <p className="text-[9px] text-blue-200 font-semibold mt-1 leading-snug">
-                                Premium mocks. Detailed analysis. Top ranks. Your success.
-                            </p>
+                    <div className="grid grid-cols-3 gap-3 my-auto">
+                        {[
+                            { label: 'Batches', path: '/dashboard/batches', icon: <GraduationCap size={16} />, color: 'text-[#38BDF8] bg-blue-500/15' },
+                            { label: 'Test Series', path: '/dashboard/market', icon: <Layers size={16} />, color: 'text-orange-400 bg-orange-500/15' },
+                            { label: 'PYQs', path: '/dashboard/pyqs', icon: <BookMarked size={16} />, color: 'text-emerald-400 bg-emerald-500/15' },
+                            { label: 'Books', path: '/dashboard/resources', icon: <BookOpen size={16} />, color: 'text-blue-400 bg-blue-500/15' },
+                            { label: 'Results', path: '/dashboard/results', icon: <Award size={16} />, color: 'text-purple-400 bg-purple-500/15' },
+                            { label: 'Leaderboard', path: '/dashboard/analytics', icon: <Trophy size={16} />, color: 'text-amber-400 bg-amber-500/15' }
+                        ].map((btn, index) => (
                             <button
-                                onClick={() => navigate('/dashboard/market')}
-                                className="mt-3 px-3.5 py-1.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-[9px] uppercase tracking-wider rounded-xl shadow-md transition-all"
+                                key={index}
+                                onClick={() => navigate(btn.path)}
+                                className="flex flex-col items-center justify-center p-3 rounded-2xl bg-[#070D1E] border border-[#17274B] hover:border-blue-500/30 hover:bg-[#0E1E42] transition-all text-center gap-1.5 cursor-pointer group"
                             >
-                                Explore Now
+                                <div className={`p-2 rounded-xl ${btn.color} group-hover:scale-110 transition-transform`}>
+                                    {btn.icon}
+                                </div>
+                                <span className="text-[9px] font-bold text-slate-300 tracking-tight group-hover:text-white">{btn.label}</span>
                             </button>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Bottom Promo Card */}
+                <motion.div
+                    variants={itemVariants}
+                    className="p-5 sm:p-6 bg-gradient-to-br from-[#0F224A] via-[#1E3A75] to-[#0D1B3A] text-white border border-[#23458A] rounded-3xl shadow-xl relative overflow-hidden flex flex-col justify-between"
+                >
+                    <div className="absolute right-0 bottom-0 top-0 opacity-15 pointer-events-none flex items-center">
+                        <Crown size={110} className="text-white transform translate-x-8 translate-y-2" />
+                    </div>
+                    <div className="relative z-10 space-y-2">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-[#FFBB33] border border-amber-500/30 text-[10px] font-black uppercase">
+                            <Crown size={12} />
+                            <span>Examinant Gold</span>
                         </div>
-                        <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl text-[#FFBB33] shrink-0 border border-white/10 shadow-inner">
-                            <Crown size={28} className="fill-[#FFBB33]/20" />
-                        </div>
+                        <h4 className="text-sm sm:text-base font-black tracking-tight text-white">Full Exam Preparation Pass</h4>
+                        <p className="text-[11px] text-blue-200 font-medium leading-relaxed">
+                            Unlimited access to all TCS pattern mock tests, video batches, formula vaults & AIR rankings.
+                        </p>
+                    </div>
+                    <div className="relative z-10 pt-4">
+                        <button
+                            onClick={() => navigate('/dashboard/market')}
+                            className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <span>Explore Gold Series</span>
+                            <ChevronRight size={14} />
+                        </button>
                     </div>
                 </motion.div>
             </div>
