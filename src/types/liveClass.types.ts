@@ -6,6 +6,8 @@ export interface LiveClass {
     educatorAvatar?: string;
     subject: string;
     examCategory: string;
+    batchId?: string;
+    batchName?: string;
     scheduledStartTime: string; // ISO 8601 string or format
     durationMinutes: number;
     streamUrl: string; // YouTube Live URL / embed / custom URL
@@ -25,6 +27,8 @@ export interface LiveClassFormData {
     educatorAvatar?: string;
     subject: string;
     examCategory: string;
+    batchId?: string;
+    batchName?: string;
     scheduledStartTime: string;
     durationMinutes: number;
     streamUrl: string;

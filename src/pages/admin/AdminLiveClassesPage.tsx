@@ -7,18 +7,57 @@ import {
 } from 'lucide-react';
 import { liveClassService } from '../../services/liveClassService';
 import type { LiveClass, LiveClassFormData } from '../../types/liveClass.types';
+import { courseService } from '../../services/courseService';
+import type { Course, CourseModule } from '../../types/course.types';
+import { curriculumService } from '../../services/curriculumService';
 import { useExamList } from '../../hooks/useExamList';
+import { useSubjectList } from '../../hooks/useSubjectList';
 import { uploadToCloudinary } from '../../utils/cloudinary';
+
+const CATEGORY_SUBJECTS: Record<string, string[]> = {
+    'CUET UG': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'General Test', 'English', 'Hindi', 'Economics', 'Accountancy', 'Business Studies', 'History', 'Political Science', 'Geography'],
+    'JEE': ['Physics', 'Chemistry', 'Mathematics'],
+    'NEET': ['Physics', 'Chemistry', 'Biology', 'Botany', 'Zoology'],
+    'SSC': ['Quantitative Aptitude', 'Reasoning Ability', 'English Comprehension', 'General Awareness / GK', 'Current Affairs'],
+    'Banking': ['Quantitative Aptitude', 'Reasoning Ability', 'English Language', 'General & Banking Awareness', 'Computer Aptitude'],
+    'Railways': ['Mathematics', 'General Intelligence & Reasoning', 'General Science', 'General Awareness'],
+    'Defence exams': ['Mathematics', 'General Ability Test (GAT)', 'English', 'General Science', 'General Knowledge'],
+    'Teaching exams': ['Child Development & Pedagogy', 'Mathematics', 'Environmental Studies (EVS)', 'Social Studies', 'Science', 'English', 'Hindi'],
+    'State govt. Exam': ['General Hindi', 'General Knowledge / GS', 'Reasoning Ability', 'Numerical Aptitude', 'State Special GK'],
+    'State PCS': ['General Studies Paper 1', 'CSAT / Paper 2', 'Indian Polity & Governance', 'History & Culture', 'Geography', 'Economy', 'General Hindi', 'Essay'],
+    'Boards': ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Hindi', 'Social Science', 'Science'],
+    'Engineering entrance': ['Physics', 'Chemistry', 'Mathematics'],
+    'Medical entrance': ['Physics', 'Chemistry', 'Biology']
+};
+
+const DEFAULT_EDUCATORS = [
+    'Sudhanshu Sir',
+    'Raj Sir',
+    'Amit Sir',
+    'Neha Ma\'am',
+    'Vikram Sir',
+    'Dr. Priya Rao',
+    'Examinant Expert Team'
+];
 
 const AdminLiveClassesPage = () => {
     const navigate = useNavigate();
     const exams = useExamList();
+    const systemSubjects = useSubjectList();
 
     const [liveClasses, setLiveClasses] = useState<LiveClass[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
     const [examFilter, setExamFilter] = useState<string>('All');
+    const [batchFilter, setBatchFilter] = useState<string>('All');
+    const [batches, setBatches] = useState<Course[]>([]);
+
+    // Batch curriculum modules & educator selection state
+    const [batchModules, setBatchModules] = useState<CourseModule[]>([]);
+    const [isLoadingModules, setIsLoadingModules] = useState<boolean>(false);
+    const [isCustomSubject, setIsCustomSubject] = useState<boolean>(false);
+    const [isCustomEducator, setIsCustomEducator] = useState<boolean>(false);
 
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -33,6 +72,8 @@ const AdminLiveClassesPage = () => {
         educatorName: 'Sudhanshu Sir',
         subject: 'Mathematics',
         examCategory: 'SSC',
+        batchId: '',
+        batchName: '',
         scheduledStartTime: new Date(Date.now() + 3600000).toISOString().slice(0, 16), // 1 hr from now formatted for datetime-local
         durationMinutes: 60,
         streamUrl: '',
@@ -47,17 +88,104 @@ const AdminLiveClassesPage = () => {
             setLiveClasses(data);
             setIsLoading(false);
         });
+
+        // Load all batches/courses for selection
+        const loadBatches = async () => {
+            try {
+                const list = await courseService.getAllAdminCourses();
+                setBatches(list);
+            } catch (err) {
+                console.error("Error loading batches for live classes:", err);
+            }
+        };
+        loadBatches();
+
         return () => unsubscribe();
     }, []);
 
+    // Distinct educators across batches, past live classes, and defaults
+    const allEducators = Array.from(new Set([
+        ...batches.map(b => b.instructor?.name?.trim()).filter(Boolean),
+        ...liveClasses.map(c => c.educatorName?.trim()).filter(Boolean),
+        ...DEFAULT_EDUCATORS
+    ])).filter(Boolean) as string[];
+
+    // Currently selected batch & assigned instructor
+    const selectedBatch = batches.find(b => b.id === formData.batchId);
+    const selectedBatchInstructor = selectedBatch?.instructor?.name?.trim();
+
+    // Other educators excluding the batch instructor
+    const otherEducators = allEducators.filter(name => name !== selectedBatchInstructor);
+
+    // Current category subjects
+    const categorySubjects = CATEGORY_SUBJECTS[formData.examCategory] || [];
+
+    const handleBatchChange = async (selectedId: string) => {
+        const batch = batches.find(b => b.id === selectedId);
+        const batchEducator = batch?.instructor?.name?.trim();
+        const nextExamCat = batch?.examCategory || formData.examCategory;
+
+        // Auto-assign batch educator if available and update form state
+        setFormData(p => ({
+            ...p,
+            batchId: selectedId,
+            batchName: batch ? batch.title : '',
+            examCategory: nextExamCat,
+            educatorName: batchEducator || p.educatorName
+        }));
+
+        if (selectedId) {
+            setIsLoadingModules(true);
+            try {
+                const mods = await curriculumService.getCourseModules(selectedId);
+                setBatchModules(mods);
+                // If batch has modules, auto-select the first module as subject
+                if (mods.length > 0) {
+                    setFormData(p => ({ ...p, subject: mods[0].title }));
+                    setIsCustomSubject(false);
+                } else {
+                    const catSubs = CATEGORY_SUBJECTS[nextExamCat] || [];
+                    if (catSubs.length > 0) {
+                        setFormData(p => ({ ...p, subject: catSubs[0] }));
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching batch modules:", err);
+                setBatchModules([]);
+            } finally {
+                setIsLoadingModules(false);
+            }
+        } else {
+            setBatchModules([]);
+        }
+    };
+
+    const handleExamCategoryChange = (cat: string) => {
+        setFormData(p => {
+            const catSubs = CATEGORY_SUBJECTS[cat] || [];
+            return {
+                ...p,
+                examCategory: cat,
+                subject: (batchModules.length === 0 && catSubs.length > 0 && !isCustomSubject) ? catSubs[0] : p.subject
+            };
+        });
+    };
+
     const handleOpenCreateModal = () => {
         setEditingId(null);
+        setBatchModules([]);
+        setIsCustomSubject(false);
+        setIsCustomEducator(false);
+        const defaultCat = exams[0] || 'CUET UG';
+        const defaultSubs = CATEGORY_SUBJECTS[defaultCat] || ['Mathematics'];
         setFormData({
             title: '',
             description: '',
             educatorName: 'Sudhanshu Sir',
-            subject: 'Mathematics',
-            examCategory: exams[0] || 'SSC',
+            subject: defaultSubs[0] || 'Mathematics',
+            examCategory: defaultCat,
+            batchId: '',
+            batchName: '',
             scheduledStartTime: new Date(Date.now() + 1800000).toISOString().slice(0, 16),
             durationMinutes: 60,
             streamUrl: '',
@@ -69,8 +197,10 @@ const AdminLiveClassesPage = () => {
         setIsModalOpen(true);
     };
 
-    const handleOpenEditModal = (item: LiveClass) => {
+    const handleOpenEditModal = async (item: LiveClass) => {
         setEditingId(item.id);
+        setIsCustomSubject(false);
+        setIsCustomEducator(false);
         const startTimeStr = item.scheduledStartTime ? new Date(item.scheduledStartTime).toISOString().slice(0, 16) : '';
         setFormData({
             title: item.title,
@@ -78,6 +208,8 @@ const AdminLiveClassesPage = () => {
             educatorName: item.educatorName,
             subject: item.subject,
             examCategory: item.examCategory,
+            batchId: item.batchId || '',
+            batchName: item.batchName || '',
             scheduledStartTime: startTimeStr,
             durationMinutes: item.durationMinutes,
             streamUrl: item.streamUrl,
@@ -86,6 +218,22 @@ const AdminLiveClassesPage = () => {
             status: (item.status === 'cancelled' ? 'upcoming' : item.status) as 'completed' | 'live' | 'upcoming',
             recordingUrl: item.recordingUrl || ''
         });
+
+        if (item.batchId) {
+            setIsLoadingModules(true);
+            try {
+                const mods = await curriculumService.getCourseModules(item.batchId);
+                setBatchModules(mods);
+            } catch (err) {
+                console.error("Error loading batch modules for edit:", err);
+                setBatchModules([]);
+            } finally {
+                setIsLoadingModules(false);
+            }
+        } else {
+            setBatchModules([]);
+        }
+
         setIsModalOpen(true);
     };
 
@@ -157,10 +305,12 @@ const AdminLiveClassesPage = () => {
     const filteredList = liveClasses.filter(c => {
         const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               c.educatorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              c.subject.toLowerCase().includes(searchTerm.toLowerCase());
+                              c.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (c.batchName && c.batchName.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
         const matchesExam = examFilter === 'All' || c.examCategory === examFilter;
-        return matchesSearch && matchesStatus && matchesExam;
+        const matchesBatch = batchFilter === 'All' || c.batchId === batchFilter;
+        return matchesSearch && matchesStatus && matchesExam && matchesBatch;
     });
 
     const activeLiveSession = liveClasses.find(c => c.status === 'live');
@@ -239,6 +389,20 @@ const AdminLiveClassesPage = () => {
                 </div>
                 <div className="flex flex-wrap sm:flex-nowrap gap-3">
                     <select
+                        value={batchFilter}
+                        onChange={(e) => setBatchFilter(e.target.value)}
+                        className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 text-sm cursor-pointer max-w-[200px]"
+                        title="Filter by batch"
+                    >
+                        <option value="All">All Batches</option>
+                        {batches.map(b => (
+                            <option key={b.id} value={b.id}>
+                                {b.title}
+                            </option>
+                        ))}
+                    </select>
+
+                    <select
                         value={examFilter}
                         onChange={(e) => setExamFilter(e.target.value)}
                         className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 text-sm cursor-pointer"
@@ -302,7 +466,14 @@ const AdminLiveClassesPage = () => {
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <h3 className="font-extrabold text-slate-900 leading-snug line-clamp-1">{item.title}</h3>
+                                                    <div className="flex items-center gap-2 flex-wrap">
+                                                        <h3 className="font-extrabold text-slate-900 leading-snug line-clamp-1">{item.title}</h3>
+                                                        {item.batchName && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 shrink-0">
+                                                                <Layers size={10} /> {item.batchName}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <p className="text-xs text-slate-400 font-medium line-clamp-1">Educator: {item.educatorName}</p>
                                                 </div>
                                             </div>
@@ -406,42 +577,184 @@ const AdminLiveClassesPage = () => {
                                 />
                             </div>
 
+                            {/* Batch Selection Option */}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-black uppercase text-slate-600 flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5">
+                                        <Layers size={14} className="text-indigo-600" />
+                                        <span>Target Batch / Course</span>
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 font-bold lowercase">(optional / assign to batch)</span>
+                                </label>
+                                <select
+                                    value={formData.batchId || ''}
+                                    onChange={(e) => handleBatchChange(e.target.value)}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 cursor-pointer"
+                                >
+                                    <option value="">Open Live Class (All Students / General)</option>
+                                    {batches.map(b => (
+                                        <option key={b.id} value={b.id}>
+                                            {b.title} {b.examCategory ? `• [${b.examCategory}]` : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                {formData.batchName && (
+                                    <div className="text-[11px] text-indigo-700 font-bold flex items-center justify-between flex-wrap gap-2 mt-1 bg-indigo-50/70 border border-indigo-100 px-3 py-2 rounded-lg">
+                                        <span className="flex items-center gap-1.5">
+                                            <CheckCircle2 size={13} className="text-indigo-600 shrink-0" />
+                                            <span>Linked to Batch: <strong>{formData.batchName}</strong></span>
+                                        </span>
+                                        {selectedBatchInstructor && (
+                                            <span className="text-[10px] bg-indigo-100/80 text-indigo-800 px-2 py-0.5 rounded font-extrabold">
+                                                Faculty: {selectedBatchInstructor}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-black uppercase text-slate-600">Exam Category</label>
                                     <select
                                         value={formData.examCategory}
-                                        onChange={(e) => setFormData(p => ({ ...p, examCategory: e.target.value }))}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm"
+                                        onChange={(e) => handleExamCategoryChange(e.target.value)}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm cursor-pointer"
                                     >
                                         {exams.map(e => <option key={e} value={e}>{e}</option>)}
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-black uppercase text-slate-600">Subject</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        placeholder="e.g. Mathematics, Reasoning, English"
-                                        value={formData.subject}
-                                        onChange={(e) => setFormData(p => ({ ...p, subject: e.target.value }))}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm"
-                                    />
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-black uppercase text-slate-600">Subject *</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsCustomSubject(p => !p)}
+                                            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer"
+                                        >
+                                            {isCustomSubject ? '← Select from list' : '+ Type custom'}
+                                        </button>
+                                    </div>
+
+                                    {isCustomSubject ? (
+                                        <div>
+                                            <input
+                                                type="text"
+                                                required
+                                                placeholder="e.g. Mathematics, Organic Chemistry, Reasoning..."
+                                                value={formData.subject}
+                                                onChange={(e) => setFormData(p => ({ ...p, subject: e.target.value }))}
+                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600"
+                                                autoFocus
+                                            />
+                                            <p className="text-[10px] text-slate-400 mt-1">Typing custom subject. Click "Select from list" to choose from batch subjects.</p>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            value={formData.subject}
+                                            onChange={(e) => {
+                                                if (e.target.value === '__custom__') {
+                                                    setIsCustomSubject(true);
+                                                    setFormData(p => ({ ...p, subject: '' }));
+                                                } else {
+                                                    setFormData(p => ({ ...p, subject: e.target.value }));
+                                                }
+                                            }}
+                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 cursor-pointer"
+                                        >
+                                            <option value="">-- Choose Subject --</option>
+                                            {batchModules.length > 0 && (
+                                                <optgroup label={`📚 ${formData.batchName || 'Batch'} Curriculum Modules`}>
+                                                    {batchModules.map(m => (
+                                                        <option key={m.id} value={m.title}>{m.title}</option>
+                                                    ))}
+                                                </optgroup>
+                                            )}
+                                            {categorySubjects.length > 0 && (
+                                                <optgroup label={`🎯 ${formData.examCategory} Subjects`}>
+                                                    {categorySubjects.map(s => (
+                                                        <option key={s} value={s}>{s}</option>
+                                                    ))}
+                                                </optgroup>
+                                            )}
+                                            <optgroup label="📋 All Available Subjects">
+                                                {systemSubjects.map(s => (
+                                                    <option key={s} value={s}>{s}</option>
+                                                ))}
+                                            </optgroup>
+                                            {formData.subject && !batchModules.some(m => m.title === formData.subject) && !categorySubjects.includes(formData.subject) && !systemSubjects.includes(formData.subject) && (
+                                                <option value={formData.subject}>{formData.subject} (Custom Selected)</option>
+                                            )}
+                                            <option value="__custom__">✏️ + Enter Custom Subject...</option>
+                                        </select>
+                                    )}
+                                    {isLoadingModules && (
+                                        <p className="text-[10px] text-indigo-600 flex items-center gap-1.5 font-bold animate-pulse mt-1">
+                                            <Loader2 size={11} className="animate-spin" /> Loading batch curriculum modules...
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-black uppercase text-slate-600">Educator / Faculty Name</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        placeholder="e.g. Sudhanshu Sir"
-                                        value={formData.educatorName}
-                                        onChange={(e) => setFormData(p => ({ ...p, educatorName: e.target.value }))}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm"
-                                    />
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-black uppercase text-slate-600">Educator / Faculty Name *</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsCustomEducator(p => !p)}
+                                            className="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold underline cursor-pointer"
+                                        >
+                                            {isCustomEducator ? '← Select from list' : '+ Type custom'}
+                                        </button>
+                                    </div>
+
+                                    {isCustomEducator ? (
+                                        <div>
+                                            <input
+                                                type="text"
+                                                required
+                                                placeholder="e.g. Sudhanshu Sir, Dr. Priya Rao..."
+                                                value={formData.educatorName}
+                                                onChange={(e) => setFormData(p => ({ ...p, educatorName: e.target.value }))}
+                                                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600"
+                                                autoFocus
+                                            />
+                                            <p className="text-[10px] text-slate-400 mt-1">Typing custom educator name. Click "Select from list" to pick existing faculty.</p>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            value={formData.educatorName}
+                                            onChange={(e) => {
+                                                if (e.target.value === '__custom__') {
+                                                    setIsCustomEducator(true);
+                                                    setFormData(p => ({ ...p, educatorName: '' }));
+                                                } else {
+                                                    setFormData(p => ({ ...p, educatorName: e.target.value }));
+                                                }
+                                            }}
+                                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 cursor-pointer"
+                                        >
+                                            <option value="">-- Choose Educator / Faculty --</option>
+                                            {selectedBatchInstructor && (
+                                                <optgroup label={`🎓 ${formData.batchName || 'Batch'} Assigned Faculty`}>
+                                                    <option value={selectedBatchInstructor}>
+                                                        {selectedBatchInstructor} (Batch Faculty)
+                                                    </option>
+                                                </optgroup>
+                                            )}
+                                            <optgroup label="👨‍🏫 Available Educators & Faculty">
+                                                {otherEducators.map(name => (
+                                                    <option key={name} value={name}>{name}</option>
+                                                ))}
+                                            </optgroup>
+                                            {formData.educatorName && !allEducators.includes(formData.educatorName) && (
+                                                <option value={formData.educatorName}>{formData.educatorName} (Custom Selected)</option>
+                                            )}
+                                            <option value="__custom__">✏️ + Enter Custom Educator Name...</option>
+                                        </select>
+                                    )}
                                 </div>
 
                                 <div className="space-y-1.5">
@@ -449,7 +762,7 @@ const AdminLiveClassesPage = () => {
                                     <select
                                         value={formData.status}
                                         onChange={(e) => setFormData(p => ({ ...p, status: e.target.value as any }))}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm"
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm cursor-pointer"
                                     >
                                         <option value="upcoming">Upcoming (Scheduled)</option>
                                         <option value="live">Live Now (Immediate Broadcast)</option>

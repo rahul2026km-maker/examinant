@@ -182,6 +182,11 @@ const StudentCoursesPage = () => {
                                         <Radio size={14} />
                                         <span>Happening Live Now</span>
                                     </span>
+                                    {currentLiveClass.batchName && (
+                                        <span className="text-xs font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-3 py-1.5 rounded-full flex items-center gap-1">
+                                            🎓 {currentLiveClass.batchName}
+                                        </span>
+                                    )}
                                     <span className="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-md">
                                         {currentLiveClass.examCategory} • {currentLiveClass.subject}
                                     </span>
@@ -264,10 +269,15 @@ const StudentCoursesPage = () => {
 
                                         <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
                                             <div className="space-y-2">
-                                                <div className="flex items-center gap-2 text-xs font-bold text-[#38BDF8]">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-[#38BDF8] flex-wrap">
                                                     <span>{session.subject}</span>
                                                     <span>•</span>
                                                     <span className="text-slate-400">{session.examCategory}</span>
+                                                    {session.batchName && (
+                                                        <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-indigo-300 bg-indigo-500/20 border border-indigo-500/30 px-2 py-0.5 rounded-md">
+                                                            🎓 {session.batchName}
+                                                        </span>
+                                                    )}
                                                 </div>
                                                 <h4 className="text-base font-extrabold text-white leading-snug line-clamp-2">
                                                     {session.title}
@@ -329,7 +339,14 @@ const StudentCoursesPage = () => {
 
                                         <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                                             <div className="space-y-1">
-                                                <span className="text-[11px] font-bold text-[#38BDF8]">{session.subject}</span>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-[11px] font-bold text-[#38BDF8]">{session.subject}</span>
+                                                    {session.batchName && (
+                                                        <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-indigo-300 bg-indigo-500/20 border border-indigo-500/30 px-1.5 py-0.2 rounded">
+                                                            🎓 {session.batchName}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <h4 className="text-sm font-extrabold text-white leading-snug line-clamp-2">{session.title}</h4>
                                                 <p className="text-xs text-slate-400 font-medium">{session.educatorName}</p>
                                             </div>

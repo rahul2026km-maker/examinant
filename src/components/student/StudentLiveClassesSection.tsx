@@ -290,6 +290,11 @@ export const StudentLiveClassesSection: React.FC<StudentLiveClassesSectionProps>
                                 <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold uppercase tracking-wider">
                                     {currentlyLiveClass.examCategory || targetExam}
                                 </span>
+                                {currentlyLiveClass.batchName && (
+                                    <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-bold tracking-wider flex items-center gap-1">
+                                        🎓 {currentlyLiveClass.batchName}
+                                    </span>
+                                )}
                                 <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 text-slate-300 text-xs font-bold backdrop-blur-md">
                                     <Users size={13} className="text-rose-400" />
                                     <span>{activeViewers} students in room</span>
@@ -437,6 +442,11 @@ export const StudentLiveClassesSection: React.FC<StudentLiveClassesSectionProps>
 
                                 {/* Title & Faculty */}
                                 <div>
+                                    {item.batchName && (
+                                        <div className="mb-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold">
+                                            <span>🎓 {item.batchName}</span>
+                                        </div>
+                                    )}
                                     <h4 className="font-black text-sm text-white line-clamp-2 leading-snug group-hover:text-[#38BDF8] transition-colors">
                                         {item.title}
                                     </h4>
