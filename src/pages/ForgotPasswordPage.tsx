@@ -147,20 +147,20 @@ const ForgotPasswordPage = () => {
     };
 
     return (
-        <div className="h-screen w-full bg-slate-900 relative overflow-hidden font-sans">
+        <div className="h-screen w-full bg-[#070D1E] relative overflow-hidden font-sans text-slate-200">
             {/* Background Effects */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/30 blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none" />
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
             
             <div className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 scrollbar-hide">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="w-full min-h-full bg-white/80 backdrop-blur-xl flex flex-col md:flex-row"
+                    className="w-full min-h-full bg-[#070D1E] flex flex-col md:flex-row"
                 >
                 {/* Left Side - Graphics */}
                 <div className="hidden md:flex flex-col w-5/12 relative overflow-hidden p-10 justify-between">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 z-0" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-indigo-950 to-[#070D1E] z-0" />
                     
                     {/* Pattern Overlay */}
                     <div className="absolute inset-0 opacity-10 z-0 bg-[radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] bg-[size:24px_24px]" />
@@ -168,7 +168,7 @@ const ForgotPasswordPage = () => {
                     <img
                         src={recoveryHero}
                         alt="Account Recovery"
-                        className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay scale-105"
+                        className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity scale-105"
                     />
                     
                     <div className="relative z-20">
@@ -193,7 +193,7 @@ const ForgotPasswordPage = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-sm font-semibold text-white mb-8 shadow-xl"
+                            className="inline-flex items-center gap-2 bg-blue-500/10 backdrop-blur-md border border-blue-400/20 rounded-full px-4 py-1.5 text-sm font-semibold text-blue-200 mb-8 shadow-xl"
                         >
                             <span className="relative flex h-3 w-3">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -209,13 +209,13 @@ const ForgotPasswordPage = () => {
                             className="text-4xl lg:text-5xl font-black text-white leading-[1.15] mb-6 tracking-tight"
                         >
                             Get Back to <br/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-100">Learning</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-indigo-200 to-sky-300">Learning</span>
                         </motion.h2>
                         <motion.p 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.5 }}
-                            className="text-indigo-100 text-lg max-w-sm font-medium"
+                            className="text-slate-300 text-lg max-w-sm font-medium"
                         >
                             Don't worry, it happens to the best of us. Let's securely recover your account.
                         </motion.p>
@@ -225,8 +225,8 @@ const ForgotPasswordPage = () => {
                     <div className="relative z-20 space-y-4">
                         {[
                             { title: 'Secure Recovery', icon: <Lock size={18} className="text-blue-400" /> },
-                            { title: 'Quick Process', icon: <CheckCircle size={18} className="text-green-400" /> },
-                            { title: '24/7 Support', icon: <User size={18} className="text-yellow-300" /> }
+                            { title: 'Quick Process', icon: <CheckCircle size={18} className="text-emerald-400" /> },
+                            { title: '24/7 Support', icon: <User size={18} className="text-amber-400" /> }
                         ].map((feature, i) => (
                             <motion.div 
                                 initial={{ opacity: 0, x: -20 }}
@@ -247,14 +247,14 @@ const ForgotPasswordPage = () => {
                     <motion.div 
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute top-1/4 right-8 bg-white/10 backdrop-blur-xl p-4 rounded-2xl border border-white/20 z-20 shadow-2xl"
+                        className="absolute top-1/4 right-8 bg-[#0B152B]/80 backdrop-blur-xl p-4 rounded-2xl border border-[#17254E] z-20 shadow-2xl"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-500/50 rounded-lg">
-                                <Sparkles className="text-white" size={24} />
+                            <div className="p-2 bg-blue-500/30 rounded-lg">
+                                <Sparkles className="text-blue-400" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-blue-200 font-medium">Fast</p>
+                                <p className="text-xs text-blue-300 font-medium">Fast</p>
                                 <p className="text-white font-bold text-sm">Recovery</p>
                             </div>
                         </div>
@@ -262,19 +262,19 @@ const ForgotPasswordPage = () => {
                 </div>
 
                 {/* Right Side - Form */}
-                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col items-center justify-center bg-white min-h-full">
+                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col items-center justify-center bg-[#0B152B] md:border-l md:border-[#17254E] min-h-full">
                     <div className="max-w-[460px] w-full mx-auto flex flex-col justify-center py-6">
 
                         <div className="mb-5">
-                            <h2 className="text-3xl font-extrabold text-slate-900 mb-1.5 tracking-tight">Forgot Password?</h2>
-                            <p className="text-slate-500 font-medium text-sm">Enter your email and we'll send you a link to reset your password.</p>
+                            <h2 className="text-3xl font-extrabold text-white mb-1.5 tracking-tight">Forgot Password?</h2>
+                            <p className="text-slate-400 font-medium text-sm">Enter your email and we'll send you a link to reset your password.</p>
                         </div>
 
                         {error && (
                             <motion.div
                                 initial={{ opacity: 0, y: -5, scale: 0.98 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                                className="mb-5 p-3 bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-xl flex items-start gap-2 text-red-600 text-xs font-medium shadow-sm"
+                                className="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-2 text-red-400 text-xs font-medium shadow-sm"
                             >
                                 <AlertCircle size={18} className="shrink-0 mt-0.5" />
                                 <span>{error}</span>
@@ -285,9 +285,9 @@ const ForgotPasswordPage = () => {
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="mb-5 p-4 bg-emerald-50/80 backdrop-blur-sm border border-emerald-100 rounded-xl flex flex-col items-center text-center gap-2 text-emerald-700 shadow-sm"
+                                className="mb-5 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex flex-col items-center text-center gap-2 text-emerald-400 shadow-sm"
                             >
-                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-emerald-500 mb-1">
+                                <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center shadow-sm text-emerald-400 mb-1">
                                     <CheckCircle2 size={20} />
                                 </div>
                                 <span className="text-sm font-bold">{message}</span>
@@ -297,9 +297,9 @@ const ForgotPasswordPage = () => {
                         {step === 'email' && (
                             <form onSubmit={handleRequestOTP} className="space-y-4">
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
+                                    <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">Email Address</label>
                                     <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-400 transition-colors">
                                             <Mail size={18} strokeWidth={2.5} />
                                         </div>
                                         <input
@@ -308,7 +308,7 @@ const ForgotPasswordPage = () => {
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="your@email.com"
-                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-[#112246] transition-all text-white text-sm font-medium placeholder:text-slate-500 hover:border-slate-500 hover:bg-[#112246]"
                                         />
                                     </div>
                                 </motion.div>
@@ -317,9 +317,9 @@ const ForgotPasswordPage = () => {
                                     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
                                     disabled={loading}
                                     type="submit"
-                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
+                                    className="w-full relative group overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-blue-600/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     <span className="relative z-10 flex items-center gap-2">
                                         {loading ? <Loader2 className="animate-spin" size={18} /> : 'Send Reset OTP'}
                                         {!loading && <ChevronRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
@@ -331,7 +331,7 @@ const ForgotPasswordPage = () => {
                         {step === 'otp' && (
                             <form onSubmit={(e) => { e.preventDefault(); handleVerifyOTP(); }} className="space-y-4">
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
+                                    <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">Email Address</label>
                                     <div className="relative group">
                                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                             <Mail size={18} strokeWidth={2.5} />
@@ -340,15 +340,15 @@ const ForgotPasswordPage = () => {
                                             type="email"
                                             disabled
                                             value={email}
-                                            className="w-full pl-10 pr-4 py-2 bg-slate-100 border border-slate-200 rounded-xl py-3 text-slate-500 text-sm font-medium cursor-not-allowed opacity-70"
+                                            className="w-full pl-10 pr-4 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl text-slate-400 text-sm font-medium cursor-not-allowed opacity-60"
                                         />
                                     </div>
                                 </motion.div>
 
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">6-Digit OTP</label>
+                                    <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">6-Digit OTP</label>
                                     <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-400 transition-colors">
                                             <Sparkles size={18} strokeWidth={2.5} />
                                         </div>
                                         <input
@@ -358,10 +358,10 @@ const ForgotPasswordPage = () => {
                                             value={otp}
                                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                                             placeholder="123456"
-                                            className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100 tracking-widest"
+                                            className="w-full pl-[42px] pr-4 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-[#112246] transition-all text-white text-sm font-medium placeholder:text-slate-500 hover:border-slate-500 hover:bg-[#112246] tracking-widest font-mono"
                                         />
                                     </div>
-                                    <div className="flex items-center justify-between text-xs text-slate-500 mt-2 px-1">
+                                    <div className="flex items-center justify-between text-xs text-slate-400 mt-2 px-1">
                                         <p>Enter 6-digit OTP sent to your email.</p>
                                         <div className="flex items-center gap-3">
                                             <button
@@ -372,7 +372,7 @@ const ForgotPasswordPage = () => {
                                                     setError('');
                                                     setMessage('');
                                                 }}
-                                                className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+                                                className="text-blue-400 hover:text-blue-300 font-semibold hover:underline"
                                             >
                                                 Change Email
                                             </button>
@@ -380,7 +380,7 @@ const ForgotPasswordPage = () => {
                                                 type="button"
                                                 onClick={() => handleRequestOTP()}
                                                 disabled={loading}
-                                                className="text-blue-600 hover:text-blue-700 font-semibold hover:underline disabled:opacity-50"
+                                                className="text-blue-400 hover:text-blue-300 font-semibold hover:underline disabled:opacity-50"
                                             >
                                                 Resend
                                             </button>
@@ -392,9 +392,9 @@ const ForgotPasswordPage = () => {
                                     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                                     disabled={loading || otp.length !== 6}
                                     type="submit"
-                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm disabled:opacity-50 disabled:transform-none"
+                                    className="w-full relative group overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-blue-600/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm disabled:opacity-50 disabled:transform-none"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     <span className="relative z-10 flex items-center gap-2">
                                         {loading ? <Loader2 className="animate-spin" size={18} /> : 'Verify OTP'}
                                         {!loading && <ChevronRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
@@ -406,9 +406,9 @@ const ForgotPasswordPage = () => {
                         {step === 'password' && (
                             <form onSubmit={handleVerifyAndReset} className="space-y-4">
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">New Password</label>
+                                    <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">New Password</label>
                                     <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-400 transition-colors">
                                             <Lock size={18} strokeWidth={2.5} />
                                         </div>
                                         <input
@@ -417,12 +417,12 @@ const ForgotPasswordPage = () => {
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full pl-[42px] pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-12 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-[#112246] transition-all text-white text-sm font-medium placeholder:text-slate-500 hover:border-slate-500 hover:bg-[#112246]"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors"
                                         >
                                             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
@@ -430,9 +430,9 @@ const ForgotPasswordPage = () => {
                                 </motion.div>
                                 
                                 <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Confirm Password</label>
+                                    <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">Confirm Password</label>
                                     <div className="relative group">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-400 transition-colors">
                                             <Lock size={18} strokeWidth={2.5} />
                                         </div>
                                         <input
@@ -441,12 +441,12 @@ const ForgotPasswordPage = () => {
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full pl-[42px] pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                            className="w-full pl-[42px] pr-12 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-[#112246] transition-all text-white text-sm font-medium placeholder:text-slate-500 hover:border-slate-500 hover:bg-[#112246]"
                                         />
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors"
                                         >
                                             {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                         </button>
@@ -457,9 +457,9 @@ const ForgotPasswordPage = () => {
                                     initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                                     disabled={loading}
                                     type="submit"
-                                    className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
+                                    className="w-full relative group overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-blue-600/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     <span className="relative z-10 flex items-center gap-2">
                                         {loading ? <Loader2 className="animate-spin" size={18} /> : 'Reset Password'}
                                         {!loading && <CheckCircle2 size={18} strokeWidth={3} className="group-hover:scale-110 transition-transform" />}
@@ -467,8 +467,8 @@ const ForgotPasswordPage = () => {
                                 </motion.button>
                             </form>
                         )}
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-center text-sm text-slate-600 font-medium">
-                            Remember your password? <Link to="/login" className="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-all">Log In</Link>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-center text-sm text-slate-400 font-medium">
+                            Remember your password? <Link to="/login" className="text-blue-400 hover:text-blue-300 font-bold hover:underline transition-all">Log In</Link>
                         </motion.div>
                     </div>
                 </div>

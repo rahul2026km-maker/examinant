@@ -72,8 +72,8 @@ const Navbar = () => {
     return (
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled
-                ? 'bg-[#0f172a]/90 backdrop-blur-xl border-b border-white/10 py-3 shadow-2xl'
-                : 'bg-[#173A7A] py-4 shadow-lg border-b border-transparent'
+                ? 'bg-[#070D1E]/95 backdrop-blur-xl border-b border-[#17254E] py-3 shadow-2xl'
+                : 'bg-[#0B152B]/95 backdrop-blur-md py-4 shadow-lg border-b border-[#17254E]'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +116,7 @@ const Navbar = () => {
                                 {/* Dropdown Menu */}
                                 {item.hasDropdown && activeDropdown === item.label && (
                                     <div 
-                                        className={`absolute top-full left-0 mt-3 bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-visible py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 ${
+                                        className={`absolute top-full left-0 mt-3 bg-[#0B152B]/95 backdrop-blur-xl border border-[#17254E] rounded-2xl shadow-2xl overflow-visible py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200 ${
                                             item.label === 'Tests' && testCategories.length > 8 ? 'w-[32rem]' : 'w-56'
                                         }`}
                                         onMouseLeave={() => setHoveredCategory(null)}
@@ -125,7 +125,7 @@ const Navbar = () => {
                                             <div className={testCategories.length > 8 ? 'grid grid-cols-2 gap-x-1' : 'space-y-0.5'}>
                                                 <button 
                                                     onClick={() => { handleNav('/test-series'); setActiveDropdown(null); }} 
-                                                    className="col-span-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5"
+                                                    className="col-span-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-[#17254E]"
                                                     onMouseEnter={() => setHoveredCategory(null)}
                                                 >
                                                     All Tests
@@ -143,7 +143,7 @@ const Navbar = () => {
                                                                     handleNav(`/test-series?category=${encodeURIComponent(cat)}`); 
                                                                     setActiveDropdown(null); 
                                                                 }} 
-                                                                className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 capitalize flex justify-between items-center"
+                                                                className="w-full text-left px-5 py-3 text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-[#17254E]/50 capitalize flex justify-between items-center"
                                                             >
                                                                 <span>{cat}</span>
                                                                 {hasSubs && <ChevronRight size={14} className="opacity-50" />}
@@ -151,7 +151,7 @@ const Navbar = () => {
 
                                                             {/* Sub-dropdown for Desktop */}
                                                             {hasSubs && hoveredCategory === cat && (
-                                                                <div className="absolute left-full top-0 ml-1 w-48 bg-[#0f172a]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-left-2 duration-150">
+                                                                <div className="absolute left-full top-0 ml-1 w-48 bg-[#0B152B]/95 backdrop-blur-xl border border-[#17254E] rounded-xl shadow-2xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-left-2 duration-150">
                                                                     {EXAM_SUBCATEGORIES[cat].map(sub => (
                                                                         <button
                                                                             key={sub}
@@ -238,7 +238,7 @@ const Navbar = () => {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="lg:hidden absolute top-full left-0 w-full bg-[#1E3A8A] border-b border-white/5 shadow-2xl p-6"
+                        className="lg:hidden absolute top-full left-0 w-full bg-[#0B152B] border-b border-[#17254E] shadow-2xl p-6"
                     >
                         <div className="space-y-2">
                             {navItems.map((item) => {
@@ -255,7 +255,7 @@ const Navbar = () => {
                                                 }
                                             }}
                                             className={`w-full text-left px-5 py-4 rounded-2xl text-base font-bold transition-all flex justify-between items-center ${isActive(item.path) || isDropdownOpen
-                                                ? 'bg-blue-600/10 text-blue-500'
+                                                ? 'bg-blue-600/20 text-blue-400'
                                                 : 'text-slate-400 hover:text-white hover:bg-white/5'
                                                 }`}
                                         >

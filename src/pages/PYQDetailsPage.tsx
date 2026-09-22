@@ -93,18 +93,18 @@ const PYQDetailsPage = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-slate-50">
-                <Loader2 className="animate-spin text-blue-600" size={40} />
+            <div className="flex items-center justify-center min-h-screen bg-[#070D1E]">
+                <Loader2 className="animate-spin text-blue-500" size={40} />
             </div>
         );
     }
 
     if (!pyq) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-slate-50">
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-[#070D1E] text-slate-100">
                 <AlertCircle size={48} className="text-red-500" />
-                <h2 className="text-2xl font-bold text-gray-800">PYQ Not Found</h2>
-                <button onClick={() => navigate('/pyqs')} className="text-blue-600 hover:underline font-medium">
+                <h2 className="text-2xl font-bold text-white">PYQ Not Found</h2>
+                <button onClick={() => navigate('/pyqs')} className="text-blue-400 hover:underline font-medium">
                     Back to PYQs
                 </button>
             </div>
@@ -112,13 +112,13 @@ const PYQDetailsPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50">
+        <div className="min-h-screen flex flex-col bg-[#070D1E] text-slate-100">
             <Navbar />
 
             <main className="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
                 <button
                     onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-8 transition-colors group"
+                    className="flex items-center gap-2 text-slate-400 hover:text-white mb-8 transition-colors group cursor-pointer"
                 >
                     <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     Back to Discovery
@@ -130,42 +130,42 @@ const PYQDetailsPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="lg:col-span-2 space-y-6"
                     >
-                        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+                        <div className="bg-[#0B152B] rounded-2xl p-8 shadow-xl border border-[#17254E]">
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 uppercase">
+                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 uppercase">
                                     {pyq.category}
                                 </span>
-                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                                <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#0E1B38] text-slate-300 border border-[#1E3360]">
                                     {pyq.year} Edition
                                 </span>
                             </div>
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
                                 {pyq.title}
                             </h1>
-                            <p className="text-lg text-slate-600 leading-relaxed">
+                            <p className="text-lg text-slate-300 leading-relaxed">
                                 {pyq.description || `Prepare with this actual previous year question paper for ${pyq.category} ${pyq.year}. available as a ${pyq.type === 'test' ? 'fully interactive mock test' : 'high-quality PDF'}.`}
                             </p>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
-                            <h3 className="text-xl font-bold text-slate-900 mb-6">Key Features</h3>
+                        <div className="bg-[#0B152B] rounded-2xl p-8 shadow-xl border border-[#17254E]">
+                            <h3 className="text-xl font-bold text-white mb-6">Key Features</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <div className="flex items-start gap-4 p-4 bg-[#0E1B38] border border-[#1E3360] rounded-xl hover:border-blue-500/40 transition-colors">
+                                    <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg">
                                         {pyq.type === 'test' ? <PenTool size={24} /> : <FileText size={24} />}
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900">{pyq.type === 'test' ? 'Interactive Mock' : 'Downloadable PDF'}</h4>
-                                        <p className="text-sm text-slate-500">{pyq.type === 'test' ? 'Real-time scoring & analysis' : 'Ready for offline practice'}</p>
+                                        <h4 className="font-bold text-white">{pyq.type === 'test' ? 'Interactive Mock' : 'Downloadable PDF'}</h4>
+                                        <p className="text-sm text-slate-300">{pyq.type === 'test' ? 'Real-time scoring & analysis' : 'Ready for offline practice'}</p>
                                     </div>
                                 </div>
-                                <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                                    <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                                <div className="flex items-start gap-4 p-4 bg-[#0E1B38] border border-[#1E3360] rounded-xl hover:border-green-500/40 transition-colors">
+                                    <div className="p-2 bg-green-500/20 text-green-400 rounded-lg">
                                         <CheckCircle size={24} />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900">Authentic Content</h4>
-                                        <p className="text-sm text-slate-500">Verified official exam questions</p>
+                                        <h4 className="font-bold text-white">Authentic Content</h4>
+                                        <p className="text-sm text-slate-300">Verified official exam questions</p>
                                     </div>
                                 </div>
                             </div>
@@ -177,11 +177,11 @@ const PYQDetailsPage = () => {
                         animate={{ opacity: 1, x: 0 }}
                         className="lg:col-span-1"
                     >
-                        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sticky top-24">
+                        <div className="bg-[#0B152B] rounded-2xl shadow-2xl border border-[#17254E] p-6 sticky top-24">
                             <div className="text-center mb-6">
-                                <p className="text-slate-500 text-sm font-medium mb-2">Access Fee</p>
+                                <p className="text-slate-400 text-sm font-medium mb-2">Access Fee</p>
                                 <div className="flex items-center justify-center gap-3">
-                                    <span className="text-5xl font-extrabold text-slate-900">
+                                    <span className="text-5xl font-extrabold text-white">
                                         {pyq.price === 0 ? 'Free' : `₹${pyq.price}`}
                                     </span>
                                 </div>
@@ -190,7 +190,7 @@ const PYQDetailsPage = () => {
                             {isOwned ? (
                                 <button
                                     onClick={() => navigate('/dashboard/pyqs')}
-                                    className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                     Access Now
                                 </button>
@@ -198,7 +198,7 @@ const PYQDetailsPage = () => {
                                 <button
                                     onClick={handleEnroll}
                                     disabled={isEnrolling}
-                                    className="w-full py-4 bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/25 transition-all disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer"
                                 >
                                     {isEnrolling ? <Loader2 className="animate-spin" size={20} /> : <ShoppingCart size={20} />}
                                     {pyq.price === 0 ? 'Enroll for Free' : 'Unlock Now'}

@@ -158,8 +158,8 @@ const CourseDetailsPage = () => {
     return (
         <PageLayout>
             {/* Hero Section */}
-            <div className="bg-[#0f172a] text-white py-12 lg:py-16 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-purple-900/30 pointer-events-none"></div>
+            <div className="bg-[#070D1E] text-white py-12 lg:py-16 relative overflow-hidden border-b border-[#17254E]/60">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/20 via-transparent to-indigo-950/30 pointer-events-none"></div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
                         <div className="lg:col-span-2 space-y-6">
@@ -167,15 +167,15 @@ const CourseDetailsPage = () => {
                                 <span className="bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
                                     {course.examCategory}
                                 </span>
-                                <span className="bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-slate-700">
+                                <span className="bg-[#0E1B38] text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-[#1E3360]">
                                     {course.level}
                                 </span>
-                                <span className="bg-slate-800 text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-slate-700">
+                                <span className="bg-[#0E1B38] text-slate-300 text-xs font-bold px-3 py-1 rounded-full border border-[#1E3360]">
                                     {course.language}
                                 </span>
                             </div>
 
-                            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                            <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight text-white">
                                 {course.title}
                             </h1>
 
@@ -215,9 +215,9 @@ const CourseDetailsPage = () => {
                         </div>
 
                         {/* Sticky Enrollment Card */}
-                        <div className="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-100 space-y-6">
+                        <div className="bg-[#0B152B] text-white rounded-3xl p-8 shadow-2xl border border-[#17254E] space-y-6">
                             {course.thumbnailUrl && (
-                                <div className="w-full h-48 rounded-2xl overflow-hidden relative group">
+                                <div className="w-full h-48 rounded-2xl overflow-hidden relative group border border-[#17254E]/60">
                                     <img src={course.thumbnailUrl} alt={course.title} className="w-full h-full object-cover" />
                                 </div>
                             )}
@@ -225,10 +225,10 @@ const CourseDetailsPage = () => {
                             <div className="space-y-2">
                                 <div className="flex items-baseline gap-2">
                                     {course.accessType === 'free' ? (
-                                        <span className="text-3xl font-black text-emerald-600">FREE</span>
+                                        <span className="text-3xl font-black text-emerald-400">FREE</span>
                                     ) : (
                                         <>
-                                            <span className="text-4xl font-black text-slate-900">₹{course.pricing?.amount || 0}</span>
+                                            <span className="text-4xl font-black text-white">₹{course.pricing?.amount || 0}</span>
                                             {course.pricing?.originalPrice && (
                                                 <span className="text-sm text-slate-400 line-through font-bold">₹{course.pricing.originalPrice}</span>
                                             )}
@@ -241,7 +241,7 @@ const CourseDetailsPage = () => {
                             <button
                                 onClick={handleEnroll}
                                 disabled={isEnrolling}
-                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base rounded-2xl shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all"
+                                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-base rounded-2xl shadow-xl shadow-blue-600/25 flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all cursor-pointer"
                             >
                                 {isEnrolling ? (
                                     <Loader2 className="animate-spin" size={20} />
@@ -258,21 +258,21 @@ const CourseDetailsPage = () => {
                                 )}
                             </button>
 
-                            <div className="space-y-3 pt-4 border-t border-slate-100 text-xs font-semibold text-slate-600">
+                            <div className="space-y-3 pt-4 border-t border-[#17254E] text-xs font-semibold text-slate-300">
                                 <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 size={16} className="text-emerald-500" />
+                                    <CheckCircle2 size={16} className="text-emerald-400" />
                                     <span>{course.totalLessons || 0} HD Video Lectures</span>
                                 </div>
                                 <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 size={16} className="text-emerald-500" />
+                                    <CheckCircle2 size={16} className="text-emerald-400" />
                                     <span>Downloadable PDF Revision Notes</span>
                                 </div>
                                 <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 size={16} className="text-emerald-500" />
+                                    <CheckCircle2 size={16} className="text-emerald-400" />
                                     <span>Integrated Tests & Practice Quizzes</span>
                                 </div>
                                 <div className="flex items-center gap-2.5">
-                                    <CheckCircle2 size={16} className="text-emerald-500" />
+                                    <CheckCircle2 size={16} className="text-emerald-400" />
                                     <span>Official Batch Completion Certificate</span>
                                 </div>
                             </div>
@@ -282,63 +282,65 @@ const CourseDetailsPage = () => {
             </div>
 
             {/* Curriculum Accordion */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
-                <div className="space-y-4">
-                    <h2 className="text-3xl font-black text-slate-900">Batch Syllabus & Curriculum</h2>
-                    <p className="text-slate-600 font-medium">Explore the step-by-step module breakdown below.</p>
-                </div>
+            <div className="bg-[#070D1E] py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+                    <div className="space-y-4">
+                        <h2 className="text-3xl font-black text-white">Batch Syllabus & Curriculum</h2>
+                        <p className="text-slate-300 font-medium">Explore the step-by-step module breakdown below.</p>
+                    </div>
 
-                <div className="space-y-4 max-w-4xl">
-                    {curriculum.length === 0 ? (
-                        <p className="text-slate-400 font-medium">Curriculum coming soon.</p>
-                    ) : (
-                        curriculum.map(({ module, lessons }, idx) => {
-                            const isExpanded = expandedModuleId === module.id;
-                            return (
-                                <div key={module.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                                    <button
-                                        onClick={() => setExpandedModuleId(isExpanded ? null : module.id)}
-                                        className="w-full flex justify-between items-center p-5 bg-slate-50 hover:bg-slate-100/80 transition-colors text-left"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <span className="w-7 h-7 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center">{idx + 1}</span>
-                                            <div>
-                                                <h3 className="font-extrabold text-slate-900 text-base">{module.title}</h3>
-                                                <p className="text-xs text-slate-400 font-medium">{lessons.length} Lessons</p>
-                                            </div>
-                                        </div>
-                                        {isExpanded ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
-                                    </button>
-
-                                    {isExpanded && (
-                                        <div className="p-4 divide-y divide-slate-100">
-                                            {lessons.map(lesson => (
-                                                <div key={lesson.id} className="py-3 px-2 flex justify-between items-center">
-                                                    <div className="flex items-center gap-3">
-                                                        {lesson.type === 'video' ? <Play size={16} className="text-blue-600" /> : <FileText size={16} className="text-purple-600" />}
-                                                        <span className="font-bold text-slate-800 text-sm">{lesson.title}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-4">
-                                                        <span className="text-xs text-slate-400 font-medium">{lesson.durationMinutes} Mins</span>
-                                                        {lesson.isFreePreview ? (
-                                                            <button
-                                                                onClick={() => lesson.videoUrl && setPreviewLesson(lesson)}
-                                                                className="text-xs font-black bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full hover:bg-emerald-100"
-                                                            >
-                                                                Watch Preview
-                                                            </button>
-                                                        ) : (
-                                                            <Lock size={14} className="text-slate-300" />
-                                                        )}
-                                                    </div>
+                    <div className="space-y-4 max-w-4xl">
+                        {curriculum.length === 0 ? (
+                            <p className="text-slate-400 font-medium">Curriculum coming soon.</p>
+                        ) : (
+                            curriculum.map(({ module, lessons }, idx) => {
+                                const isExpanded = expandedModuleId === module.id;
+                                return (
+                                    <div key={module.id} className="bg-[#0B152B] rounded-2xl border border-[#17254E] overflow-hidden shadow-sm">
+                                        <button
+                                            onClick={() => setExpandedModuleId(isExpanded ? null : module.id)}
+                                            className="w-full flex justify-between items-center p-5 bg-[#0E1B38] hover:bg-[#13244a] transition-colors text-left"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <span className="w-7 h-7 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center">{idx + 1}</span>
+                                                <div>
+                                                    <h3 className="font-extrabold text-white text-base">{module.title}</h3>
+                                                    <p className="text-xs text-slate-400 font-medium">{lessons.length} Lessons</p>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    )}
+                                            </div>
+                                            {isExpanded ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
+                                        </button>
+
+                                        {isExpanded && (
+                                            <div className="p-4 divide-y divide-[#17254E]/60 bg-[#0B152B]">
+                                                {lessons.map(lesson => (
+                                                    <div key={lesson.id} className="py-3 px-2 flex justify-between items-center">
+                                                        <div className="flex items-center gap-3">
+                                                            {lesson.type === 'video' ? <Play size={16} className="text-blue-400" /> : <FileText size={16} className="text-purple-400" />}
+                                                            <span className="font-bold text-slate-200 text-sm">{lesson.title}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-4">
+                                                            <span className="text-xs text-slate-400 font-medium">{lesson.durationMinutes} Mins</span>
+                                                            {lesson.isFreePreview ? (
+                                                                <button
+                                                                    onClick={() => lesson.videoUrl && setPreviewLesson(lesson)}
+                                                                    className="text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full hover:bg-emerald-500/20 transition-colors"
+                                                                >
+                                                                    Watch Preview
+                                                                </button>
+                                                            ) : (
+                                                                <Lock size={14} className="text-slate-500" />
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
                 </div>
             </div>
 

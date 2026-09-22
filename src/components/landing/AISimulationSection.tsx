@@ -143,7 +143,7 @@ const AISimulationSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section id="ai-simulation" className="bg-white pt-6 pb-6 sm:pt-8 sm:pb-10 overflow-hidden relative">
+    <section id="ai-simulation" className="bg-[#070D1E] text-white pt-6 pb-6 sm:pt-8 sm:pb-10 overflow-hidden relative">
       {/* Decorative Wavy Lines (Mockup style) */}
       <div className="absolute right-0 top-0 w-[350px] h-[350px] pointer-events-none z-0 overflow-visible hidden md:block">
         <svg className="w-full h-full" viewBox="0 0 350 350" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -164,16 +164,16 @@ const AISimulationSection = () => {
             viewport={{ once: true }}
             className="space-y-6 sm:space-y-8"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-blue-50 border border-blue-100 rounded-full text-[10px] sm:text-xs font-black text-blue-600 uppercase tracking-widest">
-              <Zap size={14} className="fill-blue-600 shrink-0" /> Proprietary Intelligence
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] sm:text-xs font-black text-blue-400 uppercase tracking-widest">
+              <Zap size={14} className="fill-blue-400 shrink-0" /> Proprietary Intelligence
             </div>
 
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.15] sm:leading-[1.1] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.15] sm:leading-[1.1] tracking-tight">
               AI That <span className="text-gradient-blue">Evolves</span> <br />
               With Your Progress.
             </h2>
 
-            <p className="text-slate-600 text-base sm:text-xl leading-relaxed max-w-xl">
+            <p className="text-slate-300 text-base sm:text-xl leading-relaxed max-w-xl">
               Our advanced algorithms analyze every keystroke and OMR bubble to identify hidden patterns that standard tests miss.
             </p>
 
@@ -184,14 +184,14 @@ const AISimulationSection = () => {
                 { title: "Risk Profiling", desc: "Predictive OMR failure analysis", icon: <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" /> },
                 { title: "Growth Path", desc: "Dynamic curriculum adjustments", icon: <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> }
               ].map((item, i) => (
-                <div key={i} className="p-3 sm:p-5 rounded-2xl bg-gradient-to-br from-white to-slate-50 border border-slate-200/60 group hover:border-blue-500/20 hover:shadow-[0_12px_30px_-8px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
+                <div key={i} className="p-3 sm:p-5 rounded-2xl bg-[#0B152B]/90 border border-[#172D52] group hover:border-blue-400/40 hover:shadow-[0_12px_30px_-8px_rgba(37,99,235,0.2)] hover:-translate-y-1 transition-all duration-300">
                   <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
-                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-100 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#070D1E] shadow-sm flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-300 shrink-0">
                       {item.icon}
                     </div>
-                    <p className="font-extrabold text-slate-800 text-[11px] sm:text-sm leading-tight">{item.title}</p>
+                    <p className="font-extrabold text-white text-[11px] sm:text-sm leading-tight">{item.title}</p>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-slate-500 font-semibold leading-relaxed pl-0.5">{item.desc}</p>
+                  <p className="text-[10px] sm:text-xs text-slate-400 font-semibold leading-relaxed pl-0.5">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -205,7 +205,7 @@ const AISimulationSection = () => {
               </button>
               <button
                 onClick={() => navigate('/resources')}
-                className="px-4 py-3 sm:px-6 text-xs sm:text-sm text-slate-600 font-bold hover:text-blue-600 transition-colors"
+                className="px-4 py-3 sm:px-6 text-xs sm:text-sm text-slate-300 font-bold hover:text-white border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
               >
                 View Sample Report
               </button>
@@ -294,16 +294,16 @@ const AISimulationSection = () => {
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
-              className="absolute -top-4 right-1 sm:-top-6 sm:-right-4 bg-white/95 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100 z-20 scale-90 sm:scale-100 origin-top-right"
+              className="absolute -top-4 right-1 sm:-top-6 sm:-right-4 bg-[#0B152B]/95 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#172D52] z-20 scale-90 sm:scale-100 origin-top-right shadow-xl"
             >
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 rounded-full flex items-center justify-center text-green-600 border border-green-100 shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-full flex items-center justify-center text-green-400 border border-green-500/20 shrink-0">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <p className="text-[11px] sm:text-xs font-black text-slate-900">Score Jump</p>
-                  <p className="text-[9px] sm:text-[10px] text-green-600 font-black flex items-center gap-1">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
+                  <p className="text-[11px] sm:text-xs font-black text-white">Score Jump</p>
+                  <p className="text-[9px] sm:text-[10px] text-green-400 font-black flex items-center gap-1">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-ping"></span>
                     +15.2% Today
                   </p>
                 </div>

@@ -209,14 +209,14 @@ const LandingPage = () => {
 
 
   return (
-    <div className="font-sans antialiased bg-white text-slate-900 selection:bg-[#1D64D0] selection:text-white">
+    <div className="font-sans antialiased bg-[#070D1E] text-slate-100 selection:bg-[#1D64D0] selection:text-white">
       <Navbar />
 
       {/* 1 & 2. Hero Slider */}
       <HeroSlider />
 
       {/* Exams Running Strip / Slider Carousel */}
-      <div className="w-full bg-[#FAFBFC] py-10 px-4 sm:px-8 md:px-12 border-y border-slate-100 relative select-none mt-2">
+      <div className="w-full bg-[#0B152B]/90 py-10 px-4 sm:px-8 md:px-12 border-y border-[#17254E] relative select-none mt-2">
         {/* Upper right decorative curves */}
         <div className="absolute right-0 top-0 bottom-0 w-[240px] pointer-events-none z-10 overflow-hidden hidden md:block">
           <svg className="w-full h-full" viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -236,7 +236,7 @@ const LandingPage = () => {
           {/* Left Arrow Button */}
           <button 
             onClick={scrollLeft} 
-            className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#0E1B38] rounded-full flex items-center justify-center border border-[#1E3360] text-slate-300 hover:text-white transition-all z-20 hover:scale-110 active:scale-95"
             title="Scroll Left"
           >
             <ChevronLeft size={20} className="stroke-[2.5]" />
@@ -245,7 +245,7 @@ const LandingPage = () => {
           {/* Right Arrow Button */}
           <button 
             onClick={scrollRight} 
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center border border-slate-100 text-slate-600 hover:text-[#1D64D0] transition-all z-20 hover:scale-110 active:scale-95"
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#0E1B38] rounded-full flex items-center justify-center border border-[#1E3360] text-slate-300 hover:text-white transition-all z-20 hover:scale-110 active:scale-95"
             title="Scroll Right"
           >
             <ChevronRight size={20} className="stroke-[2.5]" />
@@ -260,7 +260,7 @@ const LandingPage = () => {
               return (
                 <div 
                   key={idx}
-                  className="relative flex items-center p-4 pt-6 bg-white border border-slate-100 rounded-2xl w-[210px] shrink-0 hover:scale-[1.02] hover:border-slate-200 transition-all duration-300"
+                  className="relative flex items-center p-4 pt-6 bg-[#0E1B38] border border-[#1E3360] rounded-2xl w-[210px] shrink-0 hover:scale-[1.02] hover:border-blue-500/50 transition-all duration-300 shadow-lg"
                 >
                   {/* LIVE Badge */}
                   <span className="absolute top-2.5 left-3 bg-[#FF6B00] text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none">
@@ -274,10 +274,10 @@ const LandingPage = () => {
                     </div>
                     {/* Text content */}
                     <div className="flex flex-col min-w-0">
-                      <span className="text-[12px] font-extrabold text-slate-800 tracking-wide uppercase truncate leading-tight">
+                      <span className="text-[12px] font-extrabold text-white tracking-wide uppercase truncate leading-tight">
                         {exam.name}
                       </span>
-                      <span className="text-[9px] font-bold text-orange-500 mt-1 leading-none">
+                      <span className="text-[9px] font-bold text-orange-400 mt-1 leading-none">
                         Live Tests
                       </span>
                       <span className="text-[9px] font-medium text-slate-400 mt-1.5 leading-none">
@@ -303,11 +303,11 @@ const LandingPage = () => {
       <ContinueLearningSection />
 
       {/* 6. Test Series Section */}
-      <section id="test-series" className="pt-8 pb-16 sm:pt-12 sm:pb-20 bg-[#F8FAFC] scroll-mt-24 relative overflow-hidden">
+      <section id="test-series" className="pt-8 pb-16 sm:pt-12 sm:pb-20 bg-[#050B18] text-white scroll-mt-24 relative overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-100/40 blur-3xl"></div>
-          <div className="absolute top-[60%] -right-[10%] w-[40%] h-[60%] rounded-full bg-blue-50/50 blur-3xl"></div>
+          <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-3xl"></div>
+          <div className="absolute top-[60%] -right-[10%] w-[40%] h-[60%] rounded-full bg-indigo-600/10 blur-3xl"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -320,15 +320,15 @@ const LandingPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-8 sm:mb-12"
           >
-            <span className="inline-block text-xs font-bold text-[#1D64D0] bg-blue-50 border border-blue-100 px-4 py-1.5 rounded-full tracking-wider uppercase mb-4 shadow-sm">
+            <span className="inline-block text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full tracking-wider uppercase mb-4 shadow-sm">
               Practice & Preparation
             </span>
 
-            <h3 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
-              Test <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1D64D0] to-blue-400">Series</span>
+            <h3 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
+              Test <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">Series</span>
             </h3>
 
-            <p className="mt-4 text-gray-500 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
+            <p className="mt-4 text-slate-400 max-w-xl mx-auto text-sm md:text-base leading-relaxed">
               Practice with curated mock tests designed to boost your exam performance and confidence.
             </p>
 
@@ -338,7 +338,7 @@ const LandingPage = () => {
           {/* CONTENT */}
           {loading ? (
             <div className="flex justify-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[#1D64D0]"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#1D64D0]"></div>
             </div>
           ) : testSeries.length > 0 ? (
 
@@ -352,13 +352,13 @@ const LandingPage = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
                   key={series.id}
-                  className="group bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md hover:border-blue-100 transition-all duration-300 overflow-hidden flex flex-col h-full relative"
+                  className="group bg-[#0B152B] border border-[#17254E] hover:border-blue-500/40 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col h-full relative"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-b from-blue-50/0 to-blue-50/0 group-hover:to-blue-50/50 transition-colors duration-300 pointer-events-none z-0"></div>
+                  <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 to-blue-500/0 group-hover:to-blue-500/10 transition-colors duration-300 pointer-events-none z-0"></div>
 
                   {/* Thumbnail Image */}
                   {series.thumbnailUrl && (
-                    <div className="w-full h-[150px] overflow-hidden relative z-10 border-b border-gray-100 bg-slate-900">
+                    <div className="w-full h-[150px] overflow-hidden relative z-10 border-b border-[#17254E] bg-slate-900">
                       <img
                         src={series.thumbnailUrl}
                         alt={series.name}
@@ -379,62 +379,62 @@ const LandingPage = () => {
                       </span>
                     )}
 
-                    <span className="text-[10px] text-[#1D64D0] font-bold uppercase tracking-wider">
+                    <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">
                       {series.examCategory || 'Test Series'}{series.examSubCategory ? ` (${series.examSubCategory})` : ''}
                     </span>
                   </div>
 
                   {/* Title */}
                   <div className="px-6 mt-3.5 relative z-10">
-                    <h4 className="text-[19px] font-bold text-gray-900 group-hover:text-[#1D64D0] transition-colors duration-300 leading-snug">
+                    <h4 className="text-[19px] font-bold text-white group-hover:text-blue-400 transition-colors duration-300 leading-snug">
                       {series.name}
                     </h4>
                   </div>
 
                   {/* Description */}
                   <div className="px-6 mt-2.5 relative z-10 flex-grow">
-                    <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed">
+                    <p className="text-[13px] text-slate-300 line-clamp-2 leading-relaxed">
                       {series.description || "Practice with high-quality mock tests and detailed solutions."}
                     </p>
                   </div>
 
                   {/* Features */}
-                  <div className="px-6 mt-5 mb-5 space-y-2.5 text-[13px] text-gray-600 relative z-10">
+                  <div className="px-6 mt-5 mb-5 space-y-2.5 text-[13px] text-slate-300 relative z-10">
                     <p className="flex items-center gap-2.5">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-50 text-[#1D64D0] text-[10px]">✓</span>
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 text-[10px]">✓</span>
                       <span className="font-medium">Detailed Solutions</span>
                     </p>
                     <p className="flex items-center gap-2.5">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-50 text-[#1D64D0] text-[10px]">✓</span>
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 text-[10px]">✓</span>
                       <span className="font-medium">All India Ranking</span>
                     </p>
                     <p className="flex items-center gap-2.5">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-50 text-[#1D64D0] text-[10px]">✓</span>
+                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 text-[10px]">✓</span>
                       <span className="font-medium">Performance Analytics</span>
                     </p>
                   </div>
 
                   {/* Price and CTA section */}
-                  <div className="px-6 py-4 mt-auto bg-gray-50/80 group-hover:bg-blue-50/50 transition-colors duration-300 border-t border-gray-100 flex items-center justify-between relative z-10">
+                  <div className="px-6 py-4 mt-auto bg-[#070D1E] group-hover:bg-[#091226] transition-colors duration-300 border-t border-[#17254E] flex items-center justify-between relative z-10">
                     <div className="flex flex-col">
                       {series.pricing?.type === "paid" ? (
                         <>
                           <div className="flex items-center gap-2">
-                            <span className="text-[22px] font-black text-gray-900 leading-none">
+                            <span className="text-[22px] font-black text-white leading-none">
                               ₹{series.pricing?.amount}
                             </span>
-                            <span className="text-[12px] font-bold text-gray-400 line-through">
+                            <span className="text-[12px] font-bold text-slate-400 line-through">
                               ₹{Math.round((series.pricing?.amount || 0) * 1.5)}
                             </span>
                           </div>
                           <div className="mt-1.5">
-                            <span className="text-[10px] font-extrabold bg-green-100 text-green-700 px-2 py-0.5 rounded uppercase tracking-wider">
+                            <span className="text-[10px] font-extrabold bg-green-500/15 text-green-400 border border-green-500/30 px-2 py-0.5 rounded uppercase tracking-wider">
                               33% OFF
                             </span>
                           </div>
                         </>
                       ) : (
-                        <span className="text-xl font-extrabold text-emerald-500">
+                        <span className="text-xl font-extrabold text-emerald-400">
                           Free
                         </span>
                       )}
@@ -442,7 +442,7 @@ const LandingPage = () => {
 
                     <button
                       onClick={() => handleBuy(series.id)}
-                      className="relative overflow-hidden bg-[#1D64D0] text-white font-bold py-2.5 px-8 min-w-[150px] text-[13px] rounded-lg transition-all duration-300 shadow-sm hover:bg-slate-900 active:scale-95"
+                      className="relative overflow-hidden bg-[#1D64D0] hover:bg-blue-600 text-white font-bold py-2.5 px-8 min-w-[150px] text-[13px] rounded-lg transition-all duration-300 shadow-md active:scale-95"
                     >
                       <span className="relative z-10 flex items-center justify-center gap-1.5">
                         Explore Series
@@ -460,14 +460,14 @@ const LandingPage = () => {
 
           ) : (
             <div className="text-center py-16">
-              <div className="inline-block p-8 bg-white rounded-[32px] shadow-sm border border-slate-100 transition-all hover:shadow-md">
-                <div className="w-20 h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
-                  <svg className="text-[#1D64D0] w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="inline-block p-8 bg-[#0B152B] rounded-[32px] shadow-xl border border-[#17254E] transition-all hover:shadow-2xl">
+                <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
+                  <svg className="text-blue-400 w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Coming Soon</h3>
-                <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm leading-relaxed">
+                <h3 className="text-2xl font-black text-white mb-3 tracking-tight">Coming Soon</h3>
+                <p className="text-slate-400 font-medium max-w-sm mx-auto text-sm leading-relaxed">
                   Our expert faculty is currently crafting premium test series. Stay tuned for updates!
                 </p>
               </div>

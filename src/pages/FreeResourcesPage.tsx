@@ -107,43 +107,43 @@ const FreeResourcesPage = () => {
 
     return (
         <PageLayout>
-            <div className="bg-white py-12 min-h-screen">
+            <div className="bg-[#070D1E] py-12 min-h-screen text-slate-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Resources</h1>
-                        <p className="text-lg text-gray-600">
+                        <h1 className="text-4xl font-extrabold text-white mb-4">Resources</h1>
+                        <p className="text-lg text-slate-300">
                             Access high-quality study materials, formula sheets, and watch revision videos.
                         </p>
                     </div>
 
                     {isLoading ? (
                         <div className="flex justify-center py-20">
-                            <Loader2 className="animate-spin text-blue-600" size={40} />
+                            <Loader2 className="animate-spin text-blue-500" size={40} />
                         </div>
                     ) : resources.length === 0 ? (
-                        <div className="text-center py-20 text-gray-500">No resources found.</div>
+                        <div className="text-center py-20 text-slate-400">No resources found.</div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
                             {resources.map((resource) => (
-                                <div key={resource.id} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow flex items-center justify-between group bg-white">
+                                <div key={resource.id} className="border border-[#17254E] rounded-2xl p-6 hover:shadow-xl transition-all flex items-center justify-between group bg-[#0B152B] hover:border-blue-500/40">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition-colors">
+                                        <div className="p-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl group-hover:bg-blue-950/40 transition-colors">
                                             {getIcon(resource.type)}
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-gray-900">{resource.title}</h3>
-                                            <p className="text-sm text-gray-500 capitalize">{resource.type} • {resource.category}</p>
+                                            <h3 className="font-bold text-white">{resource.title}</h3>
+                                            <p className="text-sm text-slate-400 capitalize">{resource.type} • {resource.category}</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-4">
                                         {!resource.isFree && (
-                                            <span className="text-blue-600 font-bold">₹{resource.price}</span>
+                                            <span className="text-blue-400 font-bold">₹{resource.price}</span>
                                         )}
                                         <button
                                             onClick={() => handleAction(resource)}
                                             disabled={isProcessingId === resource.id}
-                                            className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-70"
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-500 transition-colors flex items-center gap-2 disabled:opacity-70 cursor-pointer shadow-lg shadow-blue-600/20"
                                         >
                                             {isProcessingId === resource.id ? (
                                                 <Loader2 size={16} className="animate-spin" />

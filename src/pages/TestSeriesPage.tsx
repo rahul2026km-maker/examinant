@@ -48,29 +48,29 @@ const TestSeriesPage = () => {
 
     return (
         <PageLayout>
-            <div className="bg-blue-50/30 py-12 min-h-screen">
+            <div className="bg-[#070D1E] text-white py-12 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
+                        <h1 className="text-4xl font-extrabold text-white mb-4">
                             {categoryParam ? `${categoryParam} Test Series` : 'All Test Series'}
                         </h1>
-                        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                        <p className="text-lg text-slate-400 max-w-2xl mx-auto">
                             Comprehensive test series designed by experts to help you ace your exams.
                         </p>
                     </div>
 
                     {isLoading ? (
                         <div className="flex justify-center py-20">
-                            <Loader2 className="animate-spin text-blue-600" size={40} />
+                            <Loader2 className="animate-spin text-blue-500" size={40} />
                         </div>
                     ) : filteredSeries.length === 0 ? (
                         <div className="text-center py-20">
-                            <div className="inline-block p-8 bg-white rounded-[32px] shadow-sm border border-slate-100 mb-4 transition-all hover:shadow-md">
-                                <div className="w-20 h-20 bg-blue-50/80 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
-                                    <Clock className="text-[#1D64D0] w-10 h-10" />
+                            <div className="inline-block p-8 bg-[#0B152B] rounded-[32px] shadow-xl border border-[#17254E] mb-4 transition-all hover:shadow-2xl">
+                                <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
+                                    <Clock className="text-blue-400 w-10 h-10" />
                                 </div>
-                                <h3 className="text-2xl font-black text-slate-800 mb-3 tracking-tight">Coming Soon</h3>
-                                <p className="text-slate-500 font-medium max-w-sm mx-auto text-sm leading-relaxed">
+                                <h3 className="text-2xl font-black text-white mb-3 tracking-tight">Coming Soon</h3>
+                                <p className="text-slate-400 font-medium max-w-sm mx-auto text-sm leading-relaxed">
                                     Our expert faculty is currently crafting premium test series for this category. Stay tuned for updates!
                                 </p>
                             </div>
@@ -94,6 +94,7 @@ const TestSeriesPage = () => {
                                     onExplore={() => navigate(`/test-series/${item.id}`)}
                                     thumbnailUrl={item.thumbnailUrl}
                                     testCount={item.stats?.totalTests || 0}
+                                    isDark={true}
                                 />
                             ))}
                         </div>

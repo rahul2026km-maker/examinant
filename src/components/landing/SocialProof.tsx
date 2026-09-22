@@ -5,7 +5,7 @@ const SocialProof = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 bg-white overflow-hidden">
+    <section className="py-24 bg-[#070D1E] overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative bg-gradient-to-br from-[#0B4F97] via-[#1D64D0] to-[#0A3D75] rounded-[40px] p-10 md:p-16 lg:p-20 overflow-hidden shadow-2xl">
           {/* Decorative background shapes to make it feel premium and full */}

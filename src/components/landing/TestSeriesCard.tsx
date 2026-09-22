@@ -37,7 +37,7 @@ const TestSeriesCard = ({
     examSubCategory,
     testCount,
     thumbnailUrl,
-    isDark = false
+    isDark = true
 }: TestSeriesProps) => {
 
     const [tests, setTests] = useState<any[]>([]);

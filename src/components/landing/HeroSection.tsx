@@ -19,9 +19,9 @@ const HeroSection = ({ onGetStarted }: { onGetStarted?: () => void }) => {
     };
 
     return (
-        <section className="relative min-h-screen flex flex-col justify-center bg-[#0B0F19] overflow-hidden pt-32 pb-20">
+        <section className="relative min-h-screen flex flex-col justify-center bg-[#070D1E] overflow-hidden pt-32 pb-20">
             {/* Subtle Grid Background */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#17254E_1px,transparent_1px),linear-gradient(to_bottom,#17254E_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
 
             {/* Glowing Accents */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/20 blur-[120px] rounded-full pointer-events-none"></div>

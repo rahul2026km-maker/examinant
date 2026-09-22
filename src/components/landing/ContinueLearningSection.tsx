@@ -245,7 +245,7 @@ Examinant All India Learning Portal: https://examinantt.com
   };
 
   return (
-    <section id="continue-learning" className="relative py-12 sm:py-16 bg-[#03090F] text-white overflow-hidden scroll-mt-20 select-none">
+    <section id="continue-learning" className="relative py-12 sm:py-16 bg-[#070D1E] text-white overflow-hidden scroll-mt-20 select-none">
       {/* Ambient background glow matching dark emerald/cyan palette */}
       <div className="absolute top-1/3 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/[0.07] rounded-full blur-[160px] pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-[500px] h-[500px] bg-teal-500/[0.06] rounded-full blur-[140px] pointer-events-none"></div>

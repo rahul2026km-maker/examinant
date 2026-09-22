@@ -4,11 +4,11 @@ import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Youtube } 
 
 const Footer = () => {
     return (
-        <footer className="bg-[#172554] py-8 sm:py-10 border-t border-slate-800 text-slate-300">
+        <footer className="bg-[#040814] py-8 sm:py-10 border-t border-[#17254E] text-slate-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Compact Header Row: Logo & Brand + Social Icons */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-slate-800/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-[#17254E]">
                     <div className="flex items-center gap-3">
                         <img src={logo} alt="Examinantt Logo" className="w-9 h-9 rounded-lg bg-white/10 p-1 shrink-0" />
                         <div>

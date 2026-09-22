@@ -47,13 +47,13 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_COLORS: Record<string, string> = {
-    practice: 'bg-blue-50 text-blue-700 border border-blue-100',
-    mock: 'bg-purple-50 text-purple-700 border border-purple-100',
-    previous_year: 'bg-green-50 text-green-700 border border-green-100',
-    full_length: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
-    subject_wise: 'bg-indigo-50 text-indigo-700 border border-indigo-100',
-    unit_wise: 'bg-pink-50 text-pink-700 border border-pink-100',
-    chapter_wise: 'bg-amber-50 text-amber-700 border border-amber-100',
+    practice: 'bg-blue-500/15 text-blue-400 border border-blue-500/30',
+    mock: 'bg-purple-500/15 text-purple-400 border border-purple-500/30',
+    previous_year: 'bg-green-500/15 text-green-400 border border-green-500/30',
+    full_length: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+    subject_wise: 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30',
+    unit_wise: 'bg-pink-500/15 text-pink-400 border border-pink-500/30',
+    chapter_wise: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
 };
 
 const TestSeriesDetailsPage = () => {
@@ -325,7 +325,7 @@ const TestSeriesDetailsPage = () => {
     const totalQuestions = tests.reduce((acc, t) => acc + (t.questionConfig?.totalQuestions || t.questionIds?.length || 0), 0);
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50 font-sans overflow-x-hidden">
+        <div className="min-h-screen flex flex-col bg-[#070D1E] text-slate-100 font-sans overflow-x-hidden">
             <Navbar />
 
             {/* Premium Dark Hero Section */}
@@ -452,11 +452,11 @@ const TestSeriesDetailsPage = () => {
                     <div className="lg:col-span-2 space-y-10">
 
                         {/* Tests Included in this Series Section */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                        <div className="bg-[#0B152B] rounded-3xl p-8 border border-[#17254E] shadow-xl space-y-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#17254E] pb-5">
                                 <div className="flex items-center gap-3">
                                     <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
-                                    <h2 className="text-2xl font-bold text-slate-900">Tests Included</h2>
+                                    <h2 className="text-2xl font-bold text-white">Tests Included</h2>
                                 </div>
                                 <div className="relative w-full md:w-64">
                                     <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
@@ -465,7 +465,7 @@ const TestSeriesDetailsPage = () => {
                                         placeholder="Search tests..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl text-sm font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400"
+                                        className="w-full pl-10 pr-4 py-2 bg-[#0E1B38] border border-[#1E3360] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-xl text-sm font-medium text-white outline-none transition-all placeholder:text-slate-400"
                                     />
                                 </div>
                             </div>
@@ -483,8 +483,8 @@ const TestSeriesDetailsPage = () => {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`px-4 py-2 text-xs font-bold rounded-xl transition-all border ${activeTab === tab.id
-                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10'
-                                                : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100'
+                                                ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
+                                                : 'bg-[#0E1B38] text-slate-300 border-[#1E3360] hover:bg-[#13244a]'
                                             }`}
                                     >
                                         {tab.label}
@@ -501,7 +501,7 @@ const TestSeriesDetailsPage = () => {
                                 ) : (
                                     filteredAndSearchedTests.map((test, index) => {
                                         const typeLabel = TYPE_LABELS[test.testType] || test.testType || 'Test';
-                                        const typeColor = TYPE_COLORS[test.testType] || 'bg-slate-50 text-slate-600 border border-slate-100';
+                                        const typeColor = TYPE_COLORS[test.testType] || 'bg-slate-800 text-slate-300 border border-slate-700';
                                         const duration = test.settings?.duration || 180;
                                         const questionsCount = test.questionConfig?.totalQuestions || test.questionIds?.length || 0;
 
@@ -512,14 +512,14 @@ const TestSeriesDetailsPage = () => {
                                         return (
                                             <div
                                                 key={test.id}
-                                                className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl hover:bg-slate-50 hover:border-blue-100 transition-all group"
+                                                className="flex items-center justify-between p-4 bg-[#0E1B38]/60 border border-[#1E3360]/60 rounded-2xl hover:bg-[#0E1B38] hover:border-blue-500/40 transition-all group"
                                             >
                                                 <div className="flex items-center gap-4 min-w-0">
-                                                    <span className="flex-shrink-0 w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xs font-black">
+                                                    <span className="flex-shrink-0 w-8 h-8 bg-blue-500/15 text-blue-400 rounded-xl flex items-center justify-center text-xs font-black">
                                                         {index + 1}
                                                     </span>
                                                     <div className="min-w-0 space-y-1">
-                                                        <p className="font-bold text-slate-900 text-sm truncate leading-tight">
+                                                        <p className="font-bold text-white text-sm truncate leading-tight">
                                                             {test.name}
                                                         </p>
                                                         <div className="flex flex-wrap items-center gap-2">
@@ -533,7 +533,7 @@ const TestSeriesDetailsPage = () => {
                                                                 • {questionsCount} Qs
                                                             </span>
                                                             {hasAttempted && (
-                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-green-50 text-green-700 border border-green-200">
+                                                                <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-green-500/15 text-green-400 border border-green-500/30">
                                                                     Best: {testBestScore.toFixed(1)}%
                                                                 </span>
                                                             )}
@@ -548,7 +548,7 @@ const TestSeriesDetailsPage = () => {
                                                                             navigate(targetPath);
                                                                         }
                                                                     }}
-                                                                    className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 border border-orange-200 animate-pulse hover:bg-orange-200 transition-colors cursor-pointer"
+                                                                    className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30 animate-pulse hover:bg-orange-500/30 transition-colors cursor-pointer"
                                                                 >
                                                                     Free Demo
                                                                 </button>
@@ -565,7 +565,7 @@ const TestSeriesDetailsPage = () => {
                                                                 navigate(hasOMR ? `/dashboard/attempt/${test.id}/mode` : `/dashboard/attempt/${test.id}`);
                                                             }}
                                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${hasAttempted
-                                                                    ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                                                                    ? 'bg-[#13244a] hover:bg-[#1b3266] text-white border border-[#1E3360]'
                                                                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                                                                 }`}
                                                         >
@@ -583,13 +583,13 @@ const TestSeriesDetailsPage = () => {
                                                                     navigate(targetPath);
                                                                 }
                                                             }}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 rounded-xl text-xs font-bold transition-all"
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 border border-orange-500/30 rounded-xl text-xs font-bold transition-all"
                                                         >
                                                             <PlayCircle size={12} />
                                                             <span>Start Free</span>
                                                         </button>
                                                     ) : (
-                                                        <div className="p-2 bg-slate-100 text-slate-400 rounded-xl">
+                                                        <div className="p-2 bg-[#0E1B38] text-slate-500 rounded-xl border border-[#1E3360]/50">
                                                             <Lock size={14} />
                                                         </div>
                                                     )}
@@ -602,170 +602,170 @@ const TestSeriesDetailsPage = () => {
                         </div>
 
                         {/* About This Test Series */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
+                        <div className="bg-[#0B152B] rounded-3xl p-8 border border-[#17254E] shadow-xl space-y-6">
                             <div className="flex items-center gap-3">
                                 <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
-                                <h2 className="text-2xl font-bold text-slate-900">About This Test Series</h2>
+                                <h2 className="text-2xl font-bold text-white">About This Test Series</h2>
                             </div>
-                            <p className="text-slate-600 leading-relaxed">
+                            <p className="text-slate-300 leading-relaxed">
                                 {series.description || `Examinantt's ${series.name} is designed by toppers and experts to give you the most exam-like practice. Every test is based on the latest exam pattern and difficulty level.`}
                             </p>
-                            <p className="text-slate-600 leading-relaxed font-light">
+                            <p className="text-slate-300 leading-relaxed font-light">
                                 We believe quality education should be accessible to every aspirant, irrespective of their background. Because your dream shouldn't depend on your city or your family's income.
                             </p>
 
                             {/* Stats Counters */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-slate-50/70 border border-slate-100 rounded-2xl">
-                                <div className="text-center space-y-1 border-r border-slate-200/60 last:border-0">
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 mx-auto flex items-center justify-center">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-[#0E1B38] border border-[#1E3360] rounded-2xl">
+                                <div className="text-center space-y-1 border-r border-[#17254E] last:border-0">
+                                    <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 mx-auto flex items-center justify-center">
                                         <Award size={16} />
                                     </div>
-                                    <p className="text-2xl font-extrabold text-slate-950">{series.stats?.totalTests || tests.length || '125+'}</p>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Total Tests</p>
+                                    <p className="text-2xl font-extrabold text-white">{series.stats?.totalTests || tests.length || '125+'}</p>
+                                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Tests</p>
                                 </div>
-                                <div className="text-center space-y-1 border-r border-slate-200/60 last:border-0">
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 mx-auto flex items-center justify-center">
+                                <div className="text-center space-y-1 border-r border-[#17254E] last:border-0">
+                                    <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 mx-auto flex items-center justify-center">
                                         <PlayCircle size={16} />
                                     </div>
-                                    <p className="text-2xl font-extrabold text-slate-950">{fullTestsCount || '10'}</p>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Full Length Mocks</p>
+                                    <p className="text-2xl font-extrabold text-white">{fullTestsCount || '10'}</p>
+                                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Full Length Mocks</p>
                                 </div>
-                                <div className="text-center space-y-1 border-r border-slate-200/60 last:border-0">
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 mx-auto flex items-center justify-center">
+                                <div className="text-center space-y-1 border-r border-[#17254E] last:border-0">
+                                    <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 mx-auto flex items-center justify-center">
                                         <Target size={16} />
                                     </div>
-                                    <p className="text-2xl font-extrabold text-slate-950">100%</p>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Exam Like</p>
+                                    <p className="text-2xl font-extrabold text-white">100%</p>
+                                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Exam Like</p>
                                 </div>
                                 <div className="text-center space-y-1 last:border-0">
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 mx-auto flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 mx-auto flex items-center justify-center">
                                         <FileText size={16} />
                                     </div>
-                                    <p className="text-2xl font-extrabold text-slate-950">{totalQuestions || '358+'}</p>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Original Questions</p>
+                                    <p className="text-2xl font-extrabold text-white">{totalQuestions || '358+'}</p>
+                                    <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Original Questions</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* What's Included Section */}
-                        <div className="bg-white rounded-3xl p-4 sm:p-8 border border-slate-100 shadow-sm space-y-5">
+                        <div className="bg-[#0B152B] rounded-3xl p-4 sm:p-8 border border-[#17254E] shadow-xl space-y-5">
                             <div className="flex items-center gap-3">
                                 <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
-                                <h2 className="text-xl sm:text-2xl font-bold text-slate-900">What's Included</h2>
+                                <h2 className="text-xl sm:text-2xl font-bold text-white">What's Included</h2>
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-blue-50/20 border border-blue-50/50 rounded-2xl transition-all hover:bg-blue-50/40">
-                                    <div className="p-2 sm:p-3 bg-blue-100 text-blue-600 rounded-xl shrink-0">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-[#0E1B38] border border-[#1E3360] rounded-2xl transition-all hover:border-blue-500/40">
+                                    <div className="p-2 sm:p-3 bg-blue-500/20 text-blue-400 rounded-xl shrink-0">
                                         <Award className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
+                                        <h4 className="font-bold text-white text-xs sm:text-base leading-snug">
                                             {fullTestsCount} Full Length Mocks
                                         </h4>
-                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Real exam pattern with exact difficulty level</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">Real exam pattern with exact difficulty level</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-green-50/20 border border-green-50/50 rounded-2xl transition-all hover:bg-green-50/40">
-                                    <div className="p-2 sm:p-3 bg-green-100 text-green-600 rounded-xl shrink-0">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-[#0E1B38] border border-[#1E3360] rounded-2xl transition-all hover:border-green-500/40">
+                                    <div className="p-2 sm:p-3 bg-green-500/20 text-green-400 rounded-xl shrink-0">
                                         <BookOpen className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
+                                        <h4 className="font-bold text-white text-xs sm:text-base leading-snug">
                                             {subjectTestsCount} Subject Wise Tests
                                         </h4>
-                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Subject-specific practice to master individual topics</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">Subject-specific practice to master individual topics</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-purple-50/20 border border-purple-50/50 rounded-2xl transition-all hover:bg-purple-50/40">
-                                    <div className="p-2 sm:p-3 bg-purple-100 text-purple-600 rounded-xl shrink-0">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-[#0E1B38] border border-[#1E3360] rounded-2xl transition-all hover:border-purple-500/40">
+                                    <div className="p-2 sm:p-3 bg-purple-500/20 text-purple-400 rounded-xl shrink-0">
                                         <Layers className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
+                                        <h4 className="font-bold text-white text-xs sm:text-base leading-snug">
                                             {unitTestsCount} Unit Wise Tests
                                         </h4>
-                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Evaluation tests for units to cover syllabus systematically</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">Evaluation tests for units to cover syllabus systematically</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-orange-50/20 border border-orange-50/50 rounded-2xl transition-all hover:bg-orange-50/40">
-                                    <div className="p-2 sm:p-3 bg-orange-100 text-orange-600 rounded-xl shrink-0">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-[#0E1B38] border border-[#1E3360] rounded-2xl transition-all hover:border-orange-500/40">
+                                    <div className="p-2 sm:p-3 bg-orange-500/20 text-orange-400 rounded-xl shrink-0">
                                         <FileText className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">
+                                        <h4 className="font-bold text-white text-xs sm:text-base leading-snug">
                                             {chapterTestsCount} Chapter Wise Tests
                                         </h4>
-                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Topic & chapter tests for deep practice and concepts review</p>
+                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">Topic & chapter tests for deep practice and concepts review</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-pink-50/20 border border-pink-50/50 rounded-2xl transition-all hover:bg-pink-50/40">
-                                    <div className="p-2 sm:p-3 bg-pink-100 text-pink-600 rounded-xl shrink-0">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-[#0E1B38] border border-[#1E3360] rounded-2xl transition-all hover:border-pink-500/40">
+                                    <div className="p-2 sm:p-3 bg-pink-500/20 text-pink-400 rounded-xl shrink-0">
                                         <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">Detailed Solutions</h4>
-                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Step-by-step explanations for every single question</p>
+                                        <h4 className="font-bold text-white text-xs sm:text-base leading-snug">Detailed Solutions</h4>
+                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">Step-by-step explanations for every single question</p>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-indigo-50/20 border border-indigo-50/50 rounded-2xl transition-all hover:bg-indigo-50/40">
-                                    <div className="p-2 sm:p-3 bg-indigo-100 text-indigo-600 rounded-xl shrink-0">
+                                <div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-4 p-3 sm:p-5 bg-[#0E1B38] border border-[#1E3360] rounded-2xl transition-all hover:border-blue-500/40">
+                                    <div className="p-2 sm:p-3 bg-indigo-500/20 text-indigo-400 rounded-xl shrink-0">
                                         <Clock className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-slate-900 text-xs sm:text-base leading-snug">Performance Analytics</h4>
-                                        <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 leading-relaxed">Track accuracy, time, strengths & weaknesses</p>
+                                        <h4 className="font-bold text-white text-xs sm:text-base leading-snug">Performance Analytics</h4>
+                                        <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5 leading-relaxed">Track accuracy, time, strengths & weaknesses</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Built by Experts Banner */}
-                            <div className="bg-gradient-to-r from-amber-50 to-[#FFF7ED] rounded-2xl p-6 border border-orange-100 flex flex-col md:flex-row gap-4 items-center md:items-start">
-                                <div className="w-12 h-12 rounded-xl bg-orange-100 text-[#FF9F1C] flex items-center justify-center shrink-0 shadow-sm border border-orange-200">
+                            <div className="bg-gradient-to-r from-[#0E1B38] to-[#122349] rounded-2xl p-6 border border-amber-500/30 flex flex-col md:flex-row gap-4 items-center md:items-start">
+                                <div className="w-12 h-12 rounded-xl bg-orange-500/20 text-[#FF9F1C] flex items-center justify-center shrink-0 shadow-sm border border-orange-500/30">
                                     <Star size={24} className="fill-[#FF9F1C]" />
                                 </div>
                                 <div className="text-center md:text-left space-y-1">
-                                    <h4 className="font-bold text-slate-900">Built by Experts. Trusted by Thousands.</h4>
-                                    <p className="text-sm text-slate-600 leading-relaxed font-light">Join thousands of serious aspirants on their journey to success with high-quality mock test structures.</p>
+                                    <h4 className="font-bold text-white">Built by Experts. Trusted by Thousands.</h4>
+                                    <p className="text-sm text-slate-300 leading-relaxed font-light">Join thousands of serious aspirants on their journey to success with high-quality mock test structures.</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Why Aspirants Trust Section */}
-                        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm space-y-6">
+                        <div className="bg-[#0B152B] rounded-3xl p-8 border border-[#17254E] shadow-xl space-y-6">
                             <div className="flex items-center gap-3">
                                 <span className="w-1.5 h-6 bg-[#FF9F1C] rounded-full"></span>
-                                <h2 className="text-2xl font-bold text-slate-900">Why Aspirants Trust Examinantt?</h2>
+                                <h2 className="text-2xl font-bold text-white">Why Aspirants Trust Examinantt?</h2>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                                         <Smartphone size={20} />
                                     </div>
-                                    <span className="text-slate-700 font-medium text-sm">Same as Real {series.examCategory} Exam Interface</span>
+                                    <span className="text-slate-200 font-medium text-sm">Same as Real {series.examCategory} Exam Interface</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                                         <CheckCircle size={20} />
                                     </div>
-                                    <span className="text-slate-700 font-medium text-sm">Verified & Validated Questions</span>
+                                    <span className="text-slate-200 font-medium text-sm">Verified & Validated Questions</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                                         <Award size={20} />
                                     </div>
-                                    <span className="text-slate-700 font-medium text-sm">Prepared by Experts & Former Toppers</span>
+                                    <span className="text-slate-200 font-medium text-sm">Prepared by Experts & Former Toppers</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                                         <Target size={20} />
                                     </div>
-                                    <span className="text-slate-700 font-medium text-sm">Supports Your Dream Without Compromise</span>
+                                    <span className="text-slate-200 font-medium text-sm">Supports Your Dream Without Compromise</span>
                                 </div>
                             </div>
                         </div>
@@ -773,10 +773,10 @@ const TestSeriesDetailsPage = () => {
 
                     {/* Right Column - Sticky Sidebar / Checkout */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden sticky top-28 space-y-6">
+                        <div className="bg-[#0B152B] rounded-3xl border border-[#17254E] shadow-2xl overflow-hidden sticky top-28 space-y-6">
 
                             {/* Offer header */}
-                            <div className="bg-gradient-to-r from-blue-900 to-[#0F1E36] p-6 text-white text-center">
+                            <div className="bg-gradient-to-r from-blue-900 to-[#0F1E36] p-6 text-white text-center border-b border-[#17254E]">
                                 <p className="text-xs uppercase font-bold tracking-wider text-blue-300 mb-3">Limited Time Offer!</p>
                                 <div className="flex items-center justify-center gap-4">
                                     <div className="flex flex-col items-center">
@@ -811,12 +811,12 @@ const TestSeriesDetailsPage = () => {
                                                 ₹{series?.pricing?.amount === 349 ? 1400 : Math.round((series?.pricing?.amount || 0) * 4)}
                                             </span>
                                         )}
-                                        <span className="text-5xl font-black text-slate-900">
+                                        <span className="text-5xl font-black text-white">
                                             {series?.pricing?.type === 'free' ? 'Free' : `₹${Math.max(0, (series?.pricing?.amount || 0) - couponDiscount)}`}
                                         </span>
                                     </div>
                                     {series?.pricing?.type === 'paid' && (
-                                        <span className="inline-block px-3 py-1 bg-green-50 border border-green-200 text-green-600 font-bold text-xs rounded-full">
+                                        <span className="inline-block px-3 py-1 bg-green-500/15 border border-green-500/30 text-green-400 font-bold text-xs rounded-full">
                                             You Save ₹{
                                                 series?.pricing?.amount === 349 && couponDiscount === 0
                                                     ? 1051
@@ -832,9 +832,9 @@ const TestSeriesDetailsPage = () => {
 
                                 {/* Discount code section */}
                                 {series?.pricing?.type === 'paid' && (
-                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                    <div className="pt-4 border-t border-[#17254E] space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Get more discount...</span>
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Get more discount...</span>
                                         </div>
                                         <div className="flex gap-2">
                                             <input
@@ -845,20 +845,20 @@ const TestSeriesDetailsPage = () => {
                                                     setCouponCode(e.target.value);
                                                     setCouponError(null);
                                                 }}
-                                                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-sm font-semibold outline-none uppercase placeholder:normal-case"
+                                                className="flex-1 px-3 py-2 bg-[#0E1B38] border border-[#1E3360] focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 rounded-xl text-sm font-semibold text-white outline-none uppercase placeholder:normal-case placeholder:text-slate-400"
                                             />
                                             <button
                                                 onClick={handleApplyCoupon}
-                                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shrink-0"
+                                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shrink-0 cursor-pointer"
                                             >
                                                 Apply
                                             </button>
                                         </div>
                                         {couponError && (
-                                            <p className="text-xs font-bold text-red-500">{couponError}</p>
+                                            <p className="text-xs font-bold text-red-400">{couponError}</p>
                                         )}
                                         {appliedCoupon && (
-                                            <p className="text-xs font-bold text-green-600 flex items-center gap-1">
+                                            <p className="text-xs font-bold text-green-400 flex items-center gap-1">
                                                 <Check size={12} strokeWidth={3} /> Code <strong>{appliedCoupon}</strong> applied (₹{couponDiscount} off)
                                             </p>
                                         )}
@@ -871,33 +871,33 @@ const TestSeriesDetailsPage = () => {
                                 )}
 
                                 {/* Checklist */}
-                                <ul className="space-y-3 pt-4 border-t border-slate-100 text-slate-700 font-medium text-sm">
+                                <ul className="space-y-3 pt-4 border-t border-[#17254E] text-slate-200 font-medium text-sm">
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>{totalQuestions || '358'}+ Original Questions</span>
                                     </li>
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>Real Exam Interface</span>
                                     </li>
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>Bilingual (Hindi + English)</span>
                                     </li>
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>Expert Crafted Tests</span>
                                     </li>
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>Affordable Premium Quality</span>
                                     </li>
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>Access on Web & Mobile</span>
                                     </li>
                                     <li className="flex items-center gap-2.5">
-                                        <CheckCircle size={16} className="text-green-500 fill-green-50" />
+                                        <CheckCircle size={16} className="text-green-400" />
                                         <span>24×7 Support</span>
                                     </li>
                                 </ul>
@@ -907,7 +907,7 @@ const TestSeriesDetailsPage = () => {
                                     {isOwned ? (
                                         <button
                                             onClick={() => navigate('/dashboard/tests')}
-                                            className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl shadow-lg shadow-green-600/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                            className="w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl shadow-lg shadow-green-600/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer"
                                         >
                                             Go to Dashboard
                                         </button>
@@ -915,7 +915,7 @@ const TestSeriesDetailsPage = () => {
                                         <button
                                             onClick={handleEnroll}
                                             disabled={isEnrolling}
-                                            className="w-full py-4 bg-[#FF9F1C] hover:bg-[#e08810] text-white font-bold rounded-2xl shadow-lg shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                            className="w-full py-4 bg-[#FF9F1C] hover:bg-[#e08810] text-white font-bold rounded-2xl shadow-lg shadow-orange-500/20 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
                                         >
                                             {isEnrolling ? (
                                                 <>
@@ -933,17 +933,17 @@ const TestSeriesDetailsPage = () => {
                                 </div>
 
                                 {/* Security and payment logos */}
-                                <div className="space-y-4 pt-4 pb-6 border-t border-slate-100">
+                                <div className="space-y-4 pt-4 pb-6 border-t border-[#17254E]">
                                     <div className="flex items-center justify-center flex-wrap gap-2 md:gap-3 text-slate-400">
                                         <span className="text-[10px] font-bold tracking-widest uppercase">UPI</span>
-                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-600 rounded-full"></span>
                                         <span className="text-[10px] font-bold tracking-widest uppercase">VISA</span>
-                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-600 rounded-full"></span>
                                         <span className="text-[10px] font-bold tracking-widest uppercase">MASTERCARD</span>
-                                        <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-600 rounded-full"></span>
                                         <span className="text-[10px] font-bold tracking-widest uppercase">RUPAY</span>
                                     </div>
-                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400/80 font-medium">
+                                    <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium">
                                         <Lock size={12} className="text-slate-400" />
                                         <span>100% Secure & Safe Payments</span>
                                     </div>
@@ -951,10 +951,10 @@ const TestSeriesDetailsPage = () => {
                             </div>
 
                             {/* Bottom Card - Rocket */}
-                            <div className="bg-[#EEF2F6] p-6 flex items-start gap-4 rounded-b-3xl">
+                            <div className="bg-[#0E1B38] p-6 flex items-start gap-4 rounded-b-3xl border-t border-[#17254E]">
                                 <div className="space-y-1 flex-1">
-                                    <h4 className="font-bold text-slate-900 text-sm">Your hard work. Our platform. Your success.</h4>
-                                    <p className="text-xs text-slate-500 leading-relaxed font-light">Examinantt is with you, in every step of your journey.</p>
+                                    <h4 className="font-bold text-white text-sm">Your hard work. Our platform. Your success.</h4>
+                                    <p className="text-xs text-slate-300 leading-relaxed font-light">Examinantt is with you, in every step of your journey.</p>
                                 </div>
                                 <div className="text-4xl">🚀</div>
                             </div>

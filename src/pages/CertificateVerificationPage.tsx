@@ -31,48 +31,48 @@ const CertificateVerificationPage = () => {
 
     return (
         <PageLayout>
-            <div className="bg-slate-50 min-h-screen py-16 flex items-center justify-center px-4">
+            <div className="bg-[#070D1E] min-h-screen py-16 flex items-center justify-center px-4 text-slate-100">
                 {isLoading ? (
-                    <Loader2 size={40} className="animate-spin text-blue-600" />
+                    <Loader2 size={40} className="animate-spin text-blue-500" />
                 ) : !certificate ? (
-                    <div className="bg-white p-8 rounded-3xl border border-slate-200 text-center max-w-md space-y-4 shadow-sm">
-                        <Award size={48} className="text-slate-300 mx-auto" />
-                        <h2 className="text-xl font-black text-slate-900">Certificate Not Found</h2>
-                        <p className="text-slate-500 text-xs font-medium">The certificate ID specified could not be verified in Examinant records.</p>
-                        <button onClick={() => navigate('/')} className="px-6 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl">Back to Home</button>
+                    <div className="bg-[#0B152B] p-8 rounded-3xl border border-[#17254E] text-center max-w-md space-y-4 shadow-xl">
+                        <Award size={48} className="text-slate-500 mx-auto" />
+                        <h2 className="text-xl font-black text-white">Certificate Not Found</h2>
+                        <p className="text-slate-400 text-xs font-medium">The certificate ID specified could not be verified in Examinant records.</p>
+                        <button onClick={() => navigate('/')} className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl cursor-pointer transition-colors shadow-lg shadow-blue-600/20">Back to Home</button>
                     </div>
                 ) : (
-                    <div className="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 text-center max-w-2xl w-full shadow-2xl space-y-8 relative overflow-hidden">
+                    <div className="bg-[#0B152B] p-8 sm:p-12 rounded-3xl border border-[#17254E] text-center max-w-2xl w-full shadow-2xl space-y-8 relative overflow-hidden">
                         {/* Top Badge */}
-                        <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full border border-emerald-200 text-xs font-black uppercase tracking-wider">
-                            <ShieldCheck size={16} className="text-emerald-600" />
+                        <div className="inline-flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 px-4 py-1.5 rounded-full border border-emerald-500/30 text-xs font-black uppercase tracking-wider">
+                            <ShieldCheck size={16} className="text-emerald-400" />
                             <span>Verified Certificate of Completion</span>
                         </div>
 
                         {/* Certificate Header */}
                         <div className="space-y-2">
-                            <Award size={64} className="text-amber-500 mx-auto" />
-                            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Examinant Certificate</h1>
+                            <Award size={64} className="text-amber-400 mx-auto" />
+                            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Examinant Certificate</h1>
                             <p className="text-slate-400 font-mono text-xs">ID: {certificate.id}</p>
                         </div>
 
                         {/* Certificate Body */}
-                        <div className="space-y-4 py-4 border-y border-slate-100">
+                        <div className="space-y-4 py-4 border-y border-[#17254E]">
                             <p className="text-xs text-slate-400 uppercase font-black tracking-widest">This certifies that</p>
-                            <h2 className="text-2xl font-black text-blue-600">{certificate.userName}</h2>
-                            <p className="text-xs text-slate-500 font-medium">has successfully completed all mandatory lessons and assessments for the course</p>
-                            <h3 className="text-xl font-black text-slate-900 leading-snug">{certificate.courseTitle}</h3>
+                            <h2 className="text-2xl font-black text-blue-400">{certificate.userName}</h2>
+                            <p className="text-xs text-slate-300 font-medium">has successfully completed all mandatory lessons and assessments for the course</p>
+                            <h3 className="text-xl font-black text-white leading-snug">{certificate.courseTitle}</h3>
                         </div>
 
                         {/* Details */}
-                        <div className="flex justify-around items-center text-xs font-bold text-slate-500 pt-2">
+                        <div className="flex justify-around items-center text-xs font-bold text-slate-400 pt-2">
                             <div>
                                 <span className="block text-[10px] text-slate-400 uppercase font-bold">Issue Date</span>
-                                <span className="text-slate-800 font-extrabold">{new Date(certificate.issuedAt?.toDate ? certificate.issuedAt.toDate() : Date.now()).toLocaleDateString()}</span>
+                                <span className="text-slate-200 font-extrabold">{new Date(certificate.issuedAt?.toDate ? certificate.issuedAt.toDate() : Date.now()).toLocaleDateString()}</span>
                             </div>
                             <div>
                                 <span className="block text-[10px] text-slate-400 uppercase font-bold">Status</span>
-                                <span className="text-emerald-600 font-extrabold capitalize">{certificate.status}</span>
+                                <span className="text-emerald-400 font-extrabold capitalize">{certificate.status}</span>
                             </div>
                         </div>
                     </div>

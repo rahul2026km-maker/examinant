@@ -258,20 +258,20 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="h-screen w-full bg-slate-100 relative overflow-hidden font-sans">
+        <div className="h-screen w-full bg-[#070D1E] relative overflow-hidden font-sans">
             {/* Background Orbs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/30 blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none" />
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/15 blur-[120px] pointer-events-none" />
             
             <div className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 scrollbar-hide">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="w-full min-h-full bg-white/80 backdrop-blur-xl flex flex-col md:flex-row"
+                    className="w-full min-h-full bg-[#070D1E] flex flex-col md:flex-row"
                 >
                 {/* Left Side - Graphics */}
                 <div className="hidden md:flex flex-col w-5/12 relative overflow-hidden p-10 justify-between">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 z-0" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-[#0B152B] to-[#040814] z-0" />
                     
                     {/* Pattern Overlay */}
                     <div className="absolute inset-0 opacity-10 z-0 bg-[radial-gradient(circle_at_2px_2px,white_1px,transparent_0)] bg-[size:24px_24px]" />
@@ -279,7 +279,7 @@ const LoginPage = () => {
                     <img
                         src={studentBanner}
                         alt="Education Hero"
-                        className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-overlay scale-105"
+                        className="absolute inset-0 w-full h-full object-cover opacity-25 mix-blend-overlay scale-105"
                     />
 
                     {/* Top Content */}
@@ -321,13 +321,13 @@ const LoginPage = () => {
                             className="text-4xl lg:text-5xl font-black text-white leading-[1.15] mb-6 tracking-tight"
                         >
                             Continue Your <br/>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-indigo-100">Journey</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">Journey</span>
                         </motion.h2>
                         <motion.p 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.5 }}
-                            className="text-indigo-100 text-lg max-w-sm font-medium"
+                            className="text-slate-300 text-lg max-w-sm font-medium"
                         >
                             Pick up right where you left off. Access your mocks, analytics, and track your progress.
                         </motion.p>
@@ -362,11 +362,11 @@ const LoginPage = () => {
                         className="absolute top-1/4 right-8 bg-white/10 backdrop-blur-xl p-4 rounded-2xl border border-white/20 z-20 shadow-2xl"
                     >
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-500/50 rounded-lg">
+                            <div className="p-2 bg-blue-600/50 rounded-lg">
                                 <Globe className="text-white" size={24} />
                             </div>
                             <div>
-                                <p className="text-xs text-indigo-200 font-medium">Global</p>
+                                <p className="text-xs text-blue-200 font-medium">Global</p>
                                 <p className="text-white font-bold text-sm">Community</p>
                             </div>
                         </div>
@@ -374,19 +374,19 @@ const LoginPage = () => {
                 </div>
 
                 {/* Right Side - Form */}
-                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-center bg-white/50 min-h-full">
+                <div className="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-center bg-[#0B152B] border-l border-[#17254E] min-h-full">
                     <div className="max-w-[420px] w-full mx-auto flex flex-col justify-center py-6">
 
                         <div className="mb-5">
-                            <h2 className="text-3xl font-extrabold text-slate-900 mb-1.5 tracking-tight">Welcome Back!</h2>
-                            <p className="text-slate-500 font-medium text-sm">Please enter your details to sign in.</p>
+                            <h2 className="text-3xl font-extrabold text-white mb-1.5 tracking-tight">Welcome Back!</h2>
+                            <p className="text-slate-400 font-medium text-sm">Please enter your details to sign in.</p>
                         </div>
 
                         {error && (
                             <motion.div
                                 initial={{ opacity: 0, y: -5, scale: 0.98 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                                className="mb-5 p-3 bg-red-50/80 backdrop-blur-sm border border-red-100 rounded-xl flex items-start gap-2 text-red-600 text-xs font-medium shadow-sm"
+                                className="mb-5 p-3 bg-red-500/15 backdrop-blur-sm border border-red-500/30 rounded-xl flex items-start gap-2 text-red-400 text-xs font-medium shadow-sm"
                             >
                                 <AlertCircle size={18} className="shrink-0 mt-0.5" />
                                 <span>{error}</span>
@@ -401,7 +401,7 @@ const LoginPage = () => {
                                     type="button"
                                     onClick={handleGoogleSignIn}
                                     disabled={loading}
-                                    className="flex-1 flex items-center justify-center gap-2 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl transition-all group text-xs shadow-sm"
+                                    className="flex-1 flex items-center justify-center gap-2 bg-[#0E1B38] border border-[#1E3360] hover:bg-[#13244a] text-slate-200 font-bold py-2.5 rounded-xl transition-all group text-xs shadow-sm cursor-pointer"
                                 >
                                     <svg className="w-4 h-4 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -418,7 +418,7 @@ const LoginPage = () => {
                                     transition={{ delay: 0.1 }}
                                     type="button"
                                     onClick={() => window.open('https://play.google.com/store/apps/details?id=com.examinantt.studentapp', '_blank')}
-                                    className="flex-1 flex items-center justify-center gap-2 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl transition-all group text-xs shadow-sm"
+                                    className="flex-1 flex items-center justify-center gap-2 bg-[#0E1B38] border border-[#1E3360] hover:bg-[#13244a] text-slate-200 font-bold py-2.5 rounded-xl transition-all group text-xs shadow-sm cursor-pointer"
                                 >
                                     <svg className="w-4 h-4 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M2.868 2.072L16.273 13.483L19.5 10.256L2.868 2.072Z" fill="#32A071"/>
@@ -436,16 +436,16 @@ const LoginPage = () => {
                                 transition={{ delay: 0.2 }}
                                 className="relative flex items-center justify-center mt-6 mb-1"
                             >
-                                <div className="absolute inset-x-0 h-px bg-slate-200"></div>
-                                <span className="relative bg-white/50 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 backdrop-blur-xl">Or continue with email</span>
+                                <div className="absolute inset-x-0 h-px bg-[#17254E]"></div>
+                                <span className="relative bg-[#0B152B] px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">Or continue with email</span>
                             </motion.div>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-1.5">
-                                <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Email Address</label>
+                                <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">Email Address</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-400 transition-colors">
                                         <Mail size={18} strokeWidth={2.5} />
                                     </div>
                                     <input
@@ -454,15 +454,15 @@ const LoginPage = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="you@example.com"
-                                        className="w-full pl-[42px] pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                        className="w-full pl-[42px] pr-4 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white text-sm font-medium placeholder:text-slate-500 hover:border-[#253f75]"
                                     />
                                 </div>
                             </motion.div>
 
                             <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-1.5">
-                                <label className="text-sm font-semibold text-slate-700 ml-1 mb-1 inline-block">Password</label>
+                                <label className="text-sm font-semibold text-slate-300 ml-1 mb-1 inline-block">Password</label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-400 transition-colors">
                                         <Lock size={18} strokeWidth={2.5} />
                                     </div>
                                     <input
@@ -471,12 +471,12 @@ const LoginPage = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         placeholder="••••••••"
-                                        className="w-full pl-[42px] pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-slate-800 text-sm font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-100"
+                                        className="w-full pl-[42px] pr-12 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-[3px] focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white text-sm font-medium placeholder:text-slate-500 hover:border-[#253f75]"
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
                                     >
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
@@ -485,26 +485,25 @@ const LoginPage = () => {
 
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="flex items-center justify-between text-sm py-1">
                                 <label className="flex items-center gap-2 cursor-pointer group">
-                                    <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
-                                    <span className="text-slate-500 font-medium group-hover:text-slate-700 transition-colors">Remember for 30 days</span>
+                                    <input type="checkbox" className="w-4 h-4 rounded border-[#1E3360] bg-[#0E1B38] text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                                    <span className="text-slate-400 font-medium group-hover:text-slate-300 transition-colors">Remember for 30 days</span>
                                 </label>
-                                <Link to="/forgot-password" className="font-bold text-blue-600 hover:text-blue-700 hover:underline">Forgot password?</Link>
+                                <Link to="/forgot-password" className="font-bold text-blue-400 hover:text-blue-300 hover:underline">Forgot password?</Link>
                             </motion.div>
 
                             <motion.button
                                 initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
                                 disabled={loading}
                                 type="submit"
-                                className="w-full relative group overflow-hidden bg-slate-900 text-white font-bold py-3 rounded-xl shadow-lg text-base shadow-slate-900/20 hover:shadow-slate-900/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm"
+                                className="w-full relative group overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 mt-3 text-sm cursor-pointer"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                 <span className="relative z-10 flex items-center gap-2">
                                     {loading ? <Loader2 className="animate-spin" size={18} /> : 'Sign In'}
                                     {!loading && <ChevronRight size={18} strokeWidth={3} className="group-hover:translate-x-1 transition-transform" />}
                                 </span>
                             </motion.button>
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-center text-sm text-slate-600 font-medium">
-                                Don't have an account? <Link to="/signup" state={location.state} className="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-all">Sign Up</Link>
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="mt-6 text-center text-sm text-slate-400 font-medium">
+                                Don't have an account? <Link to="/signup" state={location.state} className="text-blue-400 hover:text-blue-300 font-bold hover:underline transition-all">Sign Up</Link>
                             </motion.div>
                         </form>
                     </div>

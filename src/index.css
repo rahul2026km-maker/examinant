@@ -60,8 +60,8 @@
 @layer base {
   body {
     font-family: var(--font-sans);
-    background-color: #fcfcfd;
-    color: #0f172a;
+    background-color: #070D1E;
+    color: #f1f5f9;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
