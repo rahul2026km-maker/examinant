@@ -52,12 +52,13 @@ app.use(cors());
 app.use(express.json());
 
 // Helper to configure Nodemailer transporter dynamically
-const getTransporter = () => {
+const getTransporter = (useFallbackPort = false) => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT) || 587,
       secure: process.env.SMTP_SECURE === 'true',
+      family: 4,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
@@ -67,13 +68,27 @@ const getTransporter = () => {
   }
 
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: useFallbackPort ? 587 : 465,
+    secure: !useFallbackPort,
+    family: 4, // Force IPv4 connection to prevent IPv6 ECONNREFUSED
     auth: {
       user: process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : '',
       pass: process.env.EMAIL_PASS ? process.env.EMAIL_PASS.replace(/\s+/g, '') : ''
     },
     tls: { rejectUnauthorized: false }
   });
+};
+
+const sendMailWithFallback = async (mailOptions) => {
+  try {
+    const transporter = getTransporter(false);
+    return await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.warn("Primary SMTP connection (port 465) notice, retrying with port 587 (IPv4)...", err.message);
+    const fallbackTransporter = getTransporter(true);
+    return await fallbackTransporter.sendMail(mailOptions);
+  }
 };
 
 // Helper to generate a secure 6-digit OTP
@@ -249,7 +264,7 @@ app.post('/api/request-signup-otp', async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailWithFallback(mailOptions);
     console.log(`[Signup OTP] Delivered successfully to ${cleanEmail}`);
 
     res.status(200).json({ message: `Verification OTP has been sent to ${cleanEmail}.` });
@@ -435,7 +450,7 @@ app.post('/api/request-password-reset', async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    await sendMailWithFallback(mailOptions);
     console.log(`[Password Reset OTP] Sent successfully to ${cleanEmail}`);
 
     res.status(200).json({ message: `Password reset OTP sent to ${cleanEmail}.` });

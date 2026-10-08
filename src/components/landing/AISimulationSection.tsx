@@ -157,55 +157,55 @@ const AISimulationSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-24 lg:space-y-32 relative z-10">
 
         {/* AI Analytics Section */}
-        <div className="grid lg:grid-cols-2 gap-10 sm:gap-16 lg:gap-24 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 sm:gap-14 lg:gap-18 items-center">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="space-y-6 sm:space-y-8"
+            className="space-y-6 sm:space-y-7"
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] sm:text-xs font-black text-blue-400 uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-500/10 border border-blue-500/20 rounded-lg text-xs font-bold text-blue-400 uppercase tracking-wider">
               <Zap size={14} className="fill-blue-400 shrink-0" /> Proprietary Intelligence
             </div>
 
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.15] sm:leading-[1.1] tracking-tight">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
               AI That <span className="text-gradient-blue">Evolves</span> <br />
               With Your Progress.
             </h2>
 
-            <p className="text-slate-300 text-base sm:text-xl leading-relaxed max-w-xl">
+            <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-xl">
               Our advanced algorithms analyze every keystroke and OMR bubble to identify hidden patterns that standard tests miss.
             </p>
 
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {[
-                { title: "Mistake Audit", desc: "Pattern recognition for silly errors", icon: <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" /> },
-                { title: "Speed Metrics", desc: "Real-time velocity tracking", icon: <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" /> },
-                { title: "Risk Profiling", desc: "Predictive OMR failure analysis", icon: <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" /> },
-                { title: "Growth Path", desc: "Dynamic curriculum adjustments", icon: <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" /> }
+                { title: "Mistake Audit", desc: "Pattern recognition for silly errors", icon: <AlertCircle className="w-5 h-5 text-red-400" /> },
+                { title: "Speed Metrics", desc: "Real-time velocity tracking", icon: <Clock className="w-5 h-5 text-blue-400" /> },
+                { title: "Risk Profiling", desc: "Predictive OMR failure analysis", icon: <Activity className="w-5 h-5 text-orange-400" /> },
+                { title: "Growth Path", desc: "Dynamic curriculum adjustments", icon: <Layers className="w-5 h-5 text-indigo-400" /> }
               ].map((item, i) => (
-                <div key={i} className="p-3 sm:p-5 rounded-2xl bg-[#0B152B]/90 border border-[#172D52] group hover:border-blue-400/40 hover:shadow-[0_12px_30px_-8px_rgba(37,99,235,0.2)] hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
-                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-[#070D1E] shadow-sm flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-300 shrink-0">
+                <div key={i} className="p-3.5 sm:p-4 rounded-xl bg-[#0B152B] border border-[#172D52] group hover:border-blue-400/40 hover:bg-[#0E1B38] transition-all duration-200 shadow-md">
+                  <div className="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#070D1E] shadow-sm flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform shrink-0">
                       {item.icon}
                     </div>
-                    <p className="font-extrabold text-white text-[11px] sm:text-sm leading-tight">{item.title}</p>
+                    <p className="font-extrabold text-white text-sm sm:text-base leading-tight">{item.title}</p>
                   </div>
-                  <p className="text-[10px] sm:text-xs text-slate-400 font-semibold leading-relaxed pl-0.5">{item.desc}</p>
+                  <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed mt-0.5">{item.desc}</p>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-wrap gap-3 sm:gap-4 pt-2 sm:pt-4">
+            <div className="flex flex-wrap gap-3.5 pt-3">
               <button
                 onClick={() => navigate('/signup')}
-                className="btn-primary-premium text-xs sm:text-sm px-5 py-3 sm:px-6 sm:py-3.5"
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-sm shadow-lg transition-all active:scale-95"
               >
                 Unlock Insights
               </button>
               <button
                 onClick={() => navigate('/resources')}
-                className="px-4 py-3 sm:px-6 text-xs sm:text-sm text-slate-300 font-bold hover:text-white border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+                className="px-6 py-3 text-slate-300 font-bold hover:text-white border border-white/15 rounded-lg hover:bg-white/5 transition-colors text-sm"
               >
                 View Sample Report
               </button>
@@ -213,97 +213,93 @@ const AISimulationSection = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             className="relative"
           >
             {/* The "Dark Mode" Tech Dashboard */}
-            <div className="bg-gradient-to-b from-slate-950 to-slate-900 rounded-3xl sm:rounded-[40px] p-4 sm:p-8 lg:p-12 relative overflow-hidden border border-slate-800/80">
+            <div className="bg-gradient-to-b from-slate-950 to-slate-900 rounded-2xl p-6 sm:p-8 lg:p-10 relative overflow-hidden border border-slate-800/80 shadow-2xl space-y-7">
               {/* Background glowing mesh */}
               <div className="absolute -right-24 -top-24 w-80 h-80 rounded-full bg-blue-500/10 blur-[90px] pointer-events-none"></div>
               <div className="absolute -left-24 -bottom-24 w-80 h-80 rounded-full bg-indigo-500/10 blur-[90px] pointer-events-none"></div>
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(37,99,235,0.12),transparent)]"></div>
 
-              <div className="relative space-y-6 sm:space-y-10">
+              <div className="relative space-y-6">
                 <div className="flex justify-between items-center gap-2">
                   <div className="space-y-1 min-w-0">
-                    <p className="text-[9px] sm:text-[10px] font-black text-blue-400 uppercase tracking-widest truncate">Global Ranking</p>
-                    <h3 className="text-lg sm:text-2xl font-black text-white truncate">Performance Audit</h3>
+                    <p className="text-xs font-bold text-blue-400 uppercase tracking-wider truncate">Global Ranking</p>
+                    <h3 className="text-xl sm:text-2xl font-black text-white truncate">Performance Audit</h3>
                   </div>
-                  <div className="px-2.5 py-1 bg-white/5 rounded-full border border-white/10 text-[9px] sm:text-[10px] font-bold text-white/50 flex items-center gap-1.5 shrink-0">
-                    <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
+                  <div className="px-3 py-1.5 bg-white/5 rounded-lg border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5 shrink-0">
+                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
                     ID: 8829-PX
                   </div>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-3">
                   <div className="flex justify-between items-end gap-2">
-                    <p className="text-xs font-bold text-slate-400">Composite Mastery</p>
-                    <p className="text-2xl sm:text-3xl font-black text-white tracking-tighter">92.4 <span className="text-sm sm:text-lg text-slate-500">/ 100</span></p>
+                    <p className="text-sm font-bold text-slate-300">Composite Mastery</p>
+                    <p className="text-2xl sm:text-3xl font-black text-white tracking-tight">92.4 <span className="text-sm sm:text-base text-slate-400">/ 100</span></p>
                   </div>
-                  <div className="h-3 sm:h-3.5 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
+                  <div className="h-3.5 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/10">
                     <motion.div
                       initial={{ width: 0 }}
                       whileInView={{ width: '92.4%' }}
                       transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+                      className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 sm:gap-6">
-                  <div className="p-3.5 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm hover:bg-white/[0.04] transition-all duration-300 space-y-2 sm:space-y-3">
-                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider">Accuracy</p>
-                    <p className="text-xl sm:text-3xl font-black text-white">88%</p>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-500 w-[88%] shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 sm:p-5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2.5 flex flex-col justify-between min-h-[105px]">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Accuracy</p>
+                    <p className="text-2xl sm:text-3xl font-black text-white">88%</p>
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 w-[88%]"></div>
                     </div>
                   </div>
-                  <div className="p-3.5 sm:p-5 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm hover:bg-white/[0.04] transition-all duration-300 space-y-2 sm:space-y-3">
-                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider">Focus Score</p>
-                    <p className="text-xl sm:text-3xl font-black text-white">96%</p>
-                    <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 w-[96%] shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                  <div className="p-4 sm:p-5 rounded-xl bg-white/[0.03] border border-white/10 space-y-2.5 flex flex-col justify-between min-h-[105px]">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Focus Score</p>
+                    <p className="text-2xl sm:text-3xl font-black text-white">96%</p>
+                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 w-[96%]"></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-6 bg-gradient-to-r from-white/[0.04] to-white/[0.01] rounded-2xl sm:rounded-3xl border border-white/10 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600/20 rounded-xl sm:rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/10 shrink-0">
-                      <PieChartIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <div className="p-4 bg-white/[0.03] rounded-xl border border-white/10 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-400 border border-blue-500/20 shrink-0">
+                      <PieChartIcon className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-white truncate">Real-time Efficiency</p>
-                      <p className="text-[11px] sm:text-xs text-slate-400 truncate">Optimizing strategy...</p>
+                      <p className="text-sm font-bold text-white truncate">Real-time Efficiency</p>
+                      <p className="text-xs text-slate-300 truncate">Optimizing strategy...</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] text-blue-400 font-bold shrink-0">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                    </span>
+                  <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-lg text-xs text-blue-400 font-bold shrink-0">
+                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
                     ACTIVE
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Floating Elements */}
+            {/* Floating Score Jump Card */}
             <motion.div
-              animate={{ y: [0, -10, 0] }}
+              animate={{ y: [0, -6, 0] }}
               transition={{ duration: 4, repeat: Infinity }}
-              className="absolute -top-4 right-1 sm:-top-6 sm:-right-4 bg-[#0B152B]/95 backdrop-blur-md p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#172D52] z-20 scale-90 sm:scale-100 origin-top-right shadow-xl"
+              className="absolute -top-3.5 right-2 sm:-top-4 sm:right-3 bg-[#0B152B] p-3.5 sm:p-4 rounded-xl border border-[#172D52] z-20 shadow-xl"
             >
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500/10 rounded-full flex items-center justify-center text-green-400 border border-green-500/20 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 border border-emerald-500/20 shrink-0">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <p className="text-[11px] sm:text-xs font-black text-white">Score Jump</p>
-                  <p className="text-[9px] sm:text-[10px] text-green-400 font-black flex items-center gap-1">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-ping"></span>
+                  <p className="text-xs sm:text-sm font-bold text-white leading-tight">Score Jump</p>
+                  <p className="text-xs text-emerald-400 font-extrabold flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                     +15.2% Today
                   </p>
                 </div>
@@ -334,7 +330,7 @@ const AISimulationSection = () => {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-[#000E2F] rounded-2xl sm:rounded-[40px] p-4 sm:p-8 md:p-12 text-white overflow-hidden border border-blue-500/20 relative"
+            className="bg-[#000E2F] rounded-2xl p-6 sm:p-8 md:p-10 text-white overflow-hidden border border-blue-500/20 relative shadow-2xl"
           >
             {/* Background Orbits / Glowing spots */}
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.15),transparent_60%)] pointer-events-none"></div>
@@ -354,7 +350,7 @@ const AISimulationSection = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center relative z-10">
               {/* Left Info Column */}
               <div className="lg:col-span-5 space-y-4 sm:space-y-5">
-                <h3 className="text-xl sm:text-3.5xl lg:text-4xl font-black leading-tight tracking-tight text-white pr-14 sm:pr-20 lg:pr-0">
+                <h3 className="text-xl sm:text-3xl lg:text-4xl font-extrabold leading-tight tracking-tight text-white pr-14 sm:pr-20 lg:pr-0">
                   Eliminate <span className="text-[#3b82f6]">Exam Day</span> <br />
                   <span className="text-[#FF7A00]">Anxiety</span> Forever.
                 </h3>
@@ -390,14 +386,14 @@ const AISimulationSection = () => {
                 <div className="flex flex-wrap gap-2.5 sm:gap-3 pt-2 sm:pt-3">
                   <button
                     onClick={() => navigate('/test-series')}
-                    className="px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-[10px] sm:text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[#FF7A00] to-[#FF9E3D] hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
                   >
                     <span>Try Demo Now</span>
                     <ArrowRight size={14} />
                   </button>
                   <button
                     onClick={() => navigate('/signup')}
-                    className="px-4 py-2.5 sm:px-5 sm:py-3 bg-transparent text-white border border-white/10 hover:bg-white/5 rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="px-5 py-2.5 bg-transparent text-white border border-white/15 hover:bg-white/5 rounded-lg font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                   >
                     <span>Contact Counselor</span>
                     <MessageSquare size={14} className="text-blue-400" />
@@ -420,7 +416,7 @@ const AISimulationSection = () => {
               </div>
 
               {/* Right Features Column */}
-              <div className="lg:col-span-4 grid grid-cols-2 gap-2.5 sm:gap-4">
+              <div className="lg:col-span-4 grid grid-cols-2 gap-2.5 sm:gap-3.5">
                 {[
                   {
                     title: "100% Pattern Match",
@@ -447,7 +443,7 @@ const AISimulationSection = () => {
                     bg: "bg-amber-950/20 border-blue-500/30"
                   }
                 ].map((feat, i) => (
-                  <div key={i} className={`p-3.5 sm:p-4 rounded-2xl border ${feat.bg} flex flex-col justify-between relative overflow-hidden backdrop-blur-sm group hover:border-blue-400/50 transition-all duration-300`}>
+                  <div key={i} className={`p-3.5 rounded-xl border ${feat.bg} flex flex-col justify-between relative overflow-hidden backdrop-blur-sm group hover:border-blue-400/50 transition-all duration-200`}>
                     {/* Glowing Neon Corner Light Flare */}
                     <div className="absolute top-0 left-0 w-12 h-[1px] bg-gradient-to-r from-cyan-400 to-transparent"></div>
                     <div className="absolute top-0 left-0 w-[1px] h-12 bg-gradient-to-b from-cyan-400 to-transparent"></div>
@@ -455,15 +451,15 @@ const AISimulationSection = () => {
 
                     <div>
                       {/* Icon and Title Row */}
-                      <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex items-center gap-2 sm:gap-2.5">
                         <div className="shrink-0 scale-90 sm:scale-100">
                           {feat.icon}
                         </div>
-                        <h4 className="text-[11px] sm:text-xs font-black text-white leading-tight">{feat.title}</h4>
+                        <h4 className="text-[11px] sm:text-xs font-bold text-white leading-tight">{feat.title}</h4>
                       </div>
 
                       {/* Description Below */}
-                      <p className="text-[10px] sm:text-xs text-slate-300 font-medium leading-relaxed mt-1.5 sm:mt-2.5">{feat.desc}</p>
+                      <p className="text-[10px] sm:text-xs text-slate-300 font-normal leading-relaxed mt-1.5 sm:mt-2">{feat.desc}</p>
                     </div>
                   </div>
                 ))}

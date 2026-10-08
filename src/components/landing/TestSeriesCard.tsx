@@ -91,14 +91,37 @@ const TestSeriesCard = ({
 
     return (
         <motion.div
-            whileHover={{ y: -4, scale: 1.005 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className={`group relative rounded-2xl border flex flex-col h-full transition-all duration-300 overflow-hidden ${
+            className={`group relative rounded-xl border flex flex-col h-full transition-all duration-300 overflow-hidden ${
                 isDark 
                     ? 'bg-[#0B152B] border-[#17274B] hover:border-[#38BDF8]/40 shadow-lg shadow-black/20' 
                     : 'bg-white border-slate-200 hover:border-blue-500/40 shadow-sm'
             }`}
         >
+            {/* Top Image Banner (Uploaded Thumbnail or EXAMINANT Branded Default) */}
+            <div className="w-full aspect-[16/9] h-[210px] sm:h-[220px] overflow-hidden relative z-10 border-b border-[#17254E] bg-[#070D1E] shrink-0 flex items-center justify-center">
+                {thumbnailUrl ? (
+                    <img
+                        src={thumbnailUrl}
+                        alt={title}
+                        className="w-full h-full object-cover object-center"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-[#0B152B] via-[#0E1E3F] to-[#060D1E] flex flex-col items-center justify-center p-4 text-center relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none"></div>
+                        <div className="flex items-center gap-2 mb-1 z-10">
+                            <div className="w-8 h-8 rounded-xl bg-blue-600 border border-blue-400/30 flex items-center justify-center text-white font-black text-xs shadow-lg shadow-blue-600/30">
+                                EX
+                            </div>
+                            <span className="text-xl font-black tracking-wider text-white uppercase">EXAMINANT</span>
+                        </div>
+                        <span className="text-[10px] font-extrabold text-blue-300 bg-blue-600/20 border border-blue-500/30 px-3 py-0.5 rounded-full uppercase tracking-widest z-10">
+                            OFFICIAL TEST SERIES
+                        </span>
+                    </div>
+                )}
+            </div>
+
             <div className="p-6 pb-2 flex-1 flex flex-col z-10">
                 {/* Header Area */}
                 <div className="flex justify-between items-start mb-4">

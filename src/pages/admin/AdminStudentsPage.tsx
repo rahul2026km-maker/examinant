@@ -157,10 +157,6 @@ const AdminStudentsPage = () => {
         const d = date instanceof Date ? date : new Date(date);
         if (isNaN(d.getTime()) || d.getTime() === 0) return 'N/A';
 
-        const isToday = new Date().toDateString() === d.toDateString();
-        if (isToday) {
-            return `Today, ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-        }
         return d.toLocaleDateString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric' });
     };
 
@@ -396,14 +392,9 @@ const AdminStudentsPage = () => {
                                             {student.testsTaken || 0}
                                         </td>
                                         <td className="px-6 py-4 text-sm" title={student.joinedDate instanceof Date ? student.joinedDate.toLocaleString() : String(student.joinedDate)}>
-                                            <div className="flex flex-col">
-                                                <span className={`font-semibold ${isRecentStudent(student.joinedDate) ? 'text-blue-600' : 'text-slate-600'}`}>
-                                                    {formatJoinedDate(student.joinedDate)}
-                                                </span>
-                                                {isRecentStudent(student.joinedDate) && (
-                                                    <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider">Recently Joined</span>
-                                                )}
-                                            </div>
+                                            <span className="font-semibold text-slate-600">
+                                                {formatJoinedDate(student.joinedDate)}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                                             <div className="flex items-center justify-end gap-2 text-slate-400">

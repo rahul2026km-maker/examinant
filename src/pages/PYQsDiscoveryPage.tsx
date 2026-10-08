@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Lock, Loader2, Search, PenTool, ExternalLink } from 'lucide-react';
+import { Plus, Minus, FileText, Loader2, Search, BookOpen, Download, Eye, FolderOpen, ChevronDown } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
 import PageLayout from '../components/landing/PageLayout';
 
 interface PYQ {
@@ -15,13 +14,16 @@ interface PYQ {
     fileUrl?: string;
     testId?: string;
     price: number;
+    description?: string;
 }
 
 const PYQsDiscoveryPage = () => {
-    const navigate = useNavigate();
     const [pyqs, setPyqs] = useState<PYQ[]>([]);
+    const [openIndex, setOpenIndex] = useState<number | null>(0);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<string>('All');
+    const [selectedYear, setSelectedYear] = useState<string>('All');
 
     useEffect(() => {
         const q = query(collection(db, 'pyqs'));
@@ -33,8 +35,9 @@ const PYQsDiscoveryPage = () => {
                     ...data,
                     title: data.title || data.name || data.testName || 'Untitled PYQ',
                     category: data.category || data.exam || 'General',
-                    year: data.year || 'N/A',
-                    price: data.price ?? 0
+                    year: data.year || '2023',
+                    price: data.price ?? 0,
+                    description: data.description || ''
                 };
             }) as PYQ[];
             setPyqs(fetched);
@@ -46,24 +49,20 @@ const PYQsDiscoveryPage = () => {
         return () => unsubscribe();
     }, []);
 
-    const handleExplore = (id: string) => {
-        navigate(`/pyqs/${id}`);
+    const toggleAccordion = (index: number) => {
+        setOpenIndex(openIndex === index ? null : index);
     };
 
-    const filteredPyqs = pyqs.filter(item =>
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const categories = ['All', ...Array.from(new Set(pyqs.map(p => p.category).filter(Boolean)))];
+    const years = ['All', '2024', '2023', '2022', '2021', '2020'];
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-    };
-
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
-    };
+    const filteredPyqs = pyqs.filter(item => {
+        const searchMatch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            item.category.toLowerCase().includes(searchTerm.toLowerCase());
+        const categoryMatch = selectedCategory === 'All' || item.category?.toLowerCase() === selectedCategory.toLowerCase();
+        const yearMatch = selectedYear === 'All' || item.year?.toString() === selectedYear;
+        return searchMatch && categoryMatch && yearMatch;
+    });
 
     return (
         <PageLayout>
@@ -72,96 +71,177 @@ const PYQsDiscoveryPage = () => {
                 <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
                     <motion.div 
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-center mb-20"
+                        className="text-center mb-10"
                     >
-                        <h1 className="text-5xl md:text-6xl font-black mb-6 tracking-tight">
+                        <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
                             Master Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">Past Exams</span>
                         </h1>
-                        <p className="text-xl text-slate-300 max-w-2xl mx-auto font-medium">
-                            Premium repository of Previous Year Questions. Practice with the most authentic data used by top rankers.
+                        <p className="text-slate-300 max-w-xl mx-auto font-medium text-sm sm:text-base">
+                            Authentic repository of Previous Year Questions uploaded by educators.
                         </p>
                     </motion.div>
 
-                    {/* Search Bar */}
-                    <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="max-w-2xl mx-auto mb-20 relative group"
-                    >
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-300"></div>
-                        <div className="relative">
-                            <Search size={22} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input
-                                type="text"
-                                placeholder="Search by subject, year or exam name..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-14 pr-6 py-5 bg-[#0B152B]/90 backdrop-blur-xl border border-[#17254E] rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium text-lg shadow-2xl"
-                            />
-                        </div>
-                    </motion.div>
+                    {/* Search Bar & Dropdown Filters */}
+                    <div className="max-w-3xl mx-auto mb-10 space-y-4">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="relative group"
+                        >
+                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-300"></div>
+                            <div className="relative">
+                                <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by subject, year or exam name..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-13 pr-6 py-4 bg-[#0B152B]/90 backdrop-blur-xl border border-[#17254E] rounded-2xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium text-sm shadow-2xl"
+                                />
+                            </div>
+                        </motion.div>
+
+                        {/* Dropdown Filters */}
+                        {pyqs.length > 0 && (
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                                <div className="relative w-full sm:w-64">
+                                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+                                        Select Exam / Category
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={selectedCategory}
+                                            onChange={(e) => {
+                                                setSelectedCategory(e.target.value);
+                                                setOpenIndex(0);
+                                            }}
+                                            className="w-full bg-[#0B152B] border border-[#17254E] hover:border-blue-500/50 text-white rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-blue-500 transition-all cursor-pointer shadow-md appearance-none pr-10"
+                                        >
+                                            {categories.map((cat) => (
+                                                <option key={cat} value={cat} className="bg-[#0B152B] text-white py-2">
+                                                    {cat === 'All' ? 'All Exams / Categories' : cat}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" />
+                                    </div>
+                                </div>
+
+                                <div className="relative w-full sm:w-48">
+                                    <label className="block text-[11px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5">
+                                        Select Year
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={selectedYear}
+                                            onChange={(e) => {
+                                                setSelectedYear(e.target.value);
+                                                setOpenIndex(0);
+                                            }}
+                                            className="w-full bg-[#0B152B] border border-[#17254E] hover:border-blue-500/50 text-white rounded-xl px-4 py-3 font-bold text-xs focus:outline-none focus:border-blue-500 transition-all cursor-pointer shadow-md appearance-none pr-10"
+                                        >
+                                            {years.map((yr) => (
+                                                <option key={yr} value={yr} className="bg-[#0B152B] text-white py-2">
+                                                    {yr === 'All' ? 'All Years' : `${yr} Papers`}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {isLoading ? (
-                        <div className="flex justify-center py-20">
-                            <Loader2 className="animate-spin text-blue-500" size={48} />
+                        <div className="flex justify-center py-16">
+                            <Loader2 className="animate-spin text-blue-500" size={40} />
                         </div>
                     ) : filteredPyqs.length === 0 ? (
-                        <div className="text-center py-20 text-slate-400 font-bold text-xl">
-                            Our archives are currently refreshing. No records found.
+                        <div className="text-center py-16 px-6 bg-[#0B152B] rounded-2xl border border-[#17254E] max-w-xl mx-auto">
+                            <div className="w-16 h-16 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-400">
+                                <FolderOpen size={32} />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-1">No PYQs Uploaded Yet</h3>
+                            <p className="text-slate-400 text-xs leading-relaxed">
+                                No previous year questions match your search or have been uploaded by Admin yet.
+                            </p>
                         </div>
                     ) : (
-                        <motion.div 
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-                        >
-                            {filteredPyqs.map((pyq) => (
-                                <motion.div
-                                    key={pyq.id}
-                                    variants={itemVariants}
-                                    whileHover={{ y: -8, transition: { duration: 0.2 } }}
-                                    className="bg-[#0B152B] backdrop-blur-md rounded-[32px] p-8 border border-[#17254E] hover:border-[#1E3360] transition-all flex flex-col group relative shadow-lg"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    
-                                    <div className="flex justify-between items-start mb-8 relative z-10">
-                                        <div className={`p-4 rounded-2xl ${pyq.type === 'test' ? 'bg-indigo-500/10 text-indigo-400' : 'bg-blue-500/10 text-blue-400'} border border-[#1E3360]`}>
-                                            {pyq.type === 'test' ? <PenTool size={28} /> : <FileText size={28} />}
-                                        </div>
-                                        <span className="bg-[#0E1B38] text-slate-300 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest border border-[#1E3360]">
-                                            {pyq.category}
-                                        </span>
-                                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredPyqs.map((item, index) => {
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className="bg-[#0B152B] border border-[#17254E] hover:border-blue-500/40 hover:bg-[#0D1833] rounded-xl p-5 flex flex-col justify-between transition-all duration-200 shadow-md group relative overflow-hidden"
+                                    >
+                                        <div className="space-y-3">
+                                            {/* Top Badges */}
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="text-xs font-extrabold px-3 py-1 rounded-md bg-blue-500/15 text-blue-400 border border-blue-500/30 uppercase tracking-wider">
+                                                    {item.category || 'PYQ'}
+                                                </span>
+                                            </div>
 
-                                    <h3 className="text-2xl font-bold text-white mb-3 tracking-tight group-hover:text-blue-400 transition-colors relative z-10">{pyq.title}</h3>
-                                    
-                                    <div className="flex items-center gap-3 mb-8 relative z-10">
-                                        <span className="py-1 px-3 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-bold border border-blue-500/20">{pyq.year}</span>
-                                        <span className="text-slate-400 font-medium text-sm">
-                                            {pyq.type === 'test' ? 'CBT Mock' : 'Rich PDF'}
-                                        </span>
-                                    </div>
+                                            {/* Title */}
+                                            <h3 className="text-base sm:text-lg font-black text-white leading-snug pt-1">
+                                                {item.title}
+                                            </h3>
 
-                                    <div className="mt-auto pt-6 border-t border-[#17254E] flex items-center justify-between relative z-10">
-                                        <div className="text-2xl font-black text-white">
-                                            {pyq.price === 0 ? <span className="text-emerald-400">FREE</span> : `₹${pyq.price}`}
+                                            {/* Meta Info */}
+                                            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-400 pt-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <FileText size={14} className="text-blue-400" />
+                                                    <span>Year: <strong className="text-white">{item.year || '2023'}</strong></span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <BookOpen size={14} className="text-blue-400" />
+                                                    <span><strong className="text-white">{item.type === 'test' ? 'Online Test' : 'Official PDF Paper'}</strong></span>
+                                                </div>
+                                            </div>
+
+                                            {/* Description */}
+                                            <p className="text-xs text-slate-300 font-medium leading-relaxed pt-1 line-clamp-3">
+                                                {item.description || `Official Previous Year Question paper for ${item.title} containing authentic questions with step-by-step solutions, answer keys, and exam insights.`}
+                                            </p>
                                         </div>
-                                        <button
-                                            onClick={() => handleExplore(pyq.id)}
-                                            className="px-6 py-3 bg-blue-600 text-white text-sm font-black rounded-xl hover:bg-blue-500 transition-all transform active:scale-95 flex items-center gap-2 shadow-lg shadow-blue-600/20"
-                                        >
-                                            {pyq.price === 0 ? <ExternalLink size={18} /> : <Lock size={18} />}
-                                            EXPLORE
-                                        </button>
+
+                                        {/* Footer Buttons (View & Download) */}
+                                        <div className="pt-4 mt-4 border-t border-[#17254E]/60 grid grid-cols-2 gap-2.5">
+                                            <button
+                                                onClick={() => {
+                                                    if (item.fileUrl) {
+                                                        window.open(item.fileUrl, '_blank');
+                                                    } else {
+                                                        alert(`Viewing Paper "${item.title}"`);
+                                                    }
+                                                }}
+                                                className="w-full py-2.5 px-3 rounded-lg bg-[#0E1B38] hover:bg-[#152750] text-blue-400 hover:text-white font-extrabold text-xs uppercase tracking-wider border border-[#1E3360] hover:border-blue-500/50 transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95 cursor-pointer"
+                                            >
+                                                <Eye size={14} /> View
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    if (item.fileUrl) {
+                                                        window.open(item.fileUrl, '_blank');
+                                                    } else {
+                                                        alert(`Downloading PDF for "${item.title}"`);
+                                                    }
+                                                }}
+                                                className="w-full py-2.5 px-3 rounded-lg bg-[#1D64D0] hover:bg-blue-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-blue-600/30 active:scale-95 cursor-pointer"
+                                            >
+                                                <Download size={14} /> Download
+                                            </button>
+                                        </div>
                                     </div>
-                                </motion.div>
-                            ))}
-                        </motion.div>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
             </div>

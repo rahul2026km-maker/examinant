@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Save, Link as LinkIcon, PenTool, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Link as LinkIcon, PenTool, Loader2, Upload, FileText } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, addDoc, serverTimestamp, query, getDocs } from 'firebase/firestore';
 import { useExamList } from '../../hooks/useExamList';
+import { uploadToCloudinary } from '../../utils/cloudinary';
 
 const AdminAddPYQPage = () => {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [tests, setTests] = useState<{ id: string; title: string }[]>([]);
     const [isLoadingTests, setIsLoadingTests] = useState(true);
     const exams = useExamList();
@@ -21,14 +24,16 @@ const AdminAddPYQPage = () => {
         fileUrl: string;
         testId: string;
         price: string;
+        description: string;
     }>({
         title: '',
-        category: 'NEET',
+        category: 'NEET UG',
         year: new Date().getFullYear().toString(),
         type: 'pdf',
         fileUrl: '',
         testId: '',
-        price: '0'
+        price: '0',
+        description: ''
     });
 
 
@@ -62,6 +67,24 @@ const AdminAddPYQPage = () => {
         fetchTests();
     }, []);
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        setUploadProgress(10);
+        try {
+            const url = await uploadToCloudinary(file, (percent) => setUploadProgress(percent));
+            setFormData(prev => ({ ...prev, fileUrl: url }));
+            alert('File uploaded successfully!');
+        } catch (err: any) {
+            console.error("Upload error:", err);
+            alert("Upload failed: " + (err.message || 'Error uploading file'));
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -72,6 +95,7 @@ const AdminAddPYQPage = () => {
                 year: formData.year,
                 type: formData.type,
                 price: Number(formData.price),
+                description: formData.description || `Official Previous Year Question paper for ${formData.title} containing authentic questions with step-by-step solutions and answer keys.`,
                 createdAt: serverTimestamp()
             };
 
@@ -107,8 +131,8 @@ const AdminAddPYQPage = () => {
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                    <h1 className="text-2xl font-bold text-slate-800">Add New PYQ</h1>
-                    <p className="text-slate-500 mt-1">Create a new Previous Year Question resource.</p>
+                    <h1 className="text-2xl font-bold text-slate-800">Add New PYQ Paper</h1>
+                    <p className="text-slate-500 mt-1">Upload and publish Previous Year Questions for students.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
@@ -120,18 +144,18 @@ const AdminAddPYQPage = () => {
                             value={formData.title}
                             onChange={e => setFormData({ ...formData, title: e.target.value })}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
-                            placeholder="e.g. JEE Mains 2023 Shift 1 Analysis"
+                            placeholder="e.g. NEET UG 2024 Biology Full Question Paper"
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Exam Category</label>
                             <div className="relative">
                                 <select
                                     value={formData.category}
                                     onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none font-medium"
                                 >
                                     {exams.map(exam => (
                                         <option key={exam} value={exam}>{exam}</option>
@@ -143,15 +167,26 @@ const AdminAddPYQPage = () => {
                             </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">Year</label>
+                            <label className="block text-sm font-bold text-slate-700 mb-2">Exam Year</label>
                             <input
                                 type="number"
                                 required
                                 value={formData.year}
                                 onChange={e => setFormData({ ...formData, year: e.target.value })}
-                                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-bold text-slate-700 mb-2">Description / Paper Summary</label>
+                        <textarea
+                            rows={3}
+                            value={formData.description}
+                            onChange={e => setFormData({ ...formData, description: e.target.value })}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-sm"
+                            placeholder="e.g. Official Previous Year Question paper containing authentic questions with step-by-step solutions, NCERT line references, and answer keys."
+                        />
                     </div>
 
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
@@ -187,18 +222,50 @@ const AdminAddPYQPage = () => {
                     </div>
 
                     {formData.type === 'pdf' ? (
-                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                            <label className="block text-sm font-bold text-slate-700 mb-2">File URL / Link</label>
-                            <div className="relative">
-                                <LinkIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input
-                                    type="url"
-                                    required
-                                    value={formData.fileUrl}
-                                    onChange={e => setFormData({ ...formData, fileUrl: e.target.value })}
-                                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                    placeholder="https://firebasestorage.googleapis.com/..."
-                                />
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Upload PDF File</label>
+                                <div className="flex items-center gap-3">
+                                    <label className="flex-1 flex items-center justify-center gap-2 px-4 py-3.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl cursor-pointer transition-all font-bold text-slate-700 text-sm">
+                                        {isUploading ? (
+                                            <>
+                                                <Loader2 className="animate-spin text-blue-600" size={18} />
+                                                <span>Uploading ({uploadProgress}%)...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={18} className="text-blue-600" />
+                                                <span>Choose PDF File from Computer</span>
+                                            </>
+                                        )}
+                                        <input
+                                            type="file"
+                                            accept=".pdf,application/pdf,image/*"
+                                            onChange={handleFileUpload}
+                                            disabled={isUploading}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-slate-700 mb-2">Or Direct PDF File URL / Link</label>
+                                <div className="relative">
+                                    <LinkIcon size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                                    <input
+                                        type="url"
+                                        value={formData.fileUrl}
+                                        onChange={e => setFormData({ ...formData, fileUrl: e.target.value })}
+                                        className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-sm"
+                                        placeholder="https://firebasestorage.googleapis.com/..."
+                                    />
+                                </div>
+                                {formData.fileUrl && (
+                                    <p className="text-xs text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                                        ✓ Attached Link: <span className="truncate max-w-md text-slate-600 font-normal">{formData.fileUrl}</span>
+                                    </p>
+                                )}
                             </div>
                         </motion.div>
                     ) : (
@@ -220,12 +287,6 @@ const AdminAddPYQPage = () => {
                                         className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium appearance-none bg-white"
                                     >
                                         <option value="" className="text-slate-500">-- Select a Test --</option>
-                                        <option value="debug" className="text-red-500 font-bold bg-slate-100">DEBUG: Hardcoded Option</option>
-
-                                        {tests.length === 0 && (
-                                            <option value="" disabled className="text-slate-400 italic">No tests found in database</option>
-                                        )}
-
                                         {tests.map(test => (
                                             <option key={test.id} value={test.id} className="text-slate-900 font-medium py-1">
                                                 {test.title}
@@ -237,9 +298,6 @@ const AdminAddPYQPage = () => {
                                     </div>
                                 </div>
                             )}
-                            <p className="text-sm text-slate-500 mt-2 ml-1">
-                                💡 Select one of your created tests to use as this PYQ.
-                            </p>
                         </motion.div>
                     )}
 
@@ -272,11 +330,11 @@ const AdminAddPYQPage = () => {
                     <div className="pt-6">
                         <button
                             type="submit"
-                            disabled={isSubmitting}
-                            className="w-full py-4 bg-blue-600 text-white font-bold text-lg rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-500/20 disabled:opacity-70 transition-all flex items-center justify-center gap-2"
+                            disabled={isSubmitting || isUploading}
+                            className="w-full py-4 bg-blue-600 text-white font-bold text-lg rounded-xl hover:bg-blue-700 shadow-xl shadow-blue-500/20 disabled:opacity-70 transition-all flex items-center justify-center gap-2 cursor-pointer"
                         >
                             <Save size={20} />
-                            {isSubmitting ? 'Creating...' : 'Create PYQ Resource'}
+                            {isSubmitting ? 'Creating PYQ...' : 'Publish PYQ Resource'}
                         </button>
                     </div>
                 </form>

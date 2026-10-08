@@ -274,51 +274,51 @@ export default function CommunitySupportSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Main Section Card */}
-        <div className="relative rounded-[28px] sm:rounded-[36px] bg-[#070D22]/95 border border-[#14234C] p-5 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-xl">
+        <div className="relative rounded-2xl bg-[#070D22]/95 border border-[#14234C] p-5 sm:p-8 lg:p-9 shadow-2xl backdrop-blur-xl">
           
           {/* HEADER ROW */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#121E42]">
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                   Community & Support
                 </h2>
-                <Users size={24} className="text-indigo-400 stroke-[2.5]" />
+                <Users size={22} className="text-indigo-400 stroke-[2.5]" />
               </div>
-              <p className="text-slate-400 text-sm sm:text-base font-normal mt-1 max-w-2xl">
+              <p className="text-slate-400 text-xs sm:text-sm font-normal mt-1 max-w-2xl">
                 Learn together, grow together. Get help, stay motivated and never feel alone on your learning journey.
               </p>
             </div>
 
-            {/* We're Here for You Top-Right Card */}
-            <div className="self-start sm:self-auto rounded-2xl bg-[#061722]/80 border border-emerald-500/30 px-4 py-3 flex items-center gap-3 shadow-inner">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
-                <ShieldCheck size={18} className="stroke-[2.5]" />
+            {/* We're Here for You Top-Right Badge */}
+            <div className="self-start sm:self-auto rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-2 flex items-center gap-2.5 shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <ShieldCheck size={16} className="stroke-[2.5]" />
               </div>
               <div>
-                <h4 className="text-xs sm:text-sm font-extrabold text-emerald-400 leading-none">
+                <h4 className="text-xs font-bold text-emerald-400 leading-none">
                   We're Here for You!
                 </h4>
-                <p className="text-[11px] text-slate-400 font-medium mt-1 leading-none">
-                  Our team and community are always ready to support you.
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5 leading-none">
+                  Our team & community are ready to support you.
                 </p>
               </div>
             </div>
           </div>
 
           {/* ROW 1: FOUR FEATURE ACTION CARDS */}
-          <div className="mt-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             {/* Card 1: Student Community */}
             <div 
               onClick={() => setShowCommunityModal(true)}
-              className="cursor-pointer rounded-2xl bg-[#0B1229]/80 hover:bg-[#0E1733] border border-[#1B264E] hover:border-purple-500/50 p-5 flex flex-col justify-between transition-all duration-300 group shadow-sm hover:shadow-lg hover:-translate-y-1"
+              className="cursor-pointer rounded-xl bg-[#0B1229] hover:bg-[#0E1733] border border-[#1B264E] hover:border-purple-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
             >
               <div>
-                <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.2)] group-hover:scale-110 transition-transform">
-                  <MessageSquare size={22} />
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
+                  <MessageSquare size={20} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#C084FC] group-hover:text-purple-300 transition-colors mt-4">
+                <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors mt-3.5">
                   Student Community
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -326,7 +326,7 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-800/60 flex items-center gap-1 text-xs font-bold text-[#C084FC] group-hover:text-purple-300">
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-purple-400 group-hover:text-purple-300 transition-colors">
                 <span>Join Community</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
@@ -335,13 +335,13 @@ export default function CommunitySupportSection() {
             {/* Card 2: Ask Doubts */}
             <div 
               onClick={() => setShowDoubtModal(true)}
-              className="cursor-pointer rounded-2xl bg-[#0B142D]/80 hover:bg-[#0E1B38] border border-[#172D52] hover:border-cyan-500/50 p-5 flex flex-col justify-between transition-all duration-300 group shadow-sm hover:shadow-lg hover:-translate-y-1"
+              className="cursor-pointer rounded-xl bg-[#0B142D] hover:bg-[#0E1B38] border border-[#172D52] hover:border-cyan-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
             >
               <div>
-                <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.2)] group-hover:scale-110 transition-transform">
-                  <HelpCircle size={22} />
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
+                  <HelpCircle size={20} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#38BDF8] group-hover:text-cyan-300 transition-colors mt-4">
+                <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors mt-3.5">
                   Ask Doubts
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -349,7 +349,7 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-800/60 flex items-center gap-1 text-xs font-bold text-[#38BDF8] group-hover:text-cyan-300">
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-cyan-400 group-hover:text-cyan-300 transition-colors">
                 <span>Ask Now</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
@@ -358,13 +358,13 @@ export default function CommunitySupportSection() {
             {/* Card 3: Leaderboards */}
             <div 
               onClick={() => setShowLeaderboardModal(true)}
-              className="cursor-pointer rounded-2xl bg-[#081726]/80 hover:bg-[#0B1E30] border border-[#13353A] hover:border-emerald-500/50 p-5 flex flex-col justify-between transition-all duration-300 group shadow-sm hover:shadow-lg hover:-translate-y-1"
+              className="cursor-pointer rounded-xl bg-[#081726] hover:bg-[#0B1E30] border border-[#13353A] hover:border-emerald-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
             >
               <div>
-                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] group-hover:scale-110 transition-transform">
-                  <Trophy size={22} />
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                  <Trophy size={20} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#34D399] group-hover:text-emerald-300 transition-colors mt-4">
+                <h3 className="text-base font-bold text-white group-hover:text-emerald-300 transition-colors mt-3.5">
                   Leaderboards
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -372,7 +372,7 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-800/60 flex items-center gap-1 text-xs font-bold text-[#34D399] group-hover:text-emerald-300">
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-emerald-400 group-hover:text-emerald-300 transition-colors">
                 <span>View Leaderboard</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
@@ -381,13 +381,13 @@ export default function CommunitySupportSection() {
             {/* Card 4: Achievements */}
             <div 
               onClick={() => setShowBadgesModal(true)}
-              className="cursor-pointer rounded-2xl bg-[#17131F]/80 hover:bg-[#1C1727] border border-[#362719] hover:border-amber-500/50 p-5 flex flex-col justify-between transition-all duration-300 group shadow-sm hover:shadow-lg hover:-translate-y-1"
+              className="cursor-pointer rounded-xl bg-[#17131F] hover:bg-[#1C1727] border border-[#362719] hover:border-amber-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
             >
               <div>
-                <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)] group-hover:scale-110 transition-transform">
-                  <Award size={22} />
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
+                  <Award size={20} />
                 </div>
-                <h3 className="text-base font-extrabold text-[#FBBF24] group-hover:text-amber-300 transition-colors mt-4">
+                <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors mt-3.5">
                   Achievements
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -395,7 +395,7 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-slate-800/60 flex items-center gap-1 text-xs font-bold text-[#FBBF24] group-hover:text-amber-300">
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-amber-400 group-hover:text-amber-300 transition-colors">
                 <span>View Badges</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
               </div>
@@ -404,16 +404,16 @@ export default function CommunitySupportSection() {
           </div>
 
           {/* ROW 2: TWO LARGE COLUMNS (TALK TO SUPPORT & COMMUNITY ACTIVITY) */}
-          <div className="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
             
             {/* LEFT COLUMN: TALK TO OUR SUPPORT TEAM WITH 3D MASCOT */}
-            <div className="lg:col-span-6 rounded-3xl bg-[#09112B]/85 border border-[#162452] p-5 sm:p-7 flex flex-col justify-between relative shadow-xl">
+            <div className="lg:col-span-6 rounded-2xl bg-[#09112B] border border-[#162452] p-5 sm:p-6 flex flex-col justify-between relative shadow-lg">
               
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-2.5">
                   <Headphones size={20} className="text-blue-400 stroke-[2.5]" />
-                  <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+                  <h3 className="text-lg font-bold text-white tracking-tight">
                     Talk to Our Support Team
                   </h3>
                 </div>
@@ -422,7 +422,7 @@ export default function CommunitySupportSection() {
                 </p>
 
                 {/* Sub-grid: 4 Support Action Rows on left, 3D Character on right */}
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
+                <div className="mt-5 grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
                   
                   {/* Action Buttons List */}
                   <div className="sm:col-span-7 space-y-2.5">
@@ -430,7 +430,7 @@ export default function CommunitySupportSection() {
                     {/* Live Chat */}
                     <button
                       onClick={() => setShowLiveChatModal(true)}
-                      className="w-full text-left p-3 rounded-2xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-blue-500/50 flex items-center justify-between transition-all duration-200 group active:scale-95"
+                      className="w-full text-left p-3 rounded-xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-blue-500/40 flex items-center justify-between transition-all duration-200 group active:scale-95"
                     >
                       <div className="flex items-center gap-3">
                         <MessageSquare size={17} className="text-blue-400" />
@@ -448,7 +448,7 @@ export default function CommunitySupportSection() {
                     {/* Email Support */}
                     <button
                       onClick={handleCopyEmail}
-                      className="w-full text-left p-3 rounded-2xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-blue-500/50 flex items-center justify-between transition-all duration-200 group active:scale-95"
+                      className="w-full text-left p-3 rounded-xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-blue-500/40 flex items-center justify-between transition-all duration-200 group active:scale-95"
                     >
                       <div className="flex items-center gap-3">
                         <Mail size={17} className="text-blue-400" />
@@ -465,7 +465,7 @@ export default function CommunitySupportSection() {
                     {/* WhatsApp Support */}
                     <button
                       onClick={handleWhatsApp}
-                      className="w-full text-left p-3 rounded-2xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-emerald-500/50 flex items-center justify-between transition-all duration-200 group active:scale-95"
+                      className="w-full text-left p-3 rounded-xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-emerald-500/40 flex items-center justify-between transition-all duration-200 group active:scale-95"
                     >
                       <div className="flex items-center gap-3">
                         <Phone size={17} className="text-emerald-400" />
@@ -482,7 +482,7 @@ export default function CommunitySupportSection() {
                     {/* Help Center */}
                     <button
                       onClick={() => setShowHelpCenterModal(true)}
-                      className="w-full text-left p-3 rounded-2xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-indigo-500/50 flex items-center justify-between transition-all duration-200 group active:scale-95"
+                      className="w-full text-left p-3 rounded-xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-indigo-500/40 flex items-center justify-between transition-all duration-200 group active:scale-95"
                     >
                       <div className="flex items-center gap-3">
                         <BookOpen size={17} className="text-indigo-400" />
@@ -500,18 +500,18 @@ export default function CommunitySupportSection() {
 
                   {/* 3D Support Mascot Visual with Speech Bubble */}
                   <div className="sm:col-span-5 flex flex-col items-center justify-center relative">
-                    <div className="relative w-40 sm:w-44 aspect-square rounded-2xl overflow-hidden border border-blue-500/20 shadow-2xl bg-[#070D22] group">
+                    <div className="relative w-36 sm:w-40 aspect-square rounded-xl overflow-hidden border border-blue-500/20 shadow-lg bg-[#070D22] group">
                       <img
                         src="/support_agent_3d.jpg"
                         alt="Examinant Support Agent"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = "/student_mascot.png";
                         }}
                       />
                       
                       {/* Floating Speech Bubble Accent */}
-                      <div className="absolute top-2 left-2 bg-[#091638]/90 border border-blue-400/40 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1.5 shadow-md">
+                      <div className="absolute top-2 left-2 bg-[#091638]/90 border border-blue-400/30 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1.5 shadow-sm">
                         <MessageCircle size={12} className="text-blue-400" />
                         <span className="text-[10px] font-bold text-white">Online Help</span>
                       </div>
@@ -522,29 +522,29 @@ export default function CommunitySupportSection() {
               </div>
 
               {/* Bottom Response Time Guarantee */}
-              <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <div className="mt-5 pt-3.5 border-t border-slate-800/70 flex items-center gap-2 text-xs font-medium text-slate-400">
                 <Clock size={15} className="text-cyan-400" />
-                <span>Average response time: <strong className="text-cyan-400">Under 2 minutes</strong></span>
+                <span>Average response time: <strong className="text-cyan-400 font-semibold">Under 2 minutes</strong></span>
               </div>
 
             </div>
 
             {/* RIGHT COLUMN: WHAT'S HAPPENING IN THE COMMUNITY */}
-            <div className="lg:col-span-6 rounded-3xl bg-[#09112B]/85 border border-[#162452] p-5 sm:p-7 flex flex-col justify-between relative shadow-xl">
+            <div className="lg:col-span-6 rounded-2xl bg-[#09112B] border border-[#162452] p-5 sm:p-6 flex flex-col justify-between relative shadow-lg">
               
               <div>
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Activity size={18} className="text-rose-500" />
-                    <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
+                    <h3 className="text-lg font-bold text-white tracking-tight">
                       What's Happening in the Community
                     </h3>
                   </div>
 
                   <button
                     onClick={() => setShowCommunityModal(true)}
-                    className="text-xs sm:text-sm font-bold text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors group"
+                    className="text-xs font-semibold text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors group"
                   >
                     <span>View All</span>
                     <span className="group-hover:translate-x-0.5 transition-transform">→</span>
@@ -552,26 +552,26 @@ export default function CommunitySupportSection() {
                 </div>
 
                 {/* 4 Live Community Discussion Items */}
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {discussions.slice(0, 4).map((disc) => (
                     <div
                       key={disc.id}
                       onClick={() => setSelectedDiscussion(disc)}
-                      className="p-3.5 rounded-2xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-indigo-500/40 flex items-center justify-between gap-3 sm:gap-4 transition-all duration-200 cursor-pointer group shadow-sm"
+                      className="p-3 rounded-xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-indigo-500/40 flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer group shadow-sm"
                     >
                       {/* Left: Avatar + Title & Meta */}
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Avatar Circle with Online Dot */}
                         <div className="relative shrink-0">
-                          <div className={`w-9 h-9 rounded-full ${disc.avatarBg} flex items-center justify-center text-white font-black text-sm shadow-md`}>
+                          <div className={`w-8 h-8 rounded-full ${disc.avatarBg} flex items-center justify-center text-white font-bold text-xs shadow-sm`}>
                             {disc.avatarLetter}
                           </div>
-                          <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#0D183B]"></span>
+                          <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border border-[#0D183B]"></span>
                         </div>
 
                         {/* Title and Author/Category */}
                         <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate">
+                          <h4 className="text-xs sm:text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors truncate">
                             {disc.title}
                           </h4>
                           <p className="text-[11px] text-slate-400 truncate mt-0.5">
@@ -581,8 +581,8 @@ export default function CommunitySupportSection() {
                       </div>
 
                       {/* Right: Comments Count & Time */}
-                      <div className="flex items-center gap-3 shrink-0 text-[11px] text-slate-400">
-                        <div className="flex items-center gap-1 text-slate-300 font-bold">
+                      <div className="flex items-center gap-2.5 shrink-0 text-[11px] text-slate-400">
+                        <div className="flex items-center gap-1 text-slate-300 font-semibold">
                           <MessageSquare size={13} className="text-slate-400" />
                           <span>{disc.commentCount}</span>
                         </div>
@@ -595,11 +595,11 @@ export default function CommunitySupportSection() {
               </div>
 
               {/* Bottom Action */}
-              <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+              <div className="mt-5 pt-3.5 border-t border-slate-800/70 flex items-center justify-between">
                 <span className="text-xs text-slate-400">Join discussions and get peer reviews on your test solutions</span>
                 <button
                   onClick={() => setShowDoubtModal(true)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/30 active:scale-95"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all shadow-md active:scale-95"
                 >
                   Start Discussion
                 </button>

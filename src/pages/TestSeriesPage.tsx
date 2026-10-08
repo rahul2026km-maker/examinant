@@ -65,9 +65,9 @@ const TestSeriesPage = () => {
                         </div>
                     ) : filteredSeries.length === 0 ? (
                         <div className="text-center py-20">
-                            <div className="inline-block p-8 bg-[#0B152B] rounded-[32px] shadow-xl border border-[#17254E] mb-4 transition-all hover:shadow-2xl">
-                                <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
-                                    <Clock className="text-blue-400 w-10 h-10" />
+                            <div className="inline-block p-8 bg-[#0B152B] rounded-3xl shadow-xl border border-[#17254E] mb-4 transition-all hover:shadow-2xl">
+                                <div className="w-18 h-18 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3 hover:rotate-6 transition-transform">
+                                    <Clock className="text-blue-400 w-9 h-9" />
                                 </div>
                                 <h3 className="text-2xl font-black text-white mb-3 tracking-tight">Coming Soon</h3>
                                 <p className="text-slate-400 font-medium max-w-sm mx-auto text-sm leading-relaxed">

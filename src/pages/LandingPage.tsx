@@ -18,7 +18,7 @@ const EXAMS_LIST = [
   { 
     name: 'NDA', 
     students: '1,245+ Students', 
-    bgColor: 'bg-blue-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M32 4L12 12C12 28 20 48 32 60C44 48 52 28 52 12L32 4Z" fill="#0B4F97" stroke="#D4AF37" strokeWidth="2"/>
@@ -32,7 +32,7 @@ const EXAMS_LIST = [
   { 
     name: 'BOARDS', 
     students: '3,876+ Students', 
-    bgColor: 'bg-emerald-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M6 50C18 45 32 48 32 48C32 48 46 45 58 50V16C46 11 32 14 32 14C32 14 18 11 6 16V50Z" fill="#10B981" stroke="#047857" strokeWidth="2" strokeLinejoin="round"/>
@@ -49,7 +49,7 @@ const EXAMS_LIST = [
   { 
     name: 'JEE MAINS/ADV', 
     students: '8,765+ Students', 
-    bgColor: 'bg-blue-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Circular joint head */}
@@ -70,7 +70,7 @@ const EXAMS_LIST = [
   { 
     name: 'NEET UG', 
     students: '6,432+ Students', 
-    bgColor: 'bg-[#EAFDF5]',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Strand 1 (Left to Right Wave) */}
@@ -88,7 +88,7 @@ const EXAMS_LIST = [
   { 
     name: 'SSC CGL', 
     students: '9,876+ Students', 
-    bgColor: 'bg-purple-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M8 56H56" stroke="#7C3AED" strokeWidth="3" strokeLinecap="round"/>
@@ -105,7 +105,7 @@ const EXAMS_LIST = [
   { 
     name: 'BANKING (IBPS/SBI)', 
     students: '4,321+ Students', 
-    bgColor: 'bg-blue-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M32 8L6 20V24H58V20L32 8Z" fill="#1E40AF" stroke="#1E3A8A" strokeWidth="2"/>
@@ -120,7 +120,7 @@ const EXAMS_LIST = [
   { 
     name: 'RAILWAYS (RRB)', 
     students: '5,621+ Students', 
-    bgColor: 'bg-teal-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="14" y="10" width="36" height="40" rx="8" fill="#0D9488" stroke="#0f766e" strokeWidth="2"/>
@@ -134,7 +134,7 @@ const EXAMS_LIST = [
   { 
     name: 'DEFENCE (NDA/CDS)', 
     students: '2,987+ Students', 
-    bgColor: 'bg-blue-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M32 4L12 12C12 28 20 48 32 60C44 48 52 28 52 12L32 4Z" fill="#1D64D0" stroke="#0B4F97" strokeWidth="2"/>
@@ -146,7 +146,7 @@ const EXAMS_LIST = [
   { 
     name: 'STATE PCS (UPSC)', 
     students: '4,654+ Students', 
-    bgColor: 'bg-indigo-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="10" y="20" width="44" height="32" rx="4" fill="#4F46E5" stroke="#4338ca" strokeWidth="2"/>
@@ -158,7 +158,7 @@ const EXAMS_LIST = [
   { 
     name: 'TEACHING (CTET/STET)', 
     students: '3,210+ Students', 
-    bgColor: 'bg-cyan-50/60',
+    bgColor: 'bg-white',
     renderIcon: () => (
       <svg className="w-8 h-8" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M32 8L58 20L32 32L6 20L32 8Z" fill="#0891B2" stroke="#0e7490" strokeWidth="2"/>
@@ -260,16 +260,16 @@ const LandingPage = () => {
               return (
                 <div 
                   key={idx}
-                  className="relative flex items-center p-4 pt-6 bg-[#0E1B38] border border-[#1E3360] rounded-2xl w-[210px] shrink-0 hover:scale-[1.02] hover:border-blue-500/50 transition-all duration-300 shadow-lg"
+                  className="relative flex items-center p-4 pt-6 bg-[#0E1B38] border border-[#1E3360] rounded-md w-[210px] shrink-0 hover:scale-[1.02] hover:border-blue-500/50 transition-all duration-300 shadow-lg"
                 >
                   {/* LIVE Badge */}
-                  <span className="absolute top-2.5 left-3 bg-[#FF6B00] text-white text-[8px] font-black px-1.5 py-0.5 rounded leading-none">
+                  <span className="absolute top-2.5 left-3 bg-[#FF6B00] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md leading-none">
                     LIVE
                   </span>
                   
                   <div className="flex items-center gap-3 w-full mt-1.5">
                     {/* Icon wrapper */}
-                    <div className={`p-1.5 rounded-xl ${exam.bgColor} flex items-center justify-center shrink-0 w-12 h-12`}>
+                    <div className={`p-1.5 rounded-md ${exam.bgColor} flex items-center justify-center shrink-0 w-12 h-12`}>
                       {exam.renderIcon()}
                     </div>
                     {/* Text content */}
@@ -296,11 +296,8 @@ const LandingPage = () => {
       {/* 3. AI Analysis and Real Exam Simulation Demo */}
       <AISimulationSection />
 
-      {/* 4. Live Classroom Section */}
+      {/* 4. Live Classroom / Admission Batch Section */}
       <LiveClassroomSection />
-
-      {/* 5. Continue Learning Section */}
-      <ContinueLearningSection />
 
       {/* 6. Test Series Section */}
       <section id="test-series" className="pt-8 pb-16 sm:pt-12 sm:pb-20 bg-[#050B18] text-white scroll-mt-24 relative overflow-hidden">
@@ -350,91 +347,103 @@ const LandingPage = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
                   key={series.id}
-                  className="group bg-[#0B152B] border border-[#17254E] hover:border-blue-500/40 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col h-full relative"
+                  className="group bg-[#0B152B] border border-[#17254E] hover:border-blue-500/40 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col h-full relative"
                 >
                   <div className="absolute inset-0 bg-gradient-to-b from-blue-500/0 to-blue-500/0 group-hover:to-blue-500/10 transition-colors duration-300 pointer-events-none z-0"></div>
 
-                  {/* Thumbnail Image */}
-                  {series.thumbnailUrl && (
-                    <div className="w-full h-[150px] overflow-hidden relative z-10 border-b border-[#17254E] bg-slate-900">
+                  {/* Thumbnail Image (Uploaded or Default Branded EXAMINANT Banner) */}
+                  <div className="w-full aspect-[16/9] h-[210px] sm:h-[220px] overflow-hidden relative z-10 border-b border-[#17254E] bg-slate-900 shrink-0">
+                    {series.thumbnailUrl ? (
                       <img
                         src={series.thumbnailUrl}
                         alt={series.name}
-                        className="w-full h-full object-fill group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover object-center"
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#0B152B] via-[#0E1E3F] to-[#060D1E] flex flex-col items-center justify-center p-4 text-center relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none"></div>
+                        <div className="flex items-center gap-2 mb-1 z-10">
+                          <div className="w-7 h-7 rounded-lg bg-blue-600 border border-blue-400/30 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                            EX
+                          </div>
+                          <span className="text-lg font-extrabold tracking-wider text-white uppercase">EXAMINANT</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-blue-300 bg-blue-600/20 border border-blue-500/30 px-2.5 py-0.5 rounded-md uppercase tracking-wider z-10">
+                          OFFICIAL TEST SERIES
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Top badges */}
-                  <div className={`flex justify-between items-center px-6 ${series.thumbnailUrl ? 'pt-4' : 'pt-6'} relative z-10`}>
+                  <div className="flex justify-between items-center px-5 pt-3.5 relative z-10">
                     {series.name?.toLowerCase().includes('demo') || (series as any).isDemo || series.pricing?.type === 'free' ? (
-                      <span className="text-xs font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
+                      <span className="text-[10px] font-bold bg-blue-500/15 border border-blue-500/30 text-blue-400 px-2.5 py-0.5 rounded-lg flex items-center gap-1">
                         <span>🔥</span> FREE DEMO
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-white px-2.5 py-0.5 rounded-full shadow-sm tracking-wide">
+                      <span className="text-[10px] font-bold bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-lg tracking-wide">
                         NEW
                       </span>
                     )}
 
-                    <span className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                       {series.examCategory || 'Test Series'}{series.examSubCategory ? ` (${series.examSubCategory})` : ''}
                     </span>
                   </div>
 
                   {/* Title */}
-                  <div className="px-6 mt-3.5 relative z-10">
-                    <h4 className="text-[19px] font-bold text-white group-hover:text-blue-400 transition-colors duration-300 leading-snug">
+                  <div className="px-5 mt-2.5 relative z-10">
+                    <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-blue-400 transition-colors duration-200 leading-snug line-clamp-2">
                       {series.name}
                     </h4>
                   </div>
 
                   {/* Description */}
-                  <div className="px-6 mt-2.5 relative z-10 flex-grow">
-                    <p className="text-[13px] text-slate-300 line-clamp-2 leading-relaxed">
+                  <div className="px-5 mt-2 relative z-10 flex-grow">
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
                       {series.description || "Practice with high-quality mock tests and detailed solutions."}
                     </p>
                   </div>
 
                   {/* Features */}
-                  <div className="px-6 mt-5 mb-5 space-y-2.5 text-[13px] text-slate-300 relative z-10">
-                    <p className="flex items-center gap-2.5">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 text-[10px]">✓</span>
+                  <div className="px-5 mt-3 mb-3.5 space-y-2 text-xs text-slate-300 relative z-10">
+                    <p className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-md bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] shrink-0">✓</span>
                       <span className="font-medium">Detailed Solutions</span>
                     </p>
-                    <p className="flex items-center gap-2.5">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 text-[10px]">✓</span>
+                    <p className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-md bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] shrink-0">✓</span>
                       <span className="font-medium">All India Ranking</span>
                     </p>
-                    <p className="flex items-center gap-2.5">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/15 text-blue-400 text-[10px]">✓</span>
+                    <p className="flex items-center gap-2">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-md bg-blue-500/15 border border-blue-500/30 text-blue-400 text-[10px] shrink-0">✓</span>
                       <span className="font-medium">Performance Analytics</span>
                     </p>
                   </div>
 
                   {/* Price and CTA section */}
-                  <div className="px-6 py-4 mt-auto bg-[#070D1E] group-hover:bg-[#091226] transition-colors duration-300 border-t border-[#17254E] flex items-center justify-between relative z-10">
+                  <div className="px-5 py-3 mt-auto bg-[#070D1E] group-hover:bg-[#091226] transition-colors duration-200 border-t border-[#17254E] flex items-center justify-between relative z-10">
                     <div className="flex flex-col">
                       {series.pricing?.type === "paid" ? (
                         <>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[22px] font-black text-white leading-none">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xl sm:text-2xl font-black text-white leading-none">
                               ₹{series.pricing?.amount}
                             </span>
-                            <span className="text-[12px] font-bold text-slate-400 line-through">
+                            <span className="text-xs font-bold text-slate-400 line-through">
                               ₹{Math.round((series.pricing?.amount || 0) * 1.5)}
                             </span>
                           </div>
-                          <div className="mt-1.5">
-                            <span className="text-[10px] font-extrabold bg-green-500/15 text-green-400 border border-green-500/30 px-2 py-0.5 rounded uppercase tracking-wider">
+                          <div className="mt-1">
+                            <span className="text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-md uppercase tracking-wider">
                               33% OFF
                             </span>
                           </div>
                         </>
                       ) : (
-                        <span className="text-xl font-extrabold text-emerald-400">
+                        <span className="text-lg font-black text-emerald-400">
                           Free
                         </span>
                       )}
@@ -442,14 +451,12 @@ const LandingPage = () => {
 
                     <button
                       onClick={() => handleBuy(series.id)}
-                      className="relative overflow-hidden bg-[#1D64D0] hover:bg-blue-600 text-white font-bold py-2.5 px-8 min-w-[150px] text-[13px] rounded-lg transition-all duration-300 shadow-md active:scale-95"
+                      className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-lg transition-all duration-200 shadow-md active:scale-95 flex items-center gap-1.5"
                     >
-                      <span className="relative z-10 flex items-center justify-center gap-1.5">
-                        Explore Series
-                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                      </span>
+                      <span>Explore Series</span>
+                      <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
                     </button>
                   </div>
 
@@ -460,9 +467,9 @@ const LandingPage = () => {
 
           ) : (
             <div className="text-center py-16">
-              <div className="inline-block p-8 bg-[#0B152B] rounded-[32px] shadow-xl border border-[#17254E] transition-all hover:shadow-2xl">
-                <div className="w-20 h-20 bg-blue-500/10 rounded-3xl flex items-center justify-center mx-auto mb-5 rotate-3 hover:rotate-6 transition-transform">
-                  <svg className="text-blue-400 w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="inline-block p-8 bg-[#0B152B] rounded-3xl shadow-xl border border-[#17254E] transition-all hover:shadow-2xl">
+                <div className="w-18 h-18 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3 hover:rotate-6 transition-transform">
+                  <svg className="text-blue-400 w-9 h-9" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>

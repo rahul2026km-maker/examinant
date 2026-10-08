@@ -46,17 +46,18 @@ const ForgotPasswordPage = () => {
                 throw new Error(data.error || 'Failed to send password reset OTP.');
             }
 
-            setMessage(data.message || `A 6-digit OTP has been sent to ${cleanEmail}. Check your inbox or spam folder.`);
+            setMessage(data.message || `A 6-digit OTP code has been sent to ${cleanEmail}. Please check your inbox or spam folder.`);
             setStep('otp');
         } catch (err: any) {
-            console.error(err);
-            setError(err.message || 'Failed to send password reset OTP. Please ensure the backend server is running.');
+            console.error('Password reset error:', err);
+            setError(err.message || 'Failed to send OTP. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleVerifyOTP = async () => {
+    const handleVerifyOTP = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         if (!otp || otp.length !== 6) {
             setError('Please enter the 6-digit OTP sent to your email.');
             return;
@@ -79,7 +80,7 @@ const ForgotPasswordPage = () => {
                 throw new Error(data.error || 'Invalid or expired OTP. Please check your email.');
             }
 
-            setMessage(data.message || 'OTP verified! Now enter your new password.');
+            setMessage('OTP verified! Please enter your new password below.');
             setStep('password');
         } catch (err: any) {
             console.error(err);
@@ -90,9 +91,7 @@ const ForgotPasswordPage = () => {
     };
 
     useEffect(() => {
-        if (otp.length === 6 && step === 'otp') {
-            handleVerifyOTP();
-        }
+        // OTP is verified only when user clicks the Verify button
     }, [otp, step]);
 
     const handleVerifyAndReset = async (e: React.FormEvent) => {
@@ -134,7 +133,6 @@ const ForgotPasswordPage = () => {
             setNewPassword('');
             setConfirmPassword('');
 
-            // Redirect to login page after a short delay
             setTimeout(() => {
                 navigate('/login');
             }, 1800);
@@ -266,8 +264,16 @@ const ForgotPasswordPage = () => {
                     <div className="max-w-[460px] w-full mx-auto flex flex-col justify-center py-6">
 
                         <div className="mb-5">
-                            <h2 className="text-3xl font-extrabold text-white mb-1.5 tracking-tight">Forgot Password?</h2>
-                            <p className="text-slate-400 font-medium text-sm">Enter your email and we'll send you a link to reset your password.</p>
+                            <h2 className="text-3xl font-extrabold text-white mb-1.5 tracking-tight">
+                                {step === 'email' && 'Forgot Password?'}
+                                {step === 'otp' && 'Enter Verification OTP'}
+                                {step === 'password' && 'Create New Password'}
+                            </h2>
+                            <p className="text-slate-400 font-medium text-sm">
+                                {step === 'email' && "Enter your email and we'll send you a 6-digit OTP."}
+                                {step === 'otp' && `Enter the 6-digit OTP sent to ${email} to verify.`}
+                                {step === 'password' && "Enter your new password below to update your account credentials."}
+                            </p>
                         </div>
 
                         {error && (

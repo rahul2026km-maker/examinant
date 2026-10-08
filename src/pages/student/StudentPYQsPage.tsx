@@ -29,46 +29,40 @@ const StudentPYQsPage = () => {
     const [buyingId, setBuyingId] = useState<string | null>(null);
 
     useEffect(() => {
+        // Fetch PYQs for all users (logged in or guests)
+        const q = query(collection(db, 'pyqs'));
+        const unsubscribePyqs = onSnapshot(q, (snapshot) => {
+            const fetched = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    title: data.title || data.name || data.testName || 'Untitled PYQ',
+                    category: data.category || data.exam || 'General',
+                    year: data.year || 'N/A',
+                    price: data.price ?? 0
+                };
+            }) as PYQ[];
+            setPyqs(fetched);
+            setIsLoading(false);
+        }, (error) => {
+            console.error("PYQ subscription error:", error);
+            setIsLoading(false);
+        });
+
+        let unsubscribePurchases: (() => void) | undefined;
         if (currentUser) {
-            // Fetch purchases
             const purchasesRef = collection(db, 'users', currentUser.uid, 'purchases');
-            const unsubscribePurchases = onSnapshot(purchasesRef, (snapshot) => {
-                // Check either testId or itemId (for future compatibility)
+            unsubscribePurchases = onSnapshot(purchasesRef, (snapshot) => {
                 const ids = new Set(snapshot.docs.map(doc => doc.data().testId || doc.data().itemId));
                 setPurchasedIds(ids);
             });
-
-            // Fetch PYQs
-            const q = query(collection(db, 'pyqs')); // Removed orderBy to check for index issues
-            const unsubscribePyqs = onSnapshot(q, (snapshot) => {
-                const fetched = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return {
-                        id: doc.id,
-                        ...data,
-                        title: data.title || data.name || data.testName || 'Untitled PYQ',
-                        category: data.category || data.exam || 'General',
-                        year: data.year || 'N/A',
-                        price: data.price ?? 0
-                    };
-                }) as PYQ[];
-                console.log("PYQs Subscription Data:", fetched);
-                if (fetched.length === 0) {
-                    console.warn("PYQs collection is empty in Firestore.");
-                }
-                setPyqs(fetched);
-                setIsLoading(false);
-            }, (error) => {
-                console.error("PYQ subscription error:", error);
-                setIsLoading(false);
-                alert("Error loading PYQs: " + error.message);
-            });
-
-            return () => {
-                unsubscribePurchases();
-                unsubscribePyqs();
-            };
         }
+
+        return () => {
+            if (unsubscribePurchases) unsubscribePurchases();
+            unsubscribePyqs();
+        };
     }, [currentUser]);
 
     const handleBuy = async (pyq: PYQ) => {

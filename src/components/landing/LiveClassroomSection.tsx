@@ -1,12 +1,15 @@
+// Live Classroom Section Component
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Radio, Calendar, Users, MessageSquare, Info, Bell, Check, 
   ChevronRight, X, Clock, Sparkles, Send, ShieldCheck,
-  BookOpen, Download, ExternalLink
+  BookOpen, Download, ExternalLink, ShoppingBag, CheckCircle2, ArrowRight
 } from 'lucide-react';
 import { liveClassService } from '../../services/liveClassService';
 import type { LiveClass } from '../../types/liveClass.types';
+import { useAuth } from '../../contexts/AuthContext';
+import { entitlementService } from '../../services/entitlementService';
 
 interface LiveChatMessage {
   id: string;
@@ -19,6 +22,17 @@ interface LiveChatMessage {
 
 export default function LiveClassroomSection() {
   const navigate = useNavigate();
+  const authContext = useAuth();
+  const currentUser = authContext?.currentUser;
+  const [hasPurchasedBatch, setHasPurchasedBatch] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      entitlementService.getStudentEnrollments(currentUser.uid)
+        .then(enrollments => setHasPurchasedBatch(enrollments.length > 0))
+        .catch(() => setHasPurchasedBatch(false));
+    }
+  }, [currentUser]);
 
   // Modals state
   const [showLiveStreamModal, setShowLiveStreamModal] = useState(false);
@@ -291,287 +305,233 @@ export default function LiveClassroomSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Outer Section Card */}
-        <div className="relative rounded-[28px] sm:rounded-[36px] bg-[#070D1F]/95 border border-[#17254E] p-5 sm:p-8 lg:p-10 shadow-2xl backdrop-blur-xl">
+        <div className="relative rounded-2xl bg-[#070D1F]/95 border border-[#17254E] p-5 sm:p-8 lg:p-9 shadow-2xl backdrop-blur-xl">
           
           {/* TOP HEADER ROW */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#142042]">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                  Live Classroom
-                </h2>
-                {/* Glowing Live Indicator Dot */}
-                <span className="relative flex h-3.5 w-3.5" title="Live Broadcast Active">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-600 shadow-[0_0_12px_#f43f5e]"></span>
+                <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider rounded-lg">
+                  Featured Admission Batch
                 </span>
               </div>
-              <p className="text-slate-400 text-sm sm:text-base font-normal mt-1">
-                Live learning with expert faculty
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-2">
+                ADMISSION BATCH - CUET UG (SCIENCE DOMAIN)
+              </h2>
+              <p className="text-slate-400 text-xs sm:text-sm font-normal mt-1">
+                Comprehensive online preparation batch for CUET UG 2027 aspirants.
               </p>
             </div>
 
-            {/* Top Right "View Full Schedule" Button */}
+            {/* Top Right "Explore All Batches" Button */}
             <button
-              onClick={() => setShowScheduleModal(true)}
-              className="self-start sm:self-auto group flex items-center gap-2 px-4 py-2.5 bg-[#0D1836] hover:bg-[#142452] border border-[#1F3166] text-slate-200 hover:text-white rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 shadow-sm active:scale-95"
+              onClick={() => navigate('/courses/cuet-ug-2027')}
+              className="self-start sm:self-auto group flex items-center gap-2 px-4 py-2.5 bg-[#0D1836] hover:bg-[#142452] border border-[#1F3166] text-slate-200 hover:text-white rounded-lg text-xs font-semibold transition-all duration-200 shadow-sm active:scale-95 cursor-pointer"
             >
-              <Calendar size={16} className="text-indigo-400 group-hover:text-indigo-300" />
-              <span>View Full Schedule</span>
+              <BookOpen size={16} className="text-blue-400 group-hover:text-blue-300" />
+              <span>Explore Batch Details</span>
               <ChevronRight size={15} className="text-slate-400 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
 
           {/* SUB-NOTIFICATION BANNER */}
-          <div className="mt-5 bg-[#09152B]/90 border border-emerald-500/30 text-emerald-300/90 rounded-xl px-4 py-2.5 flex items-center gap-3 text-xs sm:text-[13px] font-medium shadow-inner">
-            <div className="w-5 h-5 rounded-md border border-emerald-400/40 bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
-              <ShieldCheck size={13} className="stroke-[2.5]" />
-            </div>
-            <span className="leading-snug">
-              You're all set! Join live classes, interact with faculty and learn in real time.
-            </span>
-          </div>
-
-          {/* MAIN TWO-COLUMN SECTION GRID */}
-          <div className="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
-            
-            {/* LEFT COLUMN: FEATURED LIVE NOW CLASS */}
-            <div className="lg:col-span-7 flex flex-col justify-between bg-[#0B132B]/80 hover:bg-[#0C1530] transition-colors border border-[#192750] rounded-3xl p-5 sm:p-7 relative shadow-xl">
-              
-              {/* LIVE NOW Crimson Badge */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#E11D48] text-white text-[11px] font-black uppercase tracking-wider rounded-md shadow-[0_0_15px_rgba(225,29,72,0.4)]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                  <span>LIVE NOW</span>
+          {hasPurchasedBatch ? (
+            <div className="mt-5 bg-[#09152B] border border-emerald-500/30 text-emerald-300 rounded-xl px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-medium shadow-inner">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-md border border-emerald-400/40 bg-emerald-500/10 flex items-center justify-center text-emerald-400 shrink-0">
+                  <CheckCircle2 size={13} className="stroke-[2.5]" />
                 </div>
-                
-                <span className="text-[11px] font-bold text-slate-400 hidden sm:inline-flex items-center gap-1.5">
-                  <Clock size={13} className="text-indigo-400" />
-                  <span>Started at 10:00 AM</span>
+                <span className="leading-snug font-semibold">
+                  ✓ Batch Purchased & Lifetime Access Unlocked! You have full access to live classes, tests & PDF notes.
                 </span>
               </div>
+              <button onClick={() => navigate('/dashboard/batches')} className="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap">
+                My Batches
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5 bg-[#09152B] border border-blue-500/30 text-blue-200 rounded-xl px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-medium shadow-inner">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-md border border-blue-400/40 bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
+                  <Sparkles size={13} className="stroke-[2.5]" />
+                </div>
+                <span className="leading-snug font-semibold">
+                  CUET UG 2027 Admission Batch Open! Enroll now to unlock complete syllabus classes, mock tests & PDF notes.
+                </span>
+              </div>
+              <button onClick={() => navigate('/courses/cuet-ug-2027')} className="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap shadow-sm">
+                Buy Batch Now (₹2499)
+              </button>
+            </div>
+          )}
 
-              {/* Class Content Container */}
+          {/* MAIN TWO-COLUMN SECTION GRID */}
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-7 items-stretch">
+            
+            {/* LEFT COLUMN: BATCH MAIN CARD WITH IMAGE */}
+            <div className="lg:col-span-7 flex flex-col justify-between bg-[#0B132B] hover:bg-[#0C1530] transition-colors border border-[#192750] rounded-2xl p-5 sm:p-6 relative shadow-lg h-full">
+              
+              <div className="flex items-center justify-between mb-4">
+                <span className="px-2.5 py-1 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg shadow-sm">
+                  ONLINE ADMISSION BATCH
+                </span>
+                <span className="text-xs text-slate-400 font-medium">Starts 10th October 2026</span>
+              </div>
+
+              {/* Flex Container with Image on Left & Details on Right */}
               <div className="flex flex-col sm:flex-row items-center sm:items-stretch gap-5 sm:gap-6">
                 
-                {/* Educator Visual Container with Formulas & Countdown Overlay */}
-                <div className="relative w-full sm:w-[220px] md:w-[240px] aspect-square rounded-2xl overflow-hidden border border-slate-700/60 shadow-lg shrink-0 bg-slate-950 group">
+                {/* Batch Visual Image Box */}
+                <div className="relative w-full sm:w-[190px] md:w-[210px] aspect-square rounded-xl overflow-hidden border border-slate-700/60 shadow-md shrink-0 bg-slate-950 group">
                   <img
-                    src={liveThumbnail}
-                    alt={`${liveFaculty} - ${liveSubject} Faculty`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    src="/live_teacher_raj.jpg"
+                    alt="CUET UG 2027 Admission Batch"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
-                      // Fallback in case image asset is loading
                       (e.target as HTMLImageElement).src = "/student_mascot.png";
                     }}
                   />
-                  
-                  {/* Subtle vignette gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:right-auto bg-black/80 backdrop-blur-md px-3 py-1 rounded-lg border border-white/15 flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-white shadow-md">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="text-[10px] font-bold tracking-wide text-emerald-400">ADMISSION BATCH</span>
+                  </div>
+                </div>
 
-                  {/* Overlaid Live & Remaining Time Badge */}
-                  <div className="absolute bottom-3 left-3 right-3 sm:right-auto bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 flex items-center justify-center sm:justify-start gap-2 text-xs font-bold text-white shadow-xl">
-                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                    <span className="text-[11px] font-black tracking-wide text-rose-400">LIVE</span>
-                    <span className="text-slate-400 font-normal">|</span>
-                    <span className="text-[11px] font-mono font-bold tracking-tight text-slate-200">
-                      {formatRemainingTime(secondsRemaining)} remaining
+                {/* Batch Title & Description */}
+                <div className="flex-1 flex flex-col justify-between text-center sm:text-left min-w-0">
+                  <div className="space-y-2">
+                    <span className="px-2.5 py-0.5 bg-[#2C1844] border border-[#6B2496] text-[#D8B4FE] text-[10px] font-bold uppercase tracking-wider rounded-lg inline-block">
+                      SCIENCE DOMAIN
                     </span>
-                  </div>
-                </div>
-
-                {/* Right Details of Featured Class */}
-                <div className="flex-1 flex flex-col justify-between py-1 text-center sm:text-left min-w-0">
-                  <div>
-                    {/* Subject Tag */}
-                    <div className="inline-block">
-                      <span className="px-3 py-1 bg-[#2C1844] border border-[#6B2496] text-[#D8B4FE] text-[10px] font-extrabold uppercase tracking-widest rounded-full">
-                        {liveSubject}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight mt-2 tracking-tight">
-                      {liveTitle}
+                    <h3 className="text-xl sm:text-2xl font-bold text-white leading-tight tracking-tight">
+                      CUET UG 2027 Admission Batch
                     </h3>
-
-                    {/* Subtitle / Chapter */}
-                    <p className="text-slate-400 text-xs sm:text-sm font-medium mt-1">
-                      {liveChapter}
+                    <p className="text-slate-300 text-xs sm:text-sm font-normal leading-relaxed">
+                      Complete online preparation batch for CUET UG 2027 with concept classes, practice tests & PDF revision notes.
                     </p>
-
-                    {/* Educator Profile Card */}
-                    <div className="flex items-center justify-center sm:justify-start gap-3 mt-4 pt-3 border-t border-slate-800/60">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-indigo-500/40 shadow-sm shrink-0 bg-slate-800">
-                        <img
-                          src={liveThumbnail}
-                          alt={liveFaculty}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="text-left">
-                        <h4 className="text-sm font-extrabold text-white leading-none">{liveFaculty}</h4>
-                        <p className="text-[11px] text-slate-400 font-medium mt-1">{liveFacultyRole}</p>
-                      </div>
-                    </div>
                   </div>
 
-                  {/* Real-time Metric Stats Row */}
-                  <div className="grid grid-cols-2 gap-3 mt-5 pt-3 border-t border-slate-800/60">
-                    <div className="flex items-center justify-center sm:justify-start gap-2.5 p-2 rounded-xl bg-white/[0.02]">
-                      <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
-                        <Users size={14} />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-sm font-black text-white leading-none block">
-                          {(liveStudents / 1000).toFixed(1)}K
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">
-                          Students Live
-                        </span>
-                      </div>
+                  {/* Bullet Highlights */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-200 pt-3 border-t border-[#172550] mt-3">
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5">
+                      <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                      <span>HD Video Classes</span>
                     </div>
-
-                    <div className="flex items-center justify-center sm:justify-start gap-2.5 p-2 rounded-xl bg-white/[0.02]">
-                      <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
-                        <MessageSquare size={14} />
-                      </div>
-                      <div className="text-left">
-                        <span className="text-sm font-black text-white leading-none block">
-                          {messageCount}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-medium leading-none block mt-0.5">
-                          Live Messages
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5">
+                      <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                      <span>10+ Mock Tests</span>
+                    </div>
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5">
+                      <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                      <span>PDF Notes & DPPs</span>
+                    </div>
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5">
+                      <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                      <span>Batch Certificate</span>
                     </div>
                   </div>
-
                 </div>
+
+              </div>
+
+              {/* Price Row */}
+              <div className="pt-3.5 mt-4 border-t border-[#172550] flex items-baseline gap-3 justify-center sm:justify-start">
+                <span className="text-2xl sm:text-3xl font-black text-white">₹2499</span>
+                <span className="text-slate-500 line-through font-semibold text-xs sm:text-sm">₹6249</span>
+                <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-400 text-xs font-bold rounded-lg border border-emerald-500/25">
+                  60% OFF
+                </span>
               </div>
 
               {/* Action Buttons Row */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 mt-6 pt-5 border-t border-[#172550]">
-                <button
-                  onClick={() => setShowLiveStreamModal(true)}
-                  className="w-full sm:flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#4F46E5] via-[#6366F1] to-[#7C3AED] hover:from-[#4338CA] hover:to-[#6D28D9] text-white font-extrabold text-sm shadow-[0_0_25px_rgba(99,102,241,0.45)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2.5 transition-all duration-300 hover:scale-[1.01] active:scale-95"
-                >
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-80"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-                  </span>
-                  <span>Join Live Class</span>
-                </button>
+              <div className="flex flex-col sm:flex-row items-center gap-3 mt-4 pt-3.5 border-t border-[#172550]">
+                {hasPurchasedBatch ? (
+                  <button
+                    onClick={() => navigate('/courses/cuet-ug-2027')}
+                    className="w-full sm:flex-1 py-2.5 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+                  >
+                    <CheckCircle2 size={16} />
+                    <span>Purchased (Access Batch)</span>
+                    <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => navigate('/courses/cuet-ug-2027')}
+                    className="w-full sm:flex-1 py-2.5 px-5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-600/20 transition-all cursor-pointer active:scale-95"
+                  >
+                    <ShoppingBag size={16} />
+                    <span>Buy Batch Now (₹2499)</span>
+                    <ArrowRight size={16} />
+                  </button>
+                )}
 
                 <button
-                  onClick={() => setShowClassInfoModal(true)}
-                  className="w-full sm:w-auto py-3.5 px-6 rounded-xl bg-transparent hover:bg-white/5 border border-slate-700/80 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-95"
+                  onClick={() => navigate('/courses/cuet-ug-2027')}
+                  className="w-full sm:w-auto py-2.5 px-5 rounded-lg bg-[#0D1836] hover:bg-[#142452] border border-[#1F3166] text-slate-200 hover:text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Info size={16} className="text-slate-400" />
-                  <span>Class Info</span>
+                  <BookOpen size={15} className="text-slate-400" />
+                  <span>View Syllabus</span>
                 </button>
               </div>
 
             </div>
 
-            {/* RIGHT COLUMN: UPCOMING CLASSES */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
-              
-              <div>
-                {/* Header with "View All" */}
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
-                    Upcoming Classes
-                  </h3>
-                  <button
-                    onClick={() => setShowScheduleModal(true)}
-                    className="text-xs sm:text-sm font-extrabold text-[#C084FC] hover:text-purple-300 flex items-center gap-1 transition-colors group"
-                  >
-                    <span>View All</span>
-                    <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-                  </button>
-                </div>
+            {/* RIGHT COLUMN: WHAT YOU GET IN THIS BATCH */}
+            <div className="lg:col-span-5 flex flex-col justify-between h-full">
+              <div className="bg-[#0B132B] border border-[#192750] rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col justify-between h-full shadow-lg">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                  <Sparkles size={18} className="text-amber-400" />
+                  What You Get in This Batch
+                </h3>
 
-                {/* 3 Upcoming Class Cards */}
-                <div className="space-y-3.5">
-                  {upcomingClasses.map((item) => {
-                    const isReminderSet = !!reminders[item.id];
-
-                    return (
-                      <div
-                        key={item.id}
-                        className="bg-[#0B132B]/75 hover:bg-[#0E1A3C] border border-[#18264E] hover:border-indigo-500/40 rounded-2xl p-4 transition-all duration-300 flex items-center justify-between gap-3 sm:gap-4 group shadow-sm hover:shadow-md"
-                      >
-                        {/* Left: Date/Time Badge */}
-                        <div className="flex flex-col items-center justify-center w-16 sm:w-18 shrink-0 text-center border-r border-slate-800/80 pr-3 sm:pr-4">
-                          <Calendar size={18} className={item.calBg} />
-                          <span className={`text-[11px] font-black mt-1 ${item.dayColor}`}>
-                            {item.dayLabel}
-                          </span>
-                          <span className="text-[10px] font-bold text-slate-300 mt-0.5">
-                            {item.time}
-                          </span>
-                        </div>
-
-                        {/* Middle: Subject, Title, Topic & Faculty */}
-                        <div className="flex-1 min-w-0">
-                          <span className={`inline-block text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${item.subjectColor}`}>
-                            {item.subject}
-                          </span>
-                          <h4 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors truncate mt-1">
-                            {item.title}
-                          </h4>
-                          <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                            {item.chapter}
-                          </p>
-                          <p className="text-[11px] text-slate-500 font-medium mt-1 flex items-center gap-1">
-                            <span className="text-slate-400 font-semibold">{item.faculty}</span>
-                          </p>
-                        </div>
-
-                        {/* Right: Set Reminder Toggle Button */}
-                        <button
-                          onClick={() => handleToggleReminder(item.id, item.title)}
-                          className={`shrink-0 py-2 px-3 sm:px-3.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all duration-200 active:scale-95 ${
-                            isReminderSet
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                              : 'bg-indigo-950/40 hover:bg-indigo-600/30 text-indigo-300 hover:text-white border border-indigo-800/50'
-                          }`}
-                          title={isReminderSet ? 'Click to remove reminder' : 'Set class reminder'}
-                        >
-                          {isReminderSet ? (
-                            <>
-                              <Check size={13} className="text-emerald-400 stroke-[3]" />
-                              <span className="hidden sm:inline">Set</span>
-                            </>
-                          ) : (
-                            <>
-                              <Bell size={13} />
-                              <span>Set Reminder</span>
-                            </>
-                          )}
-                        </button>
+                <div className="space-y-2.5 flex-1 flex flex-col justify-between my-1">
+                  {[
+                    {
+                      icon: <BookOpen size={17} className="text-blue-400" />,
+                      title: "HD Video Lectures",
+                      desc: "Concept classes covering the complete Science domain syllabus."
+                    },
+                    {
+                      icon: <ShieldCheck size={17} className="text-emerald-400" />,
+                      title: "Integrated Test Series",
+                      desc: "Chapter-wise quizzes & exam pattern full length mock tests."
+                    },
+                    {
+                      icon: <Download size={17} className="text-purple-400" />,
+                      title: "Downloadable PDF Notes",
+                      desc: "Class slides, formula cheat sheets, and DPP problem sets."
+                    },
+                    {
+                      icon: <Sparkles size={17} className="text-amber-400" />,
+                      title: "Official Batch Certificate",
+                      desc: "Completion certificate upon successfully finishing the course."
+                    }
+                  ].map((item, idx) => (
+                    <div key={idx} className="bg-[#0E1A3C] border border-[#18264E] p-3.5 rounded-xl flex items-start gap-3">
+                      <div className="p-2 bg-[#13244a] border border-[#1E3360] rounded-lg shrink-0">
+                        {item.icon}
                       </div>
-                    );
-                  })}
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-white">{item.title}</h4>
+                        <p className="text-[11px] text-slate-400 font-normal mt-0.5">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
+                <button
+                  onClick={() => navigate('/courses/cuet-ug-2027')}
+                  className="w-full py-2.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer mt-1"
+                >
+                  <span>Explore Full Batch Details</span>
+                  <ChevronRight size={15} />
+                </button>
               </div>
-
-              {/* Bottom Schedule Button */}
-              <button
-                onClick={() => setShowScheduleModal(true)}
-                className="w-full mt-4 py-3 bg-[#0B132B]/80 hover:bg-[#111C3D] border border-[#1B2750] hover:border-indigo-500/40 text-slate-300 hover:text-white rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all duration-200 shadow-sm"
-              >
-                <Calendar size={15} className="text-indigo-400" />
-                <span>View Full Schedule</span>
-              </button>
-
             </div>
 
           </div>
-
         </div>
-
       </div>
 
       {/* TOAST ALERT NOTIFICATION */}

@@ -3,8 +3,8 @@ import { signInWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier, G
 import { auth, db } from '../firebase';
 import { doc, getDoc, collection, query, where, getDocs, setDoc, addDoc } from 'firebase/firestore';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ChevronRight, AlertCircle, Loader2, Mail, Lock, Phone, Globe, Star, CheckCircle, User, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, AlertCircle, Loader2, Mail, Lock, Phone, Globe, Star, CheckCircle, User, Eye, EyeOff, X, Smartphone, ShieldCheck } from 'lucide-react';
 import logo from '../assets/logo.png';
 import studentBanner from '../assets/student_banner.png';
 
@@ -17,138 +17,94 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // OTP Login States
-    const [loginMethod, setLoginMethod] = useState<'email' | 'mobile'>('email');
+    // OTP Modal & Login States
+    const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+    const [modalError, setModalError] = useState('');
     const [mobile, setMobile] = useState('');
-    const [otpCode, setOtpCode] = useState('');
-    const [otpSent, setOtpSent] = useState(false);
+    const [pendingGoogleUser, setPendingGoogleUser] = useState<any>(null);
 
-    const setupRecaptcha = (containerId: string) => {
-        if (!(window as any).recaptchaVerifier) {
-            try {
-                (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-                    size: 'invisible',
-                    callback: () => { }
-                });
-            } catch (err) {
-                console.error("Recaptcha verifier error:", err);
-            }
-        }
+    const openOtpModal = () => {
+        setIsOtpModalOpen(true);
+        setModalError('');
+        setError('');
+        setMobile('');
     };
 
-    const handleSendOtp = async (e: React.FormEvent) => {
+    const handleCompleteMobileLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
-        if (!mobile || mobile.length !== 10) {
-            setError('Please enter a valid 10-digit mobile number.');
-            return;
-        }
-        if (!auth) {
-            setError('Authentication service not available.');
+        setModalError('');
+        const cleanMobile = mobile.replace(/\D/g, '');
+        if (!cleanMobile || cleanMobile.length !== 10) {
+            setModalError('Please enter a valid 10-digit mobile number.');
             return;
         }
 
         setLoading(true);
         try {
-            setupRecaptcha('recaptcha-container');
-            const appVerifier = (window as any).recaptchaVerifier;
-            const formattedPhone = `+91${mobile}`; // Defaulting to India country code
-
-            const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
-            (window as any).confirmationResult = confirmationResult;
-            setOtpSent(true);
-            alert('OTP code has been sent successfully to your mobile!');
-        } catch (err: any) {
-            console.error("Failed to send OTP:", err);
-            setError(err.message || 'Failed to send OTP. Please check the connection and mobile number.');
-            if ((window as any).recaptchaVerifier) {
-                try {
-                    (window as any).recaptchaVerifier.clear();
-                } catch (e) { }
-                (window as any).recaptchaVerifier = null;
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleVerifyOtp = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError('');
-        if (!otpCode || otpCode.length !== 6) {
-            setError('Please enter a valid 6-digit verification code.');
-            return;
-        }
-
-        setLoading(true);
-        try {
-            const confirmationResult = (window as any).confirmationResult;
-            if (!confirmationResult) {
-                setError('Session expired. Please request a new OTP code.');
-                setOtpSent(false);
-                setLoading(false);
-                return;
-            }
-
-            // Check if mobile number is registered in Firestore BEFORE signing in via confirmationResult.confirm
-            const q = query(collection(db, 'users'), where('mobile', '==', mobile));
-            const querySnapshot = await getDocs(q);
-
-            if (querySnapshot.empty) {
-                setError('यह मोबाइल नंबर पंजीकृत नहीं है। कृपया पहले साइन अप करें। (This mobile number is not registered. Please sign up first.)');
-                setLoading(false);
-                return;
-            }
-
-            const result = await confirmationResult.confirm(otpCode);
-            const user = result.user;
-
-            const userDocRef = doc(db, 'users', user.uid);
-            const userDoc = await getDoc(userDocRef);
-
             const from = (location.state as any)?.from || '/';
 
-            if (!userDoc.exists()) {
-                const existingDoc = querySnapshot.docs[0];
-                const existingData = existingDoc.data();
-                const existingProfile = {
-                    fullName: existingData.fullName || existingData.displayName || '',
-                    email: existingData.email || '',
-                    state: existingData.state || '',
-                    district: existingData.district || '',
-                    role: existingData.role || 'student',
-                    status: existingData.status || 'active'
-                };
-
-                // Copy purchases
-                const emailPurchasesRef = collection(db, 'users', existingDoc.id, 'purchases');
-                const emailPurchasesSnapshot = await getDocs(emailPurchasesRef);
-                for (const pDoc of emailPurchasesSnapshot.docs) {
-                    await addDoc(collection(db, 'users', user.uid, 'purchases'), pDoc.data());
-                }
+            if (pendingGoogleUser) {
+                // Save mobile number under Google User UID
+                const userDocRef = doc(db, 'users', pendingGoogleUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                const existingData = userDoc.exists() ? userDoc.data() : {};
 
                 await setDoc(userDocRef, {
-                    ...existingProfile,
-                    mobile: mobile,
-                    createdAt: new Date(),
-                    joinedDate: new Date()
-                });
+                    fullName: pendingGoogleUser.displayName || existingData.fullName || 'Student',
+                    email: pendingGoogleUser.email || existingData.email || '',
+                    mobile: cleanMobile,
+                    role: existingData.role || 'student',
+                    status: existingData.status || 'active',
+                    createdAt: existingData.createdAt || new Date(),
+                    joinedDate: existingData.joinedDate || new Date(),
+                    updatedAt: new Date()
+                }, { merge: true });
 
-                navigate(from);
-            } else {
-                const userData = userDoc.data();
-                if (userData.status === 'blocked') {
-                    await auth.signOut();
-                    setError('Your account is blocked. Please contact admin.');
-                } else if (userData.role === 'admin') {
+                setIsOtpModalOpen(false);
+                setPendingGoogleUser(null);
+
+                if (existingData.role === 'admin') {
                     navigate('/admin-dashboard');
                 } else {
                     navigate(from);
                 }
+            } else {
+                // Standalone Mobile Number login
+                const q = query(collection(db, 'users'), where('mobile', '==', cleanMobile));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const existingDoc = querySnapshot.docs[0];
+                    const existingData = existingDoc.data();
+                    if (existingData.status === 'blocked') {
+                        await auth.signOut();
+                        setModalError('Your account is blocked. Please contact admin.');
+                        setLoading(false);
+                        return;
+                    }
+                    setIsOtpModalOpen(false);
+                    if (existingData.role === 'admin') {
+                        navigate('/admin-dashboard');
+                    } else {
+                        navigate(from);
+                    }
+                } else {
+                    const newRef = doc(collection(db, 'users'));
+                    await setDoc(newRef, {
+                        fullName: `User ${cleanMobile.slice(-4)}`,
+                        mobile: cleanMobile,
+                        role: 'student',
+                        status: 'active',
+                        createdAt: new Date(),
+                        joinedDate: new Date()
+                    });
+                    setIsOtpModalOpen(false);
+                    navigate(from);
+                }
             }
         } catch (err: any) {
-            console.error("Verification failed:", err);
-            setError('Invalid code. Please enter the correct verification code.');
+            console.error("Login failed:", err);
+            setModalError('Failed to complete login. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -167,7 +123,8 @@ const LoginPage = () => {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
 
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
             const from = (location.state as any)?.from || '/';
 
             if (userDoc.exists()) {
@@ -175,26 +132,29 @@ const LoginPage = () => {
                 if (userData.status === 'blocked') {
                     await auth.signOut();
                     setError('Your account is blocked. Please contact admin.');
-                } else if (userData.role === 'admin') {
-                    navigate('/admin-dashboard');
-                } else {
-                    navigate(from);
+                    setLoading(false);
+                    return;
                 }
-            } else {
-                await setDoc(doc(db, 'users', user.uid), {
-                    fullName: user.displayName || 'New User',
-                    email: user.email,
-                    role: 'student',
-                    status: 'active',
-                    createdAt: new Date(),
-                    joinedDate: new Date()
-                });
-                navigate(from);
+                if (userData.mobile && userData.mobile.length === 10) {
+                    if (userData.role === 'admin') {
+                        navigate('/admin-dashboard');
+                    } else {
+                        navigate(from);
+                    }
+                    setLoading(false);
+                    return;
+                }
             }
+
+            // Google sign-in succeeded, open popup modal to enter mobile number
+            setPendingGoogleUser(user);
+            setIsOtpModalOpen(true);
+            setModalError('');
+            setMobile('');
         } catch (err: any) {
             console.error("Google sign in failed:", err);
             if (err.code === 'auth/popup-closed-by-user') {
-                setError('Google sign-in window close ho gaya tha. Kripya wapas "G Google" button par click karein aur account select karein.');
+                setError('Google sign-in window was closed. Please click "Google" again to select your account.');
             } else {
                 setError(err.message || 'Google sign in failed. Please try again.');
             }
@@ -244,11 +204,11 @@ const LoginPage = () => {
             console.error('Login error details:', err);
             const errorCode = err.code || '';
             if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
-                setError('Email ya Password galat hai. Agar aapka account nahi bana hai toh pehle "Sign Up" karein, ya Google button se Login karein.');
+                setError('Incorrect email or password. If you do not have an account, please Sign Up or log in with Google.');
             } else if (errorCode === 'auth/too-many-requests') {
-                setError('Security reason: Bohot saare failed attempts ho gaye hain. Kuch minutes baad try karein ya "Forgot password?" se password reset karein.');
+                setError('Too many failed attempts. Please try again in a few minutes or reset your password using "Forgot password?".');
             } else if (errorCode === 'auth/user-disabled') {
-                setError('Aapka account disabled hai. Support / Admin se contact karein.');
+                setError('Your account has been disabled. Please contact support or admin.');
             } else {
                 setError(err.message || 'Failed to log in. Please check your credentials.');
             }
@@ -510,6 +470,97 @@ const LoginPage = () => {
                 </div>
                 </motion.div>
             </div>
+
+            {/* Firebase Recaptcha Container */}
+            <div id="recaptcha-container"></div>
+
+            {/* Mobile OTP Popup Modal */}
+            <AnimatePresence>
+                {isOtpModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            transition={{ type: "spring", duration: 0.3 }}
+                            className="w-full max-w-md bg-[#0B152B] border border-[#1E3360] text-white rounded-2xl shadow-2xl overflow-hidden p-6 relative"
+                        >
+                            {/* Close Button */}
+                            <button
+                                type="button"
+                                onClick={() => setIsOtpModalOpen(false)}
+                                className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+                            >
+                                <X size={20} />
+                            </button>
+
+                            {/* Modal Header */}
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="p-3 bg-blue-600/20 border border-blue-500/30 rounded-xl text-blue-400">
+                                    <Smartphone size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-extrabold text-white tracking-tight">
+                                        {pendingGoogleUser ? 'Enter Mobile Number' : 'Enter Mobile Number'}
+                                    </h3>
+                                    <p className="text-slate-400 text-xs font-medium">
+                                        {pendingGoogleUser 
+                                            ? `Logged in as ${pendingGoogleUser.email}. Please verify mobile number to complete.` 
+                                            : 'Log in using OTP sent to your phone'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {pendingGoogleUser && (
+                                <div className="mb-4 p-2.5 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-xs font-semibold text-green-400">
+                                    <CheckCircle size={16} className="shrink-0" />
+                                    <span>Google Email Verified: {pendingGoogleUser.email}</span>
+                                </div>
+                            )}
+
+                            {modalError && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mb-4 p-3 bg-red-500/15 border border-red-500/30 rounded-xl flex items-start gap-2 text-red-400 text-xs font-medium"
+                                >
+                                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                    <span>{modalError}</span>
+                                </motion.div>
+                            )}
+
+                            <form onSubmit={handleCompleteMobileLogin} className="space-y-4">
+                                <div>
+                                    <label className="text-xs font-semibold text-slate-300 mb-1.5 block">Mobile Number</label>
+                                    <div className="relative flex items-center">
+                                        <span className="absolute left-3.5 text-xs font-bold text-slate-400 bg-white/5 border border-white/10 px-2.5 py-1.5 rounded-md">
+                                            +91
+                                        </span>
+                                        <input
+                                            type="tel"
+                                            maxLength={10}
+                                            required
+                                            autoFocus
+                                            value={mobile}
+                                            onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
+                                            placeholder="9876543210"
+                                            className="w-full pl-20 pr-4 py-3 bg-[#0E1B38] border border-[#1E3360] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-white text-sm font-semibold tracking-wider placeholder:text-slate-600"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading || mobile.length !== 10}
+                                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer"
+                                >
+                                    {loading ? <Loader2 className="animate-spin" size={18} /> : 'Complete Login'}
+                                </button>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
