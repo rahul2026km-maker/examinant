@@ -597,12 +597,6 @@ export default function CommunitySupportSection() {
               {/* Bottom Action */}
               <div className="mt-5 pt-3.5 border-t border-slate-800/70 flex items-center justify-between">
                 <span className="text-xs text-slate-400">Join discussions and get peer reviews on your test solutions</span>
-                <button
-                  onClick={() => setShowDoubtModal(true)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold transition-all shadow-md active:scale-95"
-                >
-                  Start Discussion
-                </button>
               </div>
 
             </div>
