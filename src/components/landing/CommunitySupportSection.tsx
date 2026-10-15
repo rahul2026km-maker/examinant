@@ -311,14 +311,13 @@ export default function CommunitySupportSection() {
             
             {/* Card 1: Student Community */}
             <div 
-              onClick={() => setShowCommunityModal(true)}
-              className="cursor-pointer rounded-xl bg-[#0B1229] hover:bg-[#0E1733] border border-[#1B264E] hover:border-purple-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
+              className="rounded-xl bg-[#0B1229] border border-[#1B264E] p-5 flex flex-col justify-between shadow-sm cursor-default"
             >
               <div>
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
                   <MessageSquare size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors mt-3.5">
+                <h3 className="text-base font-bold text-white mt-3.5">
                   Student Community
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -326,22 +325,20 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-purple-400 group-hover:text-purple-300 transition-colors">
-                <span>Join Community</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-purple-400">
+                <span>Student Community</span>
               </div>
             </div>
 
             {/* Card 2: Ask Doubts */}
             <div 
-              onClick={() => setShowDoubtModal(true)}
-              className="cursor-pointer rounded-xl bg-[#0B142D] hover:bg-[#0E1B38] border border-[#172D52] hover:border-cyan-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
+              className="rounded-xl bg-[#0B142D] border border-[#172D52] p-5 flex flex-col justify-between shadow-sm cursor-default"
             >
               <div>
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
                   <HelpCircle size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors mt-3.5">
+                <h3 className="text-base font-bold text-white mt-3.5">
                   Ask Doubts
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -349,22 +346,20 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                <span>Ask Now</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-cyan-400">
+                <span>Doubt Clearing</span>
               </div>
             </div>
 
             {/* Card 3: Leaderboards */}
             <div 
-              onClick={() => setShowLeaderboardModal(true)}
-              className="cursor-pointer rounded-xl bg-[#081726] hover:bg-[#0B1E30] border border-[#13353A] hover:border-emerald-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
+              className="rounded-xl bg-[#081726] border border-[#13353A] p-5 flex flex-col justify-between shadow-sm cursor-default"
             >
               <div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                   <Trophy size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-emerald-300 transition-colors mt-3.5">
+                <h3 className="text-base font-bold text-white mt-3.5">
                   Leaderboards
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -372,22 +367,20 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-emerald-400 group-hover:text-emerald-300 transition-colors">
-                <span>View Leaderboard</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
+                <span>Rankings</span>
               </div>
             </div>
 
             {/* Card 4: Achievements */}
             <div 
-              onClick={() => setShowBadgesModal(true)}
-              className="cursor-pointer rounded-xl bg-[#17131F] hover:bg-[#1C1727] border border-[#362719] hover:border-amber-500/40 p-5 flex flex-col justify-between transition-all duration-200 group shadow-sm"
+              className="rounded-xl bg-[#17131F] border border-[#362719] p-5 flex flex-col justify-between shadow-sm cursor-default"
             >
               <div>
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
                   <Award size={20} />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-amber-300 transition-colors mt-3.5">
+                <h3 className="text-base font-bold text-white mt-3.5">
                   Achievements
                 </h3>
                 <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
@@ -395,9 +388,8 @@ export default function CommunitySupportSection() {
                 </p>
               </div>
 
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-amber-400 group-hover:text-amber-300 transition-colors">
-                <span>View Badges</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-amber-400">
+                <span>Badges & Milestones</span>
               </div>
             </div>
 
@@ -534,30 +526,19 @@ export default function CommunitySupportSection() {
               
               <div>
                 {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Activity size={18} className="text-rose-500" />
-                    <h3 className="text-lg font-bold text-white tracking-tight">
-                      What's Happening in the Community
-                    </h3>
-                  </div>
-
-                  <button
-                    onClick={() => setShowCommunityModal(true)}
-                    className="text-xs font-semibold text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors group"
-                  >
-                    <span>View All</span>
-                    <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-                  </button>
+                <div className="flex items-center gap-2 mb-4">
+                  <Activity size={18} className="text-rose-500" />
+                  <h3 className="text-lg font-bold text-white tracking-tight">
+                    What's Happening in the Community
+                  </h3>
                 </div>
 
-                {/* 4 Live Community Discussion Items */}
+                {/* 4 Live Community Discussion Items (Informational Only) */}
                 <div className="space-y-2.5">
                   {discussions.slice(0, 4).map((disc) => (
                     <div
                       key={disc.id}
-                      onClick={() => setSelectedDiscussion(disc)}
-                      className="p-3 rounded-xl bg-[#0D183B] hover:bg-[#122152] border border-[#1D2F64] hover:border-indigo-500/40 flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer group shadow-sm"
+                      className="p-3 rounded-xl bg-[#0D183B] border border-[#1D2F64] flex items-center justify-between gap-3 shadow-sm select-none cursor-default"
                     >
                       {/* Left: Avatar + Title & Meta */}
                       <div className="flex items-center gap-3 min-w-0">
@@ -571,7 +552,7 @@ export default function CommunitySupportSection() {
 
                         {/* Title and Author/Category */}
                         <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-semibold text-white group-hover:text-indigo-300 transition-colors truncate">
+                          <h4 className="text-xs sm:text-sm font-semibold text-white truncate">
                             {disc.title}
                           </h4>
                           <p className="text-[11px] text-slate-400 truncate mt-0.5">
