@@ -575,7 +575,7 @@ export const StudentLiveClassesSection: React.FC<StudentLiveClassesSectionProps>
                                 <div className="lg:col-span-8 p-4 sm:p-6 space-y-4 border-b lg:border-b-0 lg:border-r border-[#17274B] bg-[#070D1E]/60">
                                     <div className="rounded-2xl overflow-hidden border border-[#17274B] shadow-2xl bg-black aspect-video">
                                         <VideoPlayer
-                                            videoUrl={activeStreamingClass.streamUrl || activeStreamingClass.recordingUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'}
+                                            videoUrl={activeStreamingClass.streamUrl || activeStreamingClass.recordingUrl || 'https://www.youtube.com/watch?v=8qd8yWrrXu4'}
                                             thumbnailUrl={activeStreamingClass.thumbnailUrl}
                                             title={activeStreamingClass.title}
                                             autoPlay={true}

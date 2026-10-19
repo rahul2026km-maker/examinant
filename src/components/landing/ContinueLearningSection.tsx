@@ -45,7 +45,7 @@ const DEFAULT_FEATURED: LectureItem = {
   totalTime: '65:10',
   progressPercent: 68,
   notesTitle: 'Combination_of_Resistors_Handwritten_Notes.pdf',
-  videoUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1'
+  videoUrl: 'https://www.youtube-nocookie.com/embed/8qd8yWrrXu4?autoplay=1'
 };
 
 const RECENTLY_WATCHED_ITEMS: LectureItem[] = [
@@ -577,7 +577,7 @@ Examinant All India Learning Portal: https://examinantt.com
             <div className="relative aspect-video w-full bg-black">
               <iframe
                 className="w-full h-full border-0"
-                src={activeLecture.videoUrl || "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1"}
+                src={activeLecture.videoUrl || "https://www.youtube-nocookie.com/embed/8qd8yWrrXu4?autoplay=1"}
                 title={activeLecture.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

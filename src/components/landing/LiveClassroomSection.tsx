@@ -153,7 +153,7 @@ export default function LiveClassroomSection() {
     ? (activeFirestoreLive.streamUrl.includes('watch?v=')
         ? activeFirestoreLive.streamUrl.replace('watch?v=', 'embed/')
         : activeFirestoreLive.streamUrl)
-    : 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1';
+    : 'https://www.youtube-nocookie.com/embed/8qd8yWrrXu4?autoplay=1';
 
   // Upcoming classes dataset matching reference screenshot combined with Firestore
   const curatedUpcoming = [
@@ -589,7 +589,7 @@ export default function LiveClassroomSection() {
                 <div className="relative aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
                   <iframe
                     className="w-full h-full border-0"
-                    src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0"
+                    src="https://www.youtube-nocookie.com/embed/8qd8yWrrXu4?autoplay=1&mute=0"
                     title="Live Class Broadcast"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen

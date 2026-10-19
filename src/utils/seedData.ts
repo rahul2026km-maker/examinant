@@ -64,7 +64,7 @@ export const seedData = async () => {
                 description: "Deep dive into Mechanics and Electromagnetism.",
                 type: "video",
                 category: "Physics",
-                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                url: "https://www.youtube.com/watch?v=8qd8yWrrXu4",
                 isFree: false,
                 price: 199,
                 createdAt: serverTimestamp()
