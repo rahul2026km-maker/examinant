@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
 import admin from 'firebase-admin';
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -574,6 +575,119 @@ app.post('/api/verify-and-reset-password', async (req, res) => {
   } catch (error) {
     console.error('Error resetting password:', error);
     res.status(500).json({ error: error.message || 'Failed to reset password.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 6. JITSI / 8x8 JAAS ENTERPRISE VIRTUAL CLASSROOM TOKEN GENERATION
+// ---------------------------------------------------------------------------
+const getJaasPrivateKey = () => {
+  if (process.env.JAAS_PRIVATE_KEY) {
+    return process.env.JAAS_PRIVATE_KEY.replace(/\\n/g, '\n');
+  }
+  const keyPath = path.join(__dirname, 'jaas_private_key.pk');
+  if (fs.existsSync(keyPath)) {
+    return fs.readFileSync(keyPath, 'utf8');
+  }
+  const pemPath = path.join(__dirname, 'jaas_private_key.pem');
+  if (fs.existsSync(pemPath)) {
+    return fs.readFileSync(pemPath, 'utf8');
+  }
+  return null;
+};
+
+const sanitizeRoomName = (roomName, classId) => {
+  const base = (roomName || classId || 'virtual_classroom').toLowerCase().trim();
+  const cleaned = base.replace(/[^a-z0-9_-]/g, '_').replace(/_+/g, '_').substring(0, 50);
+  return cleaned.startsWith('examinant_') ? cleaned : `examinant_${cleaned}`;
+};
+
+app.post('/api/live-token', async (req, res) => {
+  try {
+    const { 
+      roomId, 
+      classId, 
+      userId, 
+      userName, 
+      userEmail, 
+      userAvatar, 
+      isInstructor 
+    } = req.body;
+
+    const rawRoom = roomId || classId || 'virtual_classroom';
+    const cleanRoom = sanitizeRoomName(rawRoom, classId);
+
+    const jaasAppId = process.env.JAAS_APP_ID;
+    const jaasApiKeyId = process.env.JAAS_API_KEY_ID;
+    const jaasPrivateKey = getJaasPrivateKey();
+
+    // If 8x8 JaaS RSA-256 keys are configured
+    if (jaasAppId && jaasApiKeyId && jaasPrivateKey) {
+      const now = Math.floor(Date.now() / 1000);
+      const isTeacher = Boolean(isInstructor);
+      const displayName = userName 
+        ? `${userName}${isTeacher ? ' (Host)' : ''}` 
+        : (isTeacher ? 'Instructor (Host)' : 'Student');
+
+      const payload = {
+        aud: 'jitsi',
+        iss: 'chat',
+        iat: now,
+        exp: now + 10800, // 3 hours validity
+        nbf: now - 10,
+        sub: jaasAppId,
+        room: '*', // Or cleanRoom
+        context: {
+          features: {
+            livestreaming: isTeacher,
+            recording: isTeacher,
+            transcription: false
+          },
+          user: {
+            id: userId ? String(userId) : `user_${Date.now()}`,
+            name: displayName,
+            email: userEmail ? String(userEmail) : '',
+            avatar: userAvatar || '',
+            moderator: isTeacher
+          }
+        }
+      };
+
+      const token = jwt.sign(payload, jaasPrivateKey, {
+        algorithm: 'RS256',
+        header: {
+          alg: 'RS256',
+          typ: 'JWT',
+          kid: jaasApiKeyId
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        token,
+        mode: 'jaas',
+        domain: '8x8.vc',
+        appId: jaasAppId,
+        roomName: `${jaasAppId}/${cleanRoom}`,
+        isInstructor: isTeacher
+      });
+    }
+
+    // High-reliability Fallback (meet.jit.si) when 8x8 JaaS key is not yet set
+    return res.status(200).json({
+      success: true,
+      token: null,
+      mode: 'jitsi_meet_direct',
+      domain: 'meet.jit.si',
+      roomName: cleanRoom,
+      isInstructor: Boolean(isInstructor),
+      notice: 'Using direct Jitsi Meet domain. Set JAAS_APP_ID, JAAS_API_KEY_ID and JAAS_PRIVATE_KEY in .env for custom 8x8 JaaS.'
+    });
+  } catch (error) {
+    console.error('Error generating live classroom token:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to generate live classroom token.' 
+    });
   }
 });
 

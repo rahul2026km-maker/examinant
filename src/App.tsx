@@ -72,6 +72,7 @@ const AdminCoursesPage = React.lazy(() => import('./pages/admin/AdminCoursesPage
 const CourseCreationWizard = React.lazy(() => import('./pages/admin/CourseCreationWizard'));
 const CourseEnrollmentsPage = React.lazy(() => import('./pages/admin/CourseEnrollmentsPage'));
 const AdminLiveClassesPage = React.lazy(() => import('./pages/admin/AdminLiveClassesPage'));
+const VirtualClassroomPage = React.lazy(() => import('./pages/classroom/VirtualClassroomPage'));
 
 
 import WhatsAppWidget from './components/WhatsAppWidget';
@@ -178,9 +179,13 @@ function App() {
                 <Route path="/dashboard/omr-attempt/:testId" element={<StudentOMRAttemptPage />} />
                 <Route path="/dashboard/print-omr/:testId" element={<StudentOMRPrintPage />} />
                 <Route path="/dashboard/omr-scan" element={<StudentOMRUploadPage />} />
+                {/* Full Screen Interactive Virtual Classroom Route */}
+                <Route path="/dashboard/live/:classId" element={<VirtualClassroomPage />} />
               </Route>
 
               <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                {/* Full Screen Virtual Classroom Host Route */}
+                <Route path="/admin-dashboard/live-classes/:classId/host" element={<VirtualClassroomPage />} />
                 <Route element={<DashboardLayout role="admin"><Outlet /></DashboardLayout>}>
                   <Route path="/admin-dashboard" element={<AdminDashboard />} />
                   <Route path="/admin-dashboard/live-classes" element={<AdminLiveClassesPage />} />

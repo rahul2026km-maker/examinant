@@ -77,7 +77,7 @@ const AdminLiveClassesPage = () => {
         scheduledStartTime: new Date(Date.now() + 3600000).toISOString().slice(0, 16), // 1 hr from now formatted for datetime-local
         durationMinutes: 60,
         streamUrl: '',
-        streamProvider: 'youtube',
+        streamProvider: 'jitsi',
         thumbnailUrl: '',
         status: 'upcoming',
         recordingUrl: ''
@@ -189,7 +189,7 @@ const AdminLiveClassesPage = () => {
             scheduledStartTime: new Date(Date.now() + 1800000).toISOString().slice(0, 16),
             durationMinutes: 60,
             streamUrl: '',
-            streamProvider: 'youtube',
+            streamProvider: 'jitsi',
             thumbnailUrl: '',
             status: 'upcoming',
             recordingUrl: ''
@@ -251,8 +251,13 @@ const AdminLiveClassesPage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.title.trim() || !formData.streamUrl.trim()) {
-            alert("Please provide class title and stream URL.");
+        const isJitsi = formData.streamProvider === 'jitsi' || formData.streamProvider === 'jaas';
+        if (!formData.title.trim()) {
+            alert("Please provide class title.");
+            return;
+        }
+        if (!isJitsi && !formData.streamUrl.trim()) {
+            alert("Please provide class stream URL.");
             return;
         }
 
@@ -355,15 +360,24 @@ const AdminLiveClassesPage = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 z-10">
-                        <a
-                            href={activeLiveSession.streamUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs rounded-xl flex items-center gap-2 transition-all border border-white/10"
+                        <button
+                            onClick={() => navigate(`/admin-dashboard/live-classes/${activeLiveSession.id}/host`)}
+                            className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-all"
                         >
-                            <ExternalLink size={16} />
-                            <span>Preview Stream</span>
-                        </a>
+                            <Video size={16} />
+                            <span>Host Virtual Room</span>
+                        </button>
+                        {activeLiveSession.streamUrl && (
+                            <a
+                                href={activeLiveSession.streamUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs rounded-xl flex items-center gap-2 transition-all border border-white/10"
+                            >
+                                <ExternalLink size={16} />
+                                <span>Preview Stream</span>
+                            </a>
+                        )}
                         <button
                             onClick={() => handleToggleStatus(activeLiveSession)}
                             className="px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-all"
@@ -511,6 +525,14 @@ const AdminLiveClassesPage = () => {
                                         </td>
                                         <td className="py-4 px-6 text-right">
                                             <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => navigate(`/admin-dashboard/live-classes/${item.id}/host`)}
+                                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-lg shadow-sm flex items-center gap-1 transition-all"
+                                                    title="Open Virtual Classroom as Host"
+                                                >
+                                                    <Video size={14} />
+                                                    <span>{item.status === 'live' ? 'Enter Room' : 'Host'}</span>
+                                                </button>
                                                 {item.status === 'upcoming' && (
                                                     <button
                                                         onClick={() => handleToggleStatus(item)}
@@ -797,17 +819,43 @@ const AdminLiveClassesPage = () => {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="text-xs font-black uppercase text-slate-600">Live Stream URL / YouTube Live Link *</label>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="e.g. https://www.youtube.com/watch?v=xxxx or YouTube Live Embed"
-                                    value={formData.streamUrl}
-                                    onChange={(e) => setFormData(p => ({ ...p, streamUrl: e.target.value }))}
-                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600"
-                                />
-                                <p className="text-[11px] text-slate-400 font-medium">Supports YouTube Live URLs, Zoom meeting links, and custom stream links.</p>
+                                <label className="text-xs font-black uppercase text-slate-600">Virtual Classroom Engine / Provider *</label>
+                                <select
+                                    value={formData.streamProvider}
+                                    onChange={(e) => setFormData(p => ({ ...p, streamProvider: e.target.value as any }))}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                                >
+                                    <option value="jitsi">✨ Enterprise Jitsi / 8x8 JaaS Virtual Classroom (Built-in Audio/Video, Screen Share & Moderation)</option>
+                                    <option value="youtube">YouTube Live Broadcast (Embed Stream)</option>
+                                    <option value="zoom">Zoom Meeting (External Link)</option>
+                                    <option value="custom">Custom Live RTMP / HLS Stream Link</option>
+                                </select>
                             </div>
+
+                            {(formData.streamProvider === 'youtube' || formData.streamProvider === 'zoom' || formData.streamProvider === 'custom') ? (
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-black uppercase text-slate-600">Live Stream URL / Meeting Link *</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        placeholder="e.g. https://www.youtube.com/watch?v=xxxx or Zoom Meeting URL"
+                                        value={formData.streamUrl}
+                                        onChange={(e) => setFormData(p => ({ ...p, streamUrl: e.target.value }))}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-800 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600"
+                                    />
+                                    <p className="text-[11px] text-slate-400 font-medium">External streaming URL for YouTube, Zoom, or custom embeds.</p>
+                                </div>
+                            ) : (
+                                <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-200/80 text-blue-950 text-xs space-y-1">
+                                    <div className="flex items-center gap-1.5 font-black text-blue-800">
+                                        <Sparkles size={14} className="fill-blue-600 text-blue-600" />
+                                        <span>Automated Virtual Classroom Ready</span>
+                                    </div>
+                                    <p className="text-blue-900/80 text-[11px] font-medium leading-relaxed">
+                                        No external links required! A private, encrypted Jitsi / 8x8 JaaS virtual room with RSA-256 JWT host permissions and student restrictions will be created automatically.
+                                    </p>
+                                </div>
+                            )}
 
                             <div className="space-y-1.5">
                                 <label className="text-xs font-black uppercase text-slate-600">Thumbnail Image</label>

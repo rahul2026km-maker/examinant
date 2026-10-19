@@ -1,6 +1,19 @@
 
 
+import { useLocation } from 'react-router-dom';
+
 const WhatsAppWidget = () => {
+  const location = useLocation();
+
+  // Hide WhatsApp widget during live virtual classrooms and test attempts so it doesn't block controls
+  if (
+    location.pathname.includes('/live') || 
+    location.pathname.includes('/attempt') || 
+    location.pathname.includes('/learn')
+  ) {
+    return null;
+  }
+
   const phoneNumber = '918881188678'; // Country code +91
   const message = 'Hello Examinantt! I need some help.';
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;

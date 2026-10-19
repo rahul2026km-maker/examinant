@@ -358,11 +358,11 @@ export const StudentLiveClassesSection: React.FC<StudentLiveClassesSectionProps>
                             </div>
 
                             <button
-                                onClick={() => setActiveStreamingClass(currentlyLiveClass)}
+                                onClick={() => navigate(`/dashboard/live/${currentlyLiveClass.id}`)}
                                 className="w-full mt-3 py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-rose-600/30 active:scale-95 transition-all cursor-pointer"
                             >
                                 <Radio size={16} className="animate-pulse" />
-                                <span>Join Live Class Now</span>
+                                <span>Join Interactive Classroom Now</span>
                             </button>
                         </div>
                     </div>
@@ -461,11 +461,11 @@ export const StudentLiveClassesSection: React.FC<StudentLiveClassesSectionProps>
                             <div className="mt-4 pt-3 border-t border-[#17274B]">
                                 {isLive ? (
                                     <button
-                                        onClick={() => setActiveStreamingClass(item)}
+                                        onClick={() => navigate(`/dashboard/live/${item.id}`)}
                                         className="w-full py-2.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all"
                                     >
                                         <PlayCircle size={15} />
-                                        <span>Join Live Class</span>
+                                        <span>Join Live Classroom</span>
                                     </button>
                                 ) : isUpcoming ? (
                                     <div className="flex items-center gap-2">

@@ -199,11 +199,11 @@ const StudentCoursesPage = () => {
                                 </p>
                                 <div className="flex flex-wrap items-center gap-4 pt-2">
                                     <button
-                                        onClick={() => setActiveStreamingClass(currentLiveClass)}
+                                        onClick={() => navigate(`/dashboard/live/${currentLiveClass.id}`)}
                                         className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-sm rounded-2xl shadow-xl shadow-rose-600/30 flex items-center gap-2.5 hover:-translate-y-0.5 transition-all"
                                     >
                                         <Radio size={18} className="animate-pulse" />
-                                        <span>Join Live Stream</span>
+                                        <span>Enter Interactive Classroom</span>
                                     </button>
                                     <span className="inline-flex items-center gap-2 text-xs font-bold text-slate-200 bg-white/10 backdrop-blur-md px-4 py-3.5 rounded-2xl border border-white/10">
                                         <Eye size={14} className="text-rose-400" />
@@ -352,11 +352,11 @@ const StudentCoursesPage = () => {
                                             </div>
 
                                             <button
-                                                onClick={() => setActiveStreamingClass(session)}
+                                                onClick={() => navigate(`/dashboard/live/${session.id}`)}
                                                 className="w-full py-2.5 bg-[#10224A] hover:bg-blue-600 border border-[#23458A] text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all shadow-md"
                                             >
                                                 <PlayCircle size={16} />
-                                                <span>Watch Replay</span>
+                                                <span>Watch Replay & Details</span>
                                             </button>
                                         </div>
                                     </div>
