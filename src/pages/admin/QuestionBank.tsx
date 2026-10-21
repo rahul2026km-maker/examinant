@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Trash2, X, Save, Loader2, Download, BarChart3, Edit2, Upload, AlertTriangle, List, BookOpen } from 'lucide-react';
+import { Plus, Search, Trash2, X, Save, Loader2, Download, BarChart3, Edit2, Upload, AlertTriangle, List, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db, storage } from '../../firebase';
 import { useSubjectList } from '../../hooks/useSubjectList';
 import { collection, addDoc, deleteDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, writeBatch, getDocs } from 'firebase/firestore';
@@ -34,9 +34,33 @@ interface Question {
 }
 
 const AdminQuestionBank = () => {
-    const [questions, setQuestions] = useState<Question[]>([]);
-    const [chapters, setChapters] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // Cache-first initialization for 0ms instant load
+    const [questions, setQuestions] = useState<Question[]>(() => {
+        try {
+            const cached = sessionStorage.getItem('examinant_cached_questions');
+            return cached ? JSON.parse(cached) : [];
+        } catch {
+            return [];
+        }
+    });
+    const [chapters, setChapters] = useState<any[]>(() => {
+        try {
+            const cached = sessionStorage.getItem('examinant_cached_chapters');
+            return cached ? JSON.parse(cached) : [];
+        } catch {
+            return [];
+        }
+    });
+    const [isLoading, setIsLoading] = useState<boolean>(() => {
+        try {
+            return !sessionStorage.getItem('examinant_cached_questions');
+        } catch {
+            return true;
+        }
+    });
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [pageSize, setPageSize] = useState<number>(25);
+
     const [isCreating, setIsCreating] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,11 +86,13 @@ const AdminQuestionBank = () => {
         setFilterSubject(val);
         setFilterChapter('all');
         setFilterTopic('all');
+        setCurrentPage(1);
     };
 
     const handleChapterFilterChange = (val: string) => {
         setFilterChapter(val);
         setFilterTopic('all');
+        setCurrentPage(1);
     };
 
     // CSV Import states
@@ -226,28 +252,83 @@ const AdminQuestionBank = () => {
     };
 
     useEffect(() => {
-        // Fetch questions
-        const questionsQuery = query(collection(db, 'questions'), orderBy('createdAt', 'desc'));
-        const unsubscribeQuestions = onSnapshot(questionsQuery, (snapshot) => {
-            const fetchedQuestions = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Question[];
-            setQuestions(fetchedQuestions);
-            setIsLoading(false);
-        });
+        let isMounted = true;
+
+        // Fallback safety timeout so spinner NEVER hangs if Firestore or connection is slow
+        const fallbackTimer = setTimeout(() => {
+            if (isMounted) setIsLoading(false);
+        }, 2000);
+
+        // Fetch questions without server-side orderBy index lock
+        const questionsRef = collection(db, 'questions');
+        const unsubscribeQuestions = onSnapshot(
+            questionsRef,
+            (snapshot) => {
+                if (!isMounted) return;
+                const fetchedQuestions = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                })) as Question[];
+
+                // Fast client-side sort by createdAt descending (handles Timestamp, string, or missing)
+                fetchedQuestions.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis
+                        ? a.createdAt.toMillis()
+                        : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : (a.createdAt ? new Date(a.createdAt).getTime() : 0));
+                    const timeB = b.createdAt?.toMillis
+                        ? b.createdAt.toMillis()
+                        : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : (b.createdAt ? new Date(b.createdAt).getTime() : 0));
+                    return timeB - timeA;
+                });
+
+                setQuestions(fetchedQuestions);
+                setIsLoading(false);
+                clearTimeout(fallbackTimer);
+
+                // Cache in sessionStorage for 0ms instant load next time
+                try {
+                    sessionStorage.setItem('examinant_cached_questions', JSON.stringify(fetchedQuestions));
+                } catch {
+                    // Ignore quota limits if payload is large
+                }
+            },
+            (error) => {
+                console.error("Firestore questions subscription error:", error);
+                if (isMounted) setIsLoading(false);
+                clearTimeout(fallbackTimer);
+            }
+        );
 
         // Fetch chapters for dynamic chapter and topic loading
-        const chaptersQuery = query(collection(db, 'chapters'), orderBy('createdAt', 'desc'));
-        const unsubscribeChapters = onSnapshot(chaptersQuery, (snapshot) => {
-            const fetchedChapters = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setChapters(fetchedChapters);
-        });
+        const chaptersRef = collection(db, 'chapters');
+        const unsubscribeChapters = onSnapshot(
+            chaptersRef,
+            (snapshot) => {
+                if (!isMounted) return;
+                const fetchedChapters = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                // Client-side sort chapters
+                fetchedChapters.sort((a: any, b: any) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+                    return timeB - timeA;
+                });
+                setChapters(fetchedChapters);
+
+                try {
+                    sessionStorage.setItem('examinant_cached_chapters', JSON.stringify(fetchedChapters));
+                } catch {}
+            },
+            (error) => {
+                console.error("Firestore chapters subscription error:", error);
+            }
+        );
 
         return () => {
+            isMounted = false;
+            clearTimeout(fallbackTimer);
             unsubscribeQuestions();
             unsubscribeChapters();
         };
@@ -689,23 +770,36 @@ const AdminQuestionBank = () => {
     };
 
     // Available chapters and topics for filtering
-    const availableChapters = filterSubject === 'all' ? chapters : chapters.filter(c => c.subject === filterSubject);
-    const selectedChapterObj = chapters.find(c => c.name.toLowerCase() === filterChapter.toLowerCase());
+    const availableChapters = filterSubject === 'all' ? chapters : chapters.filter(c => c && c.subject === filterSubject);
+    const selectedChapterObj = chapters.find(c => c && c.name && String(c.name).toLowerCase() === String(filterChapter).toLowerCase());
     const availableTopics = selectedChapterObj ? selectedChapterObj.topics || [] : [];
 
     // Apply filters
+    const searchLower = searchTerm.toLowerCase();
     const filteredQuestions = questions.filter(q => {
-        const matchesSearch = q.text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            q.chapter.toLowerCase().includes(searchTerm.toLowerCase());
+        if (!q) return false;
+        const textStr = String(q.text || '').toLowerCase();
+        const chapterStr = String(q.chapter || '').toLowerCase();
+        const topicStr = String(q.topic || '').toLowerCase();
+
+        const matchesSearch = !searchLower || textStr.includes(searchLower) || chapterStr.includes(searchLower);
         const matchesSubject = filterSubject === 'all' || q.subject === filterSubject;
-        const matchesChapter = filterChapter === 'all' || q.chapter.toLowerCase() === filterChapter.toLowerCase();
-        const matchesTopic = filterTopic === 'all' || (q.topic && q.topic.toLowerCase() === filterTopic.toLowerCase());
+        const matchesChapter = filterChapter === 'all' || chapterStr === String(filterChapter).toLowerCase();
+        const matchesTopic = filterTopic === 'all' || topicStr === String(filterTopic).toLowerCase();
         const matchesType = filterType === 'all' || q.type === filterType;
         const matchesDifficulty = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
         const matchesExam = filterExam === 'all' || q.examCategory === filterExam;
 
         return matchesSearch && matchesSubject && matchesChapter && matchesTopic && matchesType && matchesDifficulty && matchesExam;
     });
+
+    // Pagination calculation for lightning fast rendering
+    const totalPages = Math.ceil(filteredQuestions.length / pageSize) || 1;
+    const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+    const paginatedQuestions = filteredQuestions.slice(
+        (safeCurrentPage - 1) * pageSize,
+        safeCurrentPage * pageSize
+    );
 
     // Calculate statistics
     const getStatistics = () => {
@@ -824,7 +918,10 @@ const AdminQuestionBank = () => {
                             type="text"
                             placeholder="Search questions..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
                             className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
                         />
                     </div>
@@ -851,7 +948,10 @@ const AdminQuestionBank = () => {
                     <select
                         value={filterTopic}
                         disabled={filterChapter === 'all'}
-                        onChange={(e) => setFilterTopic(e.target.value)}
+                        onChange={(e) => {
+                            setFilterTopic(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white disabled:opacity-50"
                     >
                         <option value="all">All Topics</option>
@@ -861,7 +961,10 @@ const AdminQuestionBank = () => {
                     </select>
                     <select
                         value={filterType}
-                        onChange={(e) => setFilterType(e.target.value)}
+                        onChange={(e) => {
+                            setFilterType(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                     >
                         <option value="all">All Types</option>
@@ -870,7 +973,10 @@ const AdminQuestionBank = () => {
                     </select>
                     <select
                         value={filterDifficulty}
-                        onChange={(e) => setFilterDifficulty(e.target.value)}
+                        onChange={(e) => {
+                            setFilterDifficulty(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                     >
                         <option value="all">All Difficulties</option>
@@ -880,7 +986,10 @@ const AdminQuestionBank = () => {
                     </select>
                     <select
                         value={filterExam}
-                        onChange={(e) => setFilterExam(e.target.value)}
+                        onChange={(e) => {
+                            setFilterExam(e.target.value);
+                            setCurrentPage(1);
+                        }}
                         className="px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 bg-white"
                     >
                         <option value="all">All Exams</option>
@@ -971,7 +1080,7 @@ const AdminQuestionBank = () => {
                             ) : filteredQuestions.length === 0 ? (
                                 <tr><td colSpan={isSelectionMode ? 10 : 9} className="text-center py-8 text-slate-500">No questions found. Add some to get started.</td></tr>
                             ) : (
-                                filteredQuestions.map((q) => (
+                                paginatedQuestions.map((q) => (
                                     <tr
                                         key={q.id}
                                         className={`hover:bg-slate-50/50 transition-colors ${selectedQuestionIds.has(q.id) ? 'bg-blue-50/30' : ''}`}
@@ -1189,6 +1298,55 @@ const AdminQuestionBank = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {!isLoading && filteredQuestions.length > 0 && (
+                    <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/50">
+                        <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                            <span>
+                                Showing {Math.min((safeCurrentPage - 1) * pageSize + 1, filteredQuestions.length)} - {Math.min(safeCurrentPage * pageSize, filteredQuestions.length)} of {filteredQuestions.length} questions
+                            </span>
+                            <span className="text-slate-300">•</span>
+                            <div className="flex items-center gap-1.5">
+                                <span>Per page:</span>
+                                <select
+                                    value={pageSize}
+                                    onChange={(e) => {
+                                        setPageSize(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                    className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-slate-700 focus:outline-none"
+                                >
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={safeCurrentPage === 1}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 transition-all"
+                            >
+                                <ChevronLeft size={14} /> Previous
+                            </button>
+
+                            <div className="flex items-center gap-1 px-2 text-xs font-black text-slate-600">
+                                Page {safeCurrentPage} of {totalPages}
+                            </div>
+
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={safeCurrentPage === totalPages}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm active:scale-95 transition-all"
+                            >
+                                Next <ChevronRight size={14} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Create Modal */}

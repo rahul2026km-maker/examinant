@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
     ChevronLeft, Radio, Users, Clock, ShieldCheck, CheckCircle2, 
     Play, AlertCircle, Share2, PhoneOff, MicOff, ExternalLink, 
-    Upload, Sparkles, Check, RefreshCw, Video, BookOpen, MessageSquare
+    Upload, Sparkles, Check, RefreshCw, Video, BookOpen, MessageSquare,
+    LayoutGrid, UserCheck
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { liveClassService } from '../../services/liveClassService';
@@ -17,7 +18,7 @@ export default function VirtualClassroomPage() {
     const auth = useAuth();
     const currentUser = auth?.currentUser;
     const userRole = auth?.userRole;
-    const isInstructor = userRole === 'admin';
+    const isInstructor = userRole === 'admin' || window.location.pathname.includes('/admin-dashboard/');
 
     const playerRef = useRef<JitsiPlayerRef>(null);
 
@@ -68,13 +69,24 @@ export default function VirtualClassroomPage() {
 
         // If class is live or instructor is preparing
         if (liveClass.status === 'live' || isInstructor) {
+            const studentName = auth?.profileData?.fullName || currentUser?.displayName;
+            const displayName = isInstructor 
+                ? (studentName || 'Instructor') 
+                : (studentName || `Student ${Math.floor(Math.random() * 899 + 100)}`);
+
+            const resolvedAvatar = auth?.profileData?.photoURL || auth?.profileData?.avatar || currentUser?.photoURL || (
+                isInstructor 
+                    ? (liveClass.educatorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2563EB&color=fff&size=256&bold=true`)
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D9488&color=fff&size=256&bold=true`
+            );
+
             liveClassService.fetchLiveToken({
                 classId,
                 roomId: liveClass.roomName,
                 userId: currentUser?.uid,
-                userName: currentUser?.displayName || (isInstructor ? 'Instructor' : 'Student'),
+                userName: displayName,
                 userEmail: currentUser?.email || '',
-                userAvatar: currentUser?.photoURL || '',
+                userAvatar: resolvedAvatar,
                 isInstructor
             }).then(config => {
                 setRoomTokenConfig(config);
@@ -82,7 +94,7 @@ export default function VirtualClassroomPage() {
                 console.error("Failed to fetch live classroom token:", err);
             });
         }
-    }, [liveClass?.status, classId, isInstructor, currentUser]);
+    }, [liveClass?.status, liveClass?.roomName, classId, isInstructor, currentUser?.uid, auth?.profileData?.fullName, auth?.profileData?.photoURL]);
 
     // 3. Elapsed Timer calculation for State 3 (Live)
     useEffect(() => {
@@ -278,6 +290,30 @@ export default function VirtualClassroomPage() {
                         <span>{isInstructor ? "Instructor Mode" : "Student Attendee"}</span>
                     </div>
 
+                    {/* View Controls: Grid / Focus Teacher */}
+                    {liveClass.status === 'live' && (
+                        <div className="flex items-center gap-1.5">
+                            {!isInstructor && (
+                                <button
+                                    onClick={() => playerRef.current?.focusHost()}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border bg-blue-600/20 border-blue-500/40 text-blue-300 hover:bg-blue-600/30"
+                                    title="Pin Teacher's Live Video on main screen"
+                                >
+                                    <UserCheck size={14} className="text-blue-400" />
+                                    <span className="hidden sm:inline">Focus Teacher</span>
+                                </button>
+                            )}
+                            <button
+                                onClick={() => playerRef.current?.toggleTileView()}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border bg-slate-800 border-slate-700 text-slate-300 hover:text-white hover:border-slate-600"
+                                title="Toggle Grid View to see all students / Teacher stage view"
+                            >
+                                <LayoutGrid size={14} className="text-slate-400" />
+                                <span className="hidden sm:inline">All Students Grid</span>
+                            </button>
+                        </div>
+                    )}
+
                     {/* Live Discussion Chat Toggle */}
                     {liveClass.status === 'live' && (
                         <button
@@ -425,9 +461,15 @@ export default function VirtualClassroomPage() {
                                         roomConfig={roomTokenConfig}
                                         user={{
                                             id: currentUser?.uid,
-                                            name: currentUser?.displayName || (isInstructor ? 'Instructor' : 'Student'),
+                                            name: isInstructor 
+                                                ? (auth?.profileData?.fullName || currentUser?.displayName || 'Instructor') 
+                                                : (auth?.profileData?.fullName || currentUser?.displayName || 'Student'),
                                             email: currentUser?.email || '',
-                                            avatar: currentUser?.photoURL || ''
+                                            avatar: auth?.profileData?.photoURL || auth?.profileData?.avatar || currentUser?.photoURL || (
+                                                isInstructor 
+                                                    ? (liveClass.educatorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(auth?.profileData?.fullName || currentUser?.displayName || 'Instructor')}&background=2563EB&color=fff&size=256&bold=true`)
+                                                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(auth?.profileData?.fullName || currentUser?.displayName || 'Student')}&background=0D9488&color=fff&size=256&bold=true`
+                                            )
                                         }}
                                         isInstructor={isInstructor}
                                         onReadyToClose={handleLeaveRoomLocally}

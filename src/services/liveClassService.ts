@@ -278,13 +278,27 @@ export const liveClassService = {
 
             return await response.json();
         } catch (error) {
-            console.warn("Falling back to local client room config:", error);
-            const cleanRoom = (params.roomId || params.classId || 'classroom').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+            console.warn("Notice: Fetching live token via client fallback config:", error);
+            const jaasAppId = import.meta.env.VITE_JAAS_APP_ID || '';
+            const rawRoom = (params.roomId || params.classId || 'classroom').toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+            const cleanRoom = rawRoom.startsWith('examinant_') ? rawRoom : `examinant_${rawRoom}`;
+            
+            if (jaasAppId) {
+                return {
+                    token: null,
+                    mode: 'jaas',
+                    domain: '8x8.vc',
+                    appId: jaasAppId,
+                    roomName: `${jaasAppId}/${cleanRoom}`,
+                    isInstructor: params.isInstructor
+                };
+            }
+
             return {
                 token: null,
                 mode: 'jitsi_meet_direct',
                 domain: 'meet.jit.si',
-                roomName: cleanRoom.startsWith('examinant_') ? cleanRoom : `examinant_${cleanRoom}`,
+                roomName: cleanRoom,
                 isInstructor: params.isInstructor
             };
         }

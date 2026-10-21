@@ -13,6 +13,7 @@
   "dependencies": {
     "firebase": "^12.6.0",
     "framer-motion": "^12.23.25",
+    "jspdf": "^4.2.1",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.556.0",
     "papaparse": "^5.5.3",

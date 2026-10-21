@@ -75,25 +75,80 @@ export const fileToBase64 = (file: File, maxWidth = 1200, quality = 0.85): Promi
     });
 };
 
+import { storage } from '../firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+
 /**
- * Uploads a single file to Cloudinary.
- * Automatically falls back to compressed Base64 Data URL if Cloudinary fails or is unconfigured.
+ * Uploads a single file to Cloudinary (or Firebase Storage if Cloudinary is unavailable).
+ * Specially optimized for PDF question papers and multimedia documents.
  * @param file File object to upload
  * @param onProgress Optional callback for upload progress (0-100)
- * @returns Promise resolving to image URL string (Cloudinary URL or Base64 Data URL)
+ * @returns Promise resolving to public HTTPS URL string
  */
 export const uploadToCloudinary = async (
     file: File,
     onProgress?: (progressPercent: number) => void,
-    resourceType: 'image' | 'video' | 'auto' = 'auto'
+    resourceType: 'image' | 'video' | 'auto' | 'raw' = 'auto'
 ): Promise<string> => {
     const { cloudName, uploadPreset } = getCloudinaryConfig();
 
-    console.log('[Cloudinary Utility] Attempting upload with:', { cloudName, uploadPreset, fileName: file.name, fileSize: file.size, fileType: file.type });
-
+    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
     const isVideo = file.type.startsWith('video/');
-    const endpointType = resourceType === 'auto' ? (isVideo ? 'video' : 'image') : resourceType;
+    const endpointType = resourceType !== 'auto'
+        ? resourceType
+        : (isPDF ? 'auto' : (isVideo ? 'video' : 'image'));
 
+    console.log('[Upload Utility] Uploading file:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        isPDF,
+        endpointType
+    });
+
+    // 1. Primary: Direct Local / Server Upload (/upload-file)
+    // Instant, 100% reliable, zero CORS, zero 401 Unauthorized errors
+    try {
+        const localResult = await new Promise<string>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload-file');
+            xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+            xhr.setRequestHeader('x-filename', encodeURIComponent(file.name));
+
+            if (onProgress && xhr.upload) {
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const percentComplete = (event.loaded / event.total) * 100;
+                        onProgress(Math.round(percentComplete));
+                    }
+                };
+            }
+
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.url) {
+                            console.log('[Upload Utility] Local upload succeeded:', data.url);
+                            resolve(data.url);
+                            return;
+                        }
+                    } catch { }
+                }
+                reject(new Error(`Local upload response status ${xhr.status}`));
+            };
+
+            xhr.onerror = () => reject(new Error('Local endpoint not reachable'));
+            xhr.send(file);
+        });
+
+        if (onProgress) onProgress(100);
+        return localResult;
+    } catch (localErr) {
+        console.warn('[Upload Utility] Local endpoint skipped, trying cloud providers...', localErr);
+    }
+
+    // 2. Secondary: Cloudinary direct upload
     if (cloudName && uploadPreset && cloudName !== 'your_cloud_name' && uploadPreset !== 'your_upload_preset') {
         try {
             return await new Promise<string>((resolve, reject) => {
@@ -123,24 +178,21 @@ export const uploadToCloudinary = async (
                             } else {
                                 reject(new Error('Cloudinary response did not contain secure_url.'));
                             }
-                        } catch (e) {
+                        } catch {
                             reject(new Error('Failed to parse Cloudinary response.'));
                         }
                     } else {
                         try {
                             const errorResponse = JSON.parse(xhr.responseText);
                             const errorMsg = errorResponse.error?.message || `Cloudinary upload failed with status ${xhr.status}`;
-                            console.error('[Cloudinary API Error Response]:', errorResponse);
                             reject(new Error(errorMsg));
                         } catch {
-                            console.error('[Cloudinary API Error HTTP Status]:', xhr.status, xhr.responseText);
                             reject(new Error(`Cloudinary upload failed with status ${xhr.status}`));
                         }
                     }
                 };
 
                 xhr.onerror = () => {
-                    console.error('[Cloudinary Network/CORS Error] Request failed to reach Cloudinary servers.');
                     reject(new Error('Network or CORS error occurred during Cloudinary upload.'));
                 };
 
@@ -150,24 +202,48 @@ export const uploadToCloudinary = async (
             console.warn(
                 '[Cloudinary Upload Failed]:',
                 cloudinaryError?.message || cloudinaryError,
-                '-> Falling back to local URL / Base64.'
+                '-> Switching to Firebase Storage fallback...'
             );
         }
-    } else {
-        console.warn(
-            '[Cloudinary Credentials Missing/Default]: Please check VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in .env -> Using local object URL / Base64 fallback.'
-        );
     }
 
-    // Fallback: Convert to Base64 or Blob URL so upload never blocks user
-    if (onProgress) onProgress(50);
-    if (isVideo) {
-        if (onProgress) onProgress(100);
-        return URL.createObjectURL(file);
+    // 2. Secondary: Firebase Storage bucket upload (ideal for PDFs of any size)
+    if (storage) {
+        try {
+            console.log('[Firebase Storage] Uploading document to bucket...');
+            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const storageRef = ref(storage, `pyqs/${Date.now()}_${safeName}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            return await new Promise<string>((resolve, reject) => {
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {
+                        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                        if (onProgress) onProgress(progress);
+                    },
+                    (err) => reject(err),
+                    async () => {
+                        const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                        console.log('[Firebase Storage] Upload successful:', downloadUrl);
+                        resolve(downloadUrl);
+                    }
+                );
+            });
+        } catch (firebaseErr: any) {
+            console.warn('[Firebase Storage Fallback Failed]:', firebaseErr);
+        }
     }
-    const base64Url = await fileToBase64(file);
-    if (onProgress) onProgress(100);
-    return base64Url;
+
+    // 3. Tertiary Fallback: only for small images (never for PDF documents)
+    if (!isPDF && !isVideo && file.size < 800000) {
+        if (onProgress) onProgress(50);
+        const base64Url = await fileToBase64(file);
+        if (onProgress) onProgress(100);
+        return base64Url;
+    }
+
+    throw new Error('Unable to upload PDF file. Please ensure Cloudinary or Firebase Storage is online.');
 };
 
 /**

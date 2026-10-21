@@ -26,3 +26,6 @@ dist-ssr
 # Secrets
 server/.env
 server/service-account.json
+*.pk
+*.pem
+public/uploads/

@@ -14,6 +14,8 @@ export interface JitsiPlayerRef {
     muteEveryone: () => void;
     toggleAudio: () => void;
     toggleVideo: () => void;
+    toggleTileView: () => void;
+    focusHost: () => void;
 }
 
 interface JitsiPlayerProps {
@@ -49,7 +51,37 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
     // Keep participant registry for moderator self-healing
     const participantsMap = useRef<Map<string, { id: string; displayName: string; role?: string }>>(new Map());
 
-    // Expose control handles to parent component (e.g. End For All button in Classroom UI)
+    // Helper to focus and pin teacher on main stage
+    const focusTeacher = () => {
+        if (!apiRef.current) return;
+        const api = apiRef.current;
+        try {
+            const participants = (api.getParticipantsInfo && typeof api.getParticipantsInfo === 'function')
+                ? api.getParticipantsInfo()
+                : [];
+
+            // 1. Search for moderator or host/instructor/admin/teacher (must not be local student)
+            const teacher = participants.find((p: any) =>
+                !p.isLocal && p.participantId !== 'local' && (
+                    p.role === 'moderator' ||
+                    (p.displayName || '').includes('(Host)') ||
+                    (p.displayName || '').toLowerCase().includes('instructor') ||
+                    (p.displayName || '').toLowerCase().includes('teacher') ||
+                    (p.displayName || '').toLowerCase().includes('admin')
+                )
+            );
+
+            if (teacher && teacher.participantId) {
+                console.log("[Jitsi] Auto-pinning Teacher on main stage:", teacher.displayName, teacher.participantId);
+                api.executeCommand('pinParticipant', teacher.participantId);
+                api.executeCommand('setTileView', false);
+            }
+        } catch (err) {
+            console.warn("[Jitsi] focusTeacher error:", err);
+        }
+    };
+
+    // Expose control handles to parent component
     useImperativeHandle(ref, () => ({
         endConference: () => {
             if (apiRef.current) {
@@ -83,6 +115,18 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
         },
         toggleVideo: () => {
             if (apiRef.current) apiRef.current.executeCommand('toggleVideo');
+        },
+        toggleTileView: () => {
+            if (apiRef.current) {
+                try {
+                    apiRef.current.executeCommand('toggleTileView');
+                } catch (e) {
+                    console.warn("toggleTileView error:", e);
+                }
+            }
+        },
+        focusHost: () => {
+            focusTeacher();
         }
     }));
 
@@ -95,16 +139,14 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
 
         const loadScript = (): Promise<void> => {
             return new Promise((resolve, reject) => {
-                if (window.JitsiMeetExternalAPI) {
-                    return resolve();
-                }
-
-                // Check if script tag already injected
-                const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+                const existingScript = document.querySelector('script[src*="external_api.js"]') as HTMLScriptElement | null;
                 if (existingScript) {
-                    existingScript.addEventListener('load', () => resolve());
-                    existingScript.addEventListener('error', () => reject(new Error('Failed to load Jitsi API script.')));
-                    return;
+                    if (existingScript.src === scriptUrl && window.JitsiMeetExternalAPI) {
+                        return resolve();
+                    }
+                    // If domain or tenant script changed, replace it
+                    existingScript.remove();
+                    delete (window as any).JitsiMeetExternalAPI;
                 }
 
                 const script = document.createElement('script');
@@ -130,7 +172,7 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
                     apiRef.current = null;
                 }
 
-                // Role-based toolbars
+                // Role-based toolbars - both get participants-pane and tileview
                 const instructorToolbar = [
                     'microphone', 'camera', 'desktop', 'chat', 'raisehand', 
                     'participants-pane', 'tileview', 'fullscreen', 'security', 
@@ -138,18 +180,16 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
                 ];
                 const studentToolbar = [
                     'microphone', 'camera', 'chat', 'raisehand', 
-                    'tileview', 'fullscreen', 'hangup'
+                    'participants-pane', 'tileview', 'fullscreen', 'hangup'
                 ];
 
                 const displayName = user.name 
                     ? `${user.name}${isInstructor ? ' (Host)' : ''}` 
                     : (isInstructor ? 'Instructor (Host)' : 'Student');
 
-                // Enforce config hash to guarantee skipping Jitsi's prejoin lobby
-                const baseRoom = roomConfig.roomName;
-                const cleanRoom = baseRoom.includes('#') 
-                    ? baseRoom 
-                    : `${baseRoom}#config.prejoinPageEnabled=false&config.prejoinConfig.enabled=false`;
+                // Ensure clean room name without hash or query params so JWT token attaches properly
+                const rawRoom = roomConfig.roomName || '';
+                const cleanRoom = rawRoom.split('#')[0].split('?')[0].trim();
 
                 // Jitsi External API Options
                 const options = {
@@ -170,19 +210,26 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
                         prejoinConfig: {
                             enabled: false
                         },
+                        requireDisplayName: false,
                         disableDeepLinking: true,
                         enableWelcomePage: false,
                         enableClosePage: false,
+                        startInTileView: isInstructor,
+                        channelLastN: -1,
+                        filmstrip: {
+                            enabled: true,
+                            visible: true,
+                            disableFilmstripAutohide: true,
+                            disableStageFilmstrip: false
+                        },
+                        disableResponsiveTiles: false,
+                        hideParticipantsStats: false,
                         toolbarButtons: isInstructor ? instructorToolbar : studentToolbar,
                         disableRemoteMute: !isInstructor,
                         remoteVideoMenu: {
                             disableKick: !isInstructor,
                             disableGrantModerator: !isInstructor
                         },
-                        p2p: {
-                            enabled: false
-                        },
-                        disableThirdPartyRequests: true,
                         liveStreamingEnabled: isInstructor,
                         fileRecordingsEnabled: isInstructor
                     },
@@ -195,7 +242,8 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
                         SETTINGS_SECTIONS: isInstructor 
                             ? ['devices', 'language', 'moderator', 'profile'] 
                             : ['devices', 'language', 'profile'],
-                        DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
+                        DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
+                        VERTICAL_FILMSTRIP: true
                     }
                 };
 
@@ -226,6 +274,25 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
                 api.addEventListener('videoConferenceJoined', (participant: any) => {
                     console.log("[Jitsi] Joined virtual classroom successfully:", participant);
                     setLoading(false);
+
+                    // If instructor, guarantee local camera track is started and unmuted
+                    if (isInstructor) {
+                        setTimeout(() => {
+                            try {
+                                if (api.isVideoMuted) {
+                                    api.isVideoMuted().then((muted: boolean) => {
+                                        if (muted) api.executeCommand('toggleVideo');
+                                    });
+                                }
+                            } catch (e) {
+                                console.warn("[Jitsi] Auto-unmute camera check:", e);
+                            }
+                        }, 800);
+                    } else {
+                        // If student, automatically focus and pin Teacher in HD center stage
+                        setTimeout(focusTeacher, 600);
+                        setTimeout(focusTeacher, 1800);
+                    }
                 });
 
                 api.addEventListener('participantJoined', (participant: any) => {
@@ -236,6 +303,11 @@ export const JitsiPlayer = forwardRef<JitsiPlayerRef, JitsiPlayerProps>(({
                     });
                     if (onParticipantCountChange) {
                         onParticipantCountChange(participantsMap.current.size + 1);
+                    }
+
+                    // Auto-focus and pin Teacher on student screen
+                    if (!isInstructor) {
+                        setTimeout(focusTeacher, 400);
                     }
                 });
 

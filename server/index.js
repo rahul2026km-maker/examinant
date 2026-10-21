@@ -597,7 +597,11 @@ const getJaasPrivateKey = () => {
 };
 
 const sanitizeRoomName = (roomName, classId) => {
-  const base = (roomName || classId || 'virtual_classroom').toLowerCase().trim();
+  let base = (roomName || classId || 'virtual_classroom').toLowerCase().trim();
+  if (base.includes('/')) {
+    base = base.split('/').pop() || base;
+  }
+  base = base.replace(/^vpaas-magic-cookie-[a-f0-9]+_?/, '');
   const cleaned = base.replace(/[^a-z0-9_-]/g, '_').replace(/_+/g, '_').substring(0, 50);
   return cleaned.startsWith('examinant_') ? cleaned : `examinant_${cleaned}`;
 };
@@ -625,9 +629,17 @@ app.post('/api/live-token', async (req, res) => {
     if (jaasAppId && jaasApiKeyId && jaasPrivateKey) {
       const now = Math.floor(Date.now() / 1000);
       const isTeacher = Boolean(isInstructor);
-      const displayName = userName 
-        ? `${userName}${isTeacher ? ' (Host)' : ''}` 
-        : (isTeacher ? 'Instructor (Host)' : 'Student');
+      
+      let finalDisplayName = userName ? userName.trim() : (isTeacher ? 'Instructor' : 'Student');
+      if (isTeacher) {
+        if (!finalDisplayName.includes('(Host)')) {
+          finalDisplayName = `${finalDisplayName} (Host)`;
+        }
+      }
+
+      // Generate guaranteed unique participant session ID so duplicate tabs/users never collide in WebRTC bridge
+      const sessionSuffix = `${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
+      const uniqueParticipantId = userId ? `${userId}_${sessionSuffix}` : `user_${sessionSuffix}`;
 
       const payload = {
         aud: 'jitsi',
@@ -636,19 +648,20 @@ app.post('/api/live-token', async (req, res) => {
         exp: now + 10800, // 3 hours validity
         nbf: now - 10,
         sub: jaasAppId,
-        room: '*', // Or cleanRoom
+        room: '*',
         context: {
           features: {
-            livestreaming: isTeacher,
-            recording: isTeacher,
-            transcription: false
+            livestreaming: isTeacher ? 'true' : 'false',
+            recording: isTeacher ? 'true' : 'false',
+            transcription: 'false',
+            'outbound-call': 'false'
           },
           user: {
-            id: userId ? String(userId) : `user_${Date.now()}`,
-            name: displayName,
+            id: uniqueParticipantId,
+            name: finalDisplayName,
             email: userEmail ? String(userEmail) : '',
             avatar: userAvatar || '',
-            moderator: isTeacher
+            moderator: isTeacher ? 'true' : 'false'
           }
         }
       };

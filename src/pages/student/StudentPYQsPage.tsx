@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Download, Lock, Loader2, Search, PenTool, PlayCircle } from 'lucide-react';
+import { FileText, Download, Lock, Loader2, Search, PenTool, PlayCircle, Eye } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { marketplaceService } from '../../services/marketplaceService';
+import { handleDownloadPYQ, handleViewPYQ } from '../../utils/pyqPdfGenerator';
 
 interface PYQ {
     id: string;
@@ -32,17 +33,19 @@ const StudentPYQsPage = () => {
         // Fetch PYQs for all users (logged in or guests)
         const q = query(collection(db, 'pyqs'));
         const unsubscribePyqs = onSnapshot(q, (snapshot) => {
-            const fetched = snapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    title: data.title || data.name || data.testName || 'Untitled PYQ',
-                    category: data.category || data.exam || 'General',
-                    year: data.year || 'N/A',
-                    price: data.price ?? 0
-                };
-            }) as PYQ[];
+            const fetched = snapshot.docs
+                .map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        ...data,
+                        title: data.title || data.name || data.testName || 'Untitled PYQ',
+                        category: data.category || data.exam || 'General',
+                        year: data.year || 'N/A',
+                        price: data.price ?? 0
+                    };
+                })
+                .filter((pyq: any) => pyq.isApproved === true || pyq.status === 'approved') as PYQ[];
             setPyqs(fetched);
             setIsLoading(false);
         }, (error) => {
@@ -189,14 +192,22 @@ const StudentPYQsPage = () => {
                                                 <PlayCircle size={15} /> Attempt
                                             </button>
                                         ) : (
-                                            <a
-                                                href={pyq.fileUrl || "#"}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="px-5 py-2.5 bg-[#10224A] hover:bg-blue-600 text-white text-xs font-black uppercase tracking-wider rounded-xl border border-[#1E3A75] hover:border-transparent flex items-center gap-2 transition-all cursor-pointer"
-                                            >
-                                                <Download size={15} /> Download
-                                            </a>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => handleViewPYQ(pyq)}
+                                                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-black uppercase tracking-wider rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
+                                                    title="View paper in a new browser tab"
+                                                >
+                                                    <Eye size={15} /> View
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDownloadPYQ(pyq)}
+                                                    className="px-4 py-2.5 bg-[#10224A] hover:bg-blue-600 text-white text-xs font-black uppercase tracking-wider rounded-xl border border-[#1E3A75] hover:border-transparent flex items-center gap-1.5 transition-all cursor-pointer shadow-md active:scale-95"
+                                                    title="Download official PDF to your device"
+                                                >
+                                                    <Download size={15} /> Download
+                                                </button>
+                                            </div>
                                         )
                                     ) : (
                                         <button

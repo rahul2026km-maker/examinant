@@ -29,10 +29,12 @@ const FreeResourcesPage = () => {
     useEffect(() => {
         const q = query(collection(db, 'resources'), orderBy('createdAt', 'desc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const fetched = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Resource[];
+            const fetched = snapshot.docs
+                .map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }))
+                .filter((res: any) => res.isApproved === true || res.status === 'approved') as Resource[];
             setResources(fetched);
             setIsLoading(false);
         });

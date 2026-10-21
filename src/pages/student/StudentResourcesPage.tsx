@@ -40,10 +40,12 @@ const StudentResourcesPage = () => {
 
         const q = query(collection(db, 'resources'));
         const unsubscribeResources = onSnapshot(q, (snapshot) => {
-            const fetchedResources = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Resource[];
+            const fetchedResources = snapshot.docs
+                .map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }))
+                .filter((res: any) => res.isApproved === true || res.status === 'approved') as Resource[];
             setResources(fetchedResources);
             setIsLoading(false);
         }, (error) => {

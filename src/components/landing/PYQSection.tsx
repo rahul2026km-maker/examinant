@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, FileText, ArrowRight, Loader2, BookOpen, Download, Eye, FolderOpen, ChevronDown, Search } from 'lucide-react';
 import { db } from '../../firebase';
 import { collection, query, limit, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
+import { handleViewPYQ, handleDownloadPYQ } from '../../utils/pyqPdfGenerator';
 
 interface PYQItem {
     id: string;
@@ -180,6 +181,29 @@ const PYQSection = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
     const [selectedYear, setSelectedYear] = useState<string>('All');
+    const [activeActionId, setActiveActionId] = useState<string | null>(null);
+
+    const handleView = async (item: PYQItem) => {
+        setActiveActionId(`view-${item.id}`);
+        try {
+            await handleViewPYQ(item);
+        } catch (err) {
+            console.error("Failed to view PYQ:", err);
+        } finally {
+            setActiveActionId(null);
+        }
+    };
+
+    const handleDownload = async (item: PYQItem) => {
+        setActiveActionId(`download-${item.id}`);
+        try {
+            await handleDownloadPYQ(item);
+        } catch (err) {
+            console.error("Failed to download PYQ:", err);
+        } finally {
+            setActiveActionId(null);
+        }
+    };
 
     useEffect(() => {
         const q = query(collection(db, 'pyqs'), limit(50));
@@ -199,19 +223,24 @@ const PYQSection = () => {
                 }
             }
 
-            const fetched: PYQItem[] = snapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    title: data.title || data.name || 'Untitled PYQ',
-                    category: data.category || data.exam || 'General',
-                    year: data.year || '2023',
-                    type: data.type || 'pdf',
-                    price: data.price ?? 0,
-                    fileUrl: data.fileUrl,
-                    description: data.description || ''
-                };
-            });
+            const fetched: PYQItem[] = snapshot.docs
+                .filter(doc => {
+                    const data = doc.data();
+                    return data.isApproved === true || data.status === 'approved';
+                })
+                .map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        title: data.title || data.name || 'Untitled PYQ',
+                        category: data.category || data.exam || 'General',
+                        year: data.year || '2023',
+                        type: data.type || 'pdf',
+                        price: data.price ?? 0,
+                        fileUrl: data.fileUrl,
+                        description: data.description || ''
+                    };
+                });
             setPyqs(fetched.length > 0 ? fetched : RICH_SAMPLE_PYQS.map((item, i) => ({ ...item, id: `sample-${i}` })));
             setIsLoading(false);
         }, (error) => {
@@ -362,29 +391,31 @@ const PYQSection = () => {
                                     {/* Footer Buttons (View & Download) */}
                                     <div className="pt-4 mt-4 border-t border-[#17254E]/60 grid grid-cols-2 gap-2.5">
                                         <button
-                                            onClick={() => {
-                                                if (item.fileUrl) {
-                                                    window.open(item.fileUrl, '_blank');
-                                                } else {
-                                                    alert(`Viewing Paper "${item.title}"`);
-                                                }
-                                            }}
-                                            className="w-full py-2.5 px-3 rounded-lg bg-[#0E1B38] hover:bg-[#152750] text-blue-400 hover:text-white font-extrabold text-xs uppercase tracking-wider border border-[#1E3360] hover:border-blue-500/50 transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95 cursor-pointer"
+                                            onClick={() => handleView(item)}
+                                            disabled={activeActionId === `view-${item.id}`}
+                                            className="w-full py-2.5 px-3 rounded-lg bg-[#0E1B38] hover:bg-[#152750] text-blue-400 hover:text-white font-extrabold text-xs uppercase tracking-wider border border-[#1E3360] hover:border-blue-500/50 transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+                                            title="View official question paper PDF"
                                         >
-                                            <Eye size={14} /> View
+                                            {activeActionId === `view-${item.id}` ? (
+                                                <Loader2 size={14} className="animate-spin" />
+                                            ) : (
+                                                <Eye size={14} />
+                                            )}
+                                            <span>View</span>
                                         </button>
 
                                         <button
-                                            onClick={() => {
-                                                if (item.fileUrl) {
-                                                    window.open(item.fileUrl, '_blank');
-                                                } else {
-                                                    alert(`Downloading PDF for "${item.title}"`);
-                                                }
-                                            }}
-                                            className="w-full py-2.5 px-3 rounded-lg bg-[#1D64D0] hover:bg-blue-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-blue-600/30 active:scale-95 cursor-pointer"
+                                            onClick={() => handleDownload(item)}
+                                            disabled={activeActionId === `download-${item.id}`}
+                                            className="w-full py-2.5 px-3 rounded-lg bg-[#1D64D0] hover:bg-blue-600 text-white font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md hover:shadow-blue-600/30 active:scale-95 cursor-pointer disabled:opacity-50"
+                                            title="Download official PDF to your device"
                                         >
-                                            <Download size={14} /> Download
+                                            {activeActionId === `download-${item.id}` ? (
+                                                <Loader2 size={14} className="animate-spin" />
+                                            ) : (
+                                                <Download size={14} />
+                                            )}
+                                            <span>Download</span>
                                         </button>
                                     </div>
                                 </div>
