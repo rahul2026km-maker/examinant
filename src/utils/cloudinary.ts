@@ -22,7 +22,7 @@ export const isCloudinaryConfigured = (): boolean => {
 /**
  * Converts a file to an optimized Base64 Data URL (fallback when Cloudinary is unavailable)
  */
-export const fileToBase64 = (file: File, maxWidth = 1200, quality = 0.85): Promise<string> => {
+export const fileToBase64 = (file: File, maxWidth = 800, quality = 0.75): Promise<string> => {
     return new Promise((resolve, reject) => {
         if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
             const reader = new FileReader();
@@ -106,46 +106,47 @@ export const uploadToCloudinary = async (
         endpointType
     });
 
-    // 1. Primary: Direct Local / Server Upload (/upload-file)
-    // Instant, 100% reliable, zero CORS, zero 401 Unauthorized errors
-    try {
-        const localResult = await new Promise<string>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload-file');
-            xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-            xhr.setRequestHeader('x-filename', encodeURIComponent(file.name));
+    // 1. For PDFs/Videos/Raw files: Primary Direct Local / Server Upload (/upload-file)
+    if (isPDF || isVideo || resourceType === 'raw') {
+        try {
+            const localResult = await new Promise<string>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/upload-file');
+                xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+                xhr.setRequestHeader('x-filename', encodeURIComponent(file.name));
 
-            if (onProgress && xhr.upload) {
-                xhr.upload.onprogress = (event) => {
-                    if (event.lengthComputable) {
-                        const percentComplete = (event.loaded / event.total) * 100;
-                        onProgress(Math.round(percentComplete));
-                    }
-                };
-            }
-
-            xhr.onload = () => {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    try {
-                        const data = JSON.parse(xhr.responseText);
-                        if (data.url) {
-                            console.log('[Upload Utility] Local upload succeeded:', data.url);
-                            resolve(data.url);
-                            return;
+                if (onProgress && xhr.upload) {
+                    xhr.upload.onprogress = (event) => {
+                        if (event.lengthComputable) {
+                            const percentComplete = (event.loaded / event.total) * 100;
+                            onProgress(Math.round(percentComplete));
                         }
-                    } catch { }
+                    };
                 }
-                reject(new Error(`Local upload response status ${xhr.status}`));
-            };
 
-            xhr.onerror = () => reject(new Error('Local endpoint not reachable'));
-            xhr.send(file);
-        });
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            if (data.url) {
+                                console.log('[Upload Utility] Local upload succeeded:', data.url);
+                                resolve(data.url);
+                                return;
+                            }
+                        } catch { }
+                    }
+                    reject(new Error(`Local upload response status ${xhr.status}`));
+                };
 
-        if (onProgress) onProgress(100);
-        return localResult;
-    } catch (localErr) {
-        console.warn('[Upload Utility] Local endpoint skipped, trying cloud providers...', localErr);
+                xhr.onerror = () => reject(new Error('Local endpoint not reachable'));
+                xhr.send(file);
+            });
+
+            if (onProgress) onProgress(100);
+            return localResult;
+        } catch (localErr) {
+            console.warn('[Upload Utility] Local endpoint skipped, trying cloud providers...', localErr);
+        }
     }
 
     // 2. Secondary: Cloudinary direct upload
@@ -235,10 +236,10 @@ export const uploadToCloudinary = async (
         }
     }
 
-    // 3. Tertiary Fallback: only for small images (never for PDF documents)
-    if (!isPDF && !isVideo && file.size < 800000) {
+    // 3. Tertiary Fallback: for images, compress to lightweight Base64 (always works)
+    if (!isPDF && !isVideo) {
         if (onProgress) onProgress(50);
-        const base64Url = await fileToBase64(file);
+        const base64Url = await fileToBase64(file, 1000, 0.8);
         if (onProgress) onProgress(100);
         return base64Url;
     }

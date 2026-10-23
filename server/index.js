@@ -579,7 +579,87 @@ app.post('/api/verify-and-reset-password', async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// 6. JITSI / 8x8 JAAS ENTERPRISE VIRTUAL CLASSROOM TOKEN GENERATION
+// 6. LIVE CLASSES REST API (FOR MOBILE APPS & WEB CLIENTS)
+// ---------------------------------------------------------------------------
+const DEFAULT_MOBILE_SAMPLE_CLASSES = [
+  {
+    id: 'default-live-1',
+    title: 'Quantitative Aptitude: Speed Maths & Short Tricks Live Session',
+    description: 'Join Sudhanshu Sir live for real-time problem solving, short tricks, and doubts discussion.',
+    educatorName: 'Sudhanshu Sir',
+    subject: 'Mathematics',
+    examCategory: 'SSC',
+    scheduledStartTime: new Date().toISOString(),
+    durationMinutes: 60,
+    streamProvider: 'jitsi',
+    roomName: 'examinant_maths_live_speed_tricks',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
+    status: 'live',
+    activeViewers: 248
+  },
+  {
+    id: 'default-live-2',
+    title: 'General Awareness: Current Affairs & Static GK Marathon',
+    description: 'Comprehensive static GK revision with top 100 expected questions for upcoming exam tiers.',
+    educatorName: 'Dr. Ananya Sharma',
+    subject: 'General Awareness',
+    examCategory: 'Railway',
+    scheduledStartTime: new Date(Date.now() + 3600000 * 4).toISOString(),
+    durationMinutes: 90,
+    streamProvider: 'jitsi',
+    roomName: 'examinant_gk_marathon_session',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800&auto=format&fit=crop',
+    status: 'upcoming',
+    activeViewers: 0
+  }
+];
+
+// Endpoint to get list of all live and upcoming classes for Mobile App
+app.get('/api/live-classes', async (req, res) => {
+  try {
+    if (db) {
+      const snap = await db.collection('live_classes').get();
+      if (!snap.empty) {
+        const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        list.sort((a, b) => {
+          if (a.status === 'live' && b.status !== 'live') return -1;
+          if (b.status === 'live' && a.status !== 'live') return 1;
+          return new Date(a.scheduledStartTime || 0).getTime() - new Date(b.scheduledStartTime || 0).getTime();
+        });
+        return res.status(200).json({ success: true, count: list.length, classes: list });
+      }
+    }
+    return res.status(200).json({ success: true, count: DEFAULT_MOBILE_SAMPLE_CLASSES.length, classes: DEFAULT_MOBILE_SAMPLE_CLASSES });
+  } catch (err) {
+    console.error('Error fetching live classes API:', err);
+    return res.status(500).json({ success: false, error: err.message, classes: DEFAULT_MOBILE_SAMPLE_CLASSES });
+  }
+});
+
+// Endpoint to get details of a specific live class
+app.get('/api/live-classes/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (id.startsWith('default-live-')) {
+      const found = DEFAULT_MOBILE_SAMPLE_CLASSES.find(c => c.id === id);
+      if (found) return res.status(200).json({ success: true, class: found });
+    }
+
+    if (db) {
+      const docSnap = await db.collection('live_classes').doc(id).get();
+      if (docSnap.exists) {
+        return res.status(200).json({ success: true, class: { id: docSnap.id, ...docSnap.data() } });
+      }
+    }
+    return res.status(404).json({ success: false, message: 'Live class not found' });
+  } catch (err) {
+    console.error('Error fetching live class by ID API:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// 7. JITSI / 8x8 JAAS ENTERPRISE VIRTUAL CLASSROOM TOKEN GENERATION
 // ---------------------------------------------------------------------------
 const getJaasPrivateKey = () => {
   if (process.env.JAAS_PRIVATE_KEY) {

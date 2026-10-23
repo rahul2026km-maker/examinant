@@ -200,7 +200,6 @@ const AdminQuestionBank = () => {
     const handleDelete = async (id: string) => {
         setIsDeletingLoading(true);
         try {
-            await delay(800); // Small delay for better UX
             await deleteDoc(doc(db, 'questions', id));
             setConfirmDeleteId(null);
         } catch (error) {
@@ -351,8 +350,6 @@ const AdminQuestionBank = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await delay(1000); // Artificial delay
-
             let uploadUrls: string[] = [];
             if (imageFiles.length > 0) {
                 try {
@@ -475,8 +472,6 @@ const AdminQuestionBank = () => {
 
         setIsSubmitting(true);
         try {
-            await delay(1000); // Artificial delay
-
             let uploadUrls: string[] = [];
             if (imageFiles.length > 0) {
                 try {
@@ -1641,7 +1636,12 @@ const AdminQuestionBank = () => {
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />}
-                                    {isSubmitting ? 'Creating Question...' : 'Add Question'}
+                                    {isSubmitting
+                                        ? (imageFiles.length > 0 && uploadProgress > 0 && uploadProgress < 100
+                                            ? `Uploading Image... ${Math.round(uploadProgress)}%`
+                                            : 'Saving Question...')
+                                        : 'Add Question'
+                                    }
                                 </button>
                             </form>
                             {/* Delete Confirmation Modal */}

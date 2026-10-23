@@ -109,7 +109,6 @@ const AdminTestsPage = () => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await delay(1000); // Artificial delay
             await addDoc(collection(db, 'testSeries'), {
                 ...formData,
                 price: Number(formData.price),
@@ -160,7 +159,6 @@ const AdminTestsPage = () => {
     const handleConfirmGenerated = async () => {
         setIsSubmitting(true);
         try {
-            await delay(1500); // Artificial delay
             await addDoc(collection(db, 'testSeries'), {
                 ...formData,
                 price: Number(formData.price),
@@ -228,7 +226,6 @@ const AdminTestsPage = () => {
     const handleDelete = async (id: string) => {
         setIsDeletingLoading(true);
         try {
-            await delay(800); // Artificial delay for better UX
             await deleteDoc(doc(db, 'testSeries', id));
             setConfirmDeleteId(null);
         } catch (error) {

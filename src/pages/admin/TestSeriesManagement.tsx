@@ -97,7 +97,6 @@ const TestSeriesManagement = () => {
                 return;
             }
 
-            await delay(1000); // Artificial delay
             await createTestSeries(finalData, currentUser?.uid || 'admin');
             await loadTestSeries();
             setIsCreating(false);
@@ -128,7 +127,6 @@ const TestSeriesManagement = () => {
                 return;
             }
 
-            await delay(1000); // Artificial delay
             await updateTestSeries(editingSeries.id, finalData);
             await loadTestSeries();
             setEditingSeries(null);
@@ -144,7 +142,6 @@ const TestSeriesManagement = () => {
     const handleDelete = async (id: string) => {
         setIsDeletingLoading(true);
         try {
-            await delay(1000); // Artificial delay
             await deleteTestSeries(id);
             await loadTestSeries();
             setConfirmDeleteId(null);
@@ -340,6 +337,7 @@ const TestSeriesManagement = () => {
                             examCategory={series.examCategory}
                             examSubCategory={series.examSubCategory}
                             testCount={series.stats?.totalTests || 0}
+                            thumbnailUrl={series.thumbnailUrl}
                             actions={
                                 <div className="grid grid-cols-4 gap-2 w-full">
                                     <button

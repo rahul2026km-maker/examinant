@@ -43,6 +43,11 @@ const TestSeriesCard = ({
     const [tests, setTests] = useState<any[]>([]);
     const [loadingTests, setLoadingTests] = useState(false);
     const [showPopover, setShowPopover] = useState(false);
+    const [imageError, setImageError] = useState(false);
+
+    useEffect(() => {
+        setImageError(false);
+    }, [thumbnailUrl]);
 
     useEffect(() => {
         const fetchTests = async () => {
@@ -100,10 +105,11 @@ const TestSeriesCard = ({
         >
             {/* Top Image Banner (Uploaded Thumbnail or EXAMINANT Branded Default) */}
             <div className="w-full aspect-[16/9] h-[210px] sm:h-[220px] overflow-hidden relative z-10 border-b border-[#17254E] bg-[#070D1E] shrink-0 flex items-center justify-center">
-                {thumbnailUrl ? (
+                {thumbnailUrl && !imageError ? (
                     <img
                         src={thumbnailUrl}
                         alt={title}
+                        onError={() => setImageError(true)}
                         className="w-full h-full object-cover object-center"
                     />
                 ) : (

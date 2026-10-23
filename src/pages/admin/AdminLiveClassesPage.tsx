@@ -308,10 +308,10 @@ const AdminLiveClassesPage = () => {
 
     // Filter list
     const filteredList = liveClasses.filter(c => {
-        const matchesSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              c.educatorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              c.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              (c.batchName && c.batchName.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesSearch = (c.title || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              (c.educatorName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (c.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (c.batchName || '').toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'All' || c.status === statusFilter;
         const matchesExam = examFilter === 'All' || c.examCategory === examFilter;
         const matchesBatch = batchFilter === 'All' || c.batchId === batchFilter;

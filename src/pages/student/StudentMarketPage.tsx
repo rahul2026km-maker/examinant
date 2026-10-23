@@ -1101,6 +1101,7 @@ function filteredTestCatalogItem(
                     examCategory={series.examCategory}
                     examSubCategory={series.examSubCategory}
                     testCount={(series as any).testIds?.length || 0}
+                    thumbnailUrl={series.thumbnailUrl}
                     actions={actionButton}
                     isDark={true}
                 />
