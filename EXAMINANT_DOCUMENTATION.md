@@ -1,78 +1,80 @@
 ﻿# EXAMINANT - Complete Project Documentation
-# Examinantt - India ka Premium Online Test & Learning Platform
+# Examinantt - India's Premium Online Test & Learning Platform
 
 ---
 
-## PROJECT KYA HAI?
+## WHAT IS THIS PROJECT?
 
-Examinantt ek full-featured Online Education & Test Preparation Platform hai jo Indian competitive exam students ke liye banaya gaya hai — jaise JEE, NEET, SSC, UPSI, NDA, CUET, etc.
+Examinantt is a full-featured Online Education & Test Preparation Platform built for Indian competitive exam aspirants — JEE, NEET, SSC, UPSI, NDA, CUET, Railways, and more.
 
-Ye platform 3 types ke users ke liye kaam karta hai:
-1. Admin       - Jo platform manage karta hai (Teachers / Institute owners)
-2. Students    - Jo tests dete hain aur padhai karte hain
-3. Public      - Jo free resources dekh sakte hain
+The platform serves 3 types of users:
+  1. Admin      - Manages the platform (Teachers / Institute owners)
+  2. Students   - Take tests and study
+  3. Public     - Browse free resources without login
 
 ---
 
 ## TECH STACK
 
-| Technology        | Kaam                          |
-|-------------------|-------------------------------|
-| React 19          | Frontend UI framework         |
-| TypeScript        | Type-safe JavaScript          |
-| Vite              | Fast build tool / Dev server  |
-| TailwindCSS v4    | Styling                       |
-| Framer Motion     | Animations                    |
-| Firebase Firestore| Database (NoSQL, Real-time)   |
-| Firebase Auth     | Login / Signup                |
-| Firebase Storage  | File storage                  |
-| Cloudinary        | Image/Media upload (CDN)      |
-| React Router v7   | Page routing / Navigation     |
-| Recharts          | Analytics graphs              |
-| jsPDF             | PDF generate karna            |
-| PapaParser        | CSV bulk import               |
-| QRCode.react      | QR Code generate karna        |
+| Technology         | Purpose                          |
+|--------------------|----------------------------------|
+| React 19           | Frontend UI framework            |
+| TypeScript         | Type-safe JavaScript             |
+| Vite               | Fast build tool / Dev server     |
+| TailwindCSS v4     | Styling                          |
+| Framer Motion      | Animations                       |
+| Firebase Firestore | Real-time NoSQL database         |
+| Firebase Auth      | Login / Signup                   |
+| Firebase Storage   | File storage                     |
+| Cloudinary         | Image/Media upload (CDN)         |
+| React Router v7    | Page routing / Navigation        |
+| Recharts           | Analytics charts and graphs      |
+| jsPDF              | PDF generation                   |
+| PapaParser         | CSV bulk import                  |
+| QRCode.react       | QR Code generation               |
+| Node.js (server/)  | Backend server for OTP and email |
 
 ---
 
-## PROJECT STRUCTURE (Folder structure)
+## PROJECT FOLDER STRUCTURE
 
 examinant/
 |-- public/
-|   |-- uploads/          <- Local image uploads (dev only)
+|   |-- uploads/          <- Local image uploads (development only)
 |-- server/
-|   |-- index.js          <- Node.js backend (OTP, email) - Port 3001
+|   |-- index.js          <- Node.js backend (OTP, email) - runs on Port 3001
 |-- src/
 |   |-- components/       <- Reusable UI components
 |   |   |-- admin/        <- Admin-specific components
-|   |   |-- landing/      <- Landing page components
-|   |   |-- student/      <- Student components
+|   |   |-- landing/      <- Public landing page components
+|   |   |-- student/      <- Student panel components
 |   |   |-- test/         <- Test attempt components
 |   |-- pages/
-|   |   |-- admin/        <- Admin panel (23 pages)
-|   |   |-- student/      <- Student panel (18 pages)
-|   |   |-- *.tsx         <- Public pages (Landing, Login, etc.)
-|   |-- services/         <- Firebase & API calls (18 services)
+|   |   |-- admin/        <- Admin panel pages (23 pages)
+|   |   |-- student/      <- Student panel pages (18 pages)
+|   |   |-- *.tsx         <- Public pages (Landing, Login, Signup, etc.)
+|   |-- services/         <- Firebase & API calls (18 service files)
 |   |-- types/            <- TypeScript type definitions
-|   |-- utils/            <- Helper functions (cloudinary, etc.)
+|   |-- utils/            <- Helper utilities (cloudinary.ts, etc.)
 |   |-- firebase.ts       <- Firebase configuration
 |   |-- App.tsx           <- Main app with all routes
-|-- .env                  <- Environment variables (secrets)
+|-- .env                  <- Environment variables (never commit this)
 |-- vite.config.ts        <- Vite configuration
 |-- package.json          <- Project dependencies
+|-- EXAMINANT_DOCUMENTATION.md <- This file
 
 ---
 
-## PROJECT KAISE CHALAYE? (Local Setup)
+## HOW TO RUN LOCALLY
 
-### Step 1: Clone karo
+### Step 1: Clone the repository
   git clone https://github.com/rahul2026km-maker/examinant.git
   cd examinant
 
-### Step 2: Dependencies install karo
+### Step 2: Install dependencies
   npm install
 
-### Step 3: .env file banao aur ye values daalo
+### Step 3: Create a .env file and add these values
   VITE_FIREBASE_API_KEY=your_firebase_api_key
   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
   VITE_FIREBASE_PROJECT_ID=your_project_id
@@ -84,193 +86,196 @@ examinant/
   VITE_API_URL=http://localhost:3001
   VITE_JAAS_APP_ID=your_jaas_id
 
-### Step 4: Dev server chalo
+### Step 4: Start the development server
   npm run dev
-  => App: http://localhost:5173
+  => App runs at: http://localhost:5173
 
-### Step 5: Production build
+### Step 5: Build for production
   npm run build
 
 ---
 
-## ADMIN PANEL - Puri Guide
-Admin URL: http://localhost:5173/admin-dashboard
+## ADMIN PANEL - Complete Guide
+
+Admin Panel URL: http://localhost:5173/admin-dashboard
 
 ---
 
 ### 1. DASHBOARD
 Path: /admin-dashboard
-- Total Students count
-- Active Test Series count
-- Total Questions in Bank
-- Total Chapters
-- Recent purchases / payments
-- Analytics growth graph
+
+What you can see:
+  - Total registered students
+  - Active test series count
+  - Total questions in question bank
+  - Total chapters in curriculum
+  - Recent purchases and payments
+  - Revenue analytics graph with growth trend
 
 ---
 
 ### 2. TEST SERIES MANAGEMENT
 Path: /admin-dashboard/test-series
 
-Kya kar sakte hain:
-- "+ New Series" button se nayi series banao:
-    * Series naam daalo (e.g., "JEE Mains 2025 Full Package")
-    * Banner/Thumbnail image upload karo
-    * Exam category chuno (JEE, NEET, SSC, Railways, etc.)
-    * Pricing set karo (Free ya Paid with amount)
-    * Description aur features likho
-- "Edit" button se existing series update karo
-- "Clone" button se series ki copy banao
-- "Delete" button se series hatao
-- "Tests" button se series ke andar ke tests dekho
+A "Test Series" is a package/bundle of multiple tests (like a course folder).
+
+Actions available:
+  - Create New Series:
+      * Enter series name (e.g., "JEE Mains 2025 Full Package")
+      * Upload a banner/thumbnail image
+      * Select exam category (JEE, NEET, SSC, Railways, etc.)
+      * Set pricing: Free or Paid (with amount)
+      * Write a description and feature highlights
+  - Edit   -> Update any existing series details
+  - Clone  -> Duplicate a series with all its tests
+  - Delete -> Permanently remove a series
+  - Tests  -> View and manage tests inside a series
 
 ---
 
-### 3. DIGITAL TEST BANANA
+### 3. CREATE A DIGITAL TEST
 Path: /admin-dashboard/create-test
 
-Steps:
-  Step 1 - Basic Info:
-    - Test naam likho
-    - Konsi series me daalna hai select karo
-    - Test type chuno: Mock / Practice / Previous Year / Subject Wise / Chapter Wise
+Step 1 - Basic Info:
+  - Enter test name
+  - Select which series it belongs to
+  - Choose test type: Mock / Practice / Previous Year / Subject Wise / Chapter Wise
 
-  Step 2 - Questions Config:
-    - Subject select karo (Physics, Chemistry, etc.)
-    - Chapter select karo
-    - Total questions kitne honge
-    - MCQ percentage aur Numerical percentage
+Step 2 - Question Configuration:
+  - Select subjects (Physics, Chemistry, Mathematics, etc.)
+  - Select chapters
+  - Set total number of questions
+  - Set MCQ percentage and Numerical percentage
 
-  Step 3 - Settings:
-    - Duration (minutes me) set karo
-    - Marks per question (+4 default)
-    - Negative marking (-1 default)
-    - Shuffle questions on/off
-    - Show solutions on/off
+Step 3 - Test Settings:
+  - Duration in minutes
+  - Marks per correct answer (default: +4)
+  - Negative marking (default: -1)
+  - Enable/disable question shuffling
+  - Show/hide solutions after submission
 
-  Step 4 - Review & Publish:
-    - Preview dekho
-    - Draft save karo ya directly Publish karo
+Step 4 - Review and Publish:
+  - Preview the complete test
+  - Save as Draft or Publish immediately
 
 ---
 
-### 4. OMR TEST BANANA
+### 4. CREATE AN OMR TEST
 Path: /admin-dashboard/create-omr-test
 
-Kab use karo: Jab offline paper/OMR wala test online system me add karna ho
+Use this when: You want to add a paper-based OMR style test to the platform.
 
-Steps:
-  Step 1 - Basic Info: naam, series, type, duration
-  Step 2 - OMR Template: sections banao (Physics 45 Qs, Chemistry 45 Qs, etc.)
-  Step 3 - Answer Key: har question ka sahi answer mark karo
-  Step 4 - Review & Publish
+Step 1 - Basic Info: name, series, type, duration
+Step 2 - OMR Template: create sections (e.g., Physics 45 Qs, Chemistry 45 Qs)
+Step 3 - Answer Key: mark the correct answer for each question
+Step 4 - Review and Publish
 
 ---
 
-### 5. QUESTION BANK (SABSE IMPORTANT)
+### 5. QUESTION BANK (Most Important)
 Path: /admin-dashboard/question-bank
 
-Yahan saare questions store hote hain jisse tests automatically generate hote hain.
+This is where all questions are stored. Tests pull questions from here automatically.
 
-QUESTION ADD KARNA:
-  - "Add New Question" button dabao
-  - Form me ye bharo:
-      * Question text (English me)
-      * Question text Hindi me (optional)
-      * Question type: MCQ ya Numerical
-      * Options: A, B, C, D (MCQ ke liye)
-      * Correct answer select karo
-      * Subject chuno
-      * Chapter chuno
-      * Unit & Topic (optional)
-      * Difficulty: Easy / Medium / Hard
-      * Marks & Negative marks
-      * Image upload karo (JPG/PNG - optional)
-      * Explanation (English + Hindi - optional)
-  - "Add Question" dabao
+ADD A SINGLE QUESTION:
+  Click "Add New Question" and fill:
+    - Question text in English
+    - Question text in Hindi (optional)
+    - Question type: MCQ or Numerical
+    - For MCQ: Options A, B, C, D
+    - Correct answer (select option or enter number)
+    - Subject, Chapter, Unit, Topic
+    - Difficulty: Easy / Medium / Hard
+    - Marks and Negative marks
+    - Attach image (JPG/PNG) if needed
+    - Explanation in English and Hindi (optional)
+  Click "Add Question" to save.
 
-BULK CSV IMPORT:
-  - "Bulk Import" button se CSV file se hazaron questions ek saath upload karo
-  
-  CSV format:
+BULK CSV IMPORT (Upload thousands of questions at once):
+  Click "Bulk Import" and upload a CSV file in this format:
+
   text, type, options, correctAnswer, subject, chapter, difficulty
-  "Newton's 1st law?", "MCQ", "Inertia,Motion,Gravity,Force", "0", "Physics", "Laws of Motion", "Easy"
-  "Value of g?", "Numerical", "", "9.8", "Physics", "Gravitation", "Easy"
+  "What is Newton's 1st law?","MCQ","Inertia,Motion,Gravity,Force","0","Physics","Laws of Motion","Easy"
+  "Find the value of g at sea level","Numerical","","9.8","Physics","Gravitation","Easy"
 
-FILTER KARNA:
-  - Subject, Chapter, Type, Difficulty se filter lagao
-  - Search box se question dhundho
+FILTER AND SEARCH:
+  - Filter by Subject, Chapter, Type, or Difficulty
+  - Use the search box to find specific questions
+
+EDIT / DELETE:
+  - Click the Edit icon on any question to update it
+  - Click Delete to permanently remove a question
 
 ---
 
 ### 6. STUDENTS MANAGEMENT
 Path: /admin-dashboard/students
 
-- Saare registered students ki list
-- Har student ka: naam, email, phone, join date
-- Purchase history dekho
-- Student block/unblock karo
-- Search & filter karo
+  - View all registered students
+  - See details: name, email, phone, registration date
+  - View each student's purchase history
+  - Block or unblock a student
+  - Search and filter students
 
 ---
 
 ### 7. PAYMENTS
 Path: /admin-dashboard/payments
 
-- Saare payment transactions
-- Kiska payment aaya, kya purchase kiya
-- Amount aur date
-- Revenue analytics
+  - View all transactions
+  - See what each student purchased
+  - Payment amount and date
+  - Revenue analytics
 
 ---
 
-### 8. LIVE CLASSES
+### 8. LIVE CLASSES MANAGEMENT
 Path: /admin-dashboard/live-classes
 
-- Nayi live class schedule karo
-- Teacher assign karo
-- Subject aur batch set karo
-- JaaS virtual classroom se live stream
-- Recorded class links add karo
+  - Schedule a new live class
+  - Assign a teacher/educator
+  - Set subject and batch
+  - Start a live stream using JaaS virtual classroom
+  - Add links to recorded sessions
 
 ---
 
-### 9. PYQs (PREVIOUS YEAR QUESTIONS)
+### 9. PYQs (Previous Year Questions)
 Path: /admin-dashboard/pyqs
 
-- PYQ papers upload karo (PDF format)
-- Exam name, year, subject set karo
-- Free ya paid access set karo students ke liye
+  - Upload PYQ papers in PDF format
+  - Set exam name, year, and subject
+  - Set free or paid access for students
 
 ---
 
 ### 10. RESOURCES
 Path: /admin-dashboard/resources
 
-- Study materials upload karo (PDF, notes, formula sheets)
-- Category wise organize karo
-- Free ya paid access set karo
+  - Upload study materials (PDFs, notes, formula sheets)
+  - Organize by category
+  - Set free or paid access
 
 ---
 
 ### 11. COURSES
 Path: /admin-dashboard/courses
 
-- Video courses banao
-- Lessons/chapters add karo
-- Video content upload karo
-- Course pricing set karo
+  - Create video-based courses
+  - Add chapters and lessons
+  - Upload video content
+  - Set course pricing
 
 ---
 
-### 12. CURRICULUM SETUP (ZAROORI - PEHLE KARO)
-Test series aur question bank se pehle ye setup karo:
+### 12. CURRICULUM SETUP (Do This First!)
+Before adding questions or tests, set up the curriculum structure:
 
-ORDER:
-  1. /admin-dashboard/exams     -> Exams add karo (JEE, NEET, SSC, etc.)
-  2. /admin-dashboard/subjects  -> Subjects add karo (Physics, Chemistry, etc.)
-  3. /admin-dashboard/chapters  -> Chapters add karo (Laws of Motion, etc.)
-  4. /admin-dashboard/topics    -> Topics add karo (Newton's Laws, etc.)
+Order of setup:
+  1. /admin-dashboard/exams     -> Add exam categories (JEE, NEET, SSC, etc.)
+  2. /admin-dashboard/subjects  -> Add subjects (Physics, Chemistry, Maths, etc.)
+  3. /admin-dashboard/chapters  -> Add chapters under each subject
+  4. /admin-dashboard/topics    -> Add topics under each chapter
 
 Hierarchy: Exam -> Subject -> Chapter -> Unit -> Topic
 
@@ -279,180 +284,188 @@ Hierarchy: Exam -> Subject -> Chapter -> Unit -> Topic
 ### 13. INQUIRIES
 Path: /admin-dashboard/inquiries
 
-- Contact form se aaye messages
-- Students ke doubts/queries
+  - Read messages submitted via the Contact form
+  - Respond to student queries
 
 ---
 
-## STUDENT PANEL - Puri Guide
+### 14. SETTINGS
+Path: /admin-dashboard/settings
+
+  - Configure platform-level settings
+
+---
+
+## STUDENT PANEL - Complete Guide
+
 Login URL: http://localhost:5173/login
 
 ---
 
 ### 1. STUDENT DASHBOARD
 Path: /student-dashboard
-- Purchased series
-- Recent test attempts
-- Performance summary
-- Quick action buttons
+  - Overview of purchased series
+  - Recent test attempts
+  - Performance summary
+  - Quick action buttons
 
 ### 2. MARKETPLACE
 Path: /student-dashboard/marketplace
-- Available test series browse karo
-- Category filter lagao
-- Free demo try karo
-- Paid series purchase karo
+  - Browse all available test series
+  - Filter by exam category (JEE, NEET, SSC, etc.)
+  - Try free demo tests
+  - Purchase paid series
 
-### 3. TEST DENA (ONLINE)
-1. Test select karo
-2. Mode chuno: Exam Mode / Practice Mode
-3. Timer start hoga
-4. MCQ me A/B/C/D click karo, Numerical me value type karo
-5. Questions bookmark kar sakte ho
-6. Submit karo
-7. Result page par detailed analysis dekho
+### 3. TAKING AN ONLINE TEST
+  1. Select a test from your dashboard
+  2. Choose mode: Exam Mode or Practice Mode
+  3. A timer will start automatically
+  4. For MCQ: click the correct option (A/B/C/D)
+  5. For Numerical: type the answer value
+  6. Bookmark questions to revisit later
+  7. Submit when done
+  8. View detailed result and analysis
 
-### 4. OMR TEST DENA
-1. OMR test select karo
-2. OMR sheet download karo (PDF)
-3. Print karo aur pen se bharo
-4. Photo lo ya scan karo
-5. Upload karo
-6. System auto-check karega answer key se
+### 4. TAKING AN OMR TEST
+  1. Select an OMR test
+  2. Download the OMR answer sheet PDF
+  3. Print it and fill in answers with a pen
+  4. Take a photo or scan the filled sheet
+  5. Upload the image to the platform
+  6. The system auto-evaluates against the answer key
 
 ### 5. ANALYTICS
 Path: /student-dashboard/analytics
-- Subject-wise accuracy
-- Chapter-wise performance
-- Time analysis per question
-- All India Rank
-- Progress graph (improvement over time)
+  - Subject-wise accuracy breakdown
+  - Chapter-wise performance
+  - Time spent per question analysis
+  - All-India rank among test takers
+  - Score improvement graph over time
 
 ### 6. MY RESOURCES
 Path: /student-dashboard/resources
-- Purchased study material
-- PDF download
+  - Access purchased study materials
+  - Download PDFs
 
 ### 7. LIVE CLASSES & COURSES
 Path: /student-dashboard/courses
-- Enrolled batch ki classes
-- Recorded lectures
-- Course progress
+  - Join live classes for enrolled batches
+  - Watch recorded lectures
+  - Track course progress
 
 ### 8. COMMUNITY
 Path: /student-dashboard/community
-- Doubts post karo
-- Peers se baat karo
-- Teacher answers
+  - Post doubts and questions
+  - Interact with other students
+  - Get answers from teachers
 
 ---
 
-## PUBLIC PAGES (Bina login ke accessible)
+## PUBLIC PAGES (Accessible without login)
 
   /                   -> Home / Landing page
-  /test-series        -> All test series browse
-  /test-series/:id    -> Test series detail & purchase
-  /courses            -> All video courses
-  /pyqs               -> Previous Year Questions
+  /test-series        -> Browse all test series
+  /test-series/:id    -> Test series detail page and purchase
+  /courses            -> Browse all video courses
+  /pyqs               -> Previous Year Question papers
   /resources          -> Free study resources
   /login              -> Login page
-  /signup             -> New account banana
+  /signup             -> Create a new account
   /about              -> About Examinantt
   /contact            -> Contact form
   /privacy-policy     -> Privacy policy
-  /terms              -> Terms & conditions
+  /terms              -> Terms and conditions
   /refund-policy      -> Refund policy
 
 ---
 
-## FIREBASE DATABASE STRUCTURE
+## FIREBASE DATABASE COLLECTIONS
 
-Firestore Collections:
-  users/           -> Student & Admin accounts
+  users/           -> Student and Admin accounts
   testSeries/      -> Test series packages
   tests/           -> Individual tests inside series
   questions/       -> All questions (Question Bank)
-  attempts/        -> Student test attempts & scores
-  purchases/       -> Payment records
-  courses/         -> Video courses
+  attempts/        -> Student test attempts and scores
+  purchases/       -> Payment and purchase records
+  courses/         -> Video-based courses
   liveClasses/     -> Live class sessions
   pyqs/            -> Previous year question papers
-  resources/       -> Study materials
+  resources/       -> Study materials and notes
   batches/         -> Student batches/groups
-  exams/           -> Exam categories (JEE, NEET, etc.)
-  subjects/        -> Subjects (Physics, Chemistry, etc.)
-  chapters/        -> Chapters list
-  topics/          -> Topics list
-  inquiries/       -> Contact form submissions
+  exams/           -> Exam category definitions
+  subjects/        -> Subject list
+  chapters/        -> Chapter list
+  topics/          -> Topic list
+  inquiries/       -> Contact form messages
   certificates/    -> Student achievement certificates
-  community/       -> Community posts & discussions
+  community/       -> Community posts and discussions
 
 ---
 
 ## IMAGE UPLOAD SYSTEM
 
-Upload hone ka order (priority):
+How images are uploaded (in priority order):
 
-1. CLOUDINARY (Primary - Best for production)
-   - Set karo: VITE_CLOUDINARY_CLOUD_NAME aur VITE_CLOUDINARY_UPLOAD_PRESET
-   - Image CDN par store hogi, har jagah accessible
+1. CLOUDINARY (Primary - Recommended for production)
+   - Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET in .env
+   - Image is stored on Cloudinary CDN and accessible from anywhere
+   - Fastest and most reliable option
 
-2. LOCAL SERVER (PDF / Video ke liye only)
-   - Files -> public/uploads/ folder me save
-   - SIRF development me kaam karta hai
-   - Live website par broken image aayega
+2. LOCAL SERVER (For PDFs and videos only)
+   - Files are saved to: public/uploads/
+   - Works only on your local development computer
+   - Will show a broken image on the live website
 
 3. BASE64 FALLBACK (Last resort)
-   - Image compress ho ke database me save
-   - Koi cloud account nahi chahiye
-   - Thoda slow hai badi images ke liye
+   - Image is compressed and saved directly in Firestore
+   - No cloud account needed
+   - Slower for large images
 
-IMPORTANT NOTE:
-  Agar production (live site examinantt.com) par image dikhani hai
-  to CLOUDINARY setup karna ZAROORI hai.
-  Local uploads sirf aapke computer par kaam karte hain.
+IMPORTANT:
+  For the live production site (examinantt.com), you MUST set up Cloudinary.
+  Local uploads only work on your own computer.
 
 ---
 
 ## EMAIL / OTP SYSTEM
 
-  File: server/index.js
-  Port: 3001
+  File:    server/index.js
+  Port:    3001
 
-  Start karne ke liye:
-    npm run server   (alag terminal me)
-    ya
-    npm run dev     (vite ke saath auto-start hota hai)
+  To start the server separately:
+    npm run server   (run in a separate terminal)
 
-  Kya karta hai:
-  - Login ke liye OTP email bhejta hai
-  - Email verification karta hai
+  What it does:
+  - Sends OTP to email for login verification
+  - Handles email-based authentication
 
 ---
 
-## LOGIN / AUTH SYSTEM
+## LOGIN AND AUTH SYSTEM
 
-3 Methods:
-  1. Email + Password  -> Regular login
-  2. Email OTP         -> One-time password via email
-  3. Google Sign-In    -> Firebase Google Auth
+Three login methods are supported:
+  1. Email + Password  -> Standard login
+  2. Email OTP         -> One-time password sent to email
+  3. Google Sign-In    -> Firebase Google OAuth
 
-Admin Account Banana:
-  - Normal signup karo
-  - Firebase Console -> Firestore -> users collection -> us user ka document kholo
-  - role field add karo: "admin"
+How to make a user an Admin:
+  1. The user must first register normally
+  2. Go to Firebase Console -> Firestore -> users collection
+  3. Open that user's document
+  4. Add a field: role = "admin"
+  5. The user will now see the Admin panel on next login
 
 ---
 
-## DEPLOYMENT - VERCEL PAR KAISE DEPLOY KARE
+## DEPLOYMENT ON VERCEL
 
 Steps:
-  1. vercel.com par account banao
-  2. "New Project" -> GitHub repo select karo
-  3. Framework: Vite
-  4. Build Command: npm run build
-  5. Output Directory: dist
-  6. Environment Variables section me ye sab add karo:
+  1. Go to vercel.com and create an account
+  2. Click "New Project" and select the GitHub repository
+  3. Set Framework Preset: Vite
+  4. Set Build Command: npm run build
+  5. Set Output Directory: dist
+  6. Add all Environment Variables (same as your .env file):
        VITE_FIREBASE_API_KEY
        VITE_FIREBASE_AUTH_DOMAIN
        VITE_FIREBASE_PROJECT_ID
@@ -463,65 +476,69 @@ Steps:
        VITE_CLOUDINARY_UPLOAD_PRESET
        VITE_API_URL
        VITE_JAAS_APP_ID
-  7. Deploy karo
+  7. Click Deploy
+
+Note: The backend server (server/index.js) needs to be deployed separately
+on a service like Render, Railway, or a VPS for OTP/email to work in production.
 
 ---
 
-## COMMON PROBLEMS & SOLUTIONS
+## COMMON PROBLEMS AND SOLUTIONS
 
-Problem: Banner image live site par nahi dikh raha
-  Solution: Cloudinary setup karo. Local path production par kaam nahi karta.
+Problem: Banner/thumbnail image not showing on live site
+  Solution: Set up Cloudinary. Local file paths don't work on production servers.
 
-Problem: "Something went wrong" error
-  Solution: Browser F12 -> Console tab me exact error dekho, refresh karo.
+Problem: "Something went wrong" error page
+  Solution: Press F12 in browser, check Console tab for the exact error message.
 
-Problem: Question bank me question add nahi ho raha
-  Solution: Firebase Firestore security rules check karo.
+Problem: Cannot add questions to question bank
+  Solution: Check Firebase Firestore security rules. Make sure write access is allowed.
 
-Problem: Login nahi ho raha
-  Solution: Firebase Authentication console me check karo. Email/Password auth enabled hai?
+Problem: Login is not working
+  Solution: Check Firebase Authentication console. Ensure Email/Password auth is enabled.
 
-Problem: OTP email nahi aa raha
-  Solution: server/index.js chal raha hai? Port 3001 check karo.
+Problem: OTP email is not arriving
+  Solution: Make sure server/index.js is running on port 3001.
 
-Problem: Image upload bahut slow hai
-  Solution: Cloudinary set karo. Base64 conversion badi images ke liye slow hoti hai.
+Problem: Image upload is very slow
+  Solution: Set up Cloudinary. Base64 compression is slow for large images.
 
-Problem: Git push permission denied
-  Solution: gh auth login karo, phir gh auth setup-git, phir git push.
+Problem: Git push is showing permission denied
+  Solution: Run "gh auth login" then "gh auth setup-git" then "git push origin main".
 
-Problem: npm run build fail ho raha hai
-  Solution: npm install dobara karo. TypeScript errors fix karo.
-
----
-
-## GIT WORKFLOW (DAILY USE)
-
-Roz kaam karne ka process:
-  git pull origin main          # Latest code lo pehle
-  # ... apna kaam karo ...
-  git add -A                    # Saare changes stage karo
-  git commit -m "Kya kiya"      # Commit message likho
-  git push origin main          # GitHub par upload karo
-
-GitHub login issue aane par:
-  gh auth login                 # GitHub CLI se login karo
-  gh auth setup-git             # Git credentials update karo
-  git push origin main          # Ab push ho jayega
+Problem: npm run build is failing
+  Solution: Run npm install again. Fix any TypeScript errors shown in the output.
 
 ---
 
-## RECENT CHANGES
+## GIT WORKFLOW (Daily Development)
 
-  23-Oct-2026: Banner upload fix - thumbnailUrl ab cards par sahi dikhta hai
-  23-Oct-2026: Image upload speed fast - artificial delays remove kiye
-  23-Oct-2026: AdminLiveClassesPage crash fix - null-safe toLowerCase
-  23-Oct-2026: Image compression optimize (800px, quality 0.75)
-  23-Oct-2026: Upload progress percentage ab button par dikh raha hai
+Pull latest code before starting work:
+  git pull origin main
+
+After making changes:
+  git add -A
+  git commit -m "Brief description of what changed"
+  git push origin main
+
+If GitHub login issue:
+  gh auth login
+  gh auth setup-git
+  git push origin main
 
 ---
 
-Documentation: 23 October 2026
-Project: Examinantt v0.0.0
+## RECENT CHANGES LOG
+
+  23-Oct-2026 | Banner fix: thumbnailUrl now correctly passed to TestSeriesCard
+  23-Oct-2026 | Speed fix: Removed all artificial delays from admin operations
+  23-Oct-2026 | Crash fix: AdminLiveClassesPage null-safe toLowerCase on filter
+  23-Oct-2026 | Optimization: Image compression reduced to 800px, quality 0.75
+  23-Oct-2026 | UX: Upload progress percentage now shown on Question Bank submit button
+
+---
+
+Last Updated: 23 October 2026
+Project Version: Examinantt v0.0.0
 GitHub: https://github.com/rahul2026km-maker/examinant
-Live Site: https://examinantt.com
+Live Website: https://examinantt.com
